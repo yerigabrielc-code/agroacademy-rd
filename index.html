@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-03b · fix login-nombre, modo-oscuro, notes/seccion -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-03c · fix titulos descargables modo oscuro -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -315,15 +315,15 @@ ul.clean.err li::before{background:var(--crit)} ul.clean.win li::before{backgrou
 
 /* recursos */
 .res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:6px}
-.res{display:flex;gap:13px;padding:16px;border:1px solid var(--border);border-radius:13px;background:var(--panel);box-shadow:var(--shadow)}
+.res{display:flex;gap:13px;padding:16px;border:1px solid var(--border);border-radius:13px;background:var(--panel);box-shadow:var(--shadow);color:var(--text)}
 .res .ri{font-size:22px}
-.res b{display:block;font-size:14.5px}
+.res b{display:block;font-size:14.5px;color:var(--text)}
 .res span{font-size:12.5px;color:var(--muted)}
 
 /* module footer nav */
 .mod-foot{max-width:1060px;margin:40px auto 0;padding:0 40px;display:flex;justify-content:space-between;gap:14px}
 .foot-btn{flex:1;text-align:left;background:var(--panel);border:1px solid var(--border);border-radius:14px;
-  padding:18px 20px;cursor:pointer;font:inherit;box-shadow:var(--shadow);transition:transform .18s,border-color .2s}
+  padding:18px 20px;cursor:pointer;font:inherit;color:var(--text);box-shadow:var(--shadow);transition:transform .18s,border-color .2s}
 .foot-btn:hover{transform:translateY(-2px);border-color:var(--green-l)}
 .foot-btn .dir{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
 .foot-btn .ttl{font-weight:700;margin-top:4px;font-size:15px}
