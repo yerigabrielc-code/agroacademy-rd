@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-03c · fix titulos descargables modo oscuro -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-03d · descargables gated, controles admin, editor certificado -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -319,6 +319,11 @@ ul.clean.err li::before{background:var(--crit)} ul.clean.win li::before{backgrou
 .res .ri{font-size:22px}
 .res b{display:block;font-size:14.5px;color:var(--text)}
 .res span{font-size:12.5px;color:var(--muted)}
+.res.locked{opacity:.62;cursor:not-allowed}
+.res.locked:hover{transform:none;border-color:var(--border)}
+.dl-badge.lock{background:color-mix(in srgb,var(--amber) 22%,var(--panel));color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 45%,transparent)}
+.res-lock-note{display:flex;gap:10px;align-items:flex-start;background:color-mix(in srgb,var(--amber) 13%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--amber) 42%,var(--border));color:var(--text);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:14px;line-height:1.55}
 
 /* module footer nav */
 .mod-foot{max-width:1060px;margin:40px auto 0;padding:0 40px;display:flex;justify-content:space-between;gap:14px}
@@ -590,6 +595,9 @@ body:not([data-screen="curso"]) .controls{display:none}
 .adminp-top .burger{display:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:17px;cursor:pointer}
 .adminp-title{font-family:var(--display);font-weight:800;font-size:19px;flex:1}
 .adminp-top .who{font-size:12.5px;color:var(--muted)}
+.adm-topright{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.adm-ctl{display:flex;gap:8px}
+.adm-ctl .tt{width:36px;height:36px;font-size:16px}
 .adminp-content{flex:1;overflow-y:auto;padding:24px;max-width:1080px;width:100%;margin:0 auto}
 .adminp-side.hide{margin-left:-250px}
 @media(max-width:820px){
@@ -932,6 +940,23 @@ body{font-size:17.5px}
 .acc-row b{color:var(--text)}
 .acc-badge{padding:3px 12px;border-radius:999px;font-size:12.5px;font-weight:700}
 @media(max-width:760px){.acc-grid{grid-template-columns:1fr}}
+/* ---- EDITOR DE CERTIFICADO (admin) ---- */
+.cert-layout{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.15fr);gap:22px;align-items:start;margin:14px 0 26px}
+.cert-form .cf{margin-bottom:12px}
+.cert-form label{display:block;font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:5px}
+.cert-form label small{display:block;font-weight:500;color:var(--muted);font-size:11.5px;margin-top:2px}
+.cert-form input:not([type]),.cert-form input[type=text],.cert-form textarea{width:100%;box-sizing:border-box;padding:10px 12px;
+  border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:14px}
+.cert-form input:focus,.cert-form textarea:focus{outline:0;border-color:var(--green);box-shadow:0 0 0 3px rgba(47,125,79,.16)}
+.cert-form textarea{resize:vertical;line-height:1.5}
+.cf-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cf-row label{margin:0}
+.cert-form input[type=color]{width:54px;height:34px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer}
+.cert-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.cert-preview-col{position:sticky;top:10px}
+.cert-preview-label{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:8px}
+.cert-preview{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+@media(max-width:860px){.cert-layout{grid-template-columns:1fr}.cert-preview-col{position:static}}
 </style>
 </head>
 <body data-screen="login">
@@ -1066,7 +1091,13 @@ body{font-size:17.5px}
       <div class="adminp-top">
         <button class="burger" onclick="document.getElementById('adminSide').classList.toggle('hide')">☰</button>
         <div class="adminp-title" id="adminTitle">Dashboard</div>
-        <div class="who">Sesión: <b>Instructor</b></div>
+        <div class="adm-topright">
+          <div class="who">Sesión: <b>Instructor</b></div>
+          <div class="adm-ctl">
+            <button class="tt" id="admThemeBtn" onclick="toggleTheme()" title="Cambiar tema (claro/oscuro)" aria-label="Cambiar tema">🌙</button>
+            <button class="tt" id="admFsBtn" onclick="toggleFS()" title="Pantalla completa" aria-label="Pantalla completa">⛶</button>
+          </div>
+        </div>
       </div>
       <div class="adminp-content" id="adminBody"></div>
     </main>
@@ -2369,23 +2400,44 @@ function printChecklist(id){const d=moduleData(id);
   s+='<div class="sec"><h2>Puntos de control</h2>'+d.check.map(c=>'<div class="chk"><span class="box"></span><span>'+esc(c)+'</span></div>').join('')+'</div>';
   s+='<div class="sec"><h2>Observaciones</h2><div style="border:1px dashed #ccc;border-radius:8px;height:130px"></div></div>';
   s+=pFoot();openPrint('Checklist - Modulo '+id,MODULES[id].ac,s);}
+const DEFCERT={
+  title:'Certificado de participación y aprobación',
+  org:'AgroAcademy RD 2.0',
+  intro:'Se otorga el presente certificado a',
+  course:'CURSO DE PORCICULTURA APLICADO A REPÚBLICA DOMINICANA',
+  body:'por haber completado el {curso}, compuesto por 12 módulos y un proyecto final aplicado a las condiciones reales del país, aprobando todas las evaluaciones.',
+  note:'',
+  signer:'Firma del instructor / organización',
+  accent:'#215B3A',
+  showCode:true
+};
+let CERTCFG=Object.assign({},DEFCERT);
+try{CERTCFG=Object.assign(CERTCFG,JSON.parse(localStorage.getItem('porci_cert')||'{}'));}catch(e){}
+function certInner(nm,pc,codeArg){
+  const c=CERTCFG,ac=c.accent||'#215B3A';
+  const code=codeArg||('AGRO-RD-'+Date.now().toString(36).toUpperCase().slice(-7));
+  const bodyTxt=esc(c.body||'').replace('{curso}','<b>'+esc(c.course||'')+'</b>');
+  const meta=['Duración: 12 módulos','Evaluaciones aprobadas: '+pc+'/12'];
+  if(c.showCode!==false)meta.push('Código: '+code);
+  return '<div style="text-align:center;padding:44px 40px;border:3px double '+ac+';border-radius:14px;margin:22px;background:#fff">'+
+   '<div style="font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:'+ac+';font-weight:700">'+esc(c.title||'')+'</div>'+
+   (c.org?'<div style="font-size:13px;margin-top:6px;color:#666;font-weight:600;letter-spacing:.04em">'+esc(c.org)+'</div>':'')+
+   '<div style="font-size:15px;margin-top:26px;color:#555">'+esc(c.intro||'')+'</div>'+
+   '<div style="font-size:32px;font-weight:800;margin:10px 0;color:#1e1c19">'+esc((nm||'').toUpperCase())+'</div>'+
+   '<div style="width:120px;height:2px;background:'+ac+';margin:6px auto 20px"></div>'+
+   '<div style="font-size:14px;max-width:540px;margin:0 auto;color:#444;line-height:1.6">'+bodyTxt+'</div>'+
+   (c.note?'<div style="font-size:12.5px;max-width:560px;margin:14px auto 0;color:#777;font-style:italic">'+esc(c.note)+'</div>':'')+
+   '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:26px;margin-top:16px;font-size:12px;color:#666">'+meta.map(m=>'<span>'+esc(m)+'</span>').join('')+'</div>'+
+   '<div style="display:flex;justify-content:space-around;margin-top:46px;gap:40px">'+
+     '<div style="flex:1"><div style="border-top:1.5px solid #333;padding-top:6px;font-size:12px">'+esc(c.signer||'')+'</div></div>'+
+     '<div style="flex:1"><div style="border-top:1.5px solid #333;padding-top:6px;font-size:12px">Fecha: '+new Date().toLocaleDateString('es-DO')+'</div></div>'+
+   '</div></div>';}
 function printCert(nameArg,pcArg){const pc=(pcArg!=null)?pcArg:((typeof passedCount==='function')?passedCount():0);
   if(pc<12){if(!confirm('Aún no se han aprobado los 12 módulos ('+pc+'/12 aprobados). ¿Deseas generar el certificado de todas formas?'))return;}
-  const nm=nameArg?nameArg:((window.prompt('Nombre del participante para el certificado:','')||'').trim()||'Participante');
-  const ac='#215B3A',code='AGRO-RD-'+Date.now().toString(36).toUpperCase().slice(-7);
-  const inner='<div style="text-align:center;padding:44px 40px;border:3px double '+ac+';border-radius:14px;margin:22px">'+
-   '<div style="font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:'+ac+';font-weight:700">Certificado de participación y aprobación</div>'+
-   '<div style="font-size:15px;margin-top:26px;color:#555">Se otorga el presente certificado a</div>'+
-   '<div style="font-size:32px;font-weight:800;margin:10px 0;color:#1e1c19">'+esc(nm.toUpperCase())+'</div>'+
-   '<div style="width:120px;height:2px;background:'+ac+';margin:6px auto 20px"></div>'+
-   '<div style="font-size:14px;max-width:540px;margin:0 auto;color:#444">por haber completado el <b>CURSO DE PORCICULTURA APLICADO A REPÚBLICA DOMINICANA</b>, compuesto por 12 módulos y un proyecto final aplicado a las condiciones reales del país'+(pc>=12?', aprobando todas las evaluaciones.':'.')+'</div>'+
-   '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:26px;margin-top:16px;font-size:12px;color:#666">'+
-     '<span>Duración: 12 módulos</span><span>Evaluaciones aprobadas: '+pc+'/12</span><span>Código: '+code+'</span></div>'+
-   '<div style="display:flex;justify-content:space-around;margin-top:46px;gap:40px">'+
-     '<div style="flex:1"><div style="border-top:1.5px solid #333;padding-top:6px;font-size:12px">Firma del instructor / organización</div></div>'+
-     '<div style="flex:1"><div style="border-top:1.5px solid #333;padding-top:6px;font-size:12px">Fecha: '+new Date().toLocaleDateString('es-DO')+'</div></div>'+
-   '</div></div>';
-  openPrint('Certificado',ac,inner);}
+  let nm=nameArg;
+  if(!nm){const cs=(typeof curStudent==='function')?curStudent():null;
+    nm=(cs&&cs.name&&cs.name!=='Vista de estudiante')?cs.name:((window.prompt('Nombre del participante para el certificado:','')||'').trim()||'Participante');}
+  openPrint('Certificado',CERTCFG.accent||'#215B3A',certInner(nm,pc));}
 /* --- Excel con formato (.xls con colores) --- */
 function xlsDownload(name,tablesHtml){
   const doc='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>'+tablesHtml+'</body></html>';
@@ -2414,18 +2466,24 @@ const REG={
  calc:['Calculadora-Rentabilidad.csv',[['Concepto','Valor (RD$)'],['Costo alimento por cerdo',''],['Otros costos por cerdo',''],['Peso de venta (kg)','100'],['Precio venta RD$/kg',''],['Costos fijos del mes',''],['No. cerdos por mes',''],['',''],['Costo por kg = (alimento+otros)/peso',''],['Margen por cerdo = precio*peso-(alimento+otros)',''],['Punto de equilibrio = fijos/margen por cerdo','']]]
 };
 const REGBYMOD={1:'kpi',2:'gestion',3:'repro',4:'mort',5:'alim',6:'sanit',7:'pesos',8:'kpi',9:'calc',10:'gestion',11:'gestion',12:'calc'};
-function resItem(icon,title,sub,badge,onclick){
+function resItem(icon,title,sub,badge,onclick,locked){
+  if(locked)return '<button class="res locked rv" type="button" onclick="lockedDL()"><div class="ri">'+icon+'</div>'+
+    '<div><b>'+title+'</b><span>'+sub+'</span></div><span class="dl-badge lock">🔒</span></button>';
   return '<button class="res rv" type="button" onclick="'+onclick+'"><div class="ri">'+icon+'</div>'+
     '<div><b>'+title+'</b><span>'+sub+'</span></div><span class="dl-badge '+(badge==='PDF'?'pdf':'excel')+'">'+badge+' &#8595;</span></button>';}
+function lockedDL(){toast('Aprueba la evaluación calificada de este módulo para desbloquear las descargas','🔒');}
 function resGrid(id){const reg=REGBYMOD[id]||'gestion';const rn=(REG[reg]||['archivo'])[0];
-  let h='<div class="res-grid" data-stagger>';
-  h+=resItem('📘','Manual del módulo','Documento con diseño · imprimible','PDF','printManual('+id+')');
-  h+=resItem('📝','Evaluación del módulo','Preguntas + clave · imprimible','PDF','printEval('+id+')');
-  h+=resItem('✅','Checklist de granja','Hoja de verificación · imprimible','PDF','printChecklist('+id+')');
-  h+=resItem('📊','Tablas y parámetros','Excel con formato y colores','Excel','xlsTables('+id+')');
-  h+=resItem('🧮',rn.replace(/\.csv$/,'').replace(/-/g,' '),'Plantilla con formato en Excel','Excel',"xlsReg('"+reg+"')");
-  if(id===12)h+=resItem('🎓','Certificado del curso','Certificado con diseño · imprimible','PDF','printCert()');
-  return h+'</div>';}
+  const locked=!(typeof PREVIEW!=='undefined'&&PREVIEW)&&typeof examPassed==='function'&&!examPassed(id);
+  let h='<div id="resWrap" class="res-wrap">';
+  if(locked)h+='<div class="res-lock-note">🔒 <b>Descargables bloqueados.</b> Aprueba la <b>evaluación calificada</b> de este módulo (nota mínima '+CFG.passing+'%) para desbloquear el manual, la evaluación, el checklist y las plantillas.</div>';
+  h+='<div class="res-grid" data-stagger>';
+  h+=resItem('📘','Manual del módulo','Documento con diseño · imprimible','PDF','printManual('+id+')',locked);
+  h+=resItem('📝','Evaluación del módulo','Preguntas + clave · imprimible','PDF','printEval('+id+')',locked);
+  h+=resItem('✅','Checklist de granja','Hoja de verificación · imprimible','PDF','printChecklist('+id+')',locked);
+  h+=resItem('📊','Tablas y parámetros','Excel con formato y colores','Excel','xlsTables('+id+')',locked);
+  h+=resItem('🧮',rn.replace(/\.csv$/,'').replace(/-/g,' '),'Plantilla con formato en Excel','Excel',"xlsReg('"+reg+"')",locked);
+  if(id===12)h+=resItem('🎓','Certificado del curso','Certificado con diseño · imprimible','PDF','printCert()',locked);
+  return h+'</div></div>';}
 /* --- calculadora de rentabilidad --- */
 function cNum(id){const el=document.getElementById(id);const v=el?parseFloat(el.value):NaN;return isNaN(v)?0:v;}
 function cFmt(v){return (isFinite(v)?v:0).toLocaleString('es-DO',{maximumFractionDigits:2});}
@@ -2503,7 +2561,8 @@ function submitExam(id){const exam=document.getElementById('exam-'+id);if(!exam)
     (pass?'':'<button class="btn btn-ghost" onclick="resetExam('+id+')">🔄 Repetir evaluación</button>');
   const bt=document.getElementById('exambtn-'+id);if(bt)bt.style.display='none';
   updateNav();
-  if(pass){celebrate();checkAchievements();if(id<12&&CFG.gating)setTimeout(()=>toast('Módulo '+(id+1)+' desbloqueado','🔓'),300);}
+  if(pass){celebrate();checkAchievements();if(id<12&&CFG.gating)setTimeout(()=>toast('Módulo '+(id+1)+' desbloqueado','🔓'),300);
+    const rw=document.getElementById('resWrap');if(rw){rw.outerHTML=resGrid(id);const nw=document.getElementById('resWrap');if(nw){try{Anim.reveal(nw);Anim.stagger(nw);}catch(e){}}setTimeout(()=>toast('Descargables del módulo desbloqueados','📥'),600);}}
   setTimeout(()=>res.scrollIntoView({behavior:'smooth',block:'center'}),120);}
 function resetExam(id){const exam=document.getElementById('exam-'+id);if(!exam)return;
   const wrap=exam.parentElement;wrap.innerHTML=renderExam(id);Anim.reveal(wrap);}
@@ -2741,12 +2800,35 @@ function studentProfile(id){const s=getStudent(id);if(!s)return;const pc=student
     (rows?'<h4 style="margin:18px 0 8px">Calificaciones e intentos</h4><div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Módulo</th><th>Nota</th><th>Intentos</th><th>Estado</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p style="color:var(--muted);margin-top:14px">Sin evaluaciones realizadas todavía.</p>');
   openForm('Perfil · '+esc(s.name),body,'<button class="btn btn-ghost" onclick="closeForm()">Cerrar</button><button class="btn btn-primary" onclick="closeForm();editStudent('+jsq(id)+')">Editar datos</button>');}
 /* --- Certificados --- */
-function certsView(){const elig=STUDENTS.filter(s=>studentProgress(s.id)>=12),prog=STUDENTS.filter(s=>studentProgress(s.id)<12);
-  let h='<p class="adm-note">Los estudiantes que aprueban los 12 módulos son elegibles para el certificado.</p>';
-  h+='<h4 style="margin:6px 0 10px">✅ Elegibles ('+elig.length+')</h4>';
+function certsView(){const c=CERTCFG;
+  let h='<p class="adm-note">Personaliza la plantilla del certificado. Al <b>guardar</b>, todos los estudiantes que completen el curso recibirán este diseño con <b>su nombre</b>. Edita a la izquierda y observa la vista previa a la derecha.</p>';
+  h+='<div class="cert-layout"><div class="cert-form">';
+  h+='<div class="cf"><label>Título</label><input id="ce_title" value="'+ea(c.title||'')+'" oninput="certLive()"></div>';
+  h+='<div class="cf"><label>Organización / marca</label><input id="ce_org" value="'+ea(c.org||'')+'" oninput="certLive()"></div>';
+  h+='<div class="cf"><label>Texto de introducción</label><input id="ce_intro" value="'+ea(c.intro||'')+'" oninput="certLive()"></div>';
+  h+='<div class="cf"><label>Nombre del curso</label><input id="ce_course" value="'+ea(c.course||'')+'" oninput="certLive()"></div>';
+  h+='<div class="cf"><label>Texto principal <small>escribe {curso} donde debe ir el nombre del curso en negrita</small></label><textarea id="ce_body" rows="3" oninput="certLive()">'+esc(c.body||'')+'</textarea></div>';
+  h+='<div class="cf"><label>Nota al pie (opcional)</label><textarea id="ce_note" rows="2" oninput="certLive()">'+esc(c.note||'')+'</textarea></div>';
+  h+='<div class="cf"><label>Firma / pie izquierdo</label><input id="ce_signer" value="'+ea(c.signer||'')+'" oninput="certLive()"></div>';
+  h+='<div class="cf cf-row"><label>Color de acento</label><input id="ce_accent" type="color" value="'+(c.accent||'#215B3A')+'" oninput="certLive()"></div>';
+  h+='<div class="cf cf-row"><label>Mostrar código de verificación</label><span class="switch"><input id="ce_code" type="checkbox"'+(c.showCode!==false?' checked':'')+' onchange="certLive()"><span></span></span></div>';
+  h+='<div class="cert-actions"><button class="btn btn-primary" onclick="saveCertCfg()">💾 Guardar plantilla</button><button class="btn btn-ghost" onclick="resetCertCfg()">↩︎ Restaurar</button><button class="btn btn-ghost" onclick="printCert(\'Nombre del Estudiante\',12)">🖨️ Imprimir prueba</button></div>';
+  h+='</div>';
+  h+='<div class="cert-preview-col"><div class="cert-preview-label">Vista previa</div><div class="cert-preview" id="certPreview">'+certInner('Nombre del Estudiante',12)+'</div></div>';
+  h+='</div>';
+  const elig=STUDENTS.filter(s=>studentProgress(s.id)>=12),prog=STUDENTS.filter(s=>studentProgress(s.id)<12);
+  h+='<h4 style="margin:6px 0 10px">✅ Estudiantes elegibles ('+elig.length+')</h4>';
   h+=elig.length?'<div class="mod-list">'+elig.map(s=>'<div class="mod-item"><div class="mnum" style="background:var(--green)">✓</div><div class="mtitle"><b>'+esc(s.name)+'</b><span>'+esc(sectionName(s.section))+' · 12/12 aprobados</span></div><div class="mact"><button onclick="printCertFor('+jsq(s.id)+')">🎓 Generar certificado</button></div></div>').join('')+'</div>':'<div class="adm-empty">Aún no hay estudiantes que hayan completado los 12 módulos.</div>';
   if(prog.length){h+='<h4 style="margin:20px 0 10px">⏳ En progreso ('+prog.length+')</h4><div class="mod-list">'+prog.map(s=>{const pc=studentProgress(s.id);return '<div class="mod-item" style="opacity:.6"><div class="mnum" style="background:var(--line-2);color:var(--text)">'+pc+'</div><div class="mtitle"><b>'+esc(s.name)+'</b><span>'+pc+'/12 aprobados</span></div></div>';}).join('')+'</div>';}
   return h;}
+function certCollect(){const g=id=>document.getElementById(id);if(!g('ce_title'))return;
+  CERTCFG.title=g('ce_title').value;CERTCFG.org=g('ce_org').value;CERTCFG.intro=g('ce_intro').value;
+  CERTCFG.course=g('ce_course').value;CERTCFG.body=g('ce_body').value;CERTCFG.note=g('ce_note').value;
+  CERTCFG.signer=g('ce_signer').value;CERTCFG.accent=g('ce_accent').value;CERTCFG.showCode=g('ce_code').checked;}
+function certLive(){certCollect();const p=document.getElementById('certPreview');if(p)p.innerHTML=certInner('Nombre del Estudiante',12);}
+function saveCertCfg(){certCollect();localStorage.setItem('porci_cert',JSON.stringify(CERTCFG));toast('Plantilla del certificado guardada','🎓');}
+function resetCertCfg(){if(!confirm('¿Restaurar la plantilla del certificado a los valores por defecto?'))return;
+  CERTCFG=Object.assign({},DEFCERT);localStorage.setItem('porci_cert',JSON.stringify(CERTCFG));renderAdmin();toast('Plantilla restaurada','↩️');}
 function printCertFor(id){const s=getStudent(id);if(!s)return;printCert(s.name,studentProgress(id));}
 /* --- Configuración --- */
 function configView(){const ac=adminCred();
@@ -3035,9 +3117,13 @@ function restoreChecks(root){
 /* theme */
 const themeBtn=document.getElementById('themeBtn');
 function setTheme(t){document.documentElement.setAttribute('data-theme',t);
-  themeBtn.textContent=t==='dark'?'☀️':'🌙';localStorage.setItem('porci_theme',t);}
-themeBtn.onclick=()=>{const cur=document.documentElement.getAttribute('data-theme');
-  setTheme(cur==='dark'?'light':'dark');};
+  const ic=t==='dark'?'☀️':'🌙';
+  if(themeBtn)themeBtn.textContent=ic;
+  const at=document.getElementById('admThemeBtn');if(at)at.textContent=ic;
+  localStorage.setItem('porci_theme',t);}
+function toggleTheme(){const cur=document.documentElement.getAttribute('data-theme');
+  setTheme(cur==='dark'?'light':'dark');}
+if(themeBtn)themeBtn.onclick=toggleTheme;
 (function(){const saved=localStorage.getItem('porci_theme');
   if(saved)setTheme(saved);
   else setTheme(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');})();
@@ -3190,10 +3276,14 @@ router();
     (data||[]).forEach(r=>{try{localStorage.setItem('porci::'+uid+'::exam_m'+r.module,JSON.stringify(recFromRow(r)));}catch(e){}});}catch(e){}}
   function putLocalStudent(uid,prof){try{const s={id:uid,name:prof.full_name||prof.email||'Estudiante',email:prof.email||'',phone:prof.phone||'',enrolled:prof.enrolled_at||'',section:prof.section_id||'',status:prof.status||'activo',pass:'',notes:prof.notes||''};
     const i=STUDENTS.findIndex(x=>x.id===uid);if(i>=0)STUDENTS[i]=s;else STUDENTS.push(s);}catch(e){}}
+  async function pullSettings(){try{const {data}=await sb.from('settings').select('*').eq('id',1).maybeSingle();
+    if(data&&data.cert){try{const cj=(typeof data.cert==='string')?JSON.parse(data.cert):data.cert;
+      if(typeof CERTCFG!=='undefined'){CERTCFG=Object.assign({},DEFCERT,cj);localStorage.setItem('porci_cert',JSON.stringify(CERTCFG));}}catch(e){}}}catch(e){}}
+  window._pullCertSettings=pullSettings;
   async function applyProfile(user,prof){
-    if(prof.role==='admin'){SESSION={role:'ADMIN'};saveSession();location.hash='#/admin';router();return;}
+    if(prof.role==='admin'){SESSION={role:'ADMIN'};saveSession();await pullSettings();location.hash='#/admin';router();return;}
     SESSION={role:'STUDENT',id:user.id};saveSession();STU=user.id;localStorage.setItem('porci_active',user.id);
-    putLocalStudent(user.id,prof);await pullProgress(user.id);loadStudent();location.hash='#/curso';router();}
+    putLocalStudent(user.id,prof);await pullProgress(user.id);await pullSettings();loadStudent();location.hash='#/curso';router();}
 
   /* ---- LOGIN ---- */
   doLogin=async function(){
@@ -3266,8 +3356,14 @@ router();
       const {data:prog}=await sb.from('progress').select('*');
       for(const k in CLOUDPROG)delete CLOUDPROG[k];
       (prog||[]).forEach(r=>{(CLOUDPROG[r.user_id]=CLOUDPROG[r.user_id]||{})[r.module]=recFromRow(r);});
+      await pullSettings();
     }catch(e){toast('No se pudieron cargar los datos de la nube','⛔');}
   }
+  /* ---- guardar plantilla de certificado en la nube (para todos los estudiantes) ---- */
+  saveCertCfg=async function(){certCollect();localStorage.setItem('porci_cert',JSON.stringify(CERTCFG));
+    const {error}=await sb.from('settings').update({cert:CERTCFG}).eq('id',1);
+    if(error){toast('Guardado solo en este equipo. Para publicarlo a los estudiantes falta la columna "cert" (te paso 1 línea de SQL).','⚠️');}
+    else toast('Plantilla guardada y publicada para los estudiantes','🎓');};
   /* progreso de OTROS estudiantes (para el admin) desde la nube */
   const _studentPassed=studentPassed;
   studentPassed=function(id,m){if(CLOUDPROG[id])return !!(CLOUDPROG[id][m]&&CLOUDPROG[id][m].passed);return _studentPassed(id,m);};
