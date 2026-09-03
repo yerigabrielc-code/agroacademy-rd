@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-03 · mi-cuenta + login sin nombre -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-03b · fix login-nombre, modo-oscuro, notes/seccion -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -555,6 +555,7 @@ body:not([data-screen="curso"]) .controls{display:none}
 .login-card h2{font-family:var(--display);font-size:24px;margin:18px 0 4px}
 .login-card .lsub{font-size:13.5px;color:#c9c2b6;margin-bottom:22px}
 .login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.login-field[hidden]{display:none!important}
 .login-field label{font-size:12.5px;font-weight:600;color:#c9c2b6}
 .login-field input{font:inherit;font-size:15px;padding:13px 15px;border-radius:11px;border:1.5px solid #3a342c;background:#161311;color:#fff}
 .login-field input:focus{border-color:var(--green-l);outline:none}
@@ -905,28 +906,30 @@ body{font-size:17.5px}
 }
 /* ---- MI CUENTA ---- */
 .account{max-width:1100px;margin:0 auto;padding:clamp(18px,3vw,40px) clamp(16px,3vw,44px)}
-.acc-back{background:none;border:0;color:var(--muted,#9a9184);font-size:14px;cursor:pointer;padding:6px 0;font-weight:600}
-.acc-back:hover{color:var(--fg,#1c1a17)}
+.acc-back{background:none;border:0;color:var(--muted);font-size:14px;cursor:pointer;padding:6px 0;font-weight:600}
+.acc-back:hover{color:var(--text)}
 .acc-id{display:flex;align-items:center;gap:18px;margin-top:10px}
 .acc-ava{width:70px;height:70px;border-radius:20px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
   font-family:var(--display);font-weight:800;font-size:32px;color:#fff;background:linear-gradient(135deg,#2F7D4F,#1c5836);box-shadow:0 8px 22px rgba(47,125,79,.35)}
-.acc-eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:#2F7D4F;font-weight:800}
-.acc-id h1{font-family:var(--display);font-size:clamp(26px,3.4vw,38px);margin:2px 0 3px;line-height:1.1}
-.acc-sub{color:var(--muted,#9a9184);font-size:15px}
+.acc-eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--green-l,#4CAF6E);font-weight:800}
+.acc-id h1{font-family:var(--display);font-size:clamp(26px,3.4vw,38px);margin:2px 0 3px;line-height:1.1;color:var(--text)}
+.acc-sub{color:var(--muted);font-size:15px}
 .acc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px}
 .acc-info{grid-column:1/-1}
-.acc-card{background:var(--card,#fff);border:1px solid var(--line,#e7e2d9);border-radius:18px;padding:clamp(18px,2.4vw,28px);box-shadow:0 4px 18px rgba(0,0,0,.05)}
-.acc-card h3{font-family:var(--display);font-size:19px;margin:0 0 16px;display:flex;align-items:center;gap:8px}
-.acc-card label{display:block;font-size:13px;font-weight:700;color:var(--muted,#7a746b);margin:14px 0 6px;letter-spacing:.01em}
-.acc-card input{width:100%;padding:12px 14px;border:1.5px solid var(--line,#e7e2d9);border-radius:11px;font-size:15.5px;
-  background:var(--bg,#fbfaf7);color:var(--fg,#1c1a17);transition:border-color .15s,box-shadow .15s;box-sizing:border-box}
-.acc-card input:focus{outline:0;border-color:#2F7D4F;box-shadow:0 0 0 3px rgba(47,125,79,.14)}
-.acc-card input:disabled{opacity:.62;cursor:not-allowed}
+.acc-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:clamp(18px,2.4vw,28px);box-shadow:var(--shadow,0 4px 18px rgba(0,0,0,.05))}
+.acc-card h3{font-family:var(--display);font-size:19px;margin:0 0 16px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.acc-card label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px;letter-spacing:.01em}
+.acc-card input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:15.5px;
+  background:var(--bg);color:var(--text);transition:border-color .15s,box-shadow .15s;box-sizing:border-box}
+.acc-card input::placeholder{color:var(--muted);opacity:.75}
+.acc-card input:focus{outline:0;border-color:var(--green,#2F7D4F);box-shadow:0 0 0 3px rgba(47,125,79,.18)}
+.acc-card input:disabled{opacity:.6;cursor:not-allowed}
 .acc-btn{margin-top:18px;width:100%}
-.acc-note{font-size:12.5px;color:var(--muted,#9a9184);margin-top:12px;line-height:1.5}
-.acc-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line,#eee7dc);font-size:15px}
+.acc-note{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+.acc-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);font-size:15px}
 .acc-row:last-of-type{border-bottom:0}
-.acc-row span{color:var(--muted,#7a746b)}
+.acc-row span{color:var(--muted)}
+.acc-row b{color:var(--text)}
 .acc-badge{padding:3px 12px;border-radius:999px;font-size:12.5px;font-weight:700}
 @media(max-width:760px){.acc-grid{grid-template-columns:1fr}}
 </style>
@@ -3283,9 +3286,11 @@ router();
     sb.from('profiles').update({status:ns}).eq('id',id).then(({error})=>{if(error){toast('No se pudo: '+error.message,'⛔');return;}s.status=ns;renderStudentsTable();toast('Estudiante '+(ns==='inactivo'?'desactivado':'activado'),ns==='inactivo'?'⏸':'✔');});};
   saveStudentForm=function(){const id=document.getElementById('f_id').value; if(!id){toast('Los estudiantes se registran solos en modo nube.','ℹ️');return;}
     const name=(document.getElementById('f_name').value||'').trim();if(!name){toast('El nombre es obligatorio','✍️');return;}
-    const patch={full_name:name,email:document.getElementById('f_email').value.trim(),phone:document.getElementById('f_phone').value.trim(),enrolled_at:document.getElementById('f_enr').value||null,section_id:document.getElementById('f_sec').value||null,status:document.getElementById('f_st').value,notes:document.getElementById('f_notes').value.trim()};
+    const notes=document.getElementById('f_notes').value.trim();
+    /* 'notes' no existe como columna en profiles → no se envía a la nube (se conserva local) */
+    const patch={full_name:name,email:document.getElementById('f_email').value.trim(),phone:document.getElementById('f_phone').value.trim(),enrolled_at:document.getElementById('f_enr').value||null,section_id:document.getElementById('f_sec').value||null,status:document.getElementById('f_st').value};
     sb.from('profiles').update(patch).eq('id',id).then(({error})=>{if(error){toast('No se pudo guardar: '+error.message,'⛔');return;}
-      const s=getStudent(id);if(s)Object.assign(s,{name:patch.full_name,email:patch.email,phone:patch.phone,enrolled:patch.enrolled_at||'',section:patch.section_id||'',status:patch.status,notes:patch.notes});
+      const s=getStudent(id);if(s)Object.assign(s,{name:patch.full_name,email:patch.email,phone:patch.phone,enrolled:patch.enrolled_at||'',section:patch.section_id||'',status:patch.status,notes:notes});
       closeForm();renderStudentsTable();toast('Estudiante guardado','✅');});};
   deleteStudent=function(id){const s=getStudent(id);if(!s)return;
     askConfirm('¿Eliminar a '+s.name+'? Se borrará su perfil y progreso de la nube.',function(){
