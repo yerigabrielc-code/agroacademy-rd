@@ -807,15 +807,7 @@ body:not([data-screen="curso"]) .controls{display:none}
 .brand-logo img,.login-logo img,.adminp-brand .lg img{width:100%;height:100%;object-fit:contain;display:block}
 .login-logo{width:56px;height:56px}
 
-/* ver como estudiante (preview) */
-#previewBar{display:none;position:fixed;top:0;left:0;right:0;z-index:70;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
-  background:linear-gradient(90deg,#5865F2,#4049b5);color:#fff;padding:9px 16px;font-size:13.5px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.28)}
-body.preview #previewBar{display:flex}
-body.preview .main{padding-top:46px}
-body.preview #navToggle{top:58px}
-body.preview .controls{top:54px}
-#previewBar button{font:inherit;font-weight:700;cursor:pointer;border:0;border-radius:9px;padding:7px 15px;background:rgba(255,255,255,.22);color:#fff;transition:background .2s}
-#previewBar button:hover{background:rgba(255,255,255,.35)}
+/* ver como estudiante (preview) — la franja superior se quitó; el regreso al admin queda en el panel del estudiante */
 .adminp-menu .prev-btn{color:#8fd6a8;background:rgba(88,101,242,.14)}
 .adminp-menu .prev-btn:hover{background:rgba(88,101,242,.28);color:#fff}
 
@@ -1127,11 +1119,6 @@ body{font-size:17.5px}
       <button class="btn btn-danger" id="confirmYes">Eliminar</button>
     </div>
   </div>
-</div>
-
-<div id="previewBar">
-  <span>👁️ Estás viendo el curso <b>como estudiante</b> (vista previa del instructor)</span>
-  <button onclick="exitPreview()">← Volver al panel admin</button>
 </div>
 
 <div id="toastWrap"></div>
@@ -2746,17 +2733,72 @@ function xlsTables(id){const d=moduleData(id),ac=MODULES[id].ac;
   let h='<table><tr><td style="font-family:Calibri;font-size:16pt;font-weight:bold;color:'+ac+'">Módulo '+id+' — '+esc(d.title)+'</td></tr></table><br>';
   h+=d.tables.map(t=>xlsTable(t.cap,t.head,t.rows,ac)).join('');
   xlsDownload(pad(id)+'-Tablas.xls',h);}
-function xlsReg(k){const r=REG[k];if(!r)return;const head=r[1][0],rows=r[1].slice(1);
-  xlsDownload(r[0].replace(/\.csv$/,'.xls'),xlsTable(r[0].replace(/-/g,' ').replace(/\.csv$/,''),head,rows,'#215B3A'));}
+function xlsReg(k){const r=REG[k];if(!r)return;
+  const h=r[1].map(t=>xlsTable(t.title,t.head,t.rows,'#215B3A')).join('');
+  xlsDownload(r[0].replace(/\.csv$/,'.xls'),h);}
 const REG={
- kpi:['Tablero-KPI.csv',[['KPI','Meta ref.','Valor actual'],['Destetados/cerda/ano','22-28',''],['Conversion CA','2.6-3.0',''],['Ganancia diaria (g)','700-900',''],['Mortalidad %','<10-12',''],['Dias a mercado','150-175','']]],
- gestion:['Excel-Gestion-Granja.csv',[['Pestana sugerida','Contenido'],['Cerdas','Ficha reproductiva por cerda'],['Alimentacion','Consumo y CA por lote'],['Sanidad','Vacunas y tratamientos'],['Mortalidad','Muertes y causas'],['Tablero','KPI calculados']]],
- repro:['Registro-Reproductivo.csv',[['Cerda ID','Fecha servicio','Verraco/IA','Parto previsto','Nacidos vivos','Nacidos muertos','Destetados','Observaciones'],['Ej-01','','','','','','','']]],
- mort:['Registro-Mortalidad.csv',[['Fecha','Etapa','No. muertos','Causa probable','Accion','Observaciones'],['','','','','','']]],
- alim:['Registro-Alimentacion.csv',[['Fecha','Lote/Etapa','Alimento (kg)','No. animales','Peso prom (kg)','Observaciones'],['','','','','','']]],
- sanit:['Registro-Sanitario.csv',[['Fecha','Lote/Animal','Producto/Vacuna','Dosis','Via','Responsable','Observaciones'],['','','','','','','']]],
- pesos:['Registro-Pesos.csv',[['Fecha','Lote','No. animales','Peso prom (kg)','GDP (g/dia)','Observaciones'],['','','','','','']]],
- calc:['Calculadora-Rentabilidad.csv',[['Concepto','Valor (RD$)'],['Costo alimento por cerdo',''],['Otros costos por cerdo',''],['Peso de venta (kg)','100'],['Precio venta RD$/kg',''],['Costos fijos del mes',''],['No. cerdos por mes',''],['',''],['Costo por kg = (alimento+otros)/peso',''],['Margen por cerdo = precio*peso-(alimento+otros)',''],['Punto de equilibrio = fijos/margen por cerdo','']]]
+ kpi:['Tablero-KPI.csv',[
+   {title:'Tablero de KPI — metas y seguimiento trimestral',head:['KPI','Meta de referencia','Cómo se calcula','Mes 1','Mes 2','Mes 3'],
+    rows:[['Destetados/cerda/año','22-28','destetados ÷ cerdas ÷ años','','',''],
+      ['Partos/cerda/año','2.2-2.4','partos ÷ cerdas ÷ años','','',''],
+      ['Nacidos vivos/parto','11-14','conteo directo al parto','','',''],
+      ['Conversión alimenticia (CA)','2.6-3.0','kg de alimento ÷ kg ganados','','',''],
+      ['Ganancia diaria (g/día)','700-900','(peso final - inicial) ÷ días','','',''],
+      ['Mortalidad total (%)','menos de 10-12','(muertos ÷ nacidos) x 100','','',''],
+      ['Días a mercado','150-175','edad al peso de venta','','',''],
+      ['Costo por kg producido (RD$)','su meta propia','costo total ÷ kg producidos','','',''],
+      ['Días no productivos por cerda','el menor posible','días vacía sin preñez ni lactancia','','','']]}]],
+ gestion:['Excel-Gestion-Granja.csv',[
+   {title:'Cerdas — ficha reproductiva (resumen)',head:['Cerda ID','Fecha servicio','Verraco/IA','Parto previsto (+114 d)','Nacidos vivos','Destetados','Próximo celo esperado (+21 d si vacía)'],
+    rows:[['Ej-01 (ejemplo)','01/03','V-04','23/06','12','11','22/03'],['','','','','','',''],['','','','','','',''],['','','','','','',''],['','','','','','',''],['','','','','','',''],['','','','','','',''],['','','','','','','']]},
+   {title:'Alimentación — consumo y conversión por lote',head:['Fecha','Lote/Etapa','Alimento consumido (kg)','No. animales','Peso prom (kg)','CA del período'],
+    rows:[['01/03 (ejemplo)','Engorde A','420','20','65','2.8'],['','','','','',''],['','','','','',''],['','','','','',''],['','','','','',''],['','','','','',''],['','','','','','']]},
+   {title:'Sanidad — vacunas y tratamientos',head:['Fecha','Lote/Animal','Producto','Dosis','Vía','Responsable'],
+    rows:[['15/03 (ejemplo)','Lote destete B','Circovirus + Mycoplasma','2 cc','Intramuscular','Encargado sanidad'],['','','','','',''],['','','','','',''],['','','','','',''],['','','','','',''],['','','','','','']]},
+   {title:'Mortalidad — registro y causas',head:['Fecha','Etapa','No. muertos','Causa probable','Acción tomada'],
+    rows:[['10/03 (ejemplo)','Paridera','1','Aplastamiento','Revisar zona de calor'],['','','','',''],['','','','',''],['','','','',''],['','','','','']]},
+   {title:'Tablero — KPI calculados del mes',head:['KPI','Meta ref.','Este mes'],
+    rows:[['Destetados/cerda/año','22-28',''],['Conversión (CA)','2.6-3.0',''],['Ganancia diaria (g)','700-900',''],['Mortalidad %','menos de 10-12',''],['Costo por kg (RD$)','su meta','']]}]],
+ repro:['Registro-Reproductivo.csv',[
+   {title:'Registro reproductivo por cerda',head:['Cerda ID','Fecha servicio','Verraco/IA','Parto previsto (+114 d)','Nacidos vivos','Nacidos muertos','Destetados','Próximo celo (si vacía, +21 d)','Observaciones'],
+    rows:[['EP001 (ejemplo)','07/08','L-493','09/11','13','1','12','—','Parto normal, sin asistencia'],
+      ['','','','','','','','',''],['','','','','','','','',''],['','','','','','','','',''],
+      ['','','','','','','','',''],['','','','','','','','',''],['','','','','','','','',''],
+      ['','','','','','','','',''],['','','','','','','','',''],['','','','','','','','',''],
+      ['','','','','','','','',''],['','','','','','','','','']]}]],
+ mort:['Registro-Mortalidad.csv',[
+   {title:'Registro de mortalidad',head:['Fecha','Etapa','No. muertos','Causa probable','Acción tomada','Observaciones'],
+    rows:[['10/03 (ejemplo)','Paridera','1','Aplastamiento','Revisar zona de calor y guarda-lechón',''],
+      ['22/04 (ejemplo)','Destete','2','Diarrea','Reforzar higiene, calor y calostro previo',''],
+      ['','','','','',''],['','','','','',''],['','','','','',''],['','','','','',''],
+      ['','','','','',''],['','','','','',''],['','','','','',''],['','','','','',''],
+      ['','','','','',''],['','','','','','']]}]],
+ alim:['Registro-Alimentacion.csv',[
+   {title:'Registro de alimentación y conversión',head:['Fecha','Lote/Etapa','Alimento consumido (kg)','No. animales','Peso promedio (kg)','CA del período','Observaciones'],
+    rows:[['01/03 (ejemplo)','Engorde A','420','20','65','2.8',''],
+      ['','','','','','',''],['','','','','','',''],['','','','','','',''],
+      ['','','','','','',''],['','','','','','',''],['','','','','','',''],
+      ['','','','','','',''],['','','','','','',''],['','','','','','','']]}]],
+ sanit:['Registro-Sanitario.csv',[
+   {title:'Registro sanitario — vacunas y desparasitaciones',head:['Fecha','Lote/Animal','Producto/Vacuna','Dosis','Vía','Responsable','Próxima aplicación','Observaciones'],
+    rows:[['Semana 21 (ejemplo)','Lote engorde C','Circovirus + Mycoplasma','2 cc','Intramuscular','Encargado sanidad','Semana 22',''],
+      ['Semana 22 (ejemplo)','Lote engorde C','Triple: Leptospira/Erisipela/Parvovirus','2 cc','Intramuscular','Encargado sanidad','Semana 23',''],
+      ['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],
+      ['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],
+      ['','','','','','','','']]}]],
+ pesos:['Registro-Pesos.csv',[
+   {title:'Registro de pesos y ganancia diaria',head:['Fecha','Lote','No. animales','Peso prom (kg)','Días desde el pesaje anterior','GDP (g/día)','Observaciones'],
+    rows:[['01/03 (ejemplo)','Engorde A','20','45','14','750',''],
+      ['15/03 (ejemplo)','Engorde A','20','56','14','786',''],
+      ['','','','','','',''],['','','','','','',''],['','','','','','',''],
+      ['','','','','','',''],['','','','','','',''],['','','','','','','']]}]],
+ calc:['Calculadora-Rentabilidad.csv',[
+   {title:'Ejemplo resuelto (referencia, con números de muestra)',head:['Concepto','Valor'],
+    rows:[['Costo alimento por cerdo (RD$)','2,500'],['Otros costos por cerdo (RD$)','1,200'],['Peso de venta (kg)','100'],['Precio de venta (RD$/kg)','95'],['Costos fijos del mes (RD$)','30,000'],['No. de cerdos vendidos por mes','20'],
+      ['— Costo por kg = (alimento+otros)/peso','RD$37.00'],['— Margen por cerdo = precio×peso-(alimento+otros)','RD$5,800'],['— Punto de equilibrio = fijos/margen por cerdo','~6 cerdos/mes']]},
+   {title:'Tu cálculo (llena tus propios números)',head:['Concepto','Valor (RD$)'],
+    rows:[['Costo alimento por cerdo',''],['Otros costos por cerdo',''],['Peso de venta (kg)',''],['Precio de venta (RD$/kg)',''],['Costos fijos del mes',''],['No. de cerdos vendidos por mes',''],
+      ['— Costo por kg = (alimento+otros)/peso',''],['— Margen por cerdo = precio×peso-(alimento+otros)',''],['— Punto de equilibrio = fijos/margen por cerdo','']]}]]
 };
 const REGBYMOD={1:'kpi',2:'gestion',3:'repro',4:'mort',5:'alim',6:'sanit',7:'pesos',8:'kpi',9:'calc',10:'gestion',11:'gestion',12:'calc'};
 function resItem(icon,title,sub,badge,onclick,locked){
@@ -2832,7 +2874,8 @@ function renderExam(id){const qs=(typeof quizFor==='function'?quizFor(id):(modul
   return h;}
 function examSection(id,label){return '<section class="block">'+label+'<h3 class="rv">Evaluación calificada del módulo</h3>'+
   '<p class="rv" style="color:var(--muted);margin:-2px 0 6px">Selecciona una respuesta por pregunta y pulsa <b>Enviar</b>. '+
-  (CFG.gating?('Debes obtener <b>'+CFG.passing+'%</b> para desbloquear el siguiente módulo.'):'Puedes avanzar libremente.')+'</p>'+renderExam(id)+'</section>';}
+  ((typeof PREVIEW!=='undefined'&&PREVIEW)?'Vista previa del instructor: el examen no bloquea nada aquí, todo el contenido y las descargas están abiertos.':
+   (CFG.gating?('Debes obtener <b>'+CFG.passing+'%</b> para desbloquear el siguiente módulo.'):'Puedes avanzar libremente.'))+'</p>'+renderExam(id)+'</section>';}
 function selOpt(el){const exam=el.closest('.exam');if(exam.classList.contains('graded'))return;
   el.parentElement.querySelectorAll('.exq-opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function submitExam(id){const exam=document.getElementById('exam-'+id);if(!exam)return;
