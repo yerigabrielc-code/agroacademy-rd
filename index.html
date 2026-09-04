@@ -754,7 +754,8 @@ body:not([data-screen="curso"]) .controls{display:none}
   --wac:#2F7D4F;--wac-l:color-mix(in srgb,var(--wac) 52%,#fff);
   background:radial-gradient(120% 100% at 80% 8%,color-mix(in srgb,var(--wac) 55%,#161311),var(--char));
   color:#fff;display:grid;place-items:center;overflow:hidden}
-#wipe.run{animation:wipe 2.8s cubic-bezier(.76,0,.24,1) forwards}
+#wipe.run{animation:wipeIn .6s cubic-bezier(.76,0,.24,1) forwards;pointer-events:auto;cursor:pointer}
+#wipe.leaving{animation:wipeOut .6s cubic-bezier(.76,0,.24,1) forwards}
 /* barrera de energía en el borde de avance del wipe (arriba durante la subida, abajo durante el retiro) */
 #wipe::before,#wipe::after{content:"";position:absolute;left:0;right:0;height:3px;z-index:2;
   background:linear-gradient(90deg,transparent,var(--wac-l) 20%,#fff 50%,var(--wac-l) 80%,transparent);
@@ -797,6 +798,14 @@ body:not([data-screen="curso"]) .controls{display:none}
 .wipe-bar-fill{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#fff,var(--wac-l));position:relative;z-index:1}
 .wipe-pct{font-family:var(--mono);font-size:12px;color:#fff;opacity:0;letter-spacing:.04em;min-width:32px;text-align:left;font-variant-numeric:tabular-nums}
 .wipe-step{font-family:var(--mono);font-size:12.5px;color:#a89f92;margin-top:14px;opacity:0;letter-spacing:.16em}
+.wipe-cta{margin-top:30px;display:inline-flex;align-items:center;gap:9px;font:inherit;font-weight:700;
+  font-size:14.5px;padding:13px 30px;border-radius:100px;border:1.5px solid var(--wac-l);
+  background:rgba(255,255,255,.07);color:#fff;cursor:pointer;opacity:0;
+  transition:background .2s ease,transform .2s ease}
+.wipe-cta:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
+.wipe-cta .arw{transition:transform .2s ease}
+.wipe-cta:hover .arw{transform:translateX(3px)}
+#wipe.run .wipe-cta{animation:wpulse 2.2s ease-in-out .4s infinite}
 #wipe.run.css-anim .wipe-kicker{animation:win 1.3s .40s ease forwards}
 #wipe.run.css-anim .wipe-num{animation:win 1.4s .52s cubic-bezier(.2,.8,.2,1) forwards}
 #wipe.run.css-anim .wipe-title{animation:win 1.3s .80s ease forwards}
@@ -805,12 +814,15 @@ body:not([data-screen="curso"]) .controls{display:none}
 #wipe.run.css-anim .wipe-bar-fill{animation:wbar 1s 1.14s cubic-bezier(.4,0,.2,1) forwards}
 #wipe.run.css-anim .wipe-pct{animation:winb 1.1s 1.10s ease forwards}
 #wipe.run.css-anim .wipe-step{animation:winb 1.1s 1.22s ease forwards}
-@keyframes wipe{0%{transform:scaleY(0);transform-origin:bottom}20%{transform:scaleY(1);transform-origin:bottom}
-  80%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
+#wipe.run.css-anim .wipe-cta{animation:winhold .6s 1.75s ease forwards}
+@keyframes wipeIn{0%{transform:scaleY(0);transform-origin:bottom}100%{transform:scaleY(1);transform-origin:bottom}}
+@keyframes wipeOut{0%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
 @keyframes win{0%{opacity:0;transform:translateY(20px)}30%{opacity:1;transform:none}88%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
 @keyframes winb{0%{opacity:0}30%,88%{opacity:1}100%{opacity:0}}
+@keyframes winhold{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
 @keyframes wbar{from{width:0}to{width:100%}}
 @keyframes wscan{0%{top:6%;opacity:0}10%{opacity:.9}50%{opacity:.9}92%{opacity:0}100%{top:94%;opacity:0}}
+@keyframes wpulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--wac-l) 0%,transparent)}50%{box-shadow:0 0 16px 4px color-mix(in srgb,var(--wac-l) 45%,transparent)}}
 
 /* microinteracciones de evaluación */
 @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
@@ -1080,6 +1092,7 @@ body{font-size:17.5px}
       <span class="wipe-pct" id="wipePct">0%</span>
     </div>
     <div class="wipe-step" id="wipeStep"></div>
+    <button class="wipe-cta" id="wipeCta" type="button">Continuar <span class="arw">→</span></button>
   </div>
 </div>
 
@@ -3481,11 +3494,13 @@ function goto(id, skipWipe){
   document.getElementById('wipeSub').textContent=(target.tags||[]).slice(0,3).join('   ·   ');
   document.getElementById('wipeStep').textContent='MÓDULO '+id+' DE 12';
   const pctEl=document.getElementById('wipePct'); if(pctEl)pctEl.textContent='0%';
-  wipe.classList.remove('run','css-anim'); void wipe.offsetWidth; wipe.classList.add('run');
+  const cta=document.getElementById('wipeCta'); if(cta){cta.style.opacity=0;cta.disabled=false;}
+  wipe.classList.remove('run','leaving','css-anim'); void wipe.offsetWidth; wipe.classList.add('run');
+  wipe.onclick=wipeAdvance;
   if(window.anime){
     const items=['#wipeKicker','#wipeNum','#wipeTitle','#wipeSub','#wipe .wipe-bar','#wipePct','#wipeStep'];
     anime.remove('#wipe .wipe-inner *');
-    anime.set(items,{opacity:0,translateY:20}); anime.set('#wipeBar',{width:'0%'});
+    anime.set(items,{opacity:0,translateY:20}); anime.set('#wipeBar',{width:'0%'}); anime.set('#wipeCta',{opacity:0,translateY:14,scale:.94});
     setTimeout(()=>wipeRollNum(document.getElementById('wipeNum'),target.num||''),520);
     anime.timeline({easing:'easeOutCubic'})
       .add({targets:'#wipeKicker',opacity:[0,1],translateY:[20,0],duration:380},400)
@@ -3496,11 +3511,24 @@ function goto(id, skipWipe){
       .add({targets:'#wipeBar',width:['0%','100%'],duration:680,easing:'easeInOutQuart',
         update:a=>{if(pctEl)pctEl.textContent=Math.round(a.progress)+'%';}},1140)
       .add({targets:'#wipeStep',opacity:[0,1],translateY:[10,0],duration:340},1220)
-      // pausa de lectura: todo queda visible y quieto ~290ms antes de desvanecer
-      .add({targets:items,opacity:0,translateY:-12,duration:320,delay:anime.stagger(20)},1850);
+      // el contenido queda quieto y visible; el botón invita a continuar cuando el estudiante esté listo
+      .add({targets:'#wipeCta',opacity:[0,1],translateY:[14,0],scale:[.94,1],duration:420},1900);
   }else{wipe.classList.add('css-anim');if(pctEl)pctEl.textContent='100%';}
   setTimeout(doMount,620);
-  setTimeout(()=>wipe.classList.remove('run','css-anim'),2850);
+  // ya no se cierra sola: espera el clic del estudiante (ver wipeAdvance)
+}
+function wipeAdvance(){
+  const wipe=document.getElementById('wipe');
+  if(!wipe.classList.contains('run')||wipe.classList.contains('leaving'))return;
+  wipe.onclick=null;
+  const items=['#wipeKicker','#wipeNum','#wipeTitle','#wipeSub','#wipe .wipe-bar','#wipePct','#wipeStep','#wipeCta'];
+  if(window.anime){
+    anime.remove(items);
+    anime.set(items,{opacity:1,translateY:0});
+    anime({targets:items,opacity:0,translateY:-10,duration:240,easing:'easeInCubic',delay:anime.stagger(14)});
+  }else{items.forEach(sel=>{const el=document.querySelector(sel);if(el)el.style.opacity='0';});}
+  setTimeout(()=>{wipe.classList.add('leaving');},180);
+  setTimeout(()=>{wipe.classList.remove('run','leaving','css-anim');},820);
 }
 
 /* checklist persistence (por estudiante) + progreso */
