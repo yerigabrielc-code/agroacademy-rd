@@ -1622,6 +1622,7 @@ function module2(){
       <div class="step rv"><div><b>Distancia de otras granjas y poblados</b><p>Bioseguridad + convivencia: aleje de otras porquerizas (riesgo PPA) y de casas (olores).</p></div></div>
       <div class="step rv"><div><b>Acceso y energía</b><p>Vía transitable todo el año para alimento y venta; electricidad o plan alterno (solar/planta).</p></div></div>
       <div class="step rv"><div><b>Orientación al viento</b><p>Naves con el eje perpendicular a la brisa dominante para ventilación natural cruzada.</p></div></div>
+      <div class="step rv"><div><b>Orientación este–oeste</b><p>En climas cálidos, orientar las naves de este a oeste da la mayor área de sombra posible sobre los corrales durante el día.</p></div></div>
     </div>
   </section>
 
@@ -1700,6 +1701,21 @@ function module2(){
           <tr><td>Cerda lactante</td><td class="num">20–35 L</td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="tbl-wrap rv" style="margin-top:14px">
+      <table>
+        <caption>Otra referencia de consumo de agua, por etapa (Escuela de Porcicultores)</caption>
+        <thead><tr><th>Etapa</th><th class="num">Consumo aprox. (L/día)</th></tr></thead>
+        <tbody>
+          <tr><td>Preiniciador</td><td class="num">1</td></tr>
+          <tr><td>Crecimiento</td><td class="num">4–12</td></tr>
+          <tr><td>Desarrollo</td><td class="num">9–15</td></tr>
+          <tr><td>Engorde</td><td class="num">15–20</td></tr>
+          <tr><td>Cerda gestante</td><td class="num">20–27</td></tr>
+          <tr><td>Cerda lactante</td><td class="num">10–30 (hasta 60 en climas muy cálidos)</td></tr>
+        </tbody>
+      </table>
+      <div class="note rv" style="margin-top:8px"><div class="ico">💧</div><div><p>Verá cifras algo distintas entre esta tabla y la anterior: ambas son de <span class="ref-flag">REFERENCIA</span> pero vienen de fuentes distintas. El consumo real varía según el tipo de bebedero, el calor de su zona y el manejo de cada granja — mida el consumo real de su granja para tener su propio número.</p></div></div>
     </div>
   </section>
 
@@ -2088,6 +2104,12 @@ const DEEP={
    {label:'Profundización — pubertad',title:'Pubertad y peso al primer servicio: por qué no hay que apurar a la primeriza',kind:'table',
     cap:'Referencia de pubertad y desempeño (Williams et al., 2005; Milner, Virginia-Maryland Regional College of Veterinary Medicine)',head:['Parámetro','Referencia'],
     rows:[['Rango de pubertad','5–8 meses, con 90–115 kg de peso'],['Un híbrido vs. una raza pura','El híbrido suele alcanzar la pubertad antes que la raza pura'],['Peso al primer servicio recomendado','135–150 kg (más nacidos totales por camada que servir muy liviana o muy pesada)'],['Riesgo de servir con bajo peso','Menos fertilidad, más uso de hormonas, más cojeras y mayor descarte de la cerda']]},
+   {label:'Profundización — consecuencias reales',title:'Lo que cuesta no respetar el peso al primer servicio',kind:'concepts',
+    items:[['Menos lechones nacidos','Servir por debajo de 135 kg reduce el promedio de nacidos totales por camada frente a servir en el rango 135–159 kg (Williams et al., 2005).'],
+      ['Más uso de hormonas y más cojeras','Apurar a una reemplaza inmadura obliga a inducir o repetir con hormonas, y aumenta el riesgo de problemas de patas.'],
+      ['Más mortalidad y más descarte','Las cerdas servidas antes de tiempo se agotan y se descartan antes, subiendo el porcentaje de reemplazos que hay que criar cada año.'],
+      ['Se pierde la distribución de partos','Reemplazar cerdas fuera de tiempo desordena el calendario de partos por lotes, complicando el «todo dentro–todo fuera» del Módulo 7.'],
+      ['Sistema inmune más débil','Una reemplaza que no llegó a su desarrollo completo transmite menos inmunidad por calostro a su primera camada.']]},
    {label:'Profundización — el verraco',title:'El verraco: manejo y estimulación de la cerda',kind:'concepts',
     items:[['Elegir el verraco celador','No hace falta que sea el mejor genéticamente: su trabajo es detectar y estimular el celo. Debe estar sano, ser manejable y tener buen libido.'],
       ['Presencia del verraco','El contacto diario (vista, olor, contacto físico breve) adelanta y sincroniza el celo de las cerdas, sobre todo en primerizas.'],
@@ -2099,7 +2121,31 @@ const DEEP={
    {label:'Profundización — buenas prácticas de IA',title:'Objetivos de la inseminación y cómo conservar el semen',kind:'prose',
     body:['La inseminación artificial (IA) busca tres cosas: <b>menor costo operativo</b> que mantener varios verracos, <b>ahorro de tiempo</b> del personal, y mejor organización que logre altos índices de preñez con <b>menos de 15% de repetición</b> de celo.',
       'Durante la monta o la IA, estimule a la cerda haciendo peso sobre el lomo y acariciando sus tetas: eso ayuda al transporte del semen. Tenga paciencia — el proceso completo dura entre 4 y 5 minutos y no debe apurarse.'],
-    note:['warn','🌡️','Nunca refrigere el semen','Guárdelo en un sitio fresco y oscuro, nunca dentro de una nevera doméstica: el frío intenso mata los espermatozoides. La calidad del semen (transporte, dilución, temperatura y tiempo desde la colección) debe revisarse con microscopio antes de usarlo.']}
+    note:['warn','🌡️','Nunca refrigere el semen','Guárdelo en un sitio fresco y oscuro, nunca dentro de una nevera doméstica: el frío intenso mata los espermatozoides. La calidad del semen (transporte, dilución, temperatura y tiempo desde la colección) debe revisarse con microscopio antes de usarlo.']},
+   {label:'Profundización — razas maternas en detalle',title:'Landrace y Large White: en qué se parecen y en qué no',kind:'table',
+    cap:'Rasgos distintivos de las dos razas maternas más usadas (referencia)',head:['Raza','Rasgo distintivo'],
+    rows:[['Landrace','Alta prolificidad, más lechones nacidos, celo fácil de detectar, alta producción de leche'],['Large White','Excelente aptitud materna, gran facilidad de adaptación y rusticidad, alta fertilidad y fecundidad, buena conversión alimenticia y calidad de carne']]},
+   {label:'Profundización — condición corporal de la reemplazo',title:'Condición corporal: ni flaca ni gorda al primer servicio',kind:'table',
+    cap:'Escala de condición corporal (BCS, 1 a 5) — consecuencias en los extremos',head:['Puntaje','Consecuencia si servimos ahí'],
+    rows:[['2 (flaca)','Fallas reproductivas'],['3 (meta)','Punto ideal para el primer servicio'],['4 (gorda)','Alto costo de alimento, problemas en el parto, más mortalidad predestete']]},
+   {label:'Profundización — meta de crecimiento de la reemplazo',title:'La meta: 0.65 kg de ganancia diaria hasta el primer servicio',kind:'prose',
+    body:['Desde el nacimiento hasta el primer servicio, la reemplazo debe ganar en promedio no menos de <b>0.65 kg por día</b>. Una reemplazo que crece más lento de lo debido llega tarde (o con menos nacidos) a su primer parto; herramientas como el caliper, la cinta de grasa dorsal o el puntaje visual (1–5) ayudan a verificar que llegue al servicio con la condición corporal correcta (meta: 3).',
+      'Antes del servicio se recomienda el <b>flushing</b>: subir la energía de la dieta (de ración de crecimiento, a ración de preparación, y luego a la ración de flushing con una curva de alimentación tipo DanBred) en las 2–3 semanas previas al servicio, para estimular la ovulación.'],
+    note:['tip','📈','La alimentación restringida rinde mejor','Comparada con dejar comer a voluntad (semi ad libitum), la alimentación restringida en la etapa de crecimiento produce reemplazos con mejor peso al primer servicio y lechones más pesados al nacer.']},
+   {label:'Profundización — sincronización del celo',title:'Sincronizar el celo con un progestágeno oral (ej. Regumate)',kind:'steps',
+    items:[['Qué hace','Se administra por vía oral, mezclado en el alimento, durante 18 días seguidos; mientras se administra, suprime el celo.'],
+      ['Al retirarlo','El celo aparece de forma agrupada, típicamente unos 5 días después de la última dosis — mucho más predecible que esperar el ciclo natural de 21 días.'],
+      ['Para qué sirve','Agrupar los partos por lotes, lo cual facilita aplicar «todo dentro–todo fuera» en parideras y en destete (ver Módulo 7).'],
+      ['Buena práctica','Registre la fecha de la última dosis y confirme el celo real de cada cerda: no todas responden igual al protocolo.']]},
+   {label:'Profundización — ejemplo de calendario de cubrición',title:'Un calendario real: del destete a la monta',kind:'prose',
+    body:['Ejemplo con destete un jueves: el domingo y el lunes siguientes se observa el celo; se monta 24 horas después de detectarlo (lunes por la mañana) y de nuevo 12 horas después (lunes por la tarde). El celo debería reaparecer, si no hubo preñez, el jueves de la semana siguiente — exactamente los 21 días del ciclo.'],
+    note:['tip','📅','Anticipe el celo post-destete','La mayoría de las cerdas vuelven a mostrar celo entre 4 y 7 días después del destete. Tenga el verraco y el equipo de IA listos desde ese día.']},
+   {label:'Profundización — calendario de cubrición en tabla',title:'El mismo calendario, en tabla',kind:'table',
+    cap:'Ejemplo de calendario de cubrición desde un destete en jueves (referencia)',head:['Día','Evento'],
+    rows:[['Jueves','Destete'],['Domingo y lunes','Se observa el celo'],['Lunes por la mañana','Monta (24 h después de detectar el celo)'],['Lunes por la tarde','Segunda monta (12 h después de la primera)'],['Jueves siguiente','Si no hubo preñez, el celo debería reaparecer (ciclo de 21 días)']]},
+   {label:'Profundización — ficha de control de celos',title:'Cómo se ve una ficha de control de celos en primerizas',kind:'table',
+    cap:'Ejemplo de ficha de control de celos, con una fila ya llena como modelo (referencia)',head:['Cerda','1er celo','2do celo','3er celo','Monta'],
+    rows:[['Ejemplo (EP001)','15 oct · 23 sem','3–5 nov · 26 sem','25 nov · 29 sem','16 dic · 32 sem · 140 kg'],['La suya','','','','']]}
  ]},
  4:{sections:[
    {label:'Profundización — el neonato',title:'Por qué el lechón recién nacido es tan frágil',kind:'prose',
@@ -2127,6 +2173,7 @@ const DEEP={
       ['4. Marque y registre','Identifique a los lechones movidos (marca de color) para llevar el control de qué camada pertenece a cada cerda.']]},
    {label:'Profundización — protocolo neonatal ampliado',title:'Objetivos y calendario ampliado de manejo del lechón',kind:'steps',
     items:[['Al nacer: secar y dar calor','Secar al lechón de inmediato baja su gasto de energía: un estudio de campo (Olivo Espinal et al., 2021) mostró que un lechón sin secar cae hasta 34.2 °C de temperatura rectal a los 30 minutos, contra 36–37 °C en los lechones secados. Ese diferencial de calor es, literalmente, la diferencia entre sobrevivir o no.'],
+      ['Hierro y desparasitante','La inyección de hierro es indispensable (la leche de la cerda no cubre el requerimiento): un frasco de 250 ml, a razón de 2 cc por lechón, cuesta alrededor de 700 pesos y alcanza para un buen número de camadas — es una de las inversiones sanitarias más baratas del ciclo. Aplique también el desparasitante que use su granja según el protocolo local.'],
       ['Castración','Se realiza con buena técnica e higiene en los primeros días, cuando el protocolo de la granja lo requiera; reduce el olor sexual de la carne en los machos destinados a venta.'],
       ['Día 5: alimento líquido','Se introduce un suplemento líquido en la paridera para acostumbrar al lechón a comer algo distinto a la leche.'],
       ['Día 10: alimento sólido','Se ofrece alimento sólido (preiniciador) en comederos pequeños dentro de la paridera: cuanto antes coma sólido, más suave será la transición al destete.'],
@@ -2137,7 +2184,10 @@ const DEEP={
     note:['tip','🐖','Agrupe por tamaño, no solo por edad','Junte lechones de peso similar en el mismo corral: los muy pequeños compiten en desventaja por comida y agua frente a los grandes, y se atrasan aún más.']},
    {label:'Profundización — fases de alimentación post-destete',title:'Las tres fases de alimentación tras el destete',kind:'table',
     cap:'Duración orientativa de cada fase de alimentación (referencia)',head:['Fase','Duración típica'],
-    rows:[['Fase 1','1 semana (hasta 2 semanas)'],['Fase 2','1 a 2 semanas (hasta 2 semanas)'],['Fase 3','El resto del período, hasta 3 semanas']]}
+    rows:[['Fase 1','1 semana (hasta 2 semanas)'],['Fase 2','1 a 2 semanas (hasta 2 semanas)'],['Fase 3','El resto del período, hasta 3 semanas']]},
+   {label:'Profundización — ficha de parto',title:'Cómo se ve una ficha de parto por cerda',kind:'table',
+    cap:'Plantilla de ficha de parto — cópiela para su registro (referencia)',head:['Dato','Parto 1','Parto 2','Promedio'],
+    rows:[['Fecha de monta','','',''],['Fecha de parto','','',''],['Total nacidos','','',''],['Nacidos vivos','','',''],['Muertos en paridera','','',''],['Destetados','','',''],['Comentario','','','']]}
  ]},
  5:{sections:[
    {label:'Profundización — nutrientes',title:'Qué necesita realmente el cerdo para crecer',kind:'prose',
@@ -2175,7 +2225,13 @@ const DEEP={
       ['Respiratorias — Streptococcus suis / Haemophilus parasuis (Glässer) / Actinobacillus pleuropneumoniae (APP)','Causan neumonía y pueden matar rápido en brotes agudos; requieren diagnóstico veterinario y protocolo de tratamiento.'],
       ['Digestivas — Colibacilosis','Diarrea causada por E. coli, frecuente en lechones recién destetados; se combate con higiene, calor y buen manejo del destete.'],
       ['Digestivas — Ileítis','Inflamación del intestino delgado que afecta el crecimiento; más común en cerdos de engorde con estrés o cambios bruscos de dieta.'],
-      ['Piel — Dermatitis exudativa (Staphylococcus)','Conocida como «enfermedad de la piel grasienta»: lesiones húmedas y costrosas en lechones jóvenes. Se previene con higiene de la paridera y buen manejo de heridas.']]}
+      ['Piel — Dermatitis exudativa (Staphylococcus)','Conocida como «enfermedad de la piel grasienta»: lesiones húmedas y costrosas en lechones jóvenes. Se previene con higiene de la paridera y buen manejo de heridas.']]},
+   {label:'Profundización — ejemplo de calendario de vacunación',title:'Un calendario de vacunación real, semana a semana (ejemplo — ajústelo con su veterinario)',kind:'table',
+    cap:'Protocolo de vacunación de cerdos en crecimiento (ejemplo de referencia)',head:['Semana de edad','Vacuna o producto'],
+    rows:[['21','Circovirus + Mycoplasma'],['22','Triple: Leptospira, Erisipela y Parvovirus'],['23','Circovirus + Mycoplasma (refuerzo)'],['24','Triple: Leptospira, Erisipela y Parvovirus (refuerzo)'],['25','Desparasitación con Ivermectina']]},
+   {label:'Profundización — costo de la sanidad',title:'La sanidad también es un costo que hay que presupuestar',kind:'prose',
+    body:['Un frasco de vacuna Circovirus + Mycoplasma rinde unas 50 dosis y se aplican 2 dosis por cerdo; una vacuna triple (Leptospira, Erisipela y Parvovirus) suele venir en frascos de 10 dosis; la Ivermectina se compra por frasco de 100 ml. Cotice estos productos en su zona y súmelos al costo por cerdo del Módulo 9 — la sanidad no es un gasto opcional, es parte del costo/kg.'],
+    note:['warn','💉','Precios de referencia, no de este manual','Los precios de vacunas y desparasitantes cambian con el tiempo y el proveedor. Cotice siempre con su veterinario o casa comercial antes de presupuestar.']}
  ]},
  7:{sections:[
    {label:'Profundización — la línea de producción',title:'El cerdo avanza como una línea de producción',kind:'prose',
@@ -2202,7 +2258,9 @@ const DEEP={
     rows:[['0','1.35','30'],['21','1.73','42.6'],['42','2.16','58.6'],['63','2.60','76.9'],['84','2.79','96.4'],['140','2.79','139.2']]},
    {label:'Profundización — cómo agrupar el corral',title:'Cómo repartir un lote grande dentro del corral',kind:'table',
     cap:'Distribución de un lote de cerdos por categoría (ejemplo de referencia)',head:['Categoría','% del lote'],
-    rows:[['Cerdos más pequeños','10%'],['Hospital (enfermos o lesionados)','5%'],['Retrasados (fuera de tipo)','10%'],['Retiros diarios / cerdos graduados','5%'],['Población normal','70%']]}
+    rows:[['Cerdos más pequeños','10%'],['Hospital (enfermos o lesionados)','5%'],['Retrasados (fuera de tipo)','10%'],['Retiros diarios / cerdos graduados','5%'],['Población normal','70%']]},
+   {label:'Profundización — objetivos de la alimentación en engorde',title:'Los 4 objetivos de alimentar bien en crecimiento-engorde',kind:'concepts',
+    items:[['Reducir el costo alimenticio','El alimento es el mayor costo de la granja: cada ajuste aquí impacta el costo/kg del Módulo 9.'],['Aumentar la conversión alimenticia','Menos kg de alimento por kg de peso ganado.'],['Aumentar la ganancia diaria de peso','Llegar más rápido al peso de venta.'],['Obtener un animal magro','El mercado paga mejor la carne magra que la grasa.']]}
  ]},
  8:{sections:[
    {label:'Profundización — medir para mejorar',title:'Lo que no se mide, no se mejora',kind:'prose',
@@ -2237,11 +2295,28 @@ const DEEP={
     cap:'Comparación de un caso de ejemplo con precios de un momento dado en RD — actualícelo con sus precios de hoy',head:['Modelo','Inversión aprox.','Ganancia aprox. por ciclo','Ciclo aprox.'],
     rows:[['Comprar lechones y engordar (50 animales, de 10 a 100 kg)','RD$442,043','RD$307,957','~4–5 meses'],['Preñar cerdas y vender al destete (10 cerdas, 100 lechones)','RD$319,745 (llegada a gestación + alimentación)','RD$197,900','~5.2 meses'],['Preñar cerdas y vender cerdos terminados / ciclo completo (10 cerdas, 100 animales)','RD$790,882–930,193','RD$372,168–709,118','~5–14 meses (el primer ciclo es más largo)']]},
    {label:'Profundización — ventajas y desventajas',title:'Qué gana y qué arriesga cada modelo',kind:'concepts',
-    items:[['Comprar lechones y engordar','Ventaja: mejor sanidad y menor uso de medicina al no tener reproductoras. Desventaja: depende de comprar lechones de calidad a buen precio en cada ciclo.'],
-      ['Preñar y vender al destete','Ventaja: menor capital, ingresos más frecuentes y mayor estabilidad. Desventaja: exige más tecnicismo en manejo reproductivo.'],
-      ['Preñar y vender cerdos terminados (ciclo completo)','Ventaja: mejor margen por animal a largo plazo. Desventaja: requiere mayor capital inicial y mayor exposición a enfermedades por tener todas las etapas juntas.']]},
+    items:[['Comprar lechones y engordar','Ventaja: ingresos altos y ciclo más corto (no cría, solo engorda). Desventaja: mayor prevalencia de enfermedades y gasto en medicina, por recibir animales de distintos orígenes.'],
+      ['Preñar y vender al destete','Ventaja: mejor sanidad, menor uso de medicina y mayor estabilidad — menor capital y ciclo más frecuente. Desventaja: exige más tecnicismo en manejo reproductivo.'],
+      ['Preñar y vender cerdos terminados (ciclo completo)','Ventaja: mejor sanidad, al controlar todo el proceso sin comprar animales de afuera; mejor margen por animal a largo plazo. Desventaja: requiere mayor capital inicial.']]},
+   {label:'Profundización — dos formas de calcular el costo del lechón',title:'¿Cuánto cuesta realmente producir un lechón destetado?',kind:'prose',
+    body:['Hay dos maneras válidas de calcularlo, y dan números muy distintos. <b>Opción 1 (simple):</b> tome el costo acumulado hasta el destete (compra o mantenimiento de la cerda + alimentación de preñada + alimentación de parida) y divídalo entre los lechones destetados de ese ciclo. En un ejemplo de referencia, esto dio <b>~3,197 pesos por lechón</b>.',
+      '<b>Opción 2 (amortizada):</b> si la cerda es suya y va a parir varias veces, reparta su costo de compra entre su <b>vida útil productiva (unos 7 partos)</b> en vez de cargarlo todo al primer ciclo. En el mismo ejemplo, esto bajó el costo a <b>~1,244 pesos por lechón</b> — casi la tercera parte.'],
+    note:['tip','🧮','Use la opción correcta según su caso','Si compra una cerda de reemplazo cada ciclo (o no piensa repetir), use la Opción 1. Si la cerda seguirá pariendo, la Opción 2 refleja mejor su costo real y evita que se «asuste» con el primer ciclo.']},
+   {label:'Profundización — el segundo ciclo cambia el negocio',title:'Por qué el primer ciclo no es representativo de la rentabilidad real',kind:'prose',
+    body:['En el modelo de vender al destete, la inversión de un ejemplo de referencia se recuperó en unos <b>10.5 meses</b> vendiendo a 3,200 pesos por lechón; de ahí en adelante, cada ciclo (~5.2 meses) es ganancia casi limpia porque ya no hay que comprar reproductoras.',
+      'En el modelo de ciclo completo pasa algo similar y más marcado: el primer ciclo carga el costo de comprar las cerdas y el verraco, pero <b>desde el segundo parto en adelante</b> ese gasto desaparece y solo quedan alimento, vacunas y desparasitantes — en el mismo ejemplo, la ganancia salta a un ritmo mucho mayor cada ~9 meses.'],
+    note:['warn','📊','No juzgue un modelo solo por el primer ciclo','El ciclo completo parece «más caro» al inicio porque incluye comprar el pie de cría. Compare siempre la rentabilidad del segundo ciclo en adelante, que es la que se repite año tras año.']},
+   {label:'Profundización — un presupuesto siempre puede quedar corto',title:'Ojo con los costos «pendientes de definir»',kind:'prose',
+    body:['Incluso el ejemplo de referencia usado en este módulo dejaba una partida de <b>medicación general sin definir</b> en uno de los modelos, además del costo de la mano de obra. Un presupuesto que parece completo puede estar subestimando el costo real si olvida rubros como medicina general, mano de obra, transporte o imprevistos.'],
+    note:['crit','⚠️','Revise su lista antes de decidir','Antes de comprometer capital, verifique que su presupuesto incluya: alimento, pie de cría, vacunas y desparasitantes, medicina general, mano de obra, transporte e imprevistos. Lo que se olvida en el papel, se paga en la granja.']},
    {label:'Profundización — cómo se calcula el alimento de un lote',title:'El método del 3% del peso vivo para presupuestar alimento',kind:'steps',
-    items:[['1. Calcule el peso vivo total','Peso promedio del animal × número de animales del lote.'],['2. Aplique el 3%','Un cerdo consume, en promedio, cerca del 3% de su peso vivo en alimento por día (varía por etapa; úselo solo como estimado rápido).'],['3. Multiplique por los días de esa fase','Así obtiene el total de kilos de alimento que necesita el lote durante esa fase.'],['4. Convierta a sacos/fundas','Divida los kilos entre el peso del saco (20, 40 o 100 lb según la fase) para saber cuántos sacos comprar.'],['5. Multiplique por el precio del saco','Ese es el costo de alimento de esa fase. Sume todas las fases para obtener el costo total del ciclo.']]}
+    items:[['1. Calcule el peso vivo total','Peso promedio del animal × número de animales del lote.'],['2. Aplique el 3%','Un cerdo consume, en promedio, cerca del 3% de su peso vivo en alimento por día (varía por etapa; úselo solo como estimado rápido).'],['3. Multiplique por los días de esa fase','Así obtiene el total de kilos de alimento que necesita el lote durante esa fase.'],['4. Convierta a sacos/fundas','Divida los kilos entre el peso del saco (20, 40 o 100 lb según la fase) para saber cuántos sacos comprar.'],['5. Multiplique por el precio del saco','Ese es el costo de alimento de esa fase. Sume todas las fases para obtener el costo total del ciclo.']]},
+   {label:'Profundización — cuánto alimento toma producir un cerdo',title:'De 0 a 120 kg: cuánto alimento consume realmente un cerdo',kind:'table',
+    cap:'Desglose de alimento total para producir un cerdo de 120 kg (ejemplo de referencia)',head:['Etapa','Alimento aproximado'],
+    rows:[['Alimento de la cerda (parte proporcional)','~60 kg'],['Alimento del lechón hasta el destete (20 kg)','~30 kg'],['Alimento de 20 a 120 kg, con CA 3.2','~320 kg'],['Alimento de 20 a 120 kg, con CA 2.6 (mejor conversión)','~260 kg']]},
+   {label:'Profundización — desglose de alimento por fase (ejemplo)',title:'Cómo se distribuye el costo de alimento dentro de un ciclo',kind:'table',
+    cap:'Desglose por fase del modelo «comprar lechones y engordar», 50 animales de 10 kg (ejemplo de referencia)',head:['Fase','Duración','Costo aprox.'],
+    rows:[['Fase 1 (preiniciador)','1 semana','RD$16,380'],['Fase 2 (iniciador)','2 semanas','RD$26,320'],['Fase 3','3 semanas','RD$21,378'],['Crecimiento','4 semanas','RD$56,910'],['Desarrollo','4 semanas','RD$82,355'],['Engorde','3 semanas','RD$69,300']]}
  ]},
  10:{sections:[
    {label:'Profundización — vender bien',title:'Producir es la mitad; vender bien es la otra',kind:'prose',
@@ -2288,7 +2363,7 @@ function deepBlocks(id,L){const d=DEEP[id];if(!d)return '';let h='';
       if(sec.note)h+='<div class="note '+sec.note[0]+' rv"><div class="ico">'+sec.note[1]+'</div><div><b>'+sec.note[2]+'</b><p>'+sec.note[3]+'</p></div></div>';}
     else if(sec.kind==='concepts'||sec.kind==='glossary'){h+='<div class="concepts" data-stagger>'+sec.items.map(k=>'<div class="concept rv"><b>'+k[0]+'</b><p>'+k[1]+'</p></div>').join('')+'</div>';}
     else if(sec.kind==='steps'||sec.kind==='faq'){h+='<div class="steps" data-stagger>'+sec.items.map(k=>'<div class="step rv"><div><b>'+k[0]+'</b><p>'+k[1]+'</p></div></div>').join('')+'</div>';}
-    else if(sec.kind==='table'){h+='<div class="tbl-wrap rv"><table><caption>'+(sec.cap||'')+'</caption><thead><tr>'+sec.head.map((c,i)=>'<th'+(i>0?' class="num"':'')+'>'+c+'</th>').join('')+'</tr></thead><tbody>'+sec.rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i>0?' class="num"':'')+'>'+c+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'+(sec.ref===false?'':'<div class="note warn rv"><div class="ico">⚠️</div><div><p>Valores de <span class="ref-flag">REFERENCIA</span>: ajústelos a su granja y su zona.</p></div></div>');}
+    else if(sec.kind==='table'){h+='<div class="tbl-wrap rv"><table><caption>'+(sec.cap||'')+'</caption><thead><tr>'+sec.head.map((c,i)=>'<th'+(i>0?' class="num"':'')+'>'+c+'</th>').join('')+'</tr></thead><tbody>'+sec.rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i>0?' class="num"':'')+'>'+c+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';}
     h+='</section>';});
   return h;}
 
@@ -2317,7 +2392,7 @@ function scaffoldModule(id){
     h+=`<section class="block">${L('Tablas y parámetros productivos')}<h3 class="rv">${t.cap}</h3><div class="tbl-wrap rv"><table><caption>Parámetros de referencia — ajustar a su granja</caption>
       <thead><tr>${t.head.map((c,i)=>`<th${i>0?' class="num"':''}>${c}</th>`).join('')}</tr></thead>
       <tbody>${t.rows.map(r=>`<tr>${r.map((c,i)=>`<td${i>0?' class="num"':''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-      <div class="note warn rv"><div class="ico">⚠️</div><div><p>Valores de <span class="ref-flag">REFERENCIA</span>. Ajústelos con datos reales de su granja y su zona antes de decidir.</p></div></section>`;
+      </section>`;
   });
   // 5b. gráfico dinámico
   if(typeof CHARTS!=='undefined'&&CHARTS[id]){const c=CHARTS[id];
