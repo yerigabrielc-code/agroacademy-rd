@@ -399,6 +399,16 @@ ul.clean.err li::before{background:var(--crit)} ul.clean.win li::before{backgrou
 @media(max-width:640px){.pstep-cell:nth-child(odd){border-right:0}}
 @media(min-width:641px){.pstep-cell:nth-child(odd){border-right:1px solid var(--border)}}
 
+/* fotos e ilustraciones */
+.pic-card{margin:18px 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);background:var(--panel)}
+.pic-card img{width:100%;height:auto;display:block;max-height:460px;object-fit:cover;background:var(--ivory-2)}
+.pic-cap{padding:11px 16px;font-size:13px;color:var(--muted);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-start}
+.pic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:18px 0}
+.pic-grid .pic-card{margin:0}
+.pic-card.bad{border-color:color-mix(in srgb,var(--crit) 40%,var(--border))}
+.pic-card.bad .pic-cap{background:var(--crit-wash);color:var(--crit);font-weight:600}
+.pic-card.diagram img{object-fit:contain;background:#fff;max-height:420px;padding:10px}
+
 /* pantalla de cierre del curso — fin del Módulo 12 */
 .finale{position:relative;margin-top:8px;border-radius:26px;overflow:hidden;min-height:56vh;
   display:flex;align-items:center;justify-content:center;text-align:center;
@@ -1485,6 +1495,8 @@ function module1(){
     <p class="rv" data-delay="80">Pero producir cerdos <em>sin números</em> es la causa #1 de que una granja quiebre. Este módulo le da
     el mapa completo del sector para que sus decisiones —cuántos animales, qué genética, a quién vender— partan de la realidad y no de la intuición.</p>
     <div class="note tip rv"><div class="ico">🧭</div><div><b>Cómo usar este curso</b><p>Cada módulo sigue la misma ruta: objetivos → teoría sencilla → procedimientos → tablas y KPI → ejemplo dominicano → caso práctico → errores → checklist → ejercicio → evaluación. Marque los checklists; su progreso se guarda en el navegador.</p></div></div>
+    <div class="pic-card rv"><img src="images/m1-vista-general-granja.jpg" alt="Vista general de una granja porcina con varias naves" loading="lazy">
+      <div class="pic-cap">Una granja porcina real: varias naves techadas, corrales organizados y flujo ordenado — el punto de partida de todo este curso.</div></div>
   </section>
 
   <!-- DESARROLLO: situación -->
@@ -1901,6 +1913,10 @@ function module2(){
       <button type="button" onclick="qcheck(this,false,'qfbm2a')">Verdadero</button>
       <button type="button" onclick="qcheck(this,true,'qfbm2a')">Falso</button>
     </div><div class="qfb" id="qfbm2a">Falso. Lo correcto es orientar el eje de las naves perpendicular a la brisa dominante (normalmente este–oeste en RD) para maximizar la ventilación cruzada y la sombra.</div></div>
+    <div class="pic-grid rv" data-stagger>
+      <div class="pic-card"><img src="images/m2-techo.jpg" alt="Techo de zinc visto desde adentro de una nave porcina" loading="lazy"><div class="pic-cap">Techo de zinc con buena altura: refleja calor y deja subir el aire caliente.</div></div>
+      <div class="pic-card"><img src="images/m2-pasillos.jpg" alt="Pasillo de cemento entre corrales con lechones a los lados" loading="lazy"><div class="pic-cap">Pasillo central de cemento, con canal de drenaje visible en el medio.</div></div>
+    </div>
   </section>
 
   <section class="block">
@@ -1980,6 +1996,8 @@ function module2(){
         <li>Dimensionar agua con margen + tanque de respaldo.</li>
         <li>Pisos con 2–4% de pendiente hacia el drenaje.</li></ul></div>
     </div>
+    <div class="pic-card bad rv"><img src="images/m2-mala-practica.jpg" alt="Lechones parados sobre agua estancada en un corral sin drenaje" loading="lazy">
+      <div class="pic-cap">Piso sin pendiente ni drenaje: el agua se estanca y el corral nunca seca. Exactamente lo que este módulo enseña a evitar desde el diseño.</div></div>
   </section>
 
   <section class="block">
@@ -2029,6 +2047,8 @@ function module2(){
       <div class="concept rv"><b>Muros de los corrales</b><p>De block de cemento; altura de 90 a 100 cm para cerdos en crecimiento.</p></div>
       <div class="concept rv"><b>Pisos</b><p>Sólidos de cemento o enrejillados (slats) de cemento, plástico o metal, con declive de 3–4% para drenar la humedad.</p></div>
     </div>
+    <div class="pic-card rv"><img src="images/m2-piso-ranurado.jpg" alt="Corral vacío con piso ranurado y canal de drenaje" loading="lazy">
+      <div class="pic-cap">Piso ranurado vacío: se ve el drenaje central que evita que el agua y los orines se acumulen bajo los animales.</div></div>
     <div class="tbl-wrap rv"><table>
       <caption>Dimensiones por categoría de animal (referencia)</caption>
       <thead><tr><th>Categoría</th><th class="num">Espacio recomendado</th></tr></thead>
@@ -2053,6 +2073,8 @@ function module2(){
       <div class="obj rv"><div class="oi">🥣</div><b>Tipo taza</b><span>Automático; requiere limpieza frecuente para mantener buena higiene.</span></div>
       <div class="obj rv"><div class="oi">📏</div><b>Taza a nivel constante</b><span>Mantiene un nivel fijo de agua siempre disponible.</span></div>
     </div>
+    <div class="pic-card rv"><img src="images/m2-bebedero-automatico.jpg" alt="Lechón bebiendo de un bebedero automático tipo chupón" loading="lazy">
+      <div class="pic-cap">Bebedero automático tipo chupón: agua siempre disponible, con muy poco desperdicio.</div></div>
     <div class="check rv" data-check="m2_x_pre">
       <label><input type="checkbox"><span>Confirmé la fuente de agua y su respaldo antes de trazar el primer corral.</span></label>
       <label><input type="checkbox"><span>Marqué en el terreno la dirección del viento dominante.</span></label>
@@ -2360,6 +2382,8 @@ const DEEP={
     rows:[['Destete a servicio','2.5–3.5 (flushing)','Estimular la ovulación'],['Gestación 0–35 días','1.8–2.2','No sobrealimentar (evita muerte embrionaria)'],['Gestación 35–90 días','2.0–2.5','Mantener la condición corporal'],['Gestación 90 días–parto','3.0–3.5','Desarrollo fetal y de la ubre'],['Día del parto','0.5–1.5','Reducir para facilitar el parto'],['Lactancia','5–8 (a voluntad)','Máxima producción de leche']]},
    {label:'Profundización — inseminación',title:'Inseminación artificial (IA) paso a paso',kind:'steps',
     items:[['1. Temperar la dosis','Sáquela del conservador (16–18 °C) y homogenícela suavemente. Ni fría ni caliente.'],['2. Higiene','Limpie la vulva con papel seco. Nunca use agua que escurra hacia adentro.'],['3. Introducir el catéter','Diríjalo ligeramente hacia arriba hasta fijarlo en el cuello uterino (sensación de bloqueo).'],['4. Depositar la dosis','La cerda en celo la absorbe en 3–5 minutos. Estimular (presión en el lomo, contacto del verraco) mejora el transporte.'],['5. Segundo servicio','Repita a las 12–24 h mientras siga en celo. Registre fecha y verraco o dosis.']]},
+   {kind:'image',src:'images/m3-inseminacion.jpg',alt:'Técnico con guantes aplicando la dosis de inseminación artificial a una cerda',
+    cap:'Guantes, higiene y equipo correcto en cada paso: así se ve el procedimiento completo, del catéter a la dosis.'},
    {kind:'alert',body:'Servir fuera de la ventana de 12–24 horas es la causa más frecuente de repetición de celo. Cada repetición cuesta 21 días vacíos: multiplique ese tiempo por el costo diario de mantener a la cerda y verá el peso real del error.'},
    {kind:'key',body:'La gestación de la cerda sigue la regla del <b>3-3-3</b>: 3 meses, 3 semanas y 3 días — 114 días exactos desde el servicio hasta el parto. Apréndase esta regla de memoria: la usará en toda la granja.'},
    {label:'Ponga a prueba lo aprendido',kind:'quick',
@@ -2395,6 +2419,8 @@ const DEEP={
       ['Presencia del verraco','El contacto diario (vista, olor, contacto físico breve) adelanta y sincroniza el celo de las cerdas, sobre todo en primerizas.'],
       ['Frecuencia y tipo de estímulo','Dos exposiciones diarias (mañana y tarde), de unos 10–15 minutos con contacto directo, funcionan mejor que una sola exposición larga.'],
       ['Cuando el celo no sale','Cambiar el verraco por otro desconocido, o generar un estrés controlado (cambio de corral), puede ayudar a disparar el celo en cerdas atrasadas.']]},
+   {kind:'image',src:'images/m3-verraco.jpg',alt:'Verraco en su corral individual sobre cama de viruta',
+    cap:'El verraco en su corral individual: contacto con las hembras, pero sin mezclarse con la piara.'},
    {label:'Profundización — equipo de IA',title:'El equipo mínimo para inseminar bien',kind:'table',
     cap:'Equipo para la inseminación artificial',head:['Equipo','Para qué sirve'],
     rows:[['Botella o ampolla de semen','Contiene la dosis a aplicar'],['Pipeta de inseminación','Se introduce en el aparato reproductor de la cerda'],['Gel lubricante','Facilita la introducción de la pipeta sin lastimar a la cerda'],['Guantes','Higiene para la cerda y para quien insemina'],['Toallas de papel o servilletas','Limpiar la vulva antes de inseminar']]},
@@ -2408,6 +2434,8 @@ const DEEP={
    {label:'Profundización — condición corporal de la reemplazo',title:'Condición corporal: ni flaca ni gorda al primer servicio',kind:'table',
     cap:'Escala de condición corporal (BCS, 1 a 5) — consecuencias en los extremos',head:['Puntaje','Consecuencia si servimos ahí'],
     rows:[['2 (flaca)','Fallas reproductivas'],['3 (meta)','Punto ideal para el primer servicio'],['4 (gorda)','Alto costo de alimento, problemas en el parto, más mortalidad predestete']]},
+   {kind:'image',src:'images/m3-cerda-gestacion.jpg',alt:'Cerda en jaula individual de gestación comiendo',
+    cap:'Cerda en jaula individual de gestación: permite controlar la alimentación de cada animal por separado.'},
    {label:'Profundización — meta de crecimiento de la reemplazo',title:'La meta: 0.65 kg de ganancia diaria hasta el primer servicio',kind:'prose',
     body:['Desde el nacimiento hasta el primer servicio, la reemplazo debe ganar en promedio no menos de <b>0.65 kg por día</b>. Una reemplazo que crece más lento de lo debido llega tarde (o con menos nacidos) a su primer parto; herramientas como el caliper, la cinta de grasa dorsal o el puntaje visual (1–5) ayudan a verificar que llegue al servicio con la condición corporal correcta (meta: 3).',
       'Antes del servicio se recomienda el <b>flushing</b>: subir la energía de la dieta (de ración de crecimiento, a ración de preparación, y luego a la ración de flushing con una curva de alimentación tipo DanBred) en las 2–3 semanas previas al servicio, para estimular la ovulación.'],
@@ -2443,6 +2471,9 @@ const DEEP={
     body:['El lechón nace con apenas <b>1.3–1.6 kg</b>, casi sin grasa y con muy pocas reservas de energía y hierro. No regula bien su temperatura: si la sala está fría, gasta su energía en calentarse en vez de crecer, se debilita y muere aplastado o de hambre.',
       'El <b>calostro</b> (la primera leche) es vital: aporta anticuerpos y energía. El intestino solo los absorbe durante las primeras <b>24–36 horas</b> (cierre intestinal). Por eso el calostro <b>temprano y abundante</b> es la mejor vacuna del lechón.'],
     note:['warn','🌡️','Zona de calor separada','El lechón necesita 30–34 °C, pero la cerda solo 18–21 °C. La solución es una zona de calor (lámpara o placa) donde el lechón se refugie, apartada de la cerda para evitar aplastamientos.']},
+   {kind:'gallery',items:[
+     ['images/m4-camada-recien-nacidos.jpg','Camada de lechones recién nacidos junto a la cerda','Camada recién nacida: cuanto antes mamen calostro, mejor su defensa inmunitaria.'],
+     ['images/m4-zona-calor.jpg','Lechones agrupados bajo una lámpara de calor en la paridera','Los lechones buscan la zona de calor por instinto: si está bien ubicada, se alejan de la cerda.']]},
    {label:'Profundización — temperatura',title:'Temperatura de la zona del lechón, semana a semana',kind:'table',
     cap:'Temperatura de la fuente de calor del lechón (referencia)',head:['Edad','Temp. de la zona'],
     rows:[['Días 0–3','32–34 °C'],['Semana 1','30–32 °C'],['Semana 2','28–30 °C'],['Semana 3','26–28 °C'],['Al destete','24–26 °C']]},
@@ -2482,6 +2513,10 @@ const DEEP={
       ['Día 5: alimento líquido','Se introduce un suplemento líquido en la paridera para acostumbrar al lechón a comer algo distinto a la leche.'],
       ['Día 10: alimento sólido','Se ofrece alimento sólido (preiniciador) en comederos pequeños dentro de la paridera: cuanto antes coma sólido, más suave será la transición al destete.'],
       ['Chequeo de condición corporal antes del destete','Revisar el estado de la cerda antes de destetar ayuda a decidir su próximo manejo reproductivo y evita destetar camadas de cerdas muy desgastadas sin plan.']]},
+   {kind:'image',src:'images/m4-alimento-solido-paridera.jpg',alt:'Lechones comiendo alimento sólido en un comedero pequeño dentro de la paridera',
+    cap:'Alimento sólido en la propia paridera (creep feeding): el lechón se acostumbra a comer antes de perder la leche de la madre.'},
+   {kind:'image',diagram:true,src:'images/m4-jaula-maternidad-diagrama.jpg',alt:'Diagrama con las medidas correctas de una jaula de maternidad',
+    cap:'Medidas de referencia de una jaula de maternidad — compárelas con las que ya vio en el Módulo 2.'},
    {label:'Profundización — el golpe del destete',title:'Por qué el lechón «se cae» de peso justo después del destete',kind:'prose',
     body:['Al destetar, el lechón pierde de golpe la leche de su madre, el calor de la paridera y la compañía de la camada: tres estreses al mismo tiempo (nutricional, ambiental y social). Es normal ver una caída temporal en la ganancia diaria de peso justo después del destete, seguida de una recuperación gradual si el manejo es correcto.',
       'Los objetivos de esta etapa son tres: evitar diarreas y otras enfermedades, estimular el crecimiento y dejar al cerdo listo para pasar al área de engorde.'],
@@ -2507,6 +2542,9 @@ const DEEP={
     body:['Un alimento balanceado aporta cinco cosas: <b>energía</b> (del maíz y las grasas), <b>proteína y aminoácidos</b> (de la soya; la <b>lisina</b> es el aminoácido que más limita el crecimiento), <b>minerales</b> (calcio y fósforo para el hueso), <b>vitaminas</b> y <b>agua</b>.',
       'No se trata solo de «cuánta proteína», sino de dar los <b>aminoácidos correctos</b> en la proporción justa. El exceso de proteína se desperdicia, contamina y encarece la ración.'],
     note:['tip','💧','El agua es el primer nutriente','Un cerdo bebe de 2 a 5 veces más agua que el alimento que come. Agua sucia o escasa frena el consumo y la ganancia antes que cualquier otra cosa.']},
+   {kind:'gallery',items:[
+     ['images/m5-comedero.jpg','Grupo de cerdos comiendo alrededor de un comedero circular','Comedero bien regulado: reparte el alimento entre varios animales, con poco desperdicio en el piso.'],
+     ['images/m5-sacos-alimento.jpg','Sacos de alimento balanceado para cerdos apilados','Alimento balanceado comercial: la mayor parte del costo de producción sale de aquí.']]},
    {label:'Profundización — requerimientos',title:'Densidad de nutrientes por fase',kind:'table',
     cap:'Requerimientos orientativos por fase (referencia)',head:['Fase','EM (kcal/kg)','Proteína','Lisina'],
     rows:[['Preiniciador','3400–3500','20–22%','1.35–1.50%'],['Iniciador','3300–3400','18–20%','1.15–1.30%'],['Crecimiento','3200–3300','16–18%','0.95–1.10%'],['Finalización','3100–3300','14–16%','0.80–0.95%'],['Gestación','3000–3100','12–14%','0.55–0.65%'],['Lactancia','3200–3400','16–18%','0.90–1.05%']]},
@@ -2546,6 +2584,8 @@ const DEEP={
       '<b>Interna:</b> evitar que, si algo entra, se propague entre lotes — flujo en una sola dirección, todo dentro–todo fuera, no compartir agujas, y trabajar de lo joven y sano hacia lo viejo y enfermo.',
       '<b>De personas:</b> el mayor vector eres tú. Ducha o cambio de ropa y botas, manos limpias, y nunca entrar el mismo día en que visitaste otra granja.'],
     note:['crit','🛑','PPA: sin tratamiento','La Peste Porcina Africana no tiene cura ni vacuna comercial masiva. La única defensa es la bioseguridad. Ante muertes súbitas con manchas en la piel, aísla y avisa a las autoridades.']},
+   {kind:'image',src:'images/m6-filtro-sanitario.jpg',alt:'Entrada de una granja con filtro sanitario: botas, ducha obligatoria y desinfección de un camión',
+    cap:'Filtro sanitario real: zona limpia señalizada, ducha obligatoria, botas dedicadas y desinfección de vehículos antes de entrar.'},
    {label:'Profundización — calendario sanitario',title:'Un calendario de vacunación orientativo',kind:'table',
     cap:'Calendario sanitario tipo (defínelo con tu veterinario)',head:['Categoría','Momento','Contra (según zona)'],
     rows:[['Lechón','Primeras semanas','Circovirus (PCV2), Mycoplasma'],['Cerda de reemplazo','Antes del servicio','Parvovirus, Erisipela, Leptospira'],['Cerda gestante','3–5 semanas pre-parto','E. coli y clostridios (protege al lechón por calostro)'],['Todos','Periódico','Desparasitación interna y externa']]},
@@ -2572,6 +2612,8 @@ const DEEP={
    {label:'Profundización — ejemplo de calendario de vacunación',title:'Un calendario de vacunación real, semana a semana (ejemplo — ajústelo con su veterinario)',kind:'table',
     cap:'Protocolo de vacunación de cerdos en crecimiento (ejemplo de referencia)',head:['Semana de edad','Vacuna o producto'],
     rows:[['21','Circovirus + Mycoplasma'],['22','Triple: Leptospira, Erisipela y Parvovirus'],['23','Circovirus + Mycoplasma (refuerzo)'],['24','Triple: Leptospira, Erisipela y Parvovirus (refuerzo)'],['25','Desparasitación con Ivermectina']]},
+   {kind:'image',src:'images/m6-vacunacion.jpg',alt:'Técnico aplicando una vacuna con guantes a un lechón',
+    cap:'Aplicación de vacuna con guantes: reduce el riesgo de contaminación cruzada entre animales.'},
    {label:'Profundización — costo de la sanidad',title:'La sanidad también es un costo que hay que presupuestar',kind:'prose',
     body:['Un frasco de vacuna Circovirus + Mycoplasma rinde unas 50 dosis y se aplican 2 dosis por cerdo; una vacuna triple (Leptospira, Erisipela y Parvovirus) suele venir en frascos de 10 dosis; la Ivermectina se compra por frasco de 100 ml. Cotice estos productos en su zona y súmelos al costo por cerdo del Módulo 9 — la sanidad no es un gasto opcional, es parte del costo/kg.'],
     note:['warn','💉','Precios de referencia, no de este manual','Los precios de vacunas y desparasitantes cambian con el tiempo y el proveedor. Cotice siempre con su veterinario o casa comercial antes de presupuestar.']}
@@ -2586,6 +2628,9 @@ const DEEP={
    {label:'Compare',title:'Densidad correcta vs. corral hacinado',kind:'compare',
     a:{icon:'✅',title:'Densidad correcta',items:['Cada animal accede a comida y agua sin pelear.','Menos estrés y menos peleas.','Ambiente más fácil de mantener limpio y ventilado.','Mortalidad y cojeras dentro de lo esperado.']},
     b:{icon:'⚠️',title:'Corral hacinado',items:['Competencia por comedero y bebedero.','Más peleas, heridas y estrés.','Mayor contagio de enfermedades entre animales.','Ganancia diaria por debajo de la meta.']}},
+   {kind:'gallery',items:[
+     ['images/m7-corral-destete.jpg','Lechones destetados en un corral bajo techo','Corral de destete: lechones ya sin la cerda, agrupados por tamaño similar.'],
+     ['images/m7-corral-engorde.jpg','Cerdos de engorde en un corral amplio','Corral de engorde: animales más grandes, cerca del peso de venta.']]},
    {label:'Profundización — la línea de producción',title:'El cerdo avanza como una línea de producción',kind:'prose',
     body:['Cada etapa —maternidad, destete, precebo y engorde— es una estación de trabajo. El animal avanza siempre hacia adelante, nunca retrocede. Cuando un grupo termina, el corral se vacía, se limpia y se repobla con un lote nuevo: es el principio <b>todo dentro–todo fuera</b>, que corta el contagio entre grupos.',
       'Cada cambio de estación es un <b>punto crítico</b>: cambian la dieta, la temperatura y el espacio. Si la transición es brusca, el animal se atrasa, come menos y enferma. Un manejo suave en cada paso vale más que cualquier equipo caro.'],
@@ -2645,6 +2690,8 @@ const DEEP={
       ['🎯','Decidir','Ajuste manejo, dieta o sanidad según lo que muestran los datos.','Decida con datos, no con «me parece que».'],
       ['📈','Mejorar','Vuelva a medir tras el cambio para confirmar que funcionó.','El ciclo nunca termina: siempre hay algo que ajustar.']]},
    {kind:'key',body:'Una granja pequeña con buenos registros suele ser <b>más rentable</b> que una grande sin ellos. Los números muestran qué cerda descartar, qué lote falló y dónde se va el dinero — algo que ningún «me parece» puede decirle.'},
+   {kind:'image',src:'images/m8-registro-formato.jpg',alt:'Formato de registro de granja porcina con columnas de apareamiento, parto y destete',
+    cap:'Así se ve un registro real: cerda, fechas de monta y parto, nacidos, destetados. La base de todos los KPI de este módulo.'},
    {label:'Caso práctico',kind:'case',
     situacion:'Dos lotes de engorde recibieron el mismo alimento y el mismo manejo aparente. El lote A cerró con CA 2.7 y el lote B con CA 3.2.',
     pregunta:'¿Qué le dicen esos números?',
@@ -2664,6 +2711,8 @@ const DEEP={
     a:{icon:'✅',title:'Precio por encima del costo/kg',items:['Cada cerdo vendido deja margen real.','El negocio soporta imprevistos y meses flojos.','Se puede reinvertir y crecer con datos.','La rentabilidad se sostiene ciclo tras ciclo.']},
     b:{icon:'🔻',title:'Precio por debajo del costo/kg',items:['Cada cerdo vendido profundiza la pérdida.','«Vender mucho» no soluciona nada si cada venta pierde.','El productor se descapitaliza sin notarlo.','Suele descubrirse tarde, sin registros de por medio.']}},
    {kind:'alert',body:'Una granja puede estar «llena de cerdos» y aun así perder dinero. Si no calcula su costo por kg con todos los rubros, puede estar vendiendo por debajo de su propio costo sin saberlo.'},
+   {kind:'image',src:'images/m9-rentabilidad.jpg',alt:'Ilustración de un cerdito con calculadora, gráficos y dinero',
+    cap:'La rentabilidad se calcula, no se adivina: costo por kg, punto de equilibrio y margen — con sus propios números.'},
    {label:'Profundización — dónde está la rentabilidad',title:'La rentabilidad se ve en la hoja, no en el corral',kind:'prose',
     body:['Una granja puede estar <b>llena de cerdos</b> y perder dinero. La foto de un corral bonito no dice si gana; el <b>costo por kilogramo producido</b> comparado con el <b>precio de venta</b> sí lo dice.',
       'El productor no controla el precio de mercado, pero sí controla su costo. Por eso bajar el costo/kg (mejor conversión, menos desperdicio, buena sanidad) es la palanca más segura de rentabilidad. Todas las cifras son de referencia en RD$: actualícelas.'],
@@ -2738,6 +2787,8 @@ const DEEP={
    {label:'Profundización — plan comercial',title:'Arma tu plan comercial',kind:'steps',
     items:[['1. Conoce el mercado','Precio actual del cerdo y del lechón en su zona y su estacionalidad.'],['2. Elige tus canales','Defina a quién y cómo va a vender (uno principal y alternativas).'],['3. Fija el precio','Con base en su costo/kg, nunca por debajo del piso.'],['4. Construye relaciones','Acuerdos y consistencia con compradores; la confianza fideliza.'],['5. Escríbelo','Integre producción, finanzas y mercado en un plan simple pero claro.']]},
    {kind:'alert',body:'Vender sin conocer su costo/kg lo deja a merced del comprador: si él ofrece un precio bajo y usted no tiene un piso claro, puede aceptar sin darse cuenta de que está perdiendo dinero en cada venta.'},
+   {kind:'image',src:'images/m10-despacho-camion.jpg',alt:'Camión transportando cerdos listos para venta por una carretera',
+    cap:'Cerdos listos para despacho: el último paso de todo lo que enseña este módulo — vender bien lo que ya costó producir.'},
    {label:'Ponga a prueba lo aprendido',kind:'quick',
     q:'¿Verdadero o falso? Escalonar la producción por lotes ayuda a evitar vender todo cuando el precio está bajo.',
     opts:[['Verdadero',true],['Falso',false]],
@@ -2769,6 +2820,8 @@ const DEEP={
    {label:'Profundización — de la libreta al Excel',title:'De la libreta al Excel en 5 pasos',kind:'steps',
     items:[['1. Pasa tus fichas','Lleve las fichas de cerda, lotes y consumo a una hoja de cálculo.'],['2. Automatiza fechas','Fórmulas que calculen parto y destete a partir del servicio.'],['3. Controla inventario','Existencias y consumos con alertas de reposición.'],['4. Arma el tablero','KPI calculados automáticamente.'],['5. Revisa cada semana','Mire los indicadores al menos una vez por semana y actúe.']]},
    {kind:'alert',body:'Comprar un software caro y no usarlo es peor que no comprarlo: el dinero se pierde y el productor sigue sin datos. Empiece siempre por lo simple que sí va a usar todos los días.'},
+   {kind:'image',src:'images/m11-tecnologia-campo.jpg',alt:'Persona revisando un tablero o Excel en un dispositivo cerca del corral',
+    cap:'La tecnología en el bolsillo: revisar el tablero de KPI directamente desde el corral, sin esperar a llegar a la oficina.'},
    {label:'Ponga a prueba lo aprendido',kind:'quick',
     q:'¿Verdadero o falso? Digitalizar los registros reemplaza la necesidad de un buen manejo en la granja.',
     opts:[['Verdadero',false],['Falso',true]],
@@ -2784,6 +2837,8 @@ const DEEP={
     items:[['No sé mucho de computadoras, ¿puedo?','Sí. Empiece con una sola hoja simple que calcule fechas. Verá el beneficio y avanzará solo, poco a poco.'],['¿Necesito internet?','Para una hoja de cálculo básica, no. Para respaldar en la nube y sincronizar entre dispositivos, sí ayuda.']]}
  ]},
  12:{sections:[
+   {kind:'image',src:'images/m12-proyecto-final.jpg',alt:'Ilustración de un proyecto final entregado en pantalla, con gráficos y documentos',
+    cap:'Su proyecto final: la integración de los 11 módulos anteriores en un solo documento presentable.'},
    {label:'Compare',title:'Proyecto que convence vs. proyecto que no convence',kind:'compare',
     a:{icon:'✅',title:'Convence a un banco o socio',items:['Modelo de negocio claro y justificado.','Instalaciones con bioseguridad real, no solo dibujada.','Costo/kg, equilibrio y rentabilidad calculados.','Cifras marcadas como referencia, listas para actualizar.']},
     b:{icon:'⚠️',title:'No convence',items:['«Quiero criar cerdos» sin modelo definido.','Croquis sin flujo ni zona sucia diferenciada.','Sin números financieros o con cifras «infladas».','Presentado como si todo fuera un hecho, no un plan.']}},
@@ -2851,6 +2906,12 @@ function deepBlocks(id,L){const d=DEEP[id];if(!d)return '';let h='';
     /* --- checklist de campo (interactivo, persiste como el resto) --- */
     else if(sec.kind==='checklist'){h+='<div class="check rv" data-check="m'+id+'_x'+si+'">'+
       sec.items.map(c=>'<label><input type="checkbox"><span>'+c+'</span></label>').join('')+'</div>';}
+    /* --- foto individual --- */
+    else if(sec.kind==='image'){h+='<div class="pic-card'+(sec.bad?' bad':'')+(sec.diagram?' diagram':'')+' rv"><img src="'+sec.src+'" alt="'+sec.alt+'" loading="lazy">'+
+      (sec.cap?'<div class="pic-cap">'+(sec.bad?'⚠️ ':'')+sec.cap+'</div>':'')+'</div>';}
+    /* --- galería de fotos --- */
+    else if(sec.kind==='gallery'){h+='<div class="pic-grid" data-stagger>'+sec.items.map(k=>
+      '<div class="pic-card rv"><img src="'+k[0]+'" alt="'+k[1]+'" loading="lazy">'+(k[2]?'<div class="pic-cap">'+k[2]+'</div>':'')+'</div>').join('')+'</div>';}
     /* --- micro-resumen "en resumen" --- */
     else if(sec.kind==='minisummary'){h+='<div class="minisum rv"><div class="ms-tt">En resumen</div><ul>'+
       sec.items.map(t=>'<li>'+t+'</li>').join('')+'</ul></div>';}
