@@ -399,6 +399,29 @@ ul.clean.err li::before{background:var(--crit)} ul.clean.win li::before{backgrou
 @media(max-width:640px){.pstep-cell:nth-child(odd){border-right:0}}
 @media(min-width:641px){.pstep-cell:nth-child(odd){border-right:1px solid var(--border)}}
 
+/* pantalla de cierre del curso — fin del Módulo 12 */
+.finale{position:relative;margin-top:8px;border-radius:26px;overflow:hidden;min-height:56vh;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  background:radial-gradient(120% 90% at 82% 8%,#233a2b 0%,transparent 55%),
+    radial-gradient(90% 80% at 8% 100%,#2a2114 0%,transparent 55%),var(--char);
+  color:#F3EFE8;padding:64px 28px}
+.finale-grain{position:absolute;inset:0;opacity:.5;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);background-size:4px 4px}
+.finale-glow{position:absolute;width:520px;height:520px;border-radius:50%;filter:blur(100px);
+  background:radial-gradient(circle,rgba(224,165,38,.45),transparent 70%);top:-140px;right:-80px;pointer-events:none}
+.finale-glow.two{background:radial-gradient(circle,rgba(47,125,79,.5),transparent 70%);bottom:-160px;left:-120px;top:auto;right:auto}
+.finale-inner{position:relative;z-index:2;max-width:640px}
+.finale-badge{width:86px;height:86px;margin:0 auto 22px;border-radius:50%;
+  background:conic-gradient(var(--amber) 100%, transparent 0);display:grid;place-items:center;padding:5px}
+.finale-badge span{width:100%;height:100%;border-radius:50%;background:var(--char-2);display:grid;place-items:center;font-size:32px}
+.finale-kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.3em;color:var(--amber);font-weight:600;text-transform:uppercase}
+.finale h2{font-size:clamp(26px,4.4vw,44px);margin-top:14px;letter-spacing:-.03em;font-family:var(--display);font-weight:800;line-height:1.12}
+.finale p{font-size:15.5px;color:#D6CFC3;margin-top:14px;max-width:52ch;margin-left:auto;margin-right:auto}
+.finale-cta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.finale-note{margin-top:20px;font-size:12.5px;color:#9a9184}
+.btn-gold{background:var(--amber);color:#1C1A17;box-shadow:0 12px 28px -12px rgba(224,165,38,.7)}
+.btn-gold:hover{background:#EEBC4C}
+
 /* exercise / eval boxes */
 .panel-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:26px;
   box-shadow:var(--shadow);margin:18px 0}
@@ -2913,6 +2936,22 @@ function scaffoldModule(id){
     ${x.reflect?`<div class="reflect-box rv"><div class="rb-tag">🤔 Antes de continuar</div><p>${x.reflect}</p></div>`:''}</section>`;
   // 13. recursos descargables (funcionales)
   h+=`<section class="block">${L('Recursos y material complementario')}<h3 class="rv">Descargables del módulo</h3>${resGrid(id)}</section>`;
+  // 14. cierre épico del curso — solo al final del Módulo 12
+  if(id===12){const pc=(typeof passedCount==='function')?passedCount():0;
+    h+=`<section class="block"><div class="finale rv">
+      <div class="finale-grain"></div><div class="finale-glow"></div><div class="finale-glow two"></div>
+      <div class="finale-inner">
+        <div class="finale-badge"><span>🎓</span></div>
+        <div class="finale-kicker">Curso completado</div>
+        <h2>¡Felicidades! Llegó al final del Curso de Porcicultura Aplicada a RD</h2>
+        <p>Recorrió los 12 módulos, desde el panorama del sector hasta el plan financiero de su propia granja. Ya tiene el conocimiento técnico y la hoja de ruta para llevarlo a la práctica.</p>
+        <div class="finale-cta">
+          <button class="btn btn-gold" onclick="printCert()">🎓 Descargar mi certificado</button>
+          <button class="btn btn-ghost" onclick="goto(1)">Repasar el curso desde el Módulo 1</button>
+        </div>
+        <p class="finale-note">Evaluaciones aprobadas: ${pc}/12${pc<12?' — apruebe las que falten para desbloquear su certificado.':' — ¡completo! Su certificado ya está listo, con código verificable.'}</p>
+      </div>
+    </div></section>`;}
   h+=`</div>`+footNav(id);
   return h;
 }
