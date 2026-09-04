@@ -399,6 +399,16 @@ ul.clean.err li::before{background:var(--crit)} ul.clean.win li::before{backgrou
 @media(max-width:640px){.pstep-cell:nth-child(odd){border-right:0}}
 @media(min-width:641px){.pstep-cell:nth-child(odd){border-right:1px solid var(--border)}}
 
+/* fotos e ilustraciones */
+.pic-card{margin:18px 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);background:var(--panel)}
+.pic-card img{width:100%;height:auto;display:block;max-height:460px;object-fit:cover;background:var(--ivory-2)}
+.pic-cap{padding:11px 16px;font-size:13px;color:var(--muted);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-start}
+.pic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:18px 0}
+.pic-grid .pic-card{margin:0}
+.pic-card.bad{border-color:color-mix(in srgb,var(--crit) 40%,var(--border))}
+.pic-card.bad .pic-cap{background:var(--crit-wash);color:var(--crit);font-weight:600}
+.pic-card.diagram img{object-fit:contain;background:#fff;max-height:420px;padding:10px}
+
 /* pantalla de cierre del curso — fin del Módulo 12 */
 .finale{position:relative;margin-top:8px;border-radius:26px;overflow:hidden;min-height:56vh;
   display:flex;align-items:center;justify-content:center;text-align:center;
@@ -1901,6 +1911,10 @@ function module2(){
       <button type="button" onclick="qcheck(this,false,'qfbm2a')">Verdadero</button>
       <button type="button" onclick="qcheck(this,true,'qfbm2a')">Falso</button>
     </div><div class="qfb" id="qfbm2a">Falso. Lo correcto es orientar el eje de las naves perpendicular a la brisa dominante (normalmente este–oeste en RD) para maximizar la ventilación cruzada y la sombra.</div></div>
+    <div class="pic-grid rv" data-stagger>
+      <div class="pic-card"><img src="images/m2-techo.jpg" alt="Techo de zinc visto desde adentro de una nave porcina" loading="lazy"><div class="pic-cap">Techo de zinc: refleja calor y da altura para que el aire caliente suba y salga.</div></div>
+      <div class="pic-card"><img src="images/m2-pasillos.jpg" alt="Pasillo de cemento entre corrales con comederos automáticos" loading="lazy"><div class="pic-cap">Pasillo de cemento: permite el paso de personal y equipo sin invadir el espacio de los corrales.</div></div>
+    </div>
   </section>
 
   <section class="block">
@@ -1939,6 +1953,10 @@ function module2(){
         </tbody>
       </table>
       <div class="note rv" style="margin-top:8px"><div class="ico">💧</div><div><p>Verá cifras algo distintas entre esta tabla y la anterior: ambas son de <span class="ref-flag">REFERENCIA</span> pero vienen de fuentes distintas. El consumo real varía según el tipo de bebedero, el calor de su zona y el manejo de cada granja — mida el consumo real de su granja para tener su propio número.</p></div></div>
+    </div>
+    <div class="pic-grid rv" data-stagger>
+      <div class="pic-card"><img src="images/m2-residuos-compost.jpg" alt="Montón de estiércol compostado en una granja" loading="lazy"><div class="pic-cap">Compostaje de estiércol: reduce olores y puede volverse abono para la finca.</div></div>
+      <div class="pic-card"><img src="images/m2-manejo-residuos.jpg" alt="Trabajador limpiando un corral con manguera" loading="lazy"><div class="pic-cap">Limpieza diaria del corral: el manejo de residuos empieza en el día a día, no solo en la fosa.</div></div>
     </div>
   </section>
 
@@ -1980,6 +1998,8 @@ function module2(){
         <li>Dimensionar agua con margen + tanque de respaldo.</li>
         <li>Pisos con 2–4% de pendiente hacia el drenaje.</li></ul></div>
     </div>
+    <div class="pic-card bad rv"><img src="images/m2-mala-practica-hacinamiento.jpg" alt="Corral con exceso de agua estancada y cerdos parados en el lodo" loading="lazy">
+      <div class="pic-cap">Piso sin pendiente ni drenaje: el agua se estanca, el corral no seca nunca y sube el riesgo de enfermedad. Exactamente lo que este módulo enseña a evitar desde el diseño.</div></div>
   </section>
 
   <section class="block">
@@ -2046,12 +2066,22 @@ function module2(){
       </tbody>
     </table></div>
     <div class="note warn rv"><div class="ico">⚠️</div><div><p>Medidas de <span class="ref-flag">REFERENCIA</span> tomadas del manejo estándar de granjas tecnificadas: ajústelas a su clima, presupuesto y el tamaño real de sus animales.</p></div></div>
+    <div class="pic-card diagram rv"><img src="images/m2-paridera-diagrama.jpg" alt="Diagrama técnico de una jaula de paridera con medidas en centímetros" loading="lazy">
+      <div class="pic-cap">Jaula de paridera con comedero y bebedero incorporados — tubo galvanizado de 3/4″, hierro angular y lámina metálica. Las medidas coinciden con la tabla de arriba.</div></div>
     <h3 class="rv" style="margin-top:22px">Tipos de bebederos</h3>
     <div class="obj-grid" data-stagger>
       <div class="obj rv"><div class="oi">🚰</div><b>De cemento</b><span>Con pendiente y desagüe; ubicados en la parte más baja del corral para evitar humedad.</span></div>
       <div class="obj rv"><div class="oi">💧</div><b>Tipo tetina/chupeta</b><span>Automático, con poco desperdicio de agua.</span></div>
       <div class="obj rv"><div class="oi">🥣</div><b>Tipo taza</b><span>Automático; requiere limpieza frecuente para mantener buena higiene.</span></div>
       <div class="obj rv"><div class="oi">📏</div><b>Taza a nivel constante</b><span>Mantiene un nivel fijo de agua siempre disponible.</span></div>
+    </div>
+    <div class="pic-grid rv" data-stagger>
+      <div class="pic-card"><img src="images/m2-bebedero-cemento.jpg" alt="Bebedero de cemento en un corral, con productores observando" loading="lazy"><div class="pic-cap">Bebedero de cemento: económico, pero exige buena pendiente para no acumular humedad.</div></div>
+      <div class="pic-card"><img src="images/m2-bebedero-automatico.jpg" alt="Bebedero automático tipo cono sobre un corral" loading="lazy"><div class="pic-cap">Bebedero automático: menos desperdicio de agua y menos mano de obra de limpieza.</div></div>
+      <div class="pic-card"><img src="images/m2-comedero.jpg" alt="Comedero metálico con lechones alimentándose alrededor" loading="lazy"><div class="pic-cap">Comedero circular: reparte el alimento entre varios animales a la vez.</div></div>
+      <div class="pic-card"><img src="images/m2-gestantes-jaulas.jpg" alt="Fila de jaulas individuales para cerdas gestantes" loading="lazy"><div class="pic-cap">Jaulas individuales para gestantes: facilitan el control de la alimentación por cerda.</div></div>
+      <div class="pic-card"><img src="images/m2-cunas-destete.jpg" alt="Lechones destetados sobre piso plástico ranurado en una cuna de destete" loading="lazy"><div class="pic-cap">Cuna de destete: piso ranurado plástico para mantener el ambiente seco.</div></div>
+      <div class="pic-card"><img src="images/m2-engorde-corral.jpg" alt="Corral de engorde con cerdos sobre piso ranurado metálico" loading="lazy"><div class="pic-cap">Corral de engorde con piso ranurado: buen drenaje y ambiente más seco.</div></div>
     </div>
     <div class="check rv" data-check="m2_x_pre">
       <label><input type="checkbox"><span>Confirmé la fuente de agua y su respaldo antes de trazar el primer corral.</span></label>
@@ -2381,6 +2411,8 @@ const DEEP={
       ['3. Segunda selección','Ya con más edad, se evalúan características físicas (aplomos, número de tetas funcionales, desarrollo corporal) y se confirma que el crecimiento se sostiene.'],
       ['4. Tercera selección','Cerca de la edad reproductiva, se revisan características físicas definitivas y signos reproductivos (aparición del celo, desarrollo de la vulva).'],
       ['5. La regla de las tres selecciones','Los reemplazos no tienen un límite de selección: mientras más estricto el filtro, mejor la piara futura. Edad, peso, genética y desarrollo físico son las cuatro variables que nunca deben faltar en la decisión.']]},
+   {kind:'image',diagram:true,src:'images/m3-estructura-esqueleto.jpg',alt:'Diagrama de la estructura ósea de un cerdo usado para evaluar aplomos en la selección de reemplazos',
+    cap:'Evaluación de aplomos: una reemplazo con buena estructura de patas aguanta más partos sin cojear ni descartarse antes de tiempo.'},
    {label:'Profundización — pubertad',title:'Pubertad y peso al primer servicio: por qué no hay que apurar a la primeriza',kind:'table',
     cap:'Referencia de pubertad y desempeño (Williams et al., 2005; Milner, Virginia-Maryland Regional College of Veterinary Medicine)',head:['Parámetro','Referencia'],
     rows:[['Rango de pubertad','5–8 meses, con 90–115 kg de peso'],['Un híbrido vs. una raza pura','El híbrido suele alcanzar la pubertad antes que la raza pura'],['Peso al primer servicio recomendado','135–150 kg (más nacidos totales por camada que servir muy liviana o muy pesada)'],['Riesgo de servir con bajo peso','Menos fertilidad, más uso de hormonas, más cojeras y mayor descarte de la cerda']]},
@@ -2395,9 +2427,13 @@ const DEEP={
       ['Presencia del verraco','El contacto diario (vista, olor, contacto físico breve) adelanta y sincroniza el celo de las cerdas, sobre todo en primerizas.'],
       ['Frecuencia y tipo de estímulo','Dos exposiciones diarias (mañana y tarde), de unos 10–15 minutos con contacto directo, funcionan mejor que una sola exposición larga.'],
       ['Cuando el celo no sale','Cambiar el verraco por otro desconocido, o generar un estrés controlado (cambio de corral), puede ayudar a disparar el celo en cerdas atrasadas.']]},
+   {kind:'image',src:'images/m2-verraco-corral.jpg',alt:'Verraco en un corral individual de block de cemento',
+    cap:'Corral individual para el verraco: contacto visual y olfativo con las hembras, pero sin mezclarse con la piara.'},
    {label:'Profundización — equipo de IA',title:'El equipo mínimo para inseminar bien',kind:'table',
     cap:'Equipo para la inseminación artificial',head:['Equipo','Para qué sirve'],
     rows:[['Botella o ampolla de semen','Contiene la dosis a aplicar'],['Pipeta de inseminación','Se introduce en el aparato reproductor de la cerda'],['Gel lubricante','Facilita la introducción de la pipeta sin lastimar a la cerda'],['Guantes','Higiene para la cerda y para quien insemina'],['Toallas de papel o servilletas','Limpiar la vulva antes de inseminar']]},
+   {kind:'image',src:'images/m3-ia-procedimiento.jpg',alt:'Técnico con guantes realizando el procedimiento de inseminación en una cerda dentro de una jaula',
+    cap:'Higiene y guantes en todo el procedimiento: reduce el riesgo de infección y mejora los resultados de preñez.'},
    {label:'Profundización — buenas prácticas de IA',title:'Objetivos de la inseminación y cómo conservar el semen',kind:'prose',
     body:['La inseminación artificial (IA) busca tres cosas: <b>menor costo operativo</b> que mantener varios verracos, <b>ahorro de tiempo</b> del personal, y mejor organización que logre altos índices de preñez con <b>menos de 15% de repetición</b> de celo.',
       'Durante la monta o la IA, estimule a la cerda haciendo peso sobre el lomo y acariciando sus tetas: eso ayuda al transporte del semen. Tenga paciencia — el proceso completo dura entre 4 y 5 minutos y no debe apurarse.'],
@@ -2408,6 +2444,8 @@ const DEEP={
    {label:'Profundización — condición corporal de la reemplazo',title:'Condición corporal: ni flaca ni gorda al primer servicio',kind:'table',
     cap:'Escala de condición corporal (BCS, 1 a 5) — consecuencias en los extremos',head:['Puntaje','Consecuencia si servimos ahí'],
     rows:[['2 (flaca)','Fallas reproductivas'],['3 (meta)','Punto ideal para el primer servicio'],['4 (gorda)','Alto costo de alimento, problemas en el parto, más mortalidad predestete']]},
+   {kind:'image',src:'images/m3-condicion-corporal-caliper.jpg',alt:'Calibrador midiendo la condición corporal sobre el lomo de una cerda',
+    cap:'Calibrador de grasa dorsal: una forma objetiva de verificar la condición corporal, en vez de calcularla «a ojo».'},
    {label:'Profundización — meta de crecimiento de la reemplazo',title:'La meta: 0.65 kg de ganancia diaria hasta el primer servicio',kind:'prose',
     body:['Desde el nacimiento hasta el primer servicio, la reemplazo debe ganar en promedio no menos de <b>0.65 kg por día</b>. Una reemplazo que crece más lento de lo debido llega tarde (o con menos nacidos) a su primer parto; herramientas como el caliper, la cinta de grasa dorsal o el puntaje visual (1–5) ayudan a verificar que llegue al servicio con la condición corporal correcta (meta: 3).',
       'Antes del servicio se recomienda el <b>flushing</b>: subir la energía de la dieta (de ración de crecimiento, a ración de preparación, y luego a la ración de flushing con una curva de alimentación tipo DanBred) en las 2–3 semanas previas al servicio, para estimular la ovulación.'],
@@ -2443,6 +2481,8 @@ const DEEP={
     body:['El lechón nace con apenas <b>1.3–1.6 kg</b>, casi sin grasa y con muy pocas reservas de energía y hierro. No regula bien su temperatura: si la sala está fría, gasta su energía en calentarse en vez de crecer, se debilita y muere aplastado o de hambre.',
       'El <b>calostro</b> (la primera leche) es vital: aporta anticuerpos y energía. El intestino solo los absorbe durante las primeras <b>24–36 horas</b> (cierre intestinal). Por eso el calostro <b>temprano y abundante</b> es la mejor vacuna del lechón.'],
     note:['warn','🌡️','Zona de calor separada','El lechón necesita 30–34 °C, pero la cerda solo 18–21 °C. La solución es una zona de calor (lámpara o placa) donde el lechón se refugie, apartada de la cerda para evitar aplastamientos.']},
+   {kind:'image',src:'images/m4-zona-calor.jpg',alt:'Lechones recién nacidos agrupados en la zona de calor de la paridera',
+    cap:'Los lechones buscan la zona de calor por instinto: si está bien ubicada, se alejan de la cerda y bajan el riesgo de aplastamiento.'},
    {label:'Profundización — temperatura',title:'Temperatura de la zona del lechón, semana a semana',kind:'table',
     cap:'Temperatura de la fuente de calor del lechón (referencia)',head:['Edad','Temp. de la zona'],
     rows:[['Días 0–3','32–34 °C'],['Semana 1','30–32 °C'],['Semana 2','28–30 °C'],['Semana 3','26–28 °C'],['Al destete','24–26 °C']]},
@@ -2482,6 +2522,8 @@ const DEEP={
       ['Día 5: alimento líquido','Se introduce un suplemento líquido en la paridera para acostumbrar al lechón a comer algo distinto a la leche.'],
       ['Día 10: alimento sólido','Se ofrece alimento sólido (preiniciador) en comederos pequeños dentro de la paridera: cuanto antes coma sólido, más suave será la transición al destete.'],
       ['Chequeo de condición corporal antes del destete','Revisar el estado de la cerda antes de destetar ayuda a decidir su próximo manejo reproductivo y evita destetar camadas de cerdas muy desgastadas sin plan.']]},
+   {kind:'image',src:'images/m4-creep-feeding.jpg',alt:'Lechones comiendo alrededor de comederos pequeños dentro de la paridera',
+    cap:'Alimento sólido en la propia paridera (creep feeding): el lechón se acostumbra a comer antes de perder la leche de la madre.'},
    {label:'Profundización — el golpe del destete',title:'Por qué el lechón «se cae» de peso justo después del destete',kind:'prose',
     body:['Al destetar, el lechón pierde de golpe la leche de su madre, el calor de la paridera y la compañía de la camada: tres estreses al mismo tiempo (nutricional, ambiental y social). Es normal ver una caída temporal en la ganancia diaria de peso justo después del destete, seguida de una recuperación gradual si el manejo es correcto.',
       'Los objetivos de esta etapa son tres: evitar diarreas y otras enfermedades, estimular el crecimiento y dejar al cerdo listo para pasar al área de engorde.'],
@@ -2572,6 +2614,8 @@ const DEEP={
    {label:'Profundización — ejemplo de calendario de vacunación',title:'Un calendario de vacunación real, semana a semana (ejemplo — ajústelo con su veterinario)',kind:'table',
     cap:'Protocolo de vacunación de cerdos en crecimiento (ejemplo de referencia)',head:['Semana de edad','Vacuna o producto'],
     rows:[['21','Circovirus + Mycoplasma'],['22','Triple: Leptospira, Erisipela y Parvovirus'],['23','Circovirus + Mycoplasma (refuerzo)'],['24','Triple: Leptospira, Erisipela y Parvovirus (refuerzo)'],['25','Desparasitación con Ivermectina']]},
+   {kind:'image',src:'images/m6-vacunacion.jpg',alt:'Técnico con overol aplicando una vacuna a un cerdo',
+    cap:'Aplicación de vacuna con equipo de protección: guantes, overol y botas reducen el riesgo de contaminación cruzada entre animales.'},
    {label:'Profundización — costo de la sanidad',title:'La sanidad también es un costo que hay que presupuestar',kind:'prose',
     body:['Un frasco de vacuna Circovirus + Mycoplasma rinde unas 50 dosis y se aplican 2 dosis por cerdo; una vacuna triple (Leptospira, Erisipela y Parvovirus) suele venir en frascos de 10 dosis; la Ivermectina se compra por frasco de 100 ml. Cotice estos productos en su zona y súmelos al costo por cerdo del Módulo 9 — la sanidad no es un gasto opcional, es parte del costo/kg.'],
     note:['warn','💉','Precios de referencia, no de este manual','Los precios de vacunas y desparasitantes cambian con el tiempo y el proveedor. Cotice siempre con su veterinario o casa comercial antes de presupuestar.']}
@@ -2851,6 +2895,12 @@ function deepBlocks(id,L){const d=DEEP[id];if(!d)return '';let h='';
     /* --- checklist de campo (interactivo, persiste como el resto) --- */
     else if(sec.kind==='checklist'){h+='<div class="check rv" data-check="m'+id+'_x'+si+'">'+
       sec.items.map(c=>'<label><input type="checkbox"><span>'+c+'</span></label>').join('')+'</div>';}
+    /* --- foto individual --- */
+    else if(sec.kind==='image'){h+='<div class="pic-card'+(sec.bad?' bad':'')+(sec.diagram?' diagram':'')+' rv"><img src="'+sec.src+'" alt="'+sec.alt+'" loading="lazy">'+
+      (sec.cap?'<div class="pic-cap">'+(sec.bad?'⚠️ ':'')+sec.cap+'</div>':'')+'</div>';}
+    /* --- galería de fotos --- */
+    else if(sec.kind==='gallery'){h+='<div class="pic-grid" data-stagger>'+sec.items.map(k=>
+      '<div class="pic-card rv"><img src="'+k[0]+'" alt="'+k[1]+'" loading="lazy">'+(k[2]?'<div class="pic-cap">'+k[2]+'</div>':'')+'</div>').join('')+'</div>';}
     /* --- micro-resumen "en resumen" --- */
     else if(sec.kind==='minisummary'){h+='<div class="minisum rv"><div class="ms-tt">En resumen</div><ul>'+
       sec.items.map(t=>'<li>'+t+'</li>').join('')+'</ul></div>';}
