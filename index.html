@@ -1592,6 +1592,11 @@ function module1(){
         </tbody>
       </table>
     </div>
+    <div class="pic-grid rv" data-stagger>
+      <div class="pic-card"><img src="images/m1-raza-landrace.jpg" alt="Cerda de raza Landrace, de perfil, sobre fondo blanco" loading="lazy"><div class="pic-cap">Landrace: orejas caídas largas, línea materna de alta producción de leche.</div></div>
+      <div class="pic-card"><img src="images/m1-raza-largewhite.jpg" alt="Cerda de raza Large White (Yorkshire), de perfil, sobre fondo blanco" loading="lazy"><div class="pic-cap">Large White (Yorkshire): orejas paradas, estructura ósea fuerte y buena habilidad materna.</div></div>
+      <div class="pic-card"><img src="images/m1-raza-f1.jpg" alt="Cerda híbrida F1, cruce de Landrace y Large White, de perfil, sobre fondo blanco" loading="lazy"><div class="pic-cap">La cerda ideal (F1): cruce de Landrace × Large White, la línea materna más usada en producción comercial.</div></div>
+    </div>
     <div class="note tip rv"><div class="ico">🏝️</div><div><b>Nota tropical</b><p>En clima caluroso, la <b>rusticidad y tolerancia al calor</b> importan tanto como el crecimiento. El Duroc y ciertos híbridos toleran mejor el estrés térmico. La mejor genética del mundo rinde mal en una nave a 34&nbsp;°C sin ventilación (lo verá en el Módulo 2).</p></div></div>
   </section>
 
@@ -1902,6 +1907,8 @@ function module2(){
         </tbody>
       </table>
     </div>
+    <div class="pic-card rv"><img src="images/m2-ventilacion.jpg" alt="Interior de una nave porcina con extractor de techo y bebederos automáticos en fila" loading="lazy">
+      <div class="pic-cap">Ventilación cruzada real: extractor de techo, pasillo central y corrales a ambos lados — así se ve una nave bien diseñada para el trópico.</div></div>
     <div class="cols2">
       <div class="card win rv"><h4>🌬️ Herramientas de enfriamiento</h4>
         <ul class="clean win"><li>Ventilación natural cruzada (orientación al viento)</li><li>Techos altos, aleros amplios y aislamiento</li><li>Ventiladores y, en engorde, nebulización/goteo</li><li>Bebederos frescos y abundantes (agua = termorregulación)</li><li>Árboles y barreras de sombra</li></ul></div>
@@ -2382,8 +2389,11 @@ const DEEP={
     rows:[['Destete a servicio','2.5–3.5 (flushing)','Estimular la ovulación'],['Gestación 0–35 días','1.8–2.2','No sobrealimentar (evita muerte embrionaria)'],['Gestación 35–90 días','2.0–2.5','Mantener la condición corporal'],['Gestación 90 días–parto','3.0–3.5','Desarrollo fetal y de la ubre'],['Día del parto','0.5–1.5','Reducir para facilitar el parto'],['Lactancia','5–8 (a voluntad)','Máxima producción de leche']]},
    {label:'Profundización — inseminación',title:'Inseminación artificial (IA) paso a paso',kind:'steps',
     items:[['1. Temperar la dosis','Sáquela del conservador (16–18 °C) y homogenícela suavemente. Ni fría ni caliente.'],['2. Higiene','Limpie la vulva con papel seco. Nunca use agua que escurra hacia adentro.'],['3. Introducir el catéter','Diríjalo ligeramente hacia arriba hasta fijarlo en el cuello uterino (sensación de bloqueo).'],['4. Depositar la dosis','La cerda en celo la absorbe en 3–5 minutos. Estimular (presión en el lomo, contacto del verraco) mejora el transporte.'],['5. Segundo servicio','Repita a las 12–24 h mientras siga en celo. Registre fecha y verraco o dosis.']]},
-   {kind:'image',src:'images/m3-inseminacion.jpg',alt:'Técnico con guantes aplicando la dosis de inseminación artificial a una cerda',
-    cap:'Guantes, higiene y equipo correcto en cada paso: así se ve el procedimiento completo, del catéter a la dosis.'},
+   {label:'Guía visual',title:'La IA paso a paso, en fotos',kind:'gallery',items:[
+     ['images/m3-ia-higiene.jpg','Técnico limpiando la vulva de una cerda con una toalla de papel antes de inseminar','1. Higiene: limpie la vulva con una toalla de papel seca antes de introducir nada.'],
+     ['images/m3-ia-insercion.jpg','Inserción del catéter de inseminación con gel lubricante en la vulva de la cerda','2. Inserción: aplique gel lubricante en la punta del catéter e introdúzcalo dirigiéndolo hacia arriba, para evitar la vejiga.'],
+     ['images/m3-ia-fijacion.jpg','Técnico girando el catéter de inseminación para fijarlo en el cérvix de la cerda','3. Fijación: al sentir el tope del cérvix, gire el catéter hacia la izquierda (contra el reloj) para que quede fijo.'],
+     ['images/m3-ia-inseminacion.jpg','Cerda de pie en su jaula con la dosis de semen conectada durante la inseminación artificial','4. Inseminación: conecte la dosis. No apriete la botella — deje que la cerda absorba el semen por succión natural (puede tardar 4–5 minutos).']]},
    {kind:'alert',body:'Servir fuera de la ventana de 12–24 horas es la causa más frecuente de repetición de celo. Cada repetición cuesta 21 días vacíos: multiplique ese tiempo por el costo diario de mantener a la cerda y verá el peso real del error.'},
    {kind:'key',body:'La gestación de la cerda sigue la regla del <b>3-3-3</b>: 3 meses, 3 semanas y 3 días — 114 días exactos desde el servicio hasta el parto. Apréndase esta regla de memoria: la usará en toda la granja.'},
    {label:'Ponga a prueba lo aprendido',kind:'quick',
@@ -2419,8 +2429,9 @@ const DEEP={
       ['Presencia del verraco','El contacto diario (vista, olor, contacto físico breve) adelanta y sincroniza el celo de las cerdas, sobre todo en primerizas.'],
       ['Frecuencia y tipo de estímulo','Dos exposiciones diarias (mañana y tarde), de unos 10–15 minutos con contacto directo, funcionan mejor que una sola exposición larga.'],
       ['Cuando el celo no sale','Cambiar el verraco por otro desconocido, o generar un estrés controlado (cambio de corral), puede ayudar a disparar el celo en cerdas atrasadas.']]},
-   {kind:'image',src:'images/m3-verraco.jpg',alt:'Verraco en su corral individual sobre cama de viruta',
-    cap:'El verraco en su corral individual: contacto con las hembras, pero sin mezclarse con la piara.'},
+   {kind:'gallery',items:[
+     ['images/m3-verraco.jpg','Verraco en su corral individual sobre cama de viruta','El verraco en su corral individual: contacto con las hembras, pero sin mezclarse con la piara.'],
+     ['images/m3-monta-natural.jpg','Monta natural entre verraco y cerda en un corral de servicio','Monta natural: el verraco 1 vez cada 2 días, sin sobrecargarlo, con 2 servicios por celo.']]},
    {label:'Profundización — equipo de IA',title:'El equipo mínimo para inseminar bien',kind:'table',
     cap:'Equipo para la inseminación artificial',head:['Equipo','Para qué sirve'],
     rows:[['Botella o ampolla de semen','Contiene la dosis a aplicar'],['Pipeta de inseminación','Se introduce en el aparato reproductor de la cerda'],['Gel lubricante','Facilita la introducción de la pipeta sin lastimar a la cerda'],['Guantes','Higiene para la cerda y para quien insemina'],['Toallas de papel o servilletas','Limpiar la vulva antes de inseminar']]},
@@ -2471,9 +2482,12 @@ const DEEP={
     body:['El lechón nace con apenas <b>1.3–1.6 kg</b>, casi sin grasa y con muy pocas reservas de energía y hierro. No regula bien su temperatura: si la sala está fría, gasta su energía en calentarse en vez de crecer, se debilita y muere aplastado o de hambre.',
       'El <b>calostro</b> (la primera leche) es vital: aporta anticuerpos y energía. El intestino solo los absorbe durante las primeras <b>24–36 horas</b> (cierre intestinal). Por eso el calostro <b>temprano y abundante</b> es la mejor vacuna del lechón.'],
     note:['warn','🌡️','Zona de calor separada','El lechón necesita 30–34 °C, pero la cerda solo 18–21 °C. La solución es una zona de calor (lámpara o placa) donde el lechón se refugie, apartada de la cerda para evitar aplastamientos.']},
+   {kind:'image',src:'images/m4-atencion-parto.jpg',alt:'Trabajadora agrícola atendiendo a lechones recién nacidos junto a la zona de calor',
+    cap:'Atención al parto: supervisar sin intervenir de más — normal son 8–16 lechones, con 10–20 minutos entre nacimientos.'},
    {kind:'gallery',items:[
      ['images/m4-camada-recien-nacidos.jpg','Camada de lechones recién nacidos junto a la cerda','Camada recién nacida: cuanto antes mamen calostro, mejor su defensa inmunitaria.'],
-     ['images/m4-zona-calor.jpg','Lechones agrupados bajo una lámpara de calor en la paridera','Los lechones buscan la zona de calor por instinto: si está bien ubicada, se alejan de la cerda.']]},
+     ['images/m4-zona-calor.jpg','Lechones agrupados bajo una lámpara de calor en la paridera','Los lechones buscan la zona de calor por instinto: si está bien ubicada, se alejan de la cerda.'],
+     ['images/m4-calostro-lactancia.jpg','Camada de lechones mamando calostro en fila junto a la cerda','El calostro es vida: los primeros minutos de lactancia definen la defensa inmunitaria de toda la camada.']]},
    {label:'Profundización — temperatura',title:'Temperatura de la zona del lechón, semana a semana',kind:'table',
     cap:'Temperatura de la fuente de calor del lechón (referencia)',head:['Edad','Temp. de la zona'],
     rows:[['Días 0–3','32–34 °C'],['Semana 1','30–32 °C'],['Semana 2','28–30 °C'],['Semana 3','26–28 °C'],['Al destete','24–26 °C']]},
@@ -2513,8 +2527,9 @@ const DEEP={
       ['Día 5: alimento líquido','Se introduce un suplemento líquido en la paridera para acostumbrar al lechón a comer algo distinto a la leche.'],
       ['Día 10: alimento sólido','Se ofrece alimento sólido (preiniciador) en comederos pequeños dentro de la paridera: cuanto antes coma sólido, más suave será la transición al destete.'],
       ['Chequeo de condición corporal antes del destete','Revisar el estado de la cerda antes de destetar ayuda a decidir su próximo manejo reproductivo y evita destetar camadas de cerdas muy desgastadas sin plan.']]},
-   {kind:'image',src:'images/m4-alimento-solido-paridera.jpg',alt:'Lechones comiendo alimento sólido en un comedero pequeño dentro de la paridera',
-    cap:'Alimento sólido en la propia paridera (creep feeding): el lechón se acostumbra a comer antes de perder la leche de la madre.'},
+   {kind:'gallery',items:[
+     ['images/m4-alimento-solido-paridera.jpg','Lechones comiendo alimento sólido en un comedero pequeño dentro de la paridera','Alimento sólido en la propia paridera (creep feeding): el lechón se acostumbra a comer antes de perder la leche de la madre.'],
+     ['images/m4-creep-feeding.jpg','Lechones bebiendo agua y comiendo en comedero especial de creep feeding junto a la cerda','Comedero y bebedero de creep feeding: alimento fresco, muy palatable, en pequeñas cantidades varias veces al día.']]},
    {kind:'image',diagram:true,src:'images/m4-jaula-maternidad-diagrama.jpg',alt:'Diagrama con las medidas correctas de una jaula de maternidad',
     cap:'Medidas de referencia de una jaula de maternidad — compárelas con las que ya vio en el Módulo 2.'},
    {label:'Profundización — el golpe del destete',title:'Por qué el lechón «se cae» de peso justo después del destete',kind:'prose',
