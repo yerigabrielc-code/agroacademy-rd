@@ -399,15 +399,16 @@ ul.clean.err li::before{background:var(--crit)} ul.clean.win li::before{backgrou
 @media(max-width:640px){.pstep-cell:nth-child(odd){border-right:0}}
 @media(min-width:641px){.pstep-cell:nth-child(odd){border-right:1px solid var(--border)}}
 
-/* fotos e ilustraciones */
-.pic-card{margin:18px 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);background:var(--panel)}
-.pic-card img{width:100%;height:auto;display:block;max-height:460px;object-fit:cover;background:var(--ivory-2)}
+/* fotos e ilustraciones — la imagen se muestra completa, nunca recortada;
+   el diseño se adapta a su orientación y proporción originales */
+.pic-card{margin:18px 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);background:var(--ivory-2)}
+.pic-card img{width:100%;height:auto;max-height:78vh;display:block;object-fit:contain;background:var(--ivory-2);margin:0 auto}
 .pic-cap{padding:11px 16px;font-size:13px;color:var(--muted);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-start}
-.pic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:18px 0}
+.pic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:18px 0;align-items:start}
 .pic-grid .pic-card{margin:0}
 .pic-card.bad{border-color:color-mix(in srgb,var(--crit) 40%,var(--border))}
 .pic-card.bad .pic-cap{background:var(--crit-wash);color:var(--crit);font-weight:600}
-.pic-card.diagram img{object-fit:contain;background:#fff;max-height:420px;padding:10px}
+.pic-card.diagram img{background:#fff;padding:10px}
 
 /* pantalla de cierre del curso — fin del Módulo 12 */
 .finale{position:relative;margin-top:8px;border-radius:26px;overflow:hidden;min-height:56vh;
