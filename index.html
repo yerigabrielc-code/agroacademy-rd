@@ -293,6 +293,112 @@ ul.clean.err li::before{background:var(--crit)} ul.clean.win li::before{backgrou
 .check input:checked::after{content:"✓";position:absolute;inset:0;color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800}
 .check input:checked+span{color:var(--muted);text-decoration:line-through}
 
+/* ============================================================
+   SISTEMA DE COMPONENTES PEDAGÓGICOS (dinamismo de contenido)
+   ============================================================ */
+/* timeline temporal (ciclo reproductivo, gestación, vacunación...) */
+.dtl{position:relative;margin:22px 0 4px;padding-left:30px}
+.dtl::before{content:"";position:absolute;left:9px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.dtl-item{position:relative;padding-bottom:26px}
+.dtl-item:last-child{padding-bottom:0}
+.dtl-item::before{content:"";position:absolute;left:-30px;top:5px;width:14px;height:14px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--panel);box-shadow:0 0 0 2px var(--accent)}
+.dtl-day{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.05em;
+  color:var(--accent-d);background:var(--accent-wash);padding:3px 10px;border-radius:100px;margin-bottom:6px}
+.dtl-item b{display:block;font-size:15.5px;margin-bottom:3px}
+.dtl-item p{font-size:13.5px;color:var(--text-2);margin:0}
+
+/* paso a paso detallado: QUÉ HACER / POR QUÉ / QUÉ NECESITO / QUÉ EVITAR */
+.pstep-list{display:grid;gap:16px;margin:18px 0}
+.pstep{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.pstep-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--accent-wash)}
+.pstep-n{width:38px;height:38px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:16px;flex:none}
+.pstep-head b{font-size:16px}
+.pstep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.pstep-cell{padding:14px 20px;border-top:1px solid var(--border)}
+.pstep-cell .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.pstep-cell p{font-size:13.5px;margin:0;color:var(--text-2)}
+.pstep-cell.evitar .lab{color:var(--crit)}
+.pstep-cell.necesito .lab{color:var(--amber-d)}
+
+/* infografía: icono → concepto → explicación → recomendación */
+.infogrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:18px 0}
+.infocard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:10px}
+.infocard .ic-ico{width:46px;height:46px;border-radius:13px;background:var(--accent-wash);color:var(--accent-d);
+  display:grid;place-items:center;font-size:24px}
+.infocard b{font-size:15.5px}
+.infocard .ic-exp{font-size:13.5px;color:var(--text-2);margin:0}
+.infocard .ic-rec{font-size:12.5px;color:var(--accent-d);background:var(--accent-wash);border-radius:9px;
+  padding:8px 11px;display:flex;gap:7px;align-items:flex-start;margin-top:2px}
+
+/* comparación A vs B */
+.vs-wrap{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch;margin:18px 0}
+.vs-col{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.vs-col h4{margin:0 0 12px;font-size:15.5px;display:flex;align-items:center;gap:8px}
+.vs-col.a{border-top:3px solid var(--green)} .vs-col.b{border-top:3px solid var(--crit)}
+.vs-badge{align-self:center;font-family:var(--mono);font-weight:800;font-size:12.5px;color:#fff;
+  background:var(--char);width:38px;height:38px;border-radius:50%;display:grid;place-items:center}
+@media(max-width:640px){.vs-wrap{grid-template-columns:1fr}.vs-badge{justify-self:center}}
+
+/* alerta del productor / dato clave — variantes del .note existente */
+.note.alert{background:var(--crit-wash);border:1.5px solid color-mix(in srgb,var(--crit) 35%,transparent)}
+.note.alert .ico{background:var(--crit);color:#fff} .note.alert b{color:var(--crit)}
+.note.key{background:color-mix(in srgb,#6B4E9E 12%,var(--panel));border:1.5px solid color-mix(in srgb,#6B4E9E 32%,transparent)}
+.note.key .ico{background:#6B4E9E;color:#fff} .note.key b{color:#6B4E9E}
+
+/* caso práctico con decisión guiada */
+.case2{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow);margin:18px 0}
+.case2 .cs-tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-d);
+  background:var(--accent-wash);padding:4px 10px;border-radius:100px;display:inline-block;margin-bottom:10px}
+.case2 .cs-sit{font-size:15px;line-height:1.55;color:var(--text)}
+.case2 .cs-q{font-size:13.5px;color:var(--muted);margin-top:10px;font-style:italic}
+.case2 details{margin-top:14px}
+.case2 summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--accent-d);list-style:none;
+  display:inline-flex;align-items:center;gap:8px;user-select:none}
+.case2 summary::-webkit-details-marker{display:none}
+.case2 summary::before{content:"▸";transition:transform .2s}
+.case2 details[open] summary::before{transform:rotate(90deg)}
+.case2 .cs-ans{margin-top:12px;padding:14px 16px;background:var(--green-wash);border-radius:11px;font-size:13.5px;color:var(--text-2)}
+.case2 .cs-why{margin-top:8px;font-size:12.5px;color:var(--muted)}
+
+/* pregunta rápida (autoevaluación no calificada) */
+.qchk{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin:18px 0}
+.qchk .qq{font-size:14.5px;font-weight:700;margin-bottom:12px}
+.qchk .qopts{display:flex;gap:10px;flex-wrap:wrap}
+.qchk button{font:inherit;font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:100px;
+  border:1.5px solid var(--border);background:var(--ivory-2);color:var(--text);cursor:pointer;transition:.15s}
+.qchk button:hover:not(:disabled){border-color:var(--accent)}
+.qchk button:disabled{cursor:default}
+.qchk button.ok{background:var(--green-wash);border-color:var(--green);color:var(--green-d)}
+.qchk button.bad{background:var(--crit-wash);border-color:var(--crit);color:var(--crit)}
+.qchk .qfb{margin-top:12px;font-size:13.5px;color:var(--text-2);display:none}
+.qchk .qfb.show{display:block}
+
+/* micro-resumen dentro de una sección */
+.minisum{background:var(--green-wash);border-radius:14px;padding:18px 20px;margin:18px 0}
+.minisum .ms-tt{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--green-d);font-weight:700;margin-bottom:10px}
+.minisum ul{display:grid;gap:7px}
+.minisum li{display:flex;gap:9px;font-size:14px;color:var(--text-2)}
+.minisum li::before{content:"✓";flex:none;color:var(--green);font-weight:800}
+
+/* cierre de módulo: lo que debes dominar + antes de continuar */
+.mastery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:8px}
+.mastery-item{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;font-size:14px;color:var(--text-2)}
+.mastery-item .mi{flex:none;width:26px;height:26px;border-radius:8px;background:var(--green-wash);color:var(--green-d);
+  display:grid;place-items:center;font-size:13px;font-weight:800}
+.reflect-box{background:linear-gradient(180deg,var(--amber-wash),var(--panel));border:1px solid var(--border);
+  border-radius:16px;padding:24px;margin-top:14px}
+.reflect-box .rb-tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--amber-d);font-weight:700;margin-bottom:8px}
+.reflect-box p{font-size:15px;color:var(--text);font-style:italic;margin:0}
+@media(max-width:640px){.pstep-cell:nth-child(odd){border-right:0}}
+@media(min-width:641px){.pstep-cell:nth-child(odd){border-right:1px solid var(--border)}}
+
 /* exercise / eval boxes */
 .panel-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:26px;
   box-shadow:var(--shadow);margin:18px 0}
@@ -1981,7 +2087,9 @@ const EXTRA = {
       ['La gestación de la cerda dura aproximadamente:',[['90 días',false],['114 días (3 meses, 3 semanas, 3 días)',true],['150 días',false]],'Regla del 3-3-3: 114 días.'],
       ['En verano, para mejorar la fertilidad conviene servir:',[['Al mediodía',false],['En las horas frescas (madrugada o noche)',true],['Cuando haya tiempo',false]],'El calor reduce la fertilidad; servir en fresco ayuda.']],
     summary:['El motor de la granja es la cerda: la meta es más lechones destetados por cerda por año.','El celo se detecta con verraco + reflejo de inmovilidad; se sirve 12–24 h después, doble servicio.','La gestación dura 114 días (regla 3-3-3); se confirma por retorno de celo o ecografía.','El calor tropical reduce la fertilidad: servir en fresco, dar sombra y agua.','Sin ficha reproductiva por cerda no hay mejora posible.'],
-    res:[['📋','Registro reproductivo de cerdas','Formato editable por cerda'],['📅','Calendario de partos','Calcula el parto a 114 días'],['🎥','Guía de detección de celo','Signos y reflejo de inmovilidad'],['📝','Evaluación Módulo 3','Preguntas y clave']]},
+    res:[['📋','Registro reproductivo de cerdas','Formato editable por cerda'],['📅','Calendario de partos','Calcula el parto a 114 días'],['🎥','Guía de detección de celo','Signos y reflejo de inmovilidad'],['📝','Evaluación Módulo 3','Preguntas y clave']],
+    mastery:['Detectar el celo combinando la presencia del verraco y el reflejo de inmovilidad.','Ubicar la ventana óptima de servicio (12–24 h) y aplicar el doble servicio.','Explicar por qué la gestación dura 114 días y cómo confirmar la preñez.','Reconocer cómo el calor tropical afecta la fertilidad y ajustar el manejo.','Diferenciar razas maternas de razas de carne y el porqué del cruce comercial.','Aplicar las tres selecciones de reemplazos antes de incorporar una cerda a producción.'],
+    reflect:'¿Podría explicarle a otro productor, en menos de un minuto, por qué el reflejo de inmovilidad es más confiable que "ver a la cerda inquieta" para decidir el momento de servir?'},
 
  4:{introNote:['warn','⏱️','Las primeras 72 horas','Calor, calostro y hierro. En ese orden y a tiempo. Ahí se gana o se pierde la mayor parte de la mortalidad neonatal.'],
     procTitle:'Manejo del lechón recién nacido',
@@ -1995,7 +2103,9 @@ const EXTRA = {
       ['El hierro inyectable se aplica para prevenir:',[['Diarrea',false],['Anemia',true],['Estrés por calor',false]],'El lechón no obtiene suficiente hierro de la leche.'],
       ['Igualar (adoptar) camadas en las primeras 48 h sirve para:',[['Que todos los lechones tengan teta y crezcan parejo',true],['Ahorrar alimento',false],['Reducir el trabajo',false]],'Se pasan lechones de camadas grandes a cerdas con pocos.']],
     summary:['Las primeras 72 h deciden la vida del lechón: calor, calostro y hierro.','El calostro da inmunidad; el hierro previene anemia; el calor evita frío y aplastamiento.','Igualar camadas asegura que hasta los débiles mamen.','La higiene y el todo dentro–todo fuera cortan las diarreas.','Cada punto de mortalidad neonatal evitado es dinero directo.'],
-    res:[['🍼','Protocolo neonatal','Checklist de las primeras horas'],['💉','Ficha de hierro y vacunas','Registro por camada'],['📉','Registro de mortalidad','Causas y fechas'],['📝','Evaluación Módulo 4','Preguntas y clave']]},
+    res:[['🍼','Protocolo neonatal','Checklist de las primeras horas'],['💉','Ficha de hierro y vacunas','Registro por camada'],['📉','Registro de mortalidad','Causas y fechas'],['📝','Evaluación Módulo 4','Preguntas y clave']],
+    mastery:['Ejecutar el protocolo de las primeras horas: secar, calostro, cordón, hierro.','Explicar por qué el calostro debe darse dentro de las primeras 24–36 horas.','Reconocer y prevenir las cuatro causas principales de mortalidad neonatal.','Igualar camadas según el número de tetas funcionales de cada cerda.','Aplicar la transición de alimento líquido (día 5) y sólido (día 10) en la paridera.','Reconocer el «golpe del destete» y aplicar las tres fases de alimentación posteriores.'],
+    reflect:'Si entra a una paridera y encuentra un lechón tembloroso y apartado del grupo, ¿en qué orden revisaría calor, calostro y sanidad antes de decidir qué hacer?'},
 
  5:{introNote:['warn','💰','El 60% del costo','Aquí se gana o se pierde la rentabilidad. Cada décima de conversión y cada kilo desperdiciado se traducen en pesos.'],
     procTitle:'Alimentar por fase y controlar el costo',
@@ -2009,7 +2119,9 @@ const EXTRA = {
       ['¿Qué componente suele ser cerca del 60% del costo de producción?',[['Alimento',true],['Mano de obra',false],['Medicinas',false]],'Por eso la CA y el desperdicio son tan importantes.'],
       ['Un buen objetivo de CA en engorde ronda:',[['1.0–1.5',false],['2.6–3.0',true],['4.0–5.0',false]],'Depende de genética, dieta y manejo, pero 2.6–3.0 es una buena meta.']],
     summary:['El alimento es cerca del 60% del costo: la nutrición decide la rentabilidad.','Alimentar por fase y regular comederos reduce costo y desperdicio.','La CA (alimento ÷ ganancia) traduce el manejo en pesos; meta 2.6–3.0.','El agua es el nutriente olvidado: sin agua no hay ganancia.','Conocer el costo por kg permite fijar bien el precio de venta.'],
-    res:[['🧮','Calculadora de costo de ración','Excel de formulación'],['🍽️','Registro de alimentación','Consumo y CA por lote'],['💧','Ficha de calidad de agua','Chequeos básicos'],['📝','Evaluación Módulo 5','Preguntas y clave']]},
+    res:[['🧮','Calculadora de costo de ración','Excel de formulación'],['🍽️','Registro de alimentación','Consumo y CA por lote'],['💧','Ficha de calidad de agua','Chequeos básicos'],['📝','Evaluación Módulo 5','Preguntas y clave']],
+    mastery:['Identificar los cinco nutrientes esenciales y por qué el agua es el «olvidado».','Ajustar la dieta según la fase productiva del animal.','Calcular la conversión alimenticia (CA) y su impacto directo en el costo.','Reconocer el desperdicio de comedero como una fuga de dinero evitable.','Estimar el costo de alimentar un cerdo de 25 a 100 kg con una CA de referencia.'],
+    reflect:'Si su CA actual es 3.2 y la meta del curso es 2.8, ¿cuántos kilos de alimento se ahorraría por cada cerdo de 75 kg de ganancia? Hágalo antes de seguir.'},
 
  6:{introNote:['crit','🛑','PPA: sin vacuna comercial masiva','La Peste Porcina Africana se previene SOLO con bioseguridad. Un descuido puede costar toda la piara. Prevenir es infinitamente más barato que curar.'],
     procTitle:'Protocolo de bioseguridad diaria',
@@ -2023,7 +2135,9 @@ const EXTRA = {
       ['Un animal nuevo que llega a la granja debe:',[['Entrar directo a la piara',false],['Pasar por cuarentena y observación',true],['Vacunarse y ya',false]],'La cuarentena evita introducir enfermedades.'],
       ['El vacío sanitario entre lotes consiste en:',[['Dejar el corral con animales',false],['Vaciar, limpiar, desinfectar y secar antes de repoblar',true],['Reducir el alimento',false]],'Rompe el ciclo de contagio entre grupos.']],
     summary:['En la era de la PPA, la sanidad es supervivencia del negocio.','Prevenir cuesta muchísimo menos que curar.','Bioseguridad por capas: ingreso controlado, cuarentena, desinfección.','Vigilar signos y aislar a tiempo evita brotes.','La mortalidad se maneja de forma sanitaria y registrada.'],
-    res:[['🛡️','Protocolo de bioseguridad','Guía imprimible para la granja'],['💉','Calendario sanitario','Plantilla de vacunación'],['🚧','Cartel de ingreso','Reglas de visitas y vehículos'],['📝','Evaluación Módulo 6','Preguntas y clave']]},
+    res:[['🛡️','Protocolo de bioseguridad','Guía imprimible para la granja'],['💉','Calendario sanitario','Plantilla de vacunación'],['🚧','Cartel de ingreso','Reglas de visitas y vehículos'],['📝','Evaluación Módulo 6','Preguntas y clave']],
+    mastery:['Explicar las tres capas de la bioseguridad: externa, interna y de personas.','Reconocer los signos de alerta de PPA y qué hacer ante ellos.','Aplicar cuarentena a todo animal nuevo antes de integrarlo a la piara.','Ejecutar el vacío sanitario completo entre lotes.','Reconocer las enfermedades respiratorias, digestivas y de piel más frecuentes en destete y engorde.','Leer un calendario de vacunación real y estimar su costo por cerdo.'],
+    reflect:'¿Sabría explicar, en sus propias palabras, por qué la bioseguridad «no cuesta, ahorra la granja entera»?'},
 
  7:{introNote:['tip','🔀','Cada cambio de fase es un punto crítico','Dieta, ambiente y espacio deben cambiar con el animal. Las transiciones mal hechas cuestan días y kilos.'],
     procTitle:'Manejo por etapa productiva',
@@ -2037,7 +2151,9 @@ const EXTRA = {
       ['El hacinamiento (poca área por animal) provoca:',[['Mejor crecimiento',false],['Peleas, estrés y más enfermedad',true],['Ahorro sin costo',false]],'Respetar la densidad es clave para el bienestar y la ganancia.'],
       ['Una ganancia diaria (GDP) buena en engorde ronda:',[['200–300 g',false],['700–900 g',true],['1.5–2 kg',false]],'Depende de genética y dieta; 700–900 g es una buena meta.']],
     summary:['El cerdo avanza por etapas como una línea de producción.','Cada transición (dieta, ambiente, espacio) es un punto crítico.','Destetar a 21–28 días con dieta de transición evita el bache.','Respetar la densidad protege el bienestar y la ganancia.','Pesar por muestreo permite ajustar la dieta y proyectar la venta.'],
-    res:[['📏','Tabla de densidades','Espacio por animal y etapa'],['⚖️','Registro de pesos','Muestreo y proyección'],['🌡️','Ficha de ambiente','Temperatura por etapa'],['📝','Evaluación Módulo 7','Preguntas y clave']]},
+    res:[['📏','Tabla de densidades','Espacio por animal y etapa'],['⚖️','Registro de pesos','Muestreo y proyección'],['🌡️','Ficha de ambiente','Temperatura por etapa'],['📝','Evaluación Módulo 7','Preguntas y clave']],
+    mastery:['Describir el flujo del cerdo por maternidad, destete, precebo y engorde.','Aplicar «todo dentro–todo fuera» para cortar el contagio entre lotes.','Ajustar la densidad (espacio por animal) según el peso y el tipo de piso.','Suavizar la transición del destete con dieta y ambiente correctos.','Interpretar una curva de alimentación y de temperatura por peso corporal.'],
+    reflect:'¿Qué le diría a un productor que mete lechones de dos edades distintas en el mismo corral «para no perder espacio»?'},
 
  8:{introNote:['tip','📊','Lo que no se mide, no se mejora','Los registros convierten la granja en un negocio con tablero de control. Una granja pequeña con datos supera a una grande sin ellos.'],
     procTitle:'Montar el sistema de gestión',
@@ -2051,7 +2167,9 @@ const EXTRA = {
       ['El mejor uso de los registros es:',[['Archivarlos',false],['Calcular KPI y tomar decisiones',true],['Cumplir un requisito',false]],'Registrar, medir, analizar, decidir, mejorar.'],
       ['Una granja pequeña con buenos registros, frente a una grande sin ellos, suele ser:',[['Menos rentable',false],['Más rentable por decisión informada',true],['Igual',false]],'Los datos permiten mejorar; sin ellos se navega a ciegas.']],
     summary:['Administrar es cerrar el círculo: registrar, medir, analizar, decidir, mejorar.','Los registros y el inventario son la base del control.','Separar costos fijos y variables permite entender el negocio.','Los 6 KPI base gobiernan la granja.','Los datos solo valen si se usan para decidir.'],
-    res:[['🗂️','Set de registros','Producción, sanidad y mortalidad'],['📊','Tablero de KPI','Excel con cálculo automático'],['📦','Control de inventario','Alimento y medicinas'],['📝','Evaluación Módulo 8','Preguntas y clave']]},
+    res:[['🗂️','Set de registros','Producción, sanidad y mortalidad'],['📊','Tablero de KPI','Excel con cálculo automático'],['📦','Control de inventario','Alimento y medicinas'],['📝','Evaluación Módulo 8','Preguntas y clave']],
+    mastery:['Aplicar el ciclo registrar → medir → analizar → decidir → mejorar.','Separar costos fijos de variables y explicar por qué importa.','Calcular los 6 KPI base de una granja porcina.','Mantener un inventario de animales, alimento y medicinas.','Usar los datos para decidir, no solo para archivarlos.'],
+    reflect:'Si tuviera que elegir solo dos KPI para revisar cada semana, ¿cuáles elegiría y por qué?'},
 
  9:{introNote:['warn','🧮','La rentabilidad no se ve en el corral','Se ve en la hoja de cálculo. Todos los ejemplos van en RD$ y son de REFERENCIA: actualícelos con sus precios.'],
     procTitle:'Calcular la rentabilidad paso a paso',
@@ -2065,7 +2183,9 @@ const EXTRA = {
       ['El punto de equilibrio es el volumen donde:',[['Se maximiza la ganancia',false],['Ingresos = costos',true],['Se acaba el alimento',false]],'Por debajo se pierde; por encima se gana.'],
       ['Lo que el productor controla directamente es:',[['El precio de mercado',false],['Su costo de producción',true],['El clima',false]],'Por eso bajar el costo (CA, desperdicio) protege el margen.']],
     summary:['Una granja puede estar llena de cerdos y perder dinero.','La rentabilidad se calcula: inversión, costos fijos y variables, costo/kg.','El punto de equilibrio marca el mínimo para no perder.','El flujo de caja evita quedarse sin liquidez.','Todas las cifras son de referencia en RD$: actualícelas.'],
-    res:[['🧮','Calculadora de rentabilidad','Excel costo/kg y equilibrio'],['💵','Plantilla de inversión','Capital inicial y de trabajo'],['📈','Flujo de caja','Proyección mensual'],['📝','Evaluación Módulo 9','Preguntas y clave']]},
+    res:[['🧮','Calculadora de rentabilidad','Excel costo/kg y equilibrio'],['💵','Plantilla de inversión','Capital inicial y de trabajo'],['📈','Flujo de caja','Proyección mensual'],['📝','Evaluación Módulo 9','Preguntas y clave']],
+    mastery:['Calcular el costo por kg producido con todos los rubros incluidos.','Explicar la diferencia entre las dos formas de calcular el costo de un lechón.','Hallar el punto de equilibrio de su operación.','Explicar por qué el primer ciclo de un negocio no refleja su rentabilidad real.','Comparar los tres modelos de negocio y sus ventajas y riesgos.','Usar la calculadora de rentabilidad con sus propios números.'],
+    reflect:'Con su precio de venta actual (o uno de referencia de su zona), ¿su costo por kg le deja margen o está vendiendo a pérdida?'},
 
  10:{introNote:['tip','🤝','Producir es la mitad','Vender bien es la otra. Una buena estrategia comercial estabiliza ingresos y protege el margen ganado en la producción.'],
     procTitle:'Construir la estrategia comercial',
@@ -2079,7 +2199,9 @@ const EXTRA = {
       ['Depender de un solo comprador implica:',[['Más poder de negociación',false],['Mayor riesgo y menos poder de negociación',true],['Menor costo',false]],'Diversificar canales reduce el riesgo.'],
       ['Diferenciarse por sanidad y consistencia sirve para:',[['Vender más barato',false],['Negociar mejores precios y fidelizar',true],['Nada',false]],'La calidad constante es un argumento de venta.']],
     summary:['El precio del cerdo sube y baja; el costo lo controla usted.','Conocer el mercado y diversificar canales estabiliza los ingresos.','El precio se fija sobre el costo/kg, nunca por debajo.','Las relaciones y la calidad constante fidelizan a los compradores.','El plan de negocio integra producción, finanzas y mercado.'],
-    res:[['🏪','Mapa de canales','Pros y contras por canal'],['📋','Plantilla de plan de negocio','Estructura lista para llenar'],['🤝','Modelo de acuerdo','Con compradores'],['📝','Evaluación Módulo 10','Preguntas y clave']]},
+    res:[['🏪','Mapa de canales','Pros y contras por canal'],['📋','Plantilla de plan de negocio','Estructura lista para llenar'],['🤝','Modelo de acuerdo','Con compradores'],['📝','Evaluación Módulo 10','Preguntas y clave']],
+    mastery:['Fijar el precio de venta siempre por encima del costo por kg.','Diversificar canales de venta para no depender de un solo comprador.','Reconocer los pros y contras de cada canal de comercialización.','Aprovechar la estacionalidad del mercado dominicano en su planificación.','Armar la estructura básica de un plan de negocio.'],
+    reflect:'¿Qué pasaría con sus ingresos si su único comprador bajara el precio un 15% mañana?'},
 
  11:{introNote:['tip','💻','El Excel bien usado gana','Un teléfono y una hoja de cálculo bien usados valen más que un software caro mal usado. Digitalizar es decidir mejor y más rápido.'],
     procTitle:'De la libreta al Excel',
@@ -2093,7 +2215,9 @@ const EXTRA = {
       ['La tecnología en la granja debe:',[['Reemplazar el buen manejo',false],['Potenciar el buen manejo y las decisiones',true],['Ser lo más cara posible',false]],'No sustituye el manejo: lo hace más eficiente.'],
       ['Un buen hábito con el tablero de KPI es:',[['Mirarlo una vez al año',false],['Revisarlo al menos semanalmente',true],['No mirarlo',false]],'La revisión frecuente permite corregir a tiempo.']],
     summary:['La tecnología no reemplaza el buen manejo: lo potencia.','El Excel o Sheets es una base poderosa y accesible.','Automatizar fechas y KPI convierte los datos en decisiones.','Las alertas de inventario evitan quedarse sin alimento.','Revisar semanalmente y respaldar los datos es clave.'],
-    res:[['💻','Excel de gestión de granja','Plantilla con tablero automático'],['📅','Automatización reproductiva','Fechas de parto y destete'],['📦','Control de inventario digital','Alertas de reposición'],['📝','Evaluación Módulo 11','Preguntas y clave']]},
+    res:[['💻','Excel de gestión de granja','Plantilla con tablero automático'],['📅','Automatización reproductiva','Fechas de parto y destete'],['📦','Control de inventario digital','Alertas de reposición'],['📝','Evaluación Módulo 11','Preguntas y clave']],
+    mastery:['Priorizar qué registro digitalizar primero según su impacto.','Automatizar el cálculo de fechas reproductivas (servicio → parto → destete).','Armar un tablero de KPI que se calcule solo.','Explicar por qué la tecnología potencia el manejo, no lo reemplaza.','Establecer el hábito de revisión semanal de los indicadores.'],
+    reflect:'¿Cuál registro de su granja le está costando más tiempo o errores por seguir llevándolo solo en papel?'},
 
  12:{introNote:['good','🎓','Su carta de navegación','No es un examen más: es el documento con el que puede iniciar la granja, buscar financiamiento o convencer a un socio.'],
     procTitle:'Cómo construir el proyecto final',
@@ -2107,7 +2231,9 @@ const EXTRA = {
       ['El proyecto final integra principalmente:',[['Solo el diseño de corrales',false],['Producción, finanzas y comercialización',true],['Solo la sanidad',false]],'Es la síntesis de todo el curso.'],
       ['Las cifras económicas del proyecto deben presentarse:',[['Como oficiales',false],['Como referencia en RD$, con supuestos claros',true],['Sin fuente',false]],'Nunca inventar datos como oficiales: marcarlos como referencia.']],
     summary:['El proyecto final integra los 11 módulos en un plan ejecutable.','Define modelo, instalaciones, alimentación, sanidad y personal.','Cierra las finanzas: inversión, costo/kg, equilibrio y rentabilidad.','Se presenta con KPI y proyección, en RD$ de referencia.','Es su carta de navegación para iniciar o financiar la granja.'],
-    res:[['📋','Plantilla de proyecto final','Estructura de 6 secciones'],['🧮','Modelo financiero integrado','Excel de rentabilidad'],['🎤','Guía de presentación','Cómo defender el proyecto'],['🎓','Certificado del curso','Formato de aprobación']]}
+    res:[['📋','Plantilla de proyecto final','Estructura de 6 secciones'],['🧮','Modelo financiero integrado','Excel de rentabilidad'],['🎤','Guía de presentación','Cómo defender el proyecto'],['🎓','Certificado del curso','Formato de aprobación']],
+    mastery:['Integrar los 11 módulos anteriores en un solo documento coherente.','Definir su modelo de negocio, escala y genética con argumentos propios.','Presentar instalaciones con bioseguridad y flujo correctamente diseñados.','Cerrar unas finanzas creíbles: inversión, costo/kg, equilibrio y rentabilidad.','Defender el proyecto con KPI y proyección ante un financiador o socio.'],
+    reflect:'Si tuviera que defender su proyecto ante un banco en 3 minutos, ¿cuáles serían sus primeras tres frases?'}
 };
 
 /* ============================================================
@@ -2115,6 +2241,15 @@ const EXTRA = {
    ============================================================ */
 const DEEP={
  3:{sections:[
+   {label:'Línea de tiempo',title:'El ciclo reproductivo, día por día',kind:'timeline',
+    items:[['DÍA 0','Servicio','Monta o inseminación dentro de la ventana de 12–24 h desde el inicio del celo.'],
+      ['DÍA 21','Verificación de celo','Si la cerda NO vuelve a mostrar celo, es la primera señal de que quedó preñada.'],
+      ['DÍA 30','Confirmación de gestación','Momento recomendado para confirmar por ecografía, si tiene el equipo disponible.'],
+      ['DÍA 90–114','Preparación del parto','Aumente el alimento (flushing de gestación) y prepare la zona de calor del lechón.'],
+      ['DÍA 114','Parto','Regla del 3-3-3: 3 meses, 3 semanas y 3 días exactos desde el servicio.']]},
+   {label:'Compare',title:'Cerda primeriza vs. cerda multípara',kind:'compare',
+    a:{icon:'🐖',title:'Primeriza (1er parto)',items:['Celo más corto: hay que estar más atento.','Camadas algo más pequeñas (8–10 lechones).','Debe alcanzar 135–150 kg antes de servir.','Responde muy bien al efecto del verraco.']},
+    b:{icon:'🐷',title:'Multípara (2do–6to parto)',items:['Celo más largo y fácil de detectar.','Camadas más grandes (11–14 lechones).','Mejor condición corporal si se maneja bien.','Rendimiento máximo entre el 2º y 5º parto.']}},
    {label:'Profundización — el ciclo estral',title:'El celo, la ovulación y por qué el momento lo es todo',kind:'prose',
     body:['El celo de la cerda se repite en promedio cada <b>21 días</b> (rango 18–24). El celo receptivo —cuando la cerda se deja montar y muestra el reflejo de inmovilidad— dura <b>48 a 60 horas</b> en la cerda adulta y suele ser <b>más corto</b> en la primeriza (nulípara).',
       'La ovulación ocurre hacia los <b>dos tercios finales</b> del celo. Como los óvulos y los espermatozoides tienen vida limitada, servir demasiado pronto o demasiado tarde reduce la fecundación. Por eso se recomienda el <b>doble servicio</b>: uno al confirmar el reflejo de inmovilidad y otro 12–24 h después.'],
@@ -2130,6 +2265,14 @@ const DEEP={
     rows:[['Destete a servicio','2.5–3.5 (flushing)','Estimular la ovulación'],['Gestación 0–35 días','1.8–2.2','No sobrealimentar (evita muerte embrionaria)'],['Gestación 35–90 días','2.0–2.5','Mantener la condición corporal'],['Gestación 90 días–parto','3.0–3.5','Desarrollo fetal y de la ubre'],['Día del parto','0.5–1.5','Reducir para facilitar el parto'],['Lactancia','5–8 (a voluntad)','Máxima producción de leche']]},
    {label:'Profundización — inseminación',title:'Inseminación artificial (IA) paso a paso',kind:'steps',
     items:[['1. Temperar la dosis','Sáquela del conservador (16–18 °C) y homogenícela suavemente. Ni fría ni caliente.'],['2. Higiene','Limpie la vulva con papel seco. Nunca use agua que escurra hacia adentro.'],['3. Introducir el catéter','Diríjalo ligeramente hacia arriba hasta fijarlo en el cuello uterino (sensación de bloqueo).'],['4. Depositar la dosis','La cerda en celo la absorbe en 3–5 minutos. Estimular (presión en el lomo, contacto del verraco) mejora el transporte.'],['5. Segundo servicio','Repita a las 12–24 h mientras siga en celo. Registre fecha y verraco o dosis.']]},
+   {kind:'alert',body:'Servir fuera de la ventana de 12–24 horas es la causa más frecuente de repetición de celo. Cada repetición cuesta 21 días vacíos: multiplique ese tiempo por el costo diario de mantener a la cerda y verá el peso real del error.'},
+   {kind:'key',body:'La gestación de la cerda sigue la regla del <b>3-3-3</b>: 3 meses, 3 semanas y 3 días — 114 días exactos desde el servicio hasta el parto. Apréndase esta regla de memoria: la usará en toda la granja.'},
+   {label:'Ponga a prueba lo aprendido',kind:'quick',
+    q:'¿Verdadero o falso? Una cerda que repite celo a los 18 días probablemente falló el momento del servicio.',
+    opts:[['Verdadero',true],['Falso',false]],
+    fb:'Verdadero. Repetir entre 18–24 días indica fallo de fecundación (momento o calidad del semen); repetir después de 24 días sugiere muerte embrionaria.'},
+   {label:'Checklist de campo',title:'Antes de entrar al galpón de reproducción',kind:'checklist',
+    items:['Verraco celador sano y disponible para la ronda diaria.','Ficha de celo a la mano antes de empezar.','Cerdas gestantes con condición corporal 3 revisada.','Zona de parideras limpia y con fuente de calor lista.','Registro de la fecha de servicio anotado el mismo día.']},
    {label:'Profundización — preguntas frecuentes',title:'Preguntas frecuentes',kind:'faq',
     items:[['¿Cuánto dura una dosis de semen refrigerada?','A 16–18 °C, de 3 a 5 días según el diluyente. Nunca la ponga en nevera doméstica: se enfría de más y mueren los espermatozoides.'],['La cerda no repite celo ni pare, ¿qué pasó?','Puede haber una pseudogestación o una reabsorción. Confirme la preñez por ecografía a los 28–35 días para no acumular días vacíos.'],['¿Por qué la primeriza necesita atención especial?','Su celo es más corto: adelante la primera inseminación y use bien el efecto del verraco.']]},
    {label:'Profundización — genética',title:'Razas maternas, razas de carne y el cruce comercial',kind:'concepts',
@@ -2190,6 +2333,17 @@ const DEEP={
     rows:[['Ejemplo (EP001)','15 oct · 23 sem','3–5 nov · 26 sem','25 nov · 29 sem','16 dic · 32 sem · 140 kg'],['La suya','','','','']]}
  ]},
  4:{sections:[
+   {label:'Línea de tiempo',title:'La vida del lechón, del nacimiento al destete',kind:'timeline',
+    items:[['HORA 0','Nacimiento','Secar de inmediato, liberar vías respiratorias y llevarlo a la zona de calor.'],
+      ['HORA 0–6','Primer calostro','La ventana más importante de todo el módulo: anticuerpos y energía.'],
+      ['DÍA 1–3','Hierro e identificación','Previene la anemia; el lechón no obtiene suficiente hierro de la leche.'],
+      ['DÍA 3–5','Igualar camadas','Reubicación entre cerdas según el número de tetas funcionales.'],
+      ['DÍA 5','Alimento líquido','Primer contacto con algo distinto a la leche materna.'],
+      ['DÍA 10','Alimento sólido','Preiniciador (creep feeding) ofrecido en la propia paridera.'],
+      ['DÍA 21–28','Destete','Cierre del ciclo de maternidad y salida hacia el precebo.']]},
+   {label:'Compare',title:'Lechón sano vs. lechón con signos de alerta',kind:'compare',
+    a:{icon:'✅',title:'Lechón sano',items:['Piel rosada, pelo liso, activo.','Busca la teta y mama con fuerza.','Se mueve hacia el calor cuando siente frío.','Gana peso de forma pareja con la camada.']},
+    b:{icon:'🚨',title:'Con signos de alerta',items:['Tembloroso, apartado del grupo.','No mama o mama muy poco.','Piel pálida (posible anemia) o diarrea.','Peso muy por debajo del resto de la camada.']}},
    {label:'Profundización — el neonato',title:'Por qué el lechón recién nacido es tan frágil',kind:'prose',
     body:['El lechón nace con apenas <b>1.3–1.6 kg</b>, casi sin grasa y con muy pocas reservas de energía y hierro. No regula bien su temperatura: si la sala está fría, gasta su energía en calentarse en vez de crecer, se debilita y muere aplastado o de hambre.',
       'El <b>calostro</b> (la primera leche) es vital: aporta anticuerpos y energía. El intestino solo los absorbe durante las primeras <b>24–36 horas</b> (cierre intestinal). Por eso el calostro <b>temprano y abundante</b> es la mejor vacuna del lechón.'],
@@ -2201,6 +2355,19 @@ const DEEP={
     items:[['Día 0','Secar, calostro en la primera hora, cortar y desinfectar el cordón con yodo, y colocarlo en la zona de calor.'],['Día 1–3','Aplicar hierro inyectable (previene anemia), identificar la camada e igualar camadas (adopciones) en las primeras 24–48 h.'],['Día 3–5','Descolmillar y cortar cola solo si el protocolo lo exige y con buena técnica. Castración temprana con higiene, cuando aplique.'],['Día 7–14','Ofrecer preiniciador (creep feeding) para acostumbrar el intestino al alimento sólido.'],['Día 21–28','Destete: pasar a un corral limpio, mantener el mismo alimento unos días, agua fresca y sin corrientes.']]},
    {label:'Profundización — problemas frecuentes',title:'Los cuatro problemas que más matan lechones',kind:'concepts',
     items:[['Aplastamiento','Primera causa de muerte. Se reduce con la zona de calor que atrae al lechón, barras guarda-lechón y vigilancia del parto.'],['Anemia ferropénica','El lechón no obtiene suficiente hierro de la leche. Sin la inyección se pone pálido, débil y crece poco. Es 100% prevenible.'],['Diarrea neonatal','Causada por E. coli, clostridios, coccidios o rotavirus. Se combate con calor, calostro e higiene; la deshidratación mata rápido.'],['Lechón de bajo peso (runt)','Colóquelo con una cerda de buena leche y tetas libres; si no progresa pese al manejo, priorice el resto de la camada.']]},
+   {kind:'alert',body:'El aplastamiento es la primera causa de muerte en lechones. Una cerda sin una zona de calor separada para su camada puede aplastar más de un lechón por parto sin que el productor lo note a tiempo.'},
+   {kind:'key',body:'El intestino del lechón solo absorbe los anticuerpos del calostro durante las primeras <b>24–36 horas</b> (cierre intestinal). Después de esa ventana, el calostro sigue alimentando, pero ya no protege igual.'},
+   {label:'Caso práctico',kind:'case',
+    situacion:'Tiene una camada de 13 lechones y la cerda solo tiene 12 tetas funcionales. Uno de los lechones es visiblemente más pequeño que el resto.',
+    pregunta:'¿Qué haría con el lechón sobrante?',
+    respuesta:'Muévalo a una cerda con buena producción de leche y tetas libres (adopción), priorizando que sea un lechón fuerte que pueda competir — no el más débil, que podría no sobrevivir el cambio. Si no hay cerda disponible, vigile de cerca al más pequeño y ayúdelo a mamar manualmente.',
+    porque:'Igualar camadas asegura que el número de bocas no supere el número de tetas disponibles; mover al lechón débil a una camada nueva lo pone en desventaja frente a hermanos más grandes y desconocidos.'},
+   {label:'Ponga a prueba lo aprendido',kind:'quick',
+    q:'¿Verdadero o falso? El lechón obtiene suficiente hierro de la leche de la cerda.',
+    opts:[['Verdadero',false],['Falso',true]],
+    fb:'Falso. La leche de cerda es pobre en hierro; sin la inyección entre el día 1 y 3, el lechón desarrolla anemia.'},
+   {label:'Checklist de campo',title:'Recorrido diario por la paridera',kind:'checklist',
+    items:['Fuente de calor encendida y a la temperatura correcta.','Calostro confirmado en cada lechón de la camada.','Hierro aplicado entre el día 1 y 3.','Camadas igualadas según tetas funcionales.','Nacidos vivos, muertos y causa probable registrados.']},
    {label:'Profundización — preguntas frecuentes',title:'Preguntas frecuentes',kind:'faq',
     items:[['¿Hay que descolmillar siempre?','No. Solo si hay heridas en la ubre o peleas. Mal hecho causa infecciones; muchas granjas lo evitan con buen manejo.'],['¿Cuándo destetar?','Entre 21 y 28 días. Antes de 21 el intestino aún no está listo y aumentan las diarreas y los retrasos.']]},
    {label:'Profundización — parideras',title:'La paridera: dónde se juega la supervivencia del lechón',kind:'concepts',
@@ -2248,6 +2415,15 @@ const DEEP={
     rows:[['Maíz','Energía'],['Harina de soya','Proteína y lisina'],['Afrecho y subproductos','Energía y fibra (con límite)'],['Aceite o grasa','Energía concentrada'],['Carbonato de calcio','Calcio'],['Fosfato','Fósforo'],['Sal y premezcla','Minerales y vitaminas']]}
  ]},
  6:{sections:[
+   {label:'Línea de tiempo',title:'Ante sospecha de una enfermedad grave: qué hacer y cuándo',kind:'timeline',
+    items:[['MINUTO 0','Aislar','Separe al animal sospechoso del resto de la piara de inmediato.'],
+      ['HORA 1','Cerrar accesos','Detenga el ingreso de personas y vehículos externos a la granja.'],
+      ['HORA 1–2','Llamar al veterinario','Reporte signos exactos: fiebre, manchas, muertes súbitas.'],
+      ['DÍA 1','Reforzar desinfección','Intensifique la limpieza en zonas de tránsito y equipo compartido.'],
+      ['SEGÚN DIAGNÓSTICO','Notificar','Si se confirma sospecha de PPA, siga el protocolo oficial sin demora.']]},
+   {label:'Compare',title:'Animal sano vs. animal con signos de alerta',kind:'compare',
+    a:{icon:'✅',title:'Animal sano',items:['Activo, come y bebe con normalidad.','Piel y mucosas de color normal.','Respiración tranquila, sin tos.','Se mueve con el grupo sin apartarse.']},
+    b:{icon:'🚨',title:'Con signos de alerta',items:['Fiebre, decaimiento, se aparta del grupo.','Manchas rojizas o moradas en la piel.','Tos o respiración agitada.','Muerte súbita sin signos previos.']}},
    {label:'Profundización — las tres capas',title:'La bioseguridad tiene tres capas',kind:'prose',
     body:['<b>Externa:</b> evitar que la enfermedad entre a la granja — cerco, entrada única, filtro sanitario, cuarentena y control de vehículos y visitas.',
       '<b>Interna:</b> evitar que, si algo entra, se propague entre lotes — flujo en una sola dirección, todo dentro–todo fuera, no compartir agujas, y trabajar de lo joven y sano hacia lo viejo y enfermo.',
@@ -2260,6 +2436,14 @@ const DEEP={
     items:[['PPA (Peste Porcina Africana)','Muertes súbitas, fiebre y manchas rojizas. Sin cura. Se controla solo con bioseguridad y notificación.'],['PRRS','Fallos reproductivos (abortos, momias) y problemas respiratorios en lechones. Muy costosa.'],['Circovirus (PCV2)','Desmedro, adelgazamiento y mortalidad en engorde. Se controla con vacuna.'],['Mycoplasma (neumonía)','Tos seca crónica y baja ganancia. Empeora con hacinamiento y mala ventilación.'],['Parvovirus','Momificaciones y camadas pequeñas en primerizas. Se previene vacunando los reemplazos.'],['Sarna y piojos','Picazón, piel dañada y menos ganancia. Se controla con desparasitación externa.']]},
    {label:'Profundización — limpieza',title:'Limpieza y desinfección entre lotes (vacío sanitario)',kind:'steps',
     items:[['1. Sacar y remojar','Vaciar el corral y remojar para ablandar la suciedad.'],['2. Lavar con detergente','Detergente y presión: la materia orgánica inactiva a los desinfectantes.'],['3. Enjuagar','Quitar todo residuo de detergente.'],['4. Desinfectar','Aplicar el desinfectante a la dosis correcta y dejarlo actuar.'],['5. Secar y vacío','Dejar secar y en vacío unos días antes de repoblar. El secado y el tiempo matan muchos gérmenes.']]},
+   {kind:'alert',body:'Una sola visita sin control (botas sucias, ropa de otra granja) puede introducir una enfermedad que le cueste la piara completa. La bioseguridad no es un gasto: es el seguro más barato que existe.'},
+   {kind:'key',body:'La PPA (Peste Porcina Africana) puede sobrevivir semanas o meses en carne cruda, agua o superficies contaminadas. Por eso el filtro sanitario y la ropa de granja no son un capricho: son la primera y última defensa.'},
+   {label:'Ponga a prueba lo aprendido',kind:'quick',
+    q:'¿Verdadero o falso? Si un animal nuevo llega sano a simple vista, puede entrar directo a la piara sin cuarentena.',
+    opts:[['Verdadero',false],['Falso',true]],
+    fb:'Falso. Muchas enfermedades no muestran signos de inmediato; por eso TODO animal nuevo pasa por cuarentena de 3–4 semanas, sano o no.'},
+   {label:'Checklist de campo',title:'Ronda de bioseguridad de hoy',kind:'checklist',
+    items:['Entrada única con filtro sanitario en uso.','Vehículos pasaron por el arco/vado de desinfección.','Animales nuevos en cuarentena, sin mezclar con la piara.','Mortalidad del día manejada de forma sanitaria (no a la intemperie).','Signos clínicos revisados: fiebre, tos, manchas, decaimiento.']},
    {label:'Profundización — preguntas frecuentes',title:'Preguntas frecuentes',kind:'faq',
     items:[['¿Cada cuánto desinfectar?','Siempre entre lotes (vacío sanitario) y de forma rutinaria en zonas de paso. La constancia vale más que el producto caro.'],['Una visita quiere entrar, ¿qué hago?','Atiéndela fuera del área de producción. Si es imprescindible, ropa, botas y desinfección: la bioseguridad protege tu inversión.']]},
    {label:'Profundización — enfermedades comunes',title:'Enfermedades frecuentes en destete y engorde: para reconocerlas a tiempo',kind:'concepts',
@@ -2276,6 +2460,15 @@ const DEEP={
     note:['warn','💉','Precios de referencia, no de este manual','Los precios de vacunas y desparasitantes cambian con el tiempo y el proveedor. Cotice siempre con su veterinario o casa comercial antes de presupuestar.']}
  ]},
  7:{sections:[
+   {label:'Línea de tiempo',title:'El recorrido completo: de la maternidad a la venta',kind:'timeline',
+    items:[['NACIMIENTO','Maternidad','1.5 a 7 kg, con la madre, bajo calor y vigilancia.'],
+      ['SEMANA 3–4','Destete y precebo','7 a 25 kg; la transición más exigente de todo el ciclo.'],
+      ['SEMANA 10–16','Crecimiento','25 a 60 kg; máxima ganancia diaria si el manejo es correcto.'],
+      ['SEMANA 16–24','Finalización','60 a 100 kg; ambiente fresco y dieta de finalización.'],
+      ['~150–175 DÍAS','Venta','Peso de mercado, listo para despacho.']]},
+   {label:'Compare',title:'Densidad correcta vs. corral hacinado',kind:'compare',
+    a:{icon:'✅',title:'Densidad correcta',items:['Cada animal accede a comida y agua sin pelear.','Menos estrés y menos peleas.','Ambiente más fácil de mantener limpio y ventilado.','Mortalidad y cojeras dentro de lo esperado.']},
+    b:{icon:'⚠️',title:'Corral hacinado',items:['Competencia por comedero y bebedero.','Más peleas, heridas y estrés.','Mayor contagio de enfermedades entre animales.','Ganancia diaria por debajo de la meta.']}},
    {label:'Profundización — la línea de producción',title:'El cerdo avanza como una línea de producción',kind:'prose',
     body:['Cada etapa —maternidad, destete, precebo y engorde— es una estación de trabajo. El animal avanza siempre hacia adelante, nunca retrocede. Cuando un grupo termina, el corral se vacía, se limpia y se repobla con un lote nuevo: es el principio <b>todo dentro–todo fuera</b>, que corta el contagio entre grupos.',
       'Cada cambio de estación es un <b>punto crítico</b>: cambian la dieta, la temperatura y el espacio. Si la transición es brusca, el animal se atrasa, come menos y enferma. Un manejo suave en cada paso vale más que cualquier equipo caro.'],
@@ -2287,6 +2480,14 @@ const DEEP={
     items:[['Observar los animales','Al entrar, mire antes de tocar: quién come, quién está apartado, quién tose o cojea. Detectar temprano ahorra pérdidas.'],['Agua y comederos','Revise que el agua fluya limpia y que los comederos tengan alimento sin desperdicio.'],['Ambiente','Sienta la temperatura y el aire: cerdos amontonados tienen frío; jadeando, calor. Ajuste ventilación y sombra.'],['Mortalidad y tratamientos','Registre las muertes con su causa probable y anote cualquier tratamiento aplicado.'],['Registros','Anote pesos por muestreo, consumos y novedades. Cinco minutos de registro valen por horas de adivinar.']]},
    {label:'Profundización — el destete',title:'El destete: la transición más difícil',kind:'concepts',
     items:[['Por qué cuesta','El lechón pasa de la leche de la madre al alimento sólido y pierde su compañía. Es estrés digestivo e inmune a la vez.'],['Cómo suavizarlo','Destete a 21–28 días, mantenga el mismo alimento unos días (dieta de transición), buena temperatura y sin corrientes de aire.'],['Densidad','El hacinamiento provoca peleas, estrés y enfermedad. Respetar el espacio por animal es de lo más rentable que existe.'],['Peso por muestreo','Pese una muestra en cada etapa para ajustar la dieta y proyectar la venta con datos, no con el ojo.']]},
+   {kind:'alert',body:'Mezclar lechones de distintas edades «para no perder espacio» rompe el principio de todo dentro–todo fuera y facilita el contagio entre lotes. Lo que parece ahorrar espacio termina costando en mortalidad y atraso.'},
+   {kind:'key',body:'El destete es, con diferencia, la transición más estresante del cerdo: pierde a la vez la leche de la madre, el calor de la paridera y la compañía de la camada. Ese triple estrés explica por qué casi todos los lechones «se caen» de peso justo después de destetar.'},
+   {label:'Ponga a prueba lo aprendido',kind:'quick',
+    q:'¿Verdadero o falso? Cambiar de golpe la dieta al destetar ayuda al lechón a adaptarse más rápido.',
+    opts:[['Verdadero',false],['Falso',true]],
+    fb:'Falso. Lo correcto es mantener una dieta de transición unos días antes de pasar al alimento de la siguiente etapa; el cambio brusco aumenta el estrés digestivo.'},
+   {label:'Checklist de campo',title:'Recorrido por los corrales de esta semana',kind:'checklist',
+    items:['Densidad revisada: espacio por animal según su peso.','Ambiente ajustado a la etapa (calor o frescura).','Comederos y bebederos sin competencia excesiva.','Ningún corral mezcla edades distintas.','Muestra de pesos tomada esta semana.']},
    {label:'Profundización — preguntas frecuentes',title:'Preguntas frecuentes',kind:'faq',
     items:[['¿Puedo mezclar lotes para llenar un corral?','Es mejor no hacerlo: mezclar edades rompe el todo dentro–todo fuera y facilita el contagio. Planifique los lotes.'],['Los cerdos se atrasan tras el destete, ¿qué reviso?','Edad de destete, brusquedad del cambio de dieta, temperatura, corrientes de aire y densidad. Casi siempre la causa está ahí.']]},
    {label:'Profundización — temperatura por peso',title:'Temperatura de sala según el peso del cerdo',kind:'table',
@@ -2399,15 +2600,59 @@ const DEEP={
  ]}
 };
 function deepBlocks(id,L){const d=DEEP[id];if(!d)return '';let h='';
-  d.sections.forEach(sec=>{
+  d.sections.forEach((sec,si)=>{
     h+='<section class="block">'+L(sec.label||'Profundización')+(sec.title?'<h3 class="rv">'+sec.title+'</h3>':'');
     if(sec.kind==='prose'){(sec.body||[]).forEach((p,i)=>{h+='<p class="'+(i===0?'lead-txt ':'')+'rv"'+(i?' data-delay="60"':'')+'>'+p+'</p>';});
       if(sec.note)h+='<div class="note '+sec.note[0]+' rv"><div class="ico">'+sec.note[1]+'</div><div><b>'+sec.note[2]+'</b><p>'+sec.note[3]+'</p></div></div>';}
     else if(sec.kind==='concepts'||sec.kind==='glossary'){h+='<div class="concepts" data-stagger>'+sec.items.map(k=>'<div class="concept rv"><b>'+k[0]+'</b><p>'+k[1]+'</p></div>').join('')+'</div>';}
     else if(sec.kind==='steps'||sec.kind==='faq'){h+='<div class="steps" data-stagger>'+sec.items.map(k=>'<div class="step rv"><div><b>'+k[0]+'</b><p>'+k[1]+'</p></div></div>').join('')+'</div>';}
     else if(sec.kind==='table'){h+='<div class="tbl-wrap rv"><table><caption>'+(sec.cap||'')+'</caption><thead><tr>'+sec.head.map((c,i)=>'<th'+(i>0?' class="num"':'')+'>'+c+'</th>').join('')+'</tr></thead><tbody>'+sec.rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i>0?' class="num"':'')+'>'+c+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';}
+    /* --- línea de tiempo --- */
+    else if(sec.kind==='timeline'){h+='<div class="dtl rv" data-stagger>'+sec.items.map(k=>
+      '<div class="dtl-item rv"><span class="dtl-day">'+k[0]+'</span><b>'+k[1]+'</b><p>'+k[2]+'</p></div>').join('')+'</div>';}
+    /* --- paso a paso detallado: qué hacer / por qué / qué necesito / qué evitar --- */
+    else if(sec.kind==='procdetail'){h+='<div class="pstep-list" data-stagger>'+sec.items.map((k,i)=>{
+      const cell=(lab,cls,val)=>val?'<div class="pstep-cell'+(cls?' '+cls:'')+'"><div class="lab">'+lab+'</div><p>'+val+'</p></div>':'';
+      return '<div class="pstep rv"><div class="pstep-head"><span class="pstep-n">'+(i+1)+'</span><b>'+k[0]+'</b></div>'+
+        '<div class="pstep-grid">'+cell('Qué hacer','',k[1])+cell('Por qué','',k[2])+cell('Qué necesito','necesito',k[3])+cell('Qué evitar','evitar',k[4])+'</div></div>';
+    }).join('')+'</div>';}
+    /* --- infografía: icono → concepto → explicación → recomendación --- */
+    else if(sec.kind==='info'){h+='<div class="infogrid" data-stagger>'+sec.items.map(k=>
+      '<div class="infocard rv"><div class="ic-ico">'+k[0]+'</div><b>'+k[1]+'</b><p class="ic-exp">'+k[2]+'</p>'+
+      (k[3]?'<div class="ic-rec">💡 '+k[3]+'</div>':'')+'</div>').join('')+'</div>';}
+    /* --- comparación A vs B --- */
+    else if(sec.kind==='compare'){const cA=sec.a,cB=sec.b;
+      h+='<div class="vs-wrap rv"><div class="vs-col a"><h4>'+(cA.icon||'✅')+' '+cA.title+'</h4><ul class="clean win">'+
+        cA.items.map(t=>'<li>'+t+'</li>').join('')+'</ul></div><div class="vs-badge">VS</div>'+
+        '<div class="vs-col b"><h4>'+(cB.icon||'⚠️')+' '+cB.title+'</h4><ul class="clean err">'+
+        cB.items.map(t=>'<li>'+t+'</li>').join('')+'</ul></div></div>';}
+    /* --- alerta del productor / dato clave --- */
+    else if(sec.kind==='alert'){h+='<div class="note alert rv"><div class="ico">⚠️</div><div><b>ALERTA DEL PRODUCTOR</b><p>'+sec.body+'</p></div></div>';}
+    else if(sec.kind==='key'){h+='<div class="note key rv"><div class="ico">💡</div><div><b>DATO CLAVE</b><p>'+sec.body+'</p></div></div>';}
+    /* --- caso práctico con decisión guiada --- */
+    else if(sec.kind==='case'){h+='<div class="case2 rv"><span class="cs-tag">Caso práctico</span>'+
+      '<p class="cs-sit">'+sec.situacion+'</p>'+(sec.pregunta?'<p class="cs-q">'+sec.pregunta+'</p>':'')+
+      '<details><summary>Ver qué harías y la respuesta recomendada</summary>'+
+      '<div class="cs-ans">'+sec.respuesta+'</div>'+(sec.porque?'<div class="cs-why"><b>¿Por qué?</b> '+sec.porque+'</div>':'')+
+      '</details></div>';}
+    /* --- pregunta rápida (autoevaluación no calificada) --- */
+    else if(sec.kind==='quick'){const fbId='qfb'+id+'_'+si;
+      h+='<div class="qchk rv"><div class="qq">🧠 '+sec.q+'</div><div class="qopts">'+
+        sec.opts.map(o=>'<button type="button" onclick="qcheck(this,'+(o[1]?'true':'false')+',\''+fbId+'\')">'+o[0]+'</button>').join('')+
+        '</div><div class="qfb" id="'+fbId+'">'+sec.fb+'</div></div>';}
+    /* --- checklist de campo (interactivo, persiste como el resto) --- */
+    else if(sec.kind==='checklist'){h+='<div class="check rv" data-check="m'+id+'_x'+si+'">'+
+      sec.items.map(c=>'<label><input type="checkbox"><span>'+c+'</span></label>').join('')+'</div>';}
+    /* --- micro-resumen "en resumen" --- */
+    else if(sec.kind==='minisummary'){h+='<div class="minisum rv"><div class="ms-tt">En resumen</div><ul>'+
+      sec.items.map(t=>'<li>'+t+'</li>').join('')+'</ul></div>';}
     h+='</section>';});
   return h;}
+function qcheck(btn,ok,fbId){
+  const wrap=btn.parentElement; [...wrap.children].forEach(b=>b.disabled=true);
+  btn.classList.add(ok?'ok':'bad');
+  const fb=document.getElementById(fbId); if(fb)fb.classList.add('show');
+}
 
 function scaffoldModule(id){
   const m=MODULES[id]; const s=SCAFFOLD[id]; const x=EXTRA[id]||{}; if(s.hero)m.hero=s.hero; m.lead=s.lead;
@@ -2477,6 +2722,10 @@ function scaffoldModule(id){
   // 12. resumen
   if(x.summary)h+=`<section class="block">${L('Resumen del módulo')}<div class="summary rv"><h4>📌 Lo esencial del módulo</h4>
     <ul>${x.summary.map(li=>`<li>${li}</li>`).join('')}</ul></div></section>`;
+  // 12b. cierre: lo que debes dominar + antes de continuar
+  if(x.mastery)h+=`<section class="block">${L('Lo que debes dominar')}<h3 class="rv">Al cerrar este módulo, usted ya puede…</h3>
+    <div class="mastery-grid" data-stagger>${x.mastery.map(t=>`<div class="mastery-item rv"><span class="mi">✓</span><span>${t}</span></div>`).join('')}</div>
+    ${x.reflect?`<div class="reflect-box rv"><div class="rb-tag">🤔 Antes de continuar</div><p>${x.reflect}</p></div>`:''}</section>`;
   // 13. recursos descargables (funcionales)
   h+=`<section class="block">${L('Recursos y material complementario')}<h3 class="rv">Descargables del módulo</h3>${resGrid(id)}</section>`;
   h+=`</div>`+footNav(id);
