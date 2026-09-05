@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-03f · certificado apaisado + iconos PWA (pantalla de inicio movil) -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-03g · telefono obligatorio en registro + columna Contacto en admin -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -620,6 +620,8 @@ body.modal-open{overflow:hidden}
 .adm-table td{padding:12px 16px;border-top:1px solid var(--border);vertical-align:middle}
 .adm-stu b{display:block;font-size:14.5px}
 .adm-stu span{font-size:12px;color:var(--muted)}
+.adm-tel{color:var(--text);text-decoration:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.adm-tel:hover{color:var(--green);text-decoration:underline}
 .st-badge{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:100px}
 .st-activo{background:var(--green-wash);color:var(--green-d)}
 .st-pendiente{background:var(--amber-wash);color:var(--amber-d)}
@@ -3849,17 +3851,18 @@ function studentsView(){
     '<button class="adm-add" onclick="editStudent()">➕ Agregar estudiante</button>'+
     '<select id="admSec" onchange="renderStudentsTable()"><option value="">Todas las secciones</option>'+
       SECTIONS.map(s=>'<option value="'+s.id+'">'+esc(s.name)+'</option>').join('')+'</select>'+
-    '<input id="admQ" type="search" placeholder="Buscar nombre o correo…" oninput="renderStudentsTable()">'+
+    '<input id="admQ" type="search" placeholder="Buscar nombre, correo o teléfono…" oninput="renderStudentsTable()">'+
     '</div><div id="studentsTableWrap"></div>';}
 function renderStudentsTable(){const wrap=document.getElementById('studentsTableWrap');if(!wrap)return;
   const secF=(document.getElementById('admSec')||{}).value||'';
   const q=((document.getElementById('admQ')||{}).value||'').toLowerCase();
-  const rows=STUDENTS.filter(s=>(!secF||s.section===secF)&&(!q||s.name.toLowerCase().indexOf(q)>=0||(s.email||'').toLowerCase().indexOf(q)>=0));
+  const rows=STUDENTS.filter(s=>(!secF||s.section===secF)&&(!q||s.name.toLowerCase().indexOf(q)>=0||(s.email||'').toLowerCase().indexOf(q)>=0||(s.phone||'').toLowerCase().indexOf(q)>=0));
   if(!rows.length){wrap.innerHTML='<div class="adm-empty">No hay estudiantes que coincidan. Usa <b>“Agregar estudiante”</b> para crear uno.</div>';return;}
-  wrap.innerHTML='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Sección</th><th>Estado</th><th>Progreso</th><th>Acciones</th></tr></thead><tbody>'+
+  wrap.innerHTML='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Contacto</th><th>Sección</th><th>Estado</th><th>Progreso</th><th>Acciones</th></tr></thead><tbody>'+
     rows.map(s=>{const pc=studentProgress(s.id),pct=Math.round(pc/12*100);
       return '<tr>'+
-        '<td><div class="adm-stu"><b>'+esc(s.name)+'</b><span>'+esc(s.email||'sin correo')+(s.phone?(' · '+esc(s.phone)):'')+'</span></div></td>'+
+        '<td><div class="adm-stu"><b>'+esc(s.name)+'</b><span>'+esc(s.email||'sin correo')+'</span></div></td>'+
+        '<td>'+(s.phone?('<a class="adm-tel" href="tel:'+ea(s.phone)+'">'+esc(s.phone)+'</a>'):'<span style="color:var(--muted)">—</span>')+'</td>'+
         '<td>'+esc(sectionName(s.section))+'</td>'+
         '<td><span class="st-badge '+STATUS[s.status][1]+'">'+STATUS[s.status][0]+'</span></td>'+
         '<td><div class="adm-prog"><div class="adm-prog-bar"><i style="width:'+pct+'%"></i></div><span>'+pc+'/12</span></div></td>'+
@@ -4289,14 +4292,17 @@ router();
   /* ---- REGISTRO (estudiante) ---- */
   window.supaSignup=async function(){
     const name=(document.getElementById('regName')?document.getElementById('regName').value:'').trim();
+    const phone=(document.getElementById('regPhone')?document.getElementById('regPhone').value:'').trim();
     const email=(document.getElementById('loginUser').value||'').trim(),pass=document.getElementById('loginPass').value||'';
     lclear();
     if(!name){le('Escribe tu nombre completo.');return;}
+    if(!phone){le('Escribe tu número de contacto.');return;}
+    if(phone.replace(/D/g,'').length<8){le('Escribe un número de contacto válido (incluye el código de área).');return;}
     if(!email||!pass){le('Escribe tu correo y una contraseña.');return;}
     if(pass.length<6){le('La contraseña debe tener al menos 6 caracteres.');return;}
-    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name,phone:phone}}});
     if(error){le(error.message||'No se pudo registrar (¿el correo ya existe?).');return;}
-    try{if(data.user)await sb.from('profiles').update({full_name:name}).eq('id',data.user.id);}catch(e){}
+    try{if(data.user)await sb.from('profiles').update({full_name:name,phone:phone}).eq('id',data.user.id);}catch(e){}
     try{await sb.auth.signOut();}catch(e){}
     window.toggleRegister(false);
     le('Registro exitoso. Cuando el instructor active tu cuenta (tras el pago), inicia sesión aquí.');
@@ -4304,9 +4310,10 @@ router();
   };
   window.toggleRegister=function(force){
     REGMODE=(typeof force==='boolean')?force:!REGMODE;
-    const nw=document.getElementById('regNameWrap'),btn=document.querySelector('.login-btn'),
+    const nw=document.getElementById('regNameWrap'),pw=document.getElementById('regPhoneWrap'),btn=document.querySelector('.login-btn'),
       title=document.getElementById('loginTitle'),tog=document.getElementById('regToggle');
     if(nw)nw.hidden=!REGMODE;
+    if(pw)pw.hidden=!REGMODE;
     if(btn)btn.textContent=REGMODE?'Registrarme →':'Entrar →';
     if(title)title.textContent=REGMODE?'Crear cuenta':'Iniciar sesión';
     if(tog)tog.textContent=REGMODE?'Ya tengo cuenta':'Crear cuenta';
@@ -4421,6 +4428,8 @@ router();
     if(userField){const lbl=userField.querySelector('label');if(lbl)lbl.textContent='Correo electrónico';const inp=userField.querySelector('input');if(inp){inp.type='email';inp.placeholder='tucorreo@ejemplo.com';}}
     if(!document.getElementById('regNameWrap')){const nw=document.createElement('div');nw.className='login-field';nw.id='regNameWrap';nw.hidden=true;
       nw.innerHTML='<label>Nombre completo</label><input id="regName" autocomplete="name" placeholder="Tu nombre y apellido">';card.insertBefore(nw,userField);}
+    if(!document.getElementById('regPhoneWrap')){const pw=document.createElement('div');pw.className='login-field';pw.id='regPhoneWrap';pw.hidden=true;
+      pw.innerHTML='<label>Número de contacto</label><input id="regPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(809) 000-0000">';card.insertBefore(pw,userField);}
     const btn=card.querySelector('.login-btn');if(btn)btn.setAttribute('onclick','authSubmit()');
     if(!document.getElementById('loginLinks')){const links=document.createElement('div');links.id='loginLinks';links.className='login-links';
       links.innerHTML='<a onclick="supaReset()">¿Olvidaste tu contraseña?</a><a id="regToggle" onclick="toggleRegister()">Crear cuenta</a>';
