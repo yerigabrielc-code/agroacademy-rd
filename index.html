@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-03g · telefono obligatorio en registro + columna Contacto en admin -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-04a · anatomia+comportamiento, plagas-vectores, calidad-normativa RD, carga horaria -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -1488,6 +1488,51 @@ function module1(){
     </div>
   </section>
 
+  <!-- Cómo funciona este curso -->
+  <section class="block">
+    ${secLabel('01b','Cómo funciona este curso')}
+    <h3 class="rv">Qué recibes, cuánto te va a tomar y qué puedes esperar</h3>
+    <p class="lead-txt rv">Este no es un curso para leer de corrido. Está hecho para aplicarse en una granja real: cada módulo cierra con una evaluación que debes aprobar antes de pasar al siguiente.</p>
+
+    <div class="concepts" data-stagger>
+      <div class="concept rv"><b>⏱️ 20 a 25 horas de estudio</b><p>Tiempo estimado incluyendo la lectura, las 12 evaluaciones, los checklists de granja y el proyecto final. Va a tu ritmo: puedes hacerlo en dos semanas o en dos meses.</p></div>
+      <div class="concept rv"><b>♾️ Acceso de por vida</b><p>Pagas una sola vez. El acceso no vence, y las actualizaciones futuras del contenido no tienen costo adicional.</p></div>
+      <div class="concept rv"><b>🔓 Avanzas aprobando</b><p>Cada módulo se desbloquea al aprobar la evaluación del anterior. No se avanza por tiempo: se avanza por dominio.</p></div>
+      <div class="concept rv"><b>📥 Material para la granja</b><p>Manual, evaluación, checklist y plantillas de Excel por módulo, listos para imprimir y usar frente al corral.</p></div>
+    </div>
+
+    <div class="tbl-wrap rv">
+      <table>
+        <caption>¿Este curso es para ti?</caption>
+        <thead><tr><th>Si eres…</th><th>Te llevas</th></tr></thead>
+        <tbody>
+          <tr><td>Alguien que quiere <b>empezar</b> una granja</td><td>Saber cuánto cuesta arrancar, qué instalación necesitas y si el negocio te da — <b>antes</b> de invertir.</td></tr>
+          <tr><td><b>Productor ya en marcha</b></td><td>Encontrar por dónde se te está yendo el dinero: conversión, mortalidad, días a mercado y precio de venta.</td></tr>
+          <tr><td><b>Técnico o encargado</b> de granja</td><td>Protocolos escritos, checklists y registros para estandarizar el trabajo del personal.</td></tr>
+          <tr><td><b>Estudiante</b> de agropecuaria o veterinaria</td><td>El puente entre la teoría del aula y cómo se decide de verdad en una granja dominicana.</td></tr>
+          <tr><td>Quien <b>invierte o financia</b> proyectos</td><td>Criterios para evaluar un proyecto porcino y detectar números que no cuadran.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note warn rv"><div class="ico">⚠️</div><div><b>Para quién NO es</b><p>Si buscas un título universitario o formación de laboratorio veterinario, este curso no es eso. Aquí se enseña a <b>producir y administrar</b> una granja porcina rentable en República Dominicana. No sustituye la consulta con un médico veterinario ni el diagnóstico de laboratorio.</p></div></div>
+
+    <div class="tbl-wrap rv">
+      <table>
+        <caption>Metas alcanzables al aplicar el curso completo — valores de REFERENCIA del sector, no una garantía</caption>
+        <thead><tr><th>Indicador</th><th>Punto de partida frecuente</th><th>Meta con manejo aplicado</th></tr></thead>
+        <tbody>
+          <tr><td>Mortalidad en lactancia</td><td>12–15 %</td><td>6–8 %</td></tr>
+          <tr><td>Destetados por cerda al año</td><td>16–18</td><td>22–25</td></tr>
+          <tr><td>Conversión alimenticia en ceba</td><td>3.2–3.5</td><td>2.6–2.9</td></tr>
+          <tr><td>Días para llegar a peso de mercado</td><td>180–200</td><td>150–170</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note good rv"><div class="ico">📈</div><div><b>Qué significan esos números</b><p>Bajar la mortalidad de 12 % a 7 % es una reducción cercana al <b>40 %</b>. Pasar de 18 a 24 destetados por cerda al año es un aumento de productividad del orden del <b>30 %</b>. Son metas que el sector alcanza con manejo aplicado de forma constante — <b>no son una promesa</b>: dependen de tu granja, tu clima, tu alimento y, sobre todo, de que ejecutes lo que aprendes aquí.</p></div></div>
+  </section>
+
   <!-- INTRODUCCIÓN -->
   <section class="block">
     ${secLabel('02','Introducción')}
@@ -1601,6 +1646,70 @@ function module1(){
       <div class="pic-card"><img src="images/m1-raza-f1.jpg" alt="Cerda híbrida F1, cruce de Landrace y Large White, de perfil, sobre fondo blanco" loading="lazy"><div class="pic-cap">La cerda ideal (F1): cruce de Landrace × Large White, la línea materna más usada en producción comercial.</div></div>
     </div>
     <div class="note tip rv"><div class="ico">🏝️</div><div><b>Nota tropical</b><p>En clima caluroso, la <b>rusticidad y tolerancia al calor</b> importan tanto como el crecimiento. El Duroc y ciertos híbridos toleran mejor el estrés térmico. La mejor genética del mundo rinde mal en una nave a 34&nbsp;°C sin ventilación (lo verá en el Módulo 2).</p></div></div>
+  </section>
+
+  <!-- Anatomía y fisiología aplicada -->
+  <section class="block">
+    ${secLabel('06b','Cómo funciona el cerdo por dentro')}
+    <h3 class="rv">Anatomía y fisiología aplicadas al manejo</h3>
+    <p class="lead-txt rv">No hace falta ser veterinario, pero sí entender cinco cosas del cuerpo del cerdo. Casi todas las decisiones de manejo que verás en este curso —qué alimento darle, cuánta sombra necesita, por qué se enferma— salen de aquí.</p>
+
+    <div class="concepts" data-stagger>
+      <div class="concept rv"><b>Es monogástrico: no rumia</b><p>Tiene un estómago simple, como el nuestro. No aprovecha pasto ni forraje fibroso como una vaca. Por eso <b>la calidad del alimento manda</b>: lo que no venga bien formulado, el cerdo no lo compensa.</p></div>
+      <div class="concept rv"><b>Prácticamente no suda</b><p>Sus glándulas sudoríparas casi no funcionan. Pierde calor jadeando y por contacto con superficies frescas. En el trópico dominicano esto lo cambia todo: <b>sombra, agua y ventilación no son lujo, son producción</b>.</p></div>
+      <div class="concept rv"><b>Útero bicorne</b><p>Su aparato reproductivo tiene dos cuernos donde se distribuyen los embriones. Por eso las camadas son numerosas — y por eso la alimentación de la cerda en los primeros 35 días decide cuántos lechones sobreviven.</p></div>
+      <div class="concept rv"><b>Pulmón pequeño para su cuerpo</b><p>Su capacidad pulmonar es baja en proporción a su peso. El amoníaco del estiércol y el polvo le queman las vías respiratorias. Es la razón número uno de neumonías en galpones mal ventilados.</p></div>
+      <div class="concept rv"><b>Primero músculo, después grasa</b><p>El cerdo joven deposita músculo; el adulto empieza a depositar grasa. Por eso el alimento cambia por fase: darle alimento de engorde a un lechón es tirar dinero, y al revés, frenar su crecimiento.</p></div>
+    </div>
+
+    <div class="tbl-wrap rv">
+      <table>
+        <caption>Constantes fisiológicas del cerdo — valores de REFERENCIA para reconocer lo normal</caption>
+        <thead><tr><th>Dato</th><th>Valor normal</th><th>Para qué te sirve</th></tr></thead>
+        <tbody>
+          <tr><td>Temperatura corporal</td><td>38.5 – 39.5 °C</td><td>Por encima de 40 °C, sospecha de infección. Es la primera medición ante un animal decaído.</td></tr>
+          <tr><td>Frecuencia respiratoria en reposo</td><td>15 – 25 por minuto</td><td>Si jadea en reposo y no hace calor, revisa vías respiratorias.</td></tr>
+          <tr><td>Duración de la gestación</td><td>114 días (3 meses, 3 semanas y 3 días)</td><td>Te permite calcular la fecha de parto desde el día del servicio.</td></tr>
+          <tr><td>Ciclo estral</td><td>21 días (rango 18 – 24)</td><td>Si la cerda no repite celo a los 21 días, es la primera señal de preñez.</td></tr>
+          <tr><td>Duración del celo</td><td>48 – 60 horas</td><td>Define la ventana para servir. Fuera de ella, no hay fecundación.</td></tr>
+          <tr><td>Zona de confort del lechón recién nacido</td><td>32 – 34 °C</td><td>Es el dato que justifica la fuente de calor en maternidad.</td></tr>
+          <tr><td>Zona de confort en ceba</td><td>18 – 22 °C</td><td>Por encima, el cerdo come menos y crece menos. En RD casi siempre estarás por encima: de ahí la importancia de la ventilación.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note tip rv"><div class="ico">🌡️</div><div><b>El dato que más se usa en la práctica</b><p>El termómetro es la herramienta de diagnóstico más barata que hay en una granja. Antes de medicar a un animal decaído, tómale la temperatura: fiebre, temperatura normal y temperatura baja apuntan a problemas distintos y a tratamientos distintos.</p></div></div>
+  </section>
+
+  <!-- Comportamiento y bienestar -->
+  <section class="block">
+    ${secLabel('06c','Comportamiento y bienestar animal')}
+    <h3 class="rv">Leer al animal: el cerdo te avisa antes de enfermarse</h3>
+    <p class="lead-txt rv">El bienestar animal no es sentimentalismo: es un indicador productivo. Un cerdo estresado come menos, convierte peor, se enferma más y se reproduce menos. Aprender a leer el corral en treinta segundos es una de las habilidades más rentables del oficio.</p>
+
+    <div class="concepts" data-stagger>
+      <div class="concept rv"><b>El lote es tu termómetro</b><p>Cerdos <b>amontonados</b> unos sobre otros: tienen frío. Echados separados, estirados y jadeando: tienen calor. Repartidos y en contacto ligero: están cómodos. Esto se lee desde la puerta, sin entrar.</p></div>
+      <div class="concept rv"><b>Hay jerarquía y hay peleas</b><p>Al mezclar animales desconocidos se pelean hasta establecer el orden social. Mezcla <b>al destete</b> y en un corral neutro, nunca en el corral de uno de los grupos, y nunca en engorde avanzado.</p></div>
+      <div class="concept rv"><b>El cerdo es limpio</b><p>Elige defecar lejos de donde come y duerme. Si el corral está bien diseñado, él mismo separa las zonas. Si defeca donde come, el problema es de diseño, de espacio o de temperatura — no del animal.</p></div>
+      <div class="concept rv"><b>La mordedura de cola es un síntoma</b><p>No es un vicio: es aburrimiento, hacinamiento, corriente de aire, falta de agua o falta de fibra. Cortar colas sin corregir la causa solo esconde el aviso.</p></div>
+      <div class="concept rv"><b>El estrés por calor manda en RD</b><p>Con calor el cerdo reduce el consumo para generar menos calor metabólico. Menos consumo es menos ganancia diaria y, en la cerda, menos fertilidad. En el trópico, el enemigo silencioso número uno.</p></div>
+    </div>
+
+    <div class="tbl-wrap rv">
+      <table>
+        <caption>Las cinco libertades del bienestar animal, traducidas a la granja</caption>
+        <thead><tr><th>Libertad</th><th>Qué significa en tu corral</th></tr></thead>
+        <tbody>
+          <tr><td>Libre de hambre y sed</td><td>Agua limpia y disponible siempre, y alimento acorde a la fase.</td></tr>
+          <tr><td>Libre de incomodidad</td><td>Sombra, piso seco, ventilación y espacio suficiente por animal.</td></tr>
+          <tr><td>Libre de dolor y enfermedad</td><td>Prevención, detección temprana y tratamiento oportuno.</td></tr>
+          <tr><td>Libre para comportarse normalmente</td><td>Espacio para moverse, hozar y separar la zona de descanso de la de estiércol.</td></tr>
+          <tr><td>Libre de miedo y angustia</td><td>Manejo tranquilo, sin gritos ni golpes. El cerdo maltratado se vuelve difícil de manejar y pierde peso.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note good rv"><div class="ico">👁️</div><div><b>La rutina de los 30 segundos</b><p>Al entrar a cada corral, antes de hacer cualquier cosa: mira cómo están echados (temperatura), si todos se levantan (el que no se levanta está enfermo), si hay agua corriendo en el bebedero, y si el piso está seco. Cuatro observaciones, medio minuto, y detectas la mayoría de los problemas un día antes de que se vuelvan caros.</p></div></div>
   </section>
 
   <!-- Modelos de negocio -->
@@ -2588,6 +2697,32 @@ const DEEP={
     fb:'Falso. El exceso de proteína no se aprovecha: se desperdicia, encarece la ración y aumenta la contaminación. Lo que importa es el aminoácido correcto (lisina) en la proporción justa.'}
  ]},
  6:{sections:[
+   {label:'Profundización — plagas y vectores',title:'Quién entra a tu granja sin que lo invites',kind:'concepts',
+    items:[['Roedores','Una rata come y contamina alimento todos los días, y transporta <b>leptospira, salmonela y E. coli</b>. Donde hay roedores hay pérdida invisible de alimento y un canal permanente de contagio.'],
+      ['Moscas','No enferman al cerdo por sí solas: actúan como <b>vector mecánico</b>, llevando bacterias del estiércol al comedero. Se crían en estiércol húmedo y restos de alimento.'],
+      ['Aves silvestres','Entran por comederos abiertos y techos sin malla. Son portadoras de salmonela y ensucian el alimento almacenado.'],
+      ['Perros, gatos y cerdos de traspatio','El contacto con animales del vecindario es una de las vías más subestimadas de entrada de enfermedad, incluida la PPA.'],
+      ['El personal y las visitas','El vector más peligroso camina: entra con botas, ropa, herramientas y vehículos. Ninguna trampa para ratas compensa una visita sin protocolo.']]},
+   {label:'Profundización — control de roedores',title:'Programa de control de roedores en 6 pasos',kind:'steps',
+    items:[['1. Dibuje el mapa','Marque en un croquis de la granja dónde va cada cebadero y numérelos. Sin mapa no hay programa: hay cebos sueltos.'],
+      ['2. Cebaderos fijos y numerados','Colóquelos pegados a la pared, en el perímetro y cerca del almacén de alimento. Los roedores caminan bordeando muros, no por el centro del galpón.'],
+      ['3. Registre el consumo','Revise cada 7 días y anote cuánto cebo se consumió en cada punto. El consumo le dice <b>dónde está la población</b>, que es lo que necesita saber.'],
+      ['4. Quite el refugio','Corte la maleza del perímetro, levante la chatarra, tape huecos y selle el paso de tuberías. Con refugio disponible, el mejor cebo del mundo rinde poco.'],
+      ['5. Quite la comida','Alimento en sacos sobre tarimas y separados de la pared, derrames barridos el mismo día, y nada de alimento a granel sin tapa.'],
+      ['6. Rote el producto','Si el consumo baja pero siguen las señales, cambie el principio activo. Cebo intacto no siempre es victoria: puede ser rechazo.']]},
+   {label:'Profundización — plan de vectores',title:'Qué vigilar, cómo saber que está y qué hacer',kind:'table',
+    cap:'Plan de control de plagas y vectores (frecuencias de REFERENCIA, ajústelas a su granja)',
+    head:['Plaga','Señal de que está','Acción','Frecuencia'],
+    rows:[['Roedores','Heces, roeduras en sacos, senderos grasientos en los muros','Cebaderos numerados + eliminar refugio y alimento accesible','Revisión semanal'],
+      ['Moscas','Nubes sobre el estiércol, puntos negros en paredes y techo','Retirar estiércol húmedo, secar charcos, trampas y larvicida en los focos','Retiro cada 2–3 días'],
+      ['Aves','Nidos en el techo, excremento sobre comederos','Malla en aberturas, cerrar aleros, tapar el alimento almacenado','Inspección mensual'],
+      ['Zancudos','Picadas al atardecer, agua estancada cerca','Eliminar agua estancada: canaletas, llantas, envases','Semanal en época de lluvia'],
+      ['Escarabajos del estiércol','Insectos bajo tarimas y en la cama','Limpieza profunda entre lotes y secado del piso','En cada vacío sanitario']]},
+   {label:'Profundización — errores de control',title:'Cuatro errores que hacen fracasar el control de plagas',kind:'faq',
+    items:[['«Pongo veneno cuando veo ratas»','El control por reacción siempre llega tarde. El programa se sostiene todo el año: la población que usted <b>no ve</b> es la que le está comiendo el alimento.'],
+      ['Mover los cebaderos de sitio','Si cada semana están en otro lugar, el consumo no le dice nada. Fijos y numerados, siempre en el mismo punto.'],
+      ['Estiércol acumulado junto a los corrales','Es una fábrica de moscas. Ningún insecticida gana contra un criadero activo a diez metros del galpón.'],
+      ['Controlar plagas y dejar la puerta abierta','De poco sirve la malla si entran vehículos sin desinfectar y visitas sin botas. El control de vectores es <b>una capa más</b> de la bioseguridad, no un sustituto.']]},
    {label:'Línea de tiempo',title:'Ante sospecha de una enfermedad grave: qué hacer y cuándo',kind:'timeline',
     items:[['MINUTO 0','Aislar','Separe al animal sospechoso del resto de la piara de inmediato.'],
       ['HORA 1','Cerrar accesos','Detenga el ingreso de personas y vehículos externos a la granja.'],
@@ -2686,6 +2821,45 @@ const DEEP={
     items:[['Reducir el costo alimenticio','El alimento es el mayor costo de la granja: cada ajuste aquí impacta el costo/kg del Módulo 9.'],['Aumentar la conversión alimenticia','Menos kg de alimento por kg de peso ganado.'],['Aumentar la ganancia diaria de peso','Llegar más rápido al peso de venta.'],['Obtener un animal magro','El mercado paga mejor la carne magra que la grasa.']]}
  ]},
  8:{sections:[
+   {label:'Profundización — calidad e inocuidad',title:'Por qué los registros deciden a quién le puedes vender',kind:'prose',
+    body:['Hay dos mercados para su cerdo. El <b>informal</b> compra el animal y no pregunta nada: paga menos y paga cuando puede. El <b>formal</b> —procesadores, supermercados, hoteles, exportación— paga mejor y paga a fecha, pero le va a exigir algo que muchas granjas no tienen: <b>papeles</b>.',
+      'Trazabilidad significa poder responder, por cualquier cerdo que salga de su granja: de dónde vino, qué comió, qué medicamento recibió, cuándo se lo aplicaron y quién lo hizo. Si puede responder eso con registros, entra al mercado formal. Si no puede, seguirá vendiendo barato aunque su cerdo sea excelente.',
+      'La buena noticia es que no necesita un software. Necesita <b>constancia</b>: una libreta bien llevada vale más que un sistema caro que nadie llena.'],
+    note:['tip','💡','El registro se llena en el momento, no el domingo','El error más común es «después lo anoto». Un registro reconstruido de memoria no es trazabilidad, es ficción. Deje la libreta y el lápiz colgados en el corral.']},
+   {label:'Profundización — BPP',title:'Las cinco áreas de las Buenas Prácticas Pecuarias',kind:'concepts',
+    items:[['Instalaciones','Que el diseño permita limpiar, separar por etapas y controlar el ingreso: piso lavable, drenaje que no encharque y almacén de alimento cerrado.'],
+      ['Sanidad','Plan de vacunación escrito, uso responsable de medicamentos con prescripción veterinaria y control de plagas documentado.'],
+      ['Alimentación','Alimento de procedencia conocida, almacenado sin humedad ni roedores, y agua de calidad verificada.'],
+      ['Personal','Gente capacitada, con ropa y botas de trabajo, y protocolos escritos que no dependan de que «Juan sabe cómo se hace».'],
+      ['Registros','Todo lo anterior, anotado y conservado. Para un auditor, <b>la práctica que no está registrada no existió</b>.']]},
+   {label:'Profundización — período de retiro',title:'El período de retiro: el error que puede costarle el lote entero',kind:'prose',
+    body:['El <b>período de retiro</b> es el tiempo que debe pasar entre la última aplicación de un medicamento y el sacrificio del animal, para que no queden residuos en la carne. No es una recomendación: es el punto donde una granja pierde un lote completo o una relación comercial.',
+      'El período de retiro <b>lo indica la etiqueta del producto</b> y cambia según el principio activo, la dosis y la vía de aplicación. No existe un número único que sirva para todo. Antes de aplicar cualquier medicamento, lea la etiqueta y anote en el registro la fecha en que ese animal queda liberado para venta.',
+      'Si repite dosis o combina productos, el plazo se cuenta desde la <b>última</b> aplicación. Y si un animal tratado se vende antes de cumplirlo, la responsabilidad es de la granja.'],
+    note:['crit','⛔','Regla práctica','Marque físicamente al animal tratado y escriba en el registro la <b>fecha de liberación</b>, no la del tratamiento. Así nadie tiene que hacer la cuenta a la carrera el día que llega el comprador.']},
+   {label:'Profundización — trazabilidad',title:'Trazabilidad lote a lote en 6 pasos',kind:'steps',
+    items:[['1. Defina el lote','Un lote es un grupo de animales que entra junto y se maneja junto. Póngale un código simple: año, mes y letra (por ejemplo, 2601-A).'],
+      ['2. Registre lo que entra','Origen de los animales, proveedor del alimento y número de lote del saco. Si un alimento sale malo, necesita saber a qué animales les tocó.'],
+      ['3. Registre lo que pasa','Vacunas, tratamientos, mortalidad y su causa, cambios de alimento y pesajes: fecha, cantidad y responsable.'],
+      ['4. Registre lo que sale','Fecha de venta, cantidad, peso, comprador y a qué lote pertenecían los animales.'],
+      ['5. Guarde los documentos','Facturas, prescripciones veterinarias y análisis de agua. Un archivador por año es suficiente para empezar.'],
+      ['6. Haga la prueba en reversa','Tome una venta al azar e intente reconstruir toda la historia de ese animal. Si puede, tiene trazabilidad. Si no, ya sabe exactamente qué le falta.']]},
+   {label:'Profundización — inspección',title:'Qué le van a pedir el día de una inspección',kind:'checklist',
+    items:['Registro de tratamientos: fecha, producto, dosis y responsable',
+      'Prescripciones veterinarias de los medicamentos utilizados',
+      'Registro de mortalidad con causa probable y destino del cadáver',
+      'Procedencia de los animales y del alimento (facturas o guías)',
+      'Plan de vacunación escrito y con evidencia de cumplimiento',
+      'Control de plagas: mapa de cebaderos y bitácora de revisiones',
+      'Control del agua: fuente, tratamiento y análisis si aplica',
+      'Manejo de residuos: destino del estiércol y de las aguas de lavado',
+      'Constancia de capacitación del personal',
+      'Protocolo de ingreso de visitas y vehículos, con su bitácora']},
+   {label:'Profundización — dudas frecuentes',title:'Preguntas frecuentes sobre registros y normativa',kind:'faq',
+    items:[['¿Con quién verifico lo que me exigen en República Dominicana?','La autoridad ganadera del país es la <b>Dirección General de Ganadería (DIGEGA)</b>. Los requisitos y formularios cambian con el tiempo, así que confirme siempre la versión vigente directamente con ellos antes de invertir en certificaciones o formatos.'],
+      ['¿Necesito certificarme para poder vender?','Para el mercado informal, no. Para venderle a un procesador, a un supermercado o para exportar, sí le van a exigir registros y, según el comprador, una certificación de buenas prácticas.'],
+      ['¿Puedo llevar todo en papel?','Sí. Lo que importa es que esté completo, fechado y conservado. El paso a Excel se explica en el Módulo 11 y facilita el análisis, pero no es requisito para empezar.'],
+      ['¿Cuánto tiempo debo guardar los registros?','Como criterio prudente, conserve al menos <b>dos años</b> de registros y facturas, y confirme con DIGEGA o con su comprador si le exigen un plazo mayor.']]},
    {label:'Compare',title:'KPI dentro de rango vs. fuera de rango',kind:'compare',
     a:{icon:'✅',title:'Dentro de meta',items:['Destetados/cerda/año: 22–28.','Conversión (CA): 2.6–3.0.','Mortalidad total: menos de 10–12%.','Días a mercado: 150–175.']},
     b:{icon:'⚠️',title:'Fuera de rango',items:['Menos de 20 destetados/cerda/año: revise reproducción.','CA sobre 3.2: revise comederos y calidad del alimento.','Mortalidad sobre 15%: revise sanidad y ambiente.','Más de 180 días a mercado: revise nutrición y densidad.']}},
