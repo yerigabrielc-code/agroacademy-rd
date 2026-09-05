@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-05a · filtro por estado + papelera recuperable de estudiantes -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-05b · panel de pago (precio + cuentas bancarias) en la pantalla de Crear cuenta -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -4510,6 +4510,7 @@ router();
       title=document.getElementById('loginTitle'),tog=document.getElementById('regToggle');
     if(nw)nw.hidden=!REGMODE;
     if(pw)pw.hidden=!REGMODE;
+    const pp=document.getElementById('payPanel');if(pp)pp.hidden=!REGMODE;
     if(btn)btn.textContent=REGMODE?'Registrarme →':'Entrar →';
     if(title)title.textContent=REGMODE?'Crear cuenta':'Iniciar sesión';
     if(tog)tog.textContent=REGMODE?'Ya tengo cuenta':'Crear cuenta';
@@ -4620,6 +4621,49 @@ router();
     toast('Contraseña actualizada','🔒');
   };
 
+  /* ---- PANEL DE PAGO (visible solo al "Crear cuenta") ---- */
+  const PAYINFO={
+    usd:'US$75',
+    dop:'RD$4,500',
+    dopNote:'Referencial · equivale aprox. a RD$4,400–4,600 según la tasa del día.',
+    banks:[
+      {bank:'Banco BHD',type:'Ahorros',acc:'32753310021',holder:'Yeri Gabriel Castillo García'},
+      {bank:'Banco Popular',type:'Ahorros',acc:'793331422',holder:'Yeri Gabriel Castillo García'},
+      {bank:'Banreservas',type:'Ahorros',acc:'9606583271',holder:'Yeri Gabriel Castillo García'}
+    ],
+    wa:'18295913373', waShow:'829-591-3373',
+    email:'yerigabrielc@gmail.com'
+  };
+  window.copyPay=function(txt,el){
+    const done=()=>{ if(el){const o=el.getAttribute('data-lbl')||el.textContent;el.setAttribute('data-lbl',o);el.textContent='¡Copiado!';el.classList.add('ok');setTimeout(()=>{el.textContent=o;el.classList.remove('ok');},1400);} };
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,done);}
+    else{try{const t=document.createElement('textarea');t.value=txt;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.focus();t.select();document.execCommand('copy');t.remove();done();}catch(e){}}
+  };
+  function payPanelHTML(){
+    const msg=encodeURIComponent('Hola, acabo de crear mi cuenta en AgroAcademy RD y quiero enviar el comprobante de pago del curso ('+PAYINFO.usd+' / '+PAYINFO.dop+').');
+    const bankCards=PAYINFO.banks.map(b=>
+      '<div class="pay-bank">'+
+        '<div class="pay-bank-top"><span class="pay-bank-name">'+b.bank+'</span><span class="pay-bank-type">'+b.type+'</span></div>'+
+        '<div class="pay-acc"><span class="pay-acc-num">'+b.acc+'</span>'+
+          '<button type="button" class="pay-copy" onclick="copyPay(\''+b.acc+'\',this)">Copiar</button></div>'+
+        '<div class="pay-holder">Titular: <b>'+b.holder+'</b></div>'+
+      '</div>').join('');
+    return '<div id="payPanel" class="pay-panel" hidden>'+
+      '<div class="pay-head">'+
+        '<div class="pay-price">'+PAYINFO.usd+' <span>/ '+PAYINFO.dop+'</span></div>'+
+        '<div class="pay-price-note">'+PAYINFO.dopNote+'</div>'+
+      '</div>'+
+      '<div class="pay-label">Transfiere el monto a <b>cualquiera</b> de estas cuentas (todas son cuentas de ahorros del mismo titular):</div>'+
+      bankCards+
+      '<div class="pay-label">Después de transferir, envía el comprobante por una de estas vías:</div>'+
+      '<div class="pay-send">'+
+        '<a class="pay-btn wa" target="_blank" rel="noopener" href="https://wa.me/'+PAYINFO.wa+'?text='+msg+'">📲 WhatsApp '+PAYINFO.waShow+'</a>'+
+        '<a class="pay-btn mail" href="mailto:'+PAYINFO.email+'?subject='+encodeURIComponent('Comprobante de pago — AgroAcademy RD')+'&body='+msg+'">✉️ Correo</a>'+
+      '</div>'+
+      '<div class="pay-foot">Al registrarte, tu cuenta queda <b>pendiente</b>. En cuanto confirmemos el pago la activamos y podrás iniciar sesión desde cualquier dispositivo.</div>'+
+    '</div>';
+  }
+
   /* ---- UI de login: registro + recuperación ---- */
   function injectLoginUI(){
     const card=document.querySelector('.login-card');if(!card)return;
@@ -4636,9 +4680,35 @@ router();
       links.innerHTML='<a onclick="supaReset()">¿Olvidaste tu contraseña?</a><a id="regToggle" onclick="toggleRegister()">Crear cuenta</a>';
       const hint=card.querySelector('.login-hint');card.insertBefore(links,hint);
       if(hint)hint.innerHTML='Estudiantes: <b>crea tu cuenta</b>; tras confirmar tu pago, el instructor la activa.';}
+    if(!document.getElementById('payPanel')){
+      const hint=card.querySelector('.login-hint');
+      hint?card.insertBefore(document.createRange().createContextualFragment(payPanelHTML()),hint):card.insertAdjacentHTML('beforeend',payPanelHTML());
+    }
   }
   const _st=document.createElement('style');
-  _st.textContent='.login-links{display:flex;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}.login-links a{color:#8fd6a8;font-size:12.5px;cursor:pointer;text-decoration:underline}';
+  _st.textContent='.login-links{display:flex;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}.login-links a{color:#8fd6a8;font-size:12.5px;cursor:pointer;text-decoration:underline}'
+    +'body[data-screen="login"] #screenLogin{align-items:safe center}'
+    +'.pay-panel{margin-top:16px;border-top:1px solid #322d26;padding-top:16px;text-align:left}'
+    +'.pay-head{background:#161311;border:1px solid #322d26;border-radius:12px;padding:12px 14px;margin-bottom:14px}'
+    +'.pay-price{font-family:var(--display);font-size:22px;color:#8fd6a8;line-height:1.15}'
+    +'.pay-price span{color:#c9c2b6;font-size:15px;font-family:inherit}'
+    +'.pay-price-note{font-size:11.5px;color:#8a8378;margin-top:5px;line-height:1.5}'
+    +'.pay-label{font-size:12px;color:#c9c2b6;margin:12px 0 8px;line-height:1.55}'
+    +'.pay-bank{background:#161311;border:1px solid #322d26;border-radius:11px;padding:10px 12px;margin-bottom:8px}'
+    +'.pay-bank-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}'
+    +'.pay-bank-name{font-weight:700;font-size:13.5px;color:#fff}'
+    +'.pay-bank-type{font-size:11px;color:#8a8378;white-space:nowrap}'
+    +'.pay-acc{display:flex;align-items:center;gap:8px;margin:7px 0 5px}'
+    +'.pay-acc-num{font-family:var(--mono);font-size:16px;color:#E0A526;letter-spacing:.5px;flex:1;word-break:break-all}'
+    +'.pay-copy{font:inherit;font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:8px;border:1px solid #3a342c;background:#201c18;color:#c9c2b6;cursor:pointer;white-space:nowrap}'
+    +'.pay-copy:hover{border-color:var(--green-l);color:#fff}'
+    +'.pay-copy.ok{background:#2F7D4F;color:#fff;border-color:#2F7D4F}'
+    +'.pay-holder{font-size:11.5px;color:#8a8378}.pay-holder b{color:#c9c2b6;font-weight:600}'
+    +'.pay-send{display:flex;gap:8px;flex-wrap:wrap}'
+    +'.pay-btn{flex:1;min-width:130px;text-align:center;font-weight:700;font-size:13px;padding:11px 12px;border-radius:10px;text-decoration:none;color:#fff}'
+    +'.pay-btn.wa{background:#25D366;color:#0b2e17}.pay-btn.mail{background:#2F7D4F}'
+    +'.pay-btn:hover{filter:brightness(1.08)}'
+    +'.pay-foot{font-size:11px;color:#8a8378;margin-top:12px;line-height:1.6}.pay-foot b{color:#c9c2b6}';
   document.head.appendChild(_st);
   if(document.readyState!=='loading')injectLoginUI();else document.addEventListener('DOMContentLoaded',injectLoginUI);
 
