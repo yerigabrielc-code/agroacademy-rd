@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-04a · anatomia+comportamiento, plagas-vectores, calidad-normativa RD, carga horaria -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-05a · filtro por estado + papelera recuperable de estudiantes -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -628,6 +628,7 @@ body.modal-open{overflow:hidden}
 .st-inactivo{background:var(--ivory-2);color:var(--muted)}
 .st-completado{background:#e2eef2;color:#1f6b82}
 .st-retirado{background:var(--crit-wash);color:var(--crit)}
+.st-borrado{background:var(--ivory-2);color:var(--muted);text-decoration:line-through}
 :root[data-theme="dark"] .st-completado{background:#18323b;color:#7fc4d8}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .st-completado{background:#18323b;color:#7fc4d8}}
 .adm-prog{display:flex;align-items:center;gap:9px}
@@ -3710,7 +3711,7 @@ function uid(p){return (p||'id')+'-'+Date.now().toString(36)+Math.random().toStr
 function today(){return new Date().toISOString().slice(0,10);}
 function ea(s){return esc(s).replace(/"/g,'&quot;');}
 function jsq(s){return "'"+(''+s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";}
-const STATUS={activo:['Activo','st-activo'],pendiente:['Pendiente','st-pendiente'],inactivo:['Inactivo','st-inactivo'],completado:['Completado','st-completado'],retirado:['Retirado','st-retirado']};
+const STATUS={activo:['Activo','st-activo'],pendiente:['Pendiente','st-pendiente'],inactivo:['Inactivo','st-inactivo'],completado:['Completado','st-completado'],retirado:['Retirado','st-retirado'],borrado:['Borrado','st-borrado']};
 
 let SECTIONS=loadJSON('porci_sections',null); if(!SECTIONS)SECTIONS=[{id:'gen',name:'General',notes:''}];
 let STUDENTS=loadJSON('porci_students_v2',null);
@@ -3977,10 +3978,11 @@ function saveConfigView(){CFG.passing=Math.min(100,Math.max(1,+document.getEleme
 function saveAdminCredView(){const u=(document.getElementById('cAdmU').value||'').trim(),p=document.getElementById('cAdmP').value;
   if(!u||!p){toast('Usuario y contraseña son obligatorios','⚠️');return;}saveAdminCred({user:u,pass:p});toast('Credenciales del instructor actualizadas','🔐');}
 function collectStats(){
-  const total=STUDENTS.length,activos=STUDENTS.filter(s=>s.status==='activo').length,
-    inactivos=STUDENTS.filter(s=>s.status==='inactivo'||s.status==='retirado').length;
+  const VIVOS=STUDENTS.filter(s=>s.status!=='borrado');
+  const total=VIVOS.length,activos=VIVOS.filter(s=>s.status==='activo').length,
+    inactivos=VIVOS.filter(s=>s.status==='inactivo'||s.status==='retirado').length;
   let sumPct=0,completados=0,atrasados=0,proximos=0,modsDone=0,recs=[];
-  STUDENTS.forEach(s=>{const pc=studentProgress(s.id);modsDone+=pc;sumPct+=pc/12;
+  VIVOS.forEach(s=>{const pc=studentProgress(s.id);modsDone+=pc;sumPct+=pc/12;
     if(pc>=12)completados++;
     if(s.status==='activo'){if(pc<4)atrasados++;if(pc>=10&&pc<12)proximos++;}
     for(let i=1;i<=12;i++){try{const r=JSON.parse(localStorage.getItem('porci::'+s.id+'::exam_m'+i));if(r)recs.push({sid:s.id,name:s.name,mod:i,rec:r});}catch(e){}}});
@@ -3988,9 +3990,9 @@ function collectStats(){
   const sc=recs.map(e=>e.rec.best||e.rec.last||0);
   const promedio=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length):0;
   const avgPct=total?Math.round(sumPct/total*100):0;
-  const recientes=[...STUDENTS].sort((a,b)=>(''+(b.enrolled||'')).localeCompare(''+(a.enrolled||''))).slice(0,5);
+  const recientes=[...VIVOS].sort((a,b)=>(''+(b.enrolled||'')).localeCompare(''+(a.enrolled||''))).slice(0,5);
   const byDate=[...recs].sort((a,b)=>(b.rec.date||0)-(a.rec.date||0));
-  const estados=Object.keys(STATUS).map(k=>({label:STATUS[k][0],n:STUDENTS.filter(s=>s.status===k).length})).filter(e=>e.n>0);
+  const estados=Object.keys(STATUS).map(k=>({label:STATUS[k][0],n:VIVOS.filter(s=>s.status===k).length})).filter(e=>e.n>0);
   return {total,activos,inactivos,completados,avgPct,modsDone,atrasados,proximos,realizadas,aprobadas,noAprob,promedio,recientes,
     ultAprob:byDate.filter(e=>e.rec.passed).slice(0,5),ultEval:byDate.slice(0,6),estados};}
 function dk(v,label,suf,cls){return '<div class="dash-kpi '+(cls||'')+'"><b><span data-count="'+v+'"'+(suf?' data-suf="'+suf+'"':'')+'>0</span></b><span>'+label+'</span></div>';}
@@ -4018,20 +4020,30 @@ function dashboardView(){
   return h;}
 function studentsView(){
   return '<div class="adm-summary">'+
-    '<div class="adm-kpi"><b>'+STUDENTS.length+'</b><span>Estudiantes</span></div>'+
+    '<div class="adm-kpi"><b>'+STUDENTS.filter(s=>s.status!=='borrado').length+'</b><span>Estudiantes</span></div>'+
     '<div class="adm-kpi"><b>'+STUDENTS.filter(s=>s.status==='activo').length+'</b><span>Activos</span></div>'+
     '<div class="adm-kpi"><b>'+SECTIONS.length+'</b><span>Secciones</span></div></div>'+
     '<div class="adm-toolbar">'+
     '<button class="adm-add" onclick="editStudent()">➕ Agregar estudiante</button>'+
     '<select id="admSec" onchange="renderStudentsTable()"><option value="">Todas las secciones</option>'+
       SECTIONS.map(s=>'<option value="'+s.id+'">'+esc(s.name)+'</option>').join('')+'</select>'+
+    '<select id="admSt" onchange="renderStudentsTable()">'+
+      '<option value="">Todos los estados</option>'+
+      Object.keys(STATUS).map(k=>'<option value="'+k+'">'+STATUS[k][0]+(k==='borrado'?' (papelera)':'')+'</option>').join('')+
+    '</select>'+
     '<input id="admQ" type="search" placeholder="Buscar nombre, correo o teléfono…" oninput="renderStudentsTable()">'+
     '</div><div id="studentsTableWrap"></div>';}
 function renderStudentsTable(){const wrap=document.getElementById('studentsTableWrap');if(!wrap)return;
   const secF=(document.getElementById('admSec')||{}).value||'';
   const q=((document.getElementById('admQ')||{}).value||'').toLowerCase();
-  const rows=STUDENTS.filter(s=>(!secF||s.section===secF)&&(!q||s.name.toLowerCase().indexOf(q)>=0||(s.email||'').toLowerCase().indexOf(q)>=0||(s.phone||'').toLowerCase().indexOf(q)>=0));
-  if(!rows.length){wrap.innerHTML='<div class="adm-empty">No hay estudiantes que coincidan. Usa <b>“Agregar estudiante”</b> para crear uno.</div>';return;}
+  const stF=(document.getElementById('admSt')||{}).value||'';
+  const rows=STUDENTS.filter(s=>{
+    if(stF){ if(s.status!==stF)return false; }
+    else if(s.status==='borrado')return false;   // la papelera solo se ve al pedirla
+    if(secF&&s.section!==secF)return false;
+    if(q&&!(s.name.toLowerCase().indexOf(q)>=0||(s.email||'').toLowerCase().indexOf(q)>=0||(s.phone||'').toLowerCase().indexOf(q)>=0))return false;
+    return true;});
+  if(!rows.length){wrap.innerHTML='<div class="adm-empty">'+(stF==='borrado'?'La papelera está vacía.':'No hay estudiantes que coincidan con este filtro.')+'</div>';return;}
   wrap.innerHTML='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Contacto</th><th>Sección</th><th>Estado</th><th>Progreso</th><th>Acciones</th></tr></thead><tbody>'+
     rows.map(s=>{const pc=studentProgress(s.id),pct=Math.round(pc/12*100);
       return '<tr>'+
@@ -4041,20 +4053,29 @@ function renderStudentsTable(){const wrap=document.getElementById('studentsTable
         '<td><span class="st-badge '+STATUS[s.status][1]+'">'+STATUS[s.status][0]+'</span></td>'+
         '<td><div class="adm-prog"><div class="adm-prog-bar"><i style="width:'+pct+'%"></i></div><span>'+pc+'/12</span></div></td>'+
         '<td class="adm-acts">'+
-          '<button title="Ver perfil y calificaciones" onclick="studentProfile('+jsq(s.id)+')">👁</button>'+
-          '<button title="Editar" onclick="editStudent('+jsq(s.id)+')">✎</button>'+
-          '<button title="'+(s.status==='inactivo'?'Reactivar':'Desactivar (conserva historial)')+'" onclick="toggleActive('+jsq(s.id)+')">'+(s.status==='inactivo'?'✔':'⏸')+'</button>'+
-          '<button class="del" title="Eliminar" onclick="deleteStudent('+jsq(s.id)+')">🗑</button>'+
+          (s.status==='borrado'
+            ? '<button title="Restaurar estudiante" onclick="restoreStudent('+jsq(s.id)+')">↩</button>'+
+              '<button class="del" title="Eliminar definitivamente (no se puede deshacer)" onclick="purgeStudent('+jsq(s.id)+')">🗑</button>'
+            : '<button title="Ver perfil y calificaciones" onclick="studentProfile('+jsq(s.id)+')">👁</button>'+
+              '<button title="Editar" onclick="editStudent('+jsq(s.id)+')">✎</button>'+
+              '<button title="'+(s.status==='inactivo'?'Reactivar':'Desactivar (conserva historial)')+'" onclick="toggleActive('+jsq(s.id)+')">'+(s.status==='inactivo'?'✔':'⏸')+'</button>'+
+              '<button class="del" title="Enviar a la papelera" onclick="deleteStudent('+jsq(s.id)+')">🗑</button>')+
         '</td></tr>';}).join('')+'</tbody></table></div>';}
 function toggleActive(id){const s=getStudent(id);if(!s)return;
   s.status=(s.status==='inactivo')?'activo':'inactivo';saveStudents();renderStudentsTable();
   if(id===STU)renderStudentCard();toast('Estudiante '+(s.status==='inactivo'?'desactivado':'reactivado'),s.status==='inactivo'?'⏸':'✔');}
 function deleteStudent(id){const s=getStudent(id);if(!s)return;
-  askConfirm('¿Está seguro de que desea eliminar a '+s.name+'? Se borrarán el estudiante y su progreso. Esta acción no se puede deshacer.',function(){
+  askConfirm('¿Enviar a '+s.name+' a la papelera? Perderá el acceso al curso, pero su progreso se conserva y podrás restaurarlo cuando quieras.',function(){
+    s.status='borrado';saveStudents();
+    if(STU===id){STU='';localStorage.removeItem('porci_active');renderStudentCard();updateNav();}
+    renderStudentsTable();toast('Enviado a la papelera','🗑');},'Enviar a papelera');}
+function restoreStudent(id){const s=getStudent(id);if(!s)return;
+  s.status='activo';saveStudents();renderStudentsTable();toast('Estudiante restaurado como activo','↩️');}
+function purgeStudent(id){const s=getStudent(id);if(!s)return;
+  askConfirm('¿Eliminar DEFINITIVAMENTE a '+s.name+'? Se borran su perfil y todo su progreso. Esta acción no se puede deshacer.',function(){
     STUDENTS=STUDENTS.filter(x=>x.id!==id);saveStudents();
     Object.keys(localStorage).filter(k=>k.indexOf('porci::'+id+'::')===0).forEach(k=>localStorage.removeItem(k));
-    if(STU===id){STU='';localStorage.removeItem('porci_active');renderStudentCard();updateNav();}
-    renderStudentsTable();toast('Estudiante eliminado','🗑');},'Eliminar');}
+    renderStudentsTable();toast('Estudiante eliminado definitivamente','🗑');},'Eliminar definitivamente');}
 function editStudent(id){const s=id?getStudent(id):null;
   const secOpts=SECTIONS.map(x=>'<option value="'+x.id+'"'+(s&&s.section===x.id?' selected':'')+'>'+esc(x.name)+'</option>').join('');
   const stOpts=Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(s&&s.status===k?' selected':'')+'>'+STATUS[k][0]+'</option>').join('');
@@ -4457,6 +4478,7 @@ router();
     if(!prof){le('No se encontró tu perfil. Contacta al instructor.');await sb.auth.signOut();return;}
     if(prof.role!=='admin'){
       if(prof.status==='pendiente'){le('Tu cuenta está pendiente de activación. El instructor la habilita al confirmar tu pago.');await sb.auth.signOut();return;}
+      if(prof.status==='borrado'){le('Esta cuenta ya no está disponible. Contacta al instructor.');await sb.auth.signOut();return;}
       if(prof.status==='inactivo'||prof.status==='retirado'){le('Tu acceso está '+prof.status+'. Contacta al instructor.');await sb.auth.signOut();return;}
     }
     applyProfile(data.user,prof);
@@ -4555,8 +4577,13 @@ router();
       const s=getStudent(id);if(s)Object.assign(s,{name:patch.full_name,email:patch.email,phone:patch.phone,enrolled:patch.enrolled_at||'',section:patch.section_id||'',status:patch.status,notes:notes});
       closeForm();renderStudentsTable();toast('Estudiante guardado','✅');});};
   deleteStudent=function(id){const s=getStudent(id);if(!s)return;
-    askConfirm('¿Eliminar a '+s.name+'? Se borrará su perfil y progreso de la nube.',function(){
-      sb.from('profiles').delete().eq('id',id).then(({error})=>{if(error){toast('No se pudo eliminar: '+error.message,'⛔');return;}STUDENTS=STUDENTS.filter(x=>x.id!==id);renderStudentsTable();toast('Estudiante eliminado','🗑');});},'Eliminar');};
+    askConfirm('¿Enviar a '+s.name+' a la papelera? Perderá el acceso, pero su progreso se conserva y podrás restaurarlo cuando quieras.',function(){
+      sb.from('profiles').update({status:'borrado'}).eq('id',id).then(({error})=>{if(error){toast('No se pudo: '+error.message,'⛔');return;}s.status='borrado';renderStudentsTable();toast('Enviado a la papelera','🗑');});},'Enviar a papelera');};
+  restoreStudent=function(id){const s=getStudent(id);if(!s)return;
+    sb.from('profiles').update({status:'activo'}).eq('id',id).then(({error})=>{if(error){toast('No se pudo restaurar: '+error.message,'⛔');return;}s.status='activo';renderStudentsTable();toast('Estudiante restaurado como activo','↩️');});};
+  purgeStudent=function(id){const s=getStudent(id);if(!s)return;
+    askConfirm('¿Eliminar DEFINITIVAMENTE a '+s.name+'? Se borran su perfil y su progreso de la nube. Esta acción no se puede deshacer.',function(){
+      sb.from('profiles').delete().eq('id',id).then(({error})=>{if(error){toast('No se pudo eliminar: '+error.message,'⛔');return;}STUDENTS=STUDENTS.filter(x=>x.id!==id);renderStudentsTable();toast('Estudiante eliminado definitivamente','🗑');});},'Eliminar definitivamente');};
   saveSectionForm=function(){const id=document.getElementById('fs_id').value;const name=(document.getElementById('fs_name').value||'').trim();if(!name){toast('Escribe un nombre','✍️');return;}
     const notes=document.getElementById('fs_notes').value.trim();
     const p=id?sb.from('sections').update({name,notes}).eq('id',id):sb.from('sections').insert({name,notes});
@@ -4619,7 +4646,7 @@ router();
   router();
   sb.auth.getSession().then(async ({data})=>{ if(data&&data.session&&data.session.user){
     const prof=await loadProfile(data.session.user.id);
-    if(prof){ if(prof.role!=='admin'&&(prof.status==='pendiente'||prof.status==='inactivo'||prof.status==='retirado')){await sb.auth.signOut();return;} applyProfile(data.session.user,prof);} }});
+    if(prof){ if(prof.role!=='admin'&&(prof.status==='pendiente'||prof.status==='inactivo'||prof.status==='retirado'||prof.status==='borrado')){await sb.auth.signOut();return;} applyProfile(data.session.user,prof);} }});
 })();
 </script>
 </body>
