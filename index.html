@@ -262,6 +262,8 @@ td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabu
 .concept{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--accent);
   border-radius:12px;padding:18px 20px;box-shadow:var(--shadow)}
 .concept b{display:block;font-size:15.5px;margin-bottom:5px;color:var(--text)}
+/* un <b> dentro de un parrafo es enfasis en linea, no titulo de tarjeta */
+.concept p b,.note p b,.step p b,.dtl-item p b,.obj p b{display:inline;font-size:inherit;margin:0}
 .concept p{font-size:14px;color:var(--text-2);margin:0}
 
 /* caso desplegable */
@@ -1492,46 +1494,19 @@ function module1(){
   <!-- Cómo funciona este curso -->
   <section class="block">
     ${secLabel('01b','Cómo funciona este curso')}
-    <h3 class="rv">Qué recibes, cuánto te va a tomar y qué puedes esperar</h3>
-    <p class="lead-txt rv">Este no es un curso para leer de corrido. Está hecho para aplicarse en una granja real: cada módulo cierra con una evaluación que debes aprobar antes de pasar al siguiente.</p>
+    <h3 class="rv">Cómo avanzar y qué vas a encontrar</h3>
+    <p class="lead-txt rv">Este curso está hecho para aplicarse en una granja real, no para leerlo de corrido. Antes de arrancar, conviene que sepas cómo está organizado.</p>
 
     <div class="concepts" data-stagger>
-      <div class="concept rv"><b>⏱️ 20 a 25 horas de estudio</b><p>Tiempo estimado incluyendo la lectura, las 12 evaluaciones, los checklists de granja y el proyecto final. Va a tu ritmo: puedes hacerlo en dos semanas o en dos meses.</p></div>
-      <div class="concept rv"><b>♾️ Acceso de por vida</b><p>Pagas una sola vez. El acceso no vence, y las actualizaciones futuras del contenido no tienen costo adicional.</p></div>
-      <div class="concept rv"><b>🔓 Avanzas aprobando</b><p>Cada módulo se desbloquea al aprobar la evaluación del anterior. No se avanza por tiempo: se avanza por dominio.</p></div>
-      <div class="concept rv"><b>📥 Material para la granja</b><p>Manual, evaluación, checklist y plantillas de Excel por módulo, listos para imprimir y usar frente al corral.</p></div>
+      <div class="concept rv"><b>📖 Se lee hoja por hoja</b><p>El <b>Modo Lección</b> te muestra una sección a la vez, con barra de progreso. Puedes salir cuando quieras: al volver, retomas justo donde lo dejaste.</p></div>
+      <div class="concept rv"><b>🔓 Avanzas aprobando</b><p>Cada módulo cierra con una evaluación calificada. Necesitas <b>80%</b> para desbloquear el siguiente. Si no la apruebas, puedes repetirla.</p></div>
+      <div class="concept rv"><b>📥 Material para la granja</b><p>Manual, evaluación, checklist y plantillas de Excel en cada módulo, listos para imprimir. Se activan al aprobar la evaluación de ese módulo.</p></div>
+      <div class="concept rv"><b>🎓 Certificado al terminar</b><p>Al aprobar los 12 módulos se emite tu certificado con tu nombre, la fecha y un código de verificación.</p></div>
     </div>
 
-    <div class="tbl-wrap rv">
-      <table>
-        <caption>¿Este curso es para ti?</caption>
-        <thead><tr><th>Si eres…</th><th>Te llevas</th></tr></thead>
-        <tbody>
-          <tr><td>Alguien que quiere <b>empezar</b> una granja</td><td>Saber cuánto cuesta arrancar, qué instalación necesitas y si el negocio te da — <b>antes</b> de invertir.</td></tr>
-          <tr><td><b>Productor ya en marcha</b></td><td>Encontrar por dónde se te está yendo el dinero: conversión, mortalidad, días a mercado y precio de venta.</td></tr>
-          <tr><td><b>Técnico o encargado</b> de granja</td><td>Protocolos escritos, checklists y registros para estandarizar el trabajo del personal.</td></tr>
-          <tr><td><b>Estudiante</b> de agropecuaria o veterinaria</td><td>El puente entre la teoría del aula y cómo se decide de verdad en una granja dominicana.</td></tr>
-          <tr><td>Quien <b>invierte o financia</b> proyectos</td><td>Criterios para evaluar un proyecto porcino y detectar números que no cuadran.</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="note tip rv"><div class="ico">⏱️</div><div><b>Cuánto tiempo te va a tomar</b><p>Unas <b>20 a 25 horas</b> en total, contando la lectura, las 12 evaluaciones, los checklists y el proyecto final. Va a tu ritmo: puedes hacerlo en dos semanas o en dos meses, y tu acceso no vence.</p></div></div>
 
-    <div class="note warn rv"><div class="ico">⚠️</div><div><b>Para quién NO es</b><p>Si buscas un título universitario o formación de laboratorio veterinario, este curso no es eso. Aquí se enseña a <b>producir y administrar</b> una granja porcina rentable en República Dominicana. No sustituye la consulta con un médico veterinario ni el diagnóstico de laboratorio.</p></div></div>
-
-    <div class="tbl-wrap rv">
-      <table>
-        <caption>Metas alcanzables al aplicar el curso completo — valores de REFERENCIA del sector, no una garantía</caption>
-        <thead><tr><th>Indicador</th><th>Punto de partida frecuente</th><th>Meta con manejo aplicado</th></tr></thead>
-        <tbody>
-          <tr><td>Mortalidad en lactancia</td><td>12–15 %</td><td>6–8 %</td></tr>
-          <tr><td>Destetados por cerda al año</td><td>16–18</td><td>22–25</td></tr>
-          <tr><td>Conversión alimenticia en ceba</td><td>3.2–3.5</td><td>2.6–2.9</td></tr>
-          <tr><td>Días para llegar a peso de mercado</td><td>180–200</td><td>150–170</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="note good rv"><div class="ico">📈</div><div><b>Qué significan esos números</b><p>Bajar la mortalidad de 12 % a 7 % es una reducción cercana al <b>40 %</b>. Pasar de 18 a 24 destetados por cerda al año es un aumento de productividad del orden del <b>30 %</b>. Son metas que el sector alcanza con manejo aplicado de forma constante — <b>no son una promesa</b>: dependen de tu granja, tu clima, tu alimento y, sobre todo, de que ejecutes lo que aprendes aquí.</p></div></div>
+    <div class="note good rv"><div class="ico">🧭</div><div><b>Cómo sacarle el máximo</b><p>No corras a la evaluación. Recorre cada módulo pensando en una granja concreta —la tuya, o la que quieres montar— y usa el checklist del final <b>parado en el corral</b>, no frente a la pantalla. Este curso rinde cuando lo que lees se convierte en algo que cambias.</p></div></div>
   </section>
 
   <!-- INTRODUCCIÓN -->
