@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08c · candados visibles para el instructor y navegacion con teclado -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08d · evaluaciones de 3 preguntas y fachada de los dos cursos para cuentas pendientes -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -4799,6 +4799,7 @@ router();
       if(typeof CERTCFG!=='undefined'){CERTCFG=Object.assign({},DEFCERT,cj);localStorage.setItem('porci_cert',JSON.stringify(CERTCFG));}}catch(e){}}}catch(e){}}
   window._pullCertSettings=pullSettings;
   async function applyProfile(user,prof){
+    try{ window.NXMIESTADO = prof && prof.status; }catch(e){}
     if(prof.role==='admin'){SESSION={role:'ADMIN'};saveSession();await pullSettings();location.hash='#/admin';router();return;}
     SESSION={role:'STUDENT',id:user.id};saveSession();STU=user.id;localStorage.setItem('porci_active',user.id);
     putLocalStudent(user.id,prof);await pullProgress(user.id);await pullSettings();loadStudent();location.hash='#/curso';router();}
@@ -4812,7 +4813,8 @@ router();
     const prof=await loadProfile(data.user.id);
     if(!prof){le('No se encontró tu perfil. Contacta al instructor.');await sb.auth.signOut();return;}
     if(prof.role!=='admin'){
-      if(prof.status==='pendiente'){le('Tu cuenta está pendiente de activación. El instructor la habilita al confirmar tu pago.');await sb.auth.signOut();return;}
+      /* el pendiente entra a ver la fachada: los cursos le salen bloqueados
+         con las instrucciones de pago. No accede a ningún contenido. */
       if(prof.status==='borrado'){le('Esta cuenta ya no está disponible. Contacta al instructor.');await sb.auth.signOut();return;}
       if(prof.status==='inactivo'||prof.status==='retirado'){le('Tu acceso está '+prof.status+'. Contacta al instructor.');await sb.auth.signOut();return;}
     }
@@ -5051,7 +5053,7 @@ router();
   router();
   sb.auth.getSession().then(async ({data})=>{ if(data&&data.session&&data.session.user){
     const prof=await loadProfile(data.session.user.id);
-    if(prof){ if(prof.role!=='admin'&&(prof.status==='pendiente'||prof.status==='inactivo'||prof.status==='retirado'||prof.status==='borrado')){await sb.auth.signOut();return;} applyProfile(data.session.user,prof);} }});
+    if(prof){ if(prof.role!=='admin'&&(prof.status==='inactivo'||prof.status==='retirado'||prof.status==='borrado')){await sb.auth.signOut();return;} applyProfile(data.session.user,prof);} }});
 })();
 </script>
 <style>
@@ -9590,7 +9592,170 @@ window.nxAtajos=function(){
   };
 })();
 
+
+/* ============================================================
+   EVALUACIONES DE 3 PREGUNTAS · FACHADA DE LOS DOS CURSOS
+   ============================================================ */
+
+/* ---------- 1 · tres preguntas por módulo ----------
+   De las cinco escritas se conservan las tres que sostienen la idea
+   central del módulo. Las otras dos quedan fuera del examen, no
+   borradas: si el instructor quiere recuperarlas, están en el editor
+   al restaurar la versión original. */
+const NXTRES={
+  1:[0,1,2], 2:[0,2,4], 3:[0,2,3], 4:[0,1,3],  5:[0,1,4],
+  6:[0,2,3], 7:[0,1,2], 8:[0,1,3], 9:[0,1,4], 10:[0,2,3]
+};
+(function(){
+  if(typeof NXQUIZ==='undefined') return;
+  Object.keys(NXTRES).forEach(function(k){
+    const orig=NXQUIZ[k]; if(!orig) return;
+    NXQUIZ[k+'_completo']=orig;                       /* se conserva el juego largo */
+    NXQUIZ[k]=NXTRES[k].map(function(i){ return orig[i]; }).filter(Boolean);
+  });
+})();
+
+/* con tres preguntas, 80 % obliga a acertar las tres.
+   Se deja en 67 % (dos de tres) salvo que el instructor ya lo hubiera cambiado. */
+(function(){
+  let tocado=false;
+  try{ tocado=!!JSON.parse(localStorage.getItem('nx_curso_cfg')||'{}').passing; }catch(e){}
+  if(!tocado){ NXPASS=67; try{ localStorage.setItem('nx_curso_cfg',JSON.stringify({gate:NXGATE,passing:67,tries:NXTRIES})); }catch(e){} }
+})();
+
+/* el editor avisa de la relación entre preguntas y nota mínima */
+(function(){
+  const _e=nxAdmEvaluaciones;
+  nxAdmEvaluaciones=function(){
+    const h=_e.apply(this,arguments);
+    const n=nxQuizFor(NXQMOD).length;
+    /* la nota se redondea, así que 2 de 3 da 67 % y aprueba con 67 %:
+       se busca el mínimo de aciertos que llega a la nota */
+    let hay=n; for(let k=1;k<=n;k++){ if(Math.round(k/n*100)>=NXPASS){ hay=k; break; } }
+    return h.replace('<div class="nxq-h">',
+      '<p class="nxq-avi">Con <b>'+n+' pregunta'+(n===1?'':'s')+'</b> y una nota mínima de <b>'+NXPASS+' %</b>, '+
+      'el estudiante tiene que acertar <b>'+hay+' de '+n+'</b>.</p><div class="nxq-h">');
+  };
+})();
+
+/* ---------- 2 · la fachada: los dos cursos siempre visibles ---------- */
+const NXPAGO1={
+  precio:'US$ 75', pesos:'RD$ 4,500',
+  incluye:['12 módulos con el manejo completo de una granja porcina',
+           'Evaluaciones, casos prácticos y proyecto final',
+           'Descargables: manuales, checklists y plantillas de registro',
+           'Foro abierto y consultas privadas con el instructor',
+           'Precios del cerdo por provincia y noticias del sector',
+           'Certificado al aprobar los 12 módulos']
+};
+window.nxAbrirPago1=function(){
+  let ov=document.getElementById('nxPagoOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='nxPagoOv'; ov.className='nxp-ov'; document.body.appendChild(ov); }
+  document.body.style.overflow='hidden';
+  const msg=encodeURIComponent('Hola, ya hice la transferencia del curso de Porcicultura ('+NXPAGO1.precio+') y le envío el comprobante para que active mi cuenta.');
+  ov.innerHTML='<div class="nxp-w"><button class="nxp-x" onclick="nxCerrarPago()">✕</button>'+
+    '<div class="nxp-ico">🐷</div><span class="nxp-tag">Curso base</span>'+
+    '<h2>Porcicultura aplicada a República Dominicana</h2>'+
+    '<p class="nxp-s">Su cuenta está creada pero todavía no activada. En cuanto el instructor confirme su transferencia, este curso se le abre completo.</p>'+
+    '<div class="nxp-precio"><b>'+NXPAGO1.precio+'</b><span>≈ '+NXPAGO1.pesos+' · pago único · acceso de por vida</span></div>'+
+    '<div class="nxp-inc"><b>Lo que incluye</b><ul>'+NXPAGO1.incluye.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>'+
+    '<div class="nxp-cta"><b>Cuentas para transferencia</b><span>Todas de ahorros a nombre de '+esc(NXPAGO.titular)+'</span>'+
+      NXPAGO.cuentas.map(function(c){
+        return '<div class="nxp-cta-r"><span>'+c[0]+'</span><b>'+c[1]+'</b>'+
+          '<button onclick="nxCopiar(\''+c[1]+'\',this)">Copiar</button></div>';}).join('')+'</div>'+
+    '<div class="nxp-bts">'+
+      '<a class="nxp-b wa" href="'+NXPAGO.wa+'?text='+msg+'" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a>'+
+      '<a class="nxp-b" href="mailto:'+NXPAGO.correo+'?subject=Comprobante%20de%20pago">Enviarlo por correo</a>'+
+    '</div>'+
+    '<p class="nxp-n">El monto en pesos es de referencia y depende del cambio del día. Al confirmarse el pago su cuenta pasa a activa y entra de inmediato.</p></div>';
+};
+
+/* la tarjeta del curso base también invita a pagar cuando la cuenta está pendiente */
+(function(){
+  const _ab=window.abrirCursos;
+  window.abrirCursos=function(){
+    _ab.apply(this,arguments);
+    const c1=document.querySelector('.cs-c.c1');
+    if(!c1) return;
+    if(nxEsInstructor()) return;
+    if(nxCondicionOk()) return;                       /* está activo: nada que cambiar */
+    if(!publicado1()) return;                          /* el curso está oculto: se queda como está */
+    c1.classList.remove('off'); c1.classList.add('pago');
+    c1.onclick=function(){ nxAbrirPago1(); };
+    const em=c1.querySelector('em');
+    if(em) em.textContent='🔒 '+NXPAGO1.precio+' · active su cuenta →';
+  };
+})();
+
+
+/* ============================================================
+   EL PENDIENTE ATERRIZA EN LA FACHADA, NO EN EL CURSO
+   ============================================================ */
+
+function nxMiEstadoOk(){
+  if(nxEsInstructor()) return true;
+  const e=(typeof NXMIESTADO!=='undefined')?NXMIESTADO:null;
+  if(e) return ['activo','completado'].indexOf(e)>=0;
+  return nxCondicionOk();          /* respaldo: lo que diga la lista de estudiantes */
+}
+
+/* la condición del curso base mira primero el estado propio del que entró */
+(function(){
+  const _c=nxCondicionOk;
+  nxCondicionOk=function(id){
+    const yo=(typeof SESSION!=='undefined'&&SESSION&&SESSION.id)||null;
+    if((!id||id===yo) && typeof NXMIESTADO!=='undefined' && NXMIESTADO){
+      return ['activo','completado'].indexOf(NXMIESTADO)>=0;
+    }
+    return _c.apply(this,arguments);
+  };
+})();
+
+/* si la cuenta no está activa, la ruta del curso lleva a la fachada */
+(function(){
+  if(typeof router!=='function') return;
+  const _r=router;
+  router=function(){
+    const h=location.hash||'';
+    if(h.indexOf('#/curso')===0 && !nxEsInstructor() && !nxMiEstadoOk()){
+      try{ showScreen('curso'); }catch(e){}
+      setTimeout(function(){ try{ abrirCursos(); }catch(e){} },140);
+      return;
+    }
+    return _r.apply(this,arguments);
+  };
+})();
+
+/* con la cuenta pendiente no se puede cerrar la fachada y quedar en blanco */
+(function(){
+  const _cc=window.cerrarCursos;
+  window.cerrarCursos=function(){
+    if(!nxEsInstructor() && !nxMiEstadoOk()){
+      toast('Su cuenta todavía no está activa. Aquí puede ver cómo activarla.','🔒');
+      return;
+    }
+    return _cc.apply(this,arguments);
+  };
+})();
+
+/* encabezado de la fachada según el estado de la cuenta */
+(function(){
+  const _ab=window.abrirCursos;
+  window.abrirCursos=function(){
+    _ab.apply(this,arguments);
+    if(nxEsInstructor()||nxMiEstadoOk()) return;
+    const h=document.querySelector('.cs-h p');
+    if(h) h.innerHTML='Su cuenta está creada pero todavía <b>no activada</b>. '+
+      'Toque el curso que compró para ver cómo enviar su comprobante; el instructor lo habilita al confirmarlo.';
+    const x=document.querySelector('.cs-x'); if(x) x.style.display='none';
+  };
+})();
+
 </script>
+
+
+
+
 
 
 
