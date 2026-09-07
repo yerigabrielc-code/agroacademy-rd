@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-06c · consultas: foro abierto + canal privado con el instructor -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-07a · reflexion por modulo, enfermedades del posparto, sin imagenes de relleno -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -1152,6 +1152,20 @@ body{font-size:17.5px}
 .cf-2 .cf{margin-bottom:0}
 .cert-preview-col{position:static}
 @media(max-width:480px){.cf-2{grid-template-columns:1fr}}
+
+/* ===== REFLEXIÓN DEL MÓDULO ===== */
+.rf{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:0 14px 14px 0;padding:20px 22px;margin-top:6px}
+.rf textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;line-height:1.55;min-height:130px;resize:vertical;
+  padding:13px 15px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--text)}
+.rf textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.rf-pie{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:14px}
+.rf-pie span{font-size:13px;color:var(--muted);max-width:46ch}
+.rf-cargando{color:var(--muted);font-size:14.5px}
+.rf-hecha{display:flex;gap:15px;align-items:flex-start}
+.rf-ico{font-size:22px;line-height:1;flex:none;margin-top:2px}
+.rf-hecha b{display:block;font-size:16px;margin-bottom:7px;color:var(--text)}
+.rf-hecha p{margin:0 0 13px;font-size:15.5px;line-height:1.55;color:var(--text-2);white-space:pre-line;
+  padding-left:14px;border-left:2px solid var(--border)}
 </style>
 </head>
 <body data-screen="login">
@@ -2673,6 +2687,56 @@ const DEEP={
     fb:'Falso. El exceso de proteína no se aprovecha: se desperdicia, encarece la ración y aumenta la contaminación. Lo que importa es el aminoácido correcto (lisina) en la proporción justa.'}
  ]},
  6:{sections:[
+   {label:'Profundización — el posparto de la cerda',title:'La ventana más delicada: las 72 horas después del parto',kind:'prose',
+    body:['La mayoría de los productores vigila el parto y se relaja cuando sale el último lechón. Es justo al revés: <b>el parto es el evento, el posparto es el riesgo</b>. Ahí se concentran los problemas que matan cerdas y camadas completas, y casi todos dan aviso horas antes de volverse graves.',
+      'Hay tres señales que debe mirar todos los días en cada cerda recién parida: <b>si come, si tiene fiebre y si los lechones están tranquilos</b>. Una cerda que no come en las primeras 24 horas posparto tiene algo. Lechones que chillan, se amontonan en la ubre y no engordan están diciendo que no hay leche, aunque la cerda se vea normal.',
+      'Nada de lo que sigue sustituye al médico veterinario. Sirve para que <b>reconozca a tiempo</b> y llame con la información correcta, que es lo que cambia el desenlace.'],
+    note:['crit','🌡️','Tome la temperatura, no adivine','La cerda normal está entre 38.5 y 39.5 °C. Por encima de 39.5 °C en el posparto, sospeche infección y llame. Un termómetro cuesta poco y es el dato que su veterinario le va a pedir primero.']},
+
+   {label:'Profundización — prolapsos',title:'Prolapsos: uterino, vaginal y rectal',kind:'table',
+    cap:'Los tres prolapsos que verá en una granja porcina (referencia para reconocer, no para tratar por cuenta propia)',
+    head:['Tipo','Cuándo aparece','Cómo se ve','Qué hacer'],
+    rows:[
+      ['Uterino','En las horas siguientes al parto','Masa grande, roja, que sale por la vulva; la cerda se ve decaída y puede entrar en shock','<b>Emergencia real.</b> Llame al veterinario de inmediato. Mientras llega: mantenga el tejido limpio y húmedo, no deje que la cerda se levante ni lo pise. El pronóstico es reservado.'],
+      ['Vaginal','En los últimos días de gestación, antes del parto','Protrusión rosada que aparece cuando la cerda se echa y a veces se reduce sola al levantarse','Vigilar de cerca. Puede repetirse y agravarse durante el parto. Revise pendiente del piso, exceso de condición corporal y calidad del alimento (micotoxinas).'],
+      ['Rectal','Destete y engorde, sobre todo en clima frío','Anillo rojo saliendo del ano; el animal sigue comiendo al principio','Separe al animal de inmediato: los demás lo muerden. Llame al veterinario. Corrija la causa de fondo: tos, diarrea, hacinamiento o amontonamiento por frío.']]},
+
+   {label:'Profundización — causas del prolapso',title:'Por qué se producen y cómo bajar el riesgo',kind:'concepts',
+    items:[['Condición corporal excesiva','La cerda muy gorda al parto tiene más presión abdominal y más problemas de parto. La condición se maneja durante toda la gestación, no en la última semana.'],
+      ['Partos largos y forzados','Un parto prolongado o una intervención brusca aumentan mucho el riesgo de prolapso uterino. Supervisar no es lo mismo que intervenir.'],
+      ['Micotoxinas en el alimento','La zearalenona produce enrojecimiento y edema de vulva y se asocia a prolapso vaginal. Alimento almacenado húmedo o con hongos es un factor real, no una teoría.'],
+      ['Piso con pendiente hacia atrás','Si la cerda pasa horas echada con el tren posterior más bajo, aumenta la presión. Revise la pendiente de sus parideras.'],
+      ['Estreñimiento','La cerda que puja para defecar puja también sobre el útero y el recto. Fibra y agua abundante los últimos días de gestación bajan el riesgo.'],
+      ['Frío y amontonamiento','En destete, los animales que se apilan por frío y pujan al defecar hacen prolapso rectal. Es un problema de temperatura antes que de enfermedad.']]},
+
+   {label:'Profundización — MMA',title:'Síndrome MMA: cuando la cerda pare bien pero no da leche',kind:'prose',
+    body:['Se le llama <b>MMA</b> por mastitis, metritis y agalactia, aunque hoy se prefiere hablar de <b>disgalactia posparto</b>: la cerda produce poca o ninguna leche en las primeras 12 a 48 horas. Es una de las causas más frecuentes de mortalidad de camada en granjas pequeñas, y muchas veces se confunde con «lechones débiles».',
+      'Cómo se ve: los lechones <b>chillan, se pelean en la ubre y no se llenan</b>; la ubre está caliente, dura o enrojecida; puede haber secreción vulvar de mal olor; la cerda no come, tiene fiebre y se echa boca abajo tapando las tetas.',
+      'Lo que lo provoca casi siempre es una combinación de <b>higiene deficiente de la paridera, estreñimiento, sobrealimentación al final de la gestación y estrés por calor</b> — los cuatro son evitables.'],
+    note:['warn','🍼','La camada no espera','Si la cerda no baja leche, los lechones tienen horas, no días. Mientras el veterinario llega, mantenga la zona de calor encendida y consulte si conviene un sustituto lácteo o cambiar lechones a otra cerda con camada pequeña.']},
+
+   {label:'Profundización — otras comunes',title:'Otras enfermedades comunes que conviene reconocer a tiempo',kind:'table',
+    cap:'Cuadros frecuentes en granja: cómo se manifiestan y qué los favorece (siempre con diagnóstico veterinario)',
+    head:['Cuadro','Etapa','Señal que la delata','Qué lo favorece'],
+    rows:[
+      ['Estreptococia (<i>Streptococcus suis</i>)','Lechón destetado','Signos nerviosos: temblores, pérdida de equilibrio, animal «remando» de lado','Mezcla de lotes, cambios bruscos, mala ventilación'],
+      ['Coccidiosis (<i>Isospora suis</i>)','Lechón de 7 a 14 días','Diarrea pastosa amarillenta que <b>no responde a antibiótico</b>','Paridera sucia entre partos, humedad'],
+      ['Colibacilosis','Neonato y destete','Diarrea acuosa, deshidratación rápida','Frío, calostro insuficiente, higiene'],
+      ['Sarna sarcóptica','Todas','Picor intenso: se rascan contra paredes; costras en orejas','Falta de tratamiento en el pie de cría'],
+      ['Úlcera gástrica','Ceba','Muerte súbita con palidez marcada y heces negras','Alimento molido muy fino, ayunos por comedero vacío'],
+      ['Cistitis y pielonefritis','Cerda adulta','Orina turbia o con sangre; a veces muerte súbita','Poca ingesta de agua, higiene deficiente'],
+      ['Hernia umbilical o escrotal','Lechón y desarrollo','Abultamiento blando en ombligo o escroto','Componente hereditario: no repita ese verraco'],
+      ['Neumonía enzoótica','Desarrollo y ceba','Tos seca persistente, sobre todo al mover el lote','Amoníaco, polvo, alta densidad, ventilación pobre']]},
+
+   {label:'Profundización — cuándo llamar',title:'Cuándo llamar al veterinario sin pensarlo dos veces',kind:'checklist',
+    items:['Cualquier prolapso, en cualquier etapa',
+      'Cerda que no come en las primeras 24 horas después del parto',
+      'Temperatura por encima de 39.5 °C en una cerda recién parida',
+      'Camada que chilla y no engorda en las primeras 48 horas',
+      'Secreción vulvar con mal olor en los días posteriores al parto',
+      'Más de un animal con signos nerviosos en el mismo lote',
+      'Diarrea que no cede en 48 horas o con sangre',
+      'Dos o más muertes súbitas en la misma semana sin causa clara']},
    {label:'Profundización — plagas y vectores',title:'Quién entra a su granja sin que lo invite',kind:'concepts',
     items:[['Roedores','Una rata come y contamina alimento todos los días, y transporta <b>leptospira, salmonela y E. coli</b>. Donde hay roedores hay pérdida invisible de alimento y un canal permanente de contagio.'],
       ['Moscas','No enferman al cerdo por sí solas: actúan como <b>vector mecánico</b>, llevando bacterias del estiércol al comedero. Se crían en estiércol húmedo y restos de alimento.'],
@@ -2879,8 +2943,6 @@ const DEEP={
     a:{icon:'✅',title:'Precio por encima del costo/kg',items:['Cada cerdo vendido deja margen real.','El negocio soporta imprevistos y meses flojos.','Se puede reinvertir y crecer con datos.','La rentabilidad se sostiene ciclo tras ciclo.']},
     b:{icon:'🔻',title:'Precio por debajo del costo/kg',items:['Cada cerdo vendido profundiza la pérdida.','«Vender mucho» no soluciona nada si cada venta pierde.','El productor se descapitaliza sin notarlo.','Suele descubrirse tarde, sin registros de por medio.']}},
    {kind:'alert',body:'Una granja puede estar «llena de cerdos» y aun así perder dinero. Si no calcula su costo por kg con todos los rubros, puede estar vendiendo por debajo de su propio costo sin saberlo.'},
-   {kind:'image',src:'images/m9-rentabilidad.jpg',alt:'Ilustración de un cerdito con calculadora, gráficos y dinero',
-    cap:'La rentabilidad se calcula, no se adivina: costo por kg, punto de equilibrio y margen — con sus propios números.'},
    {label:'Profundización — dónde está la rentabilidad',title:'La rentabilidad se ve en la hoja, no en el corral',kind:'prose',
     body:['Una granja puede estar <b>llena de cerdos</b> y perder dinero. La foto de un corral bonito no dice si gana; el <b>costo por kilogramo producido</b> comparado con el <b>precio de venta</b> sí lo dice.',
       'El productor no controla el precio de mercado, pero sí controla su costo. Por eso bajar el costo/kg (mejor conversión, menos desperdicio, buena sanidad) es la palanca más segura de rentabilidad. Todas las cifras son de referencia en RD$: actualícelas.'],
@@ -3005,8 +3067,6 @@ const DEEP={
     items:[['No sé mucho de computadoras, ¿puedo?','Sí. Empiece con una sola hoja simple que calcule fechas. Verá el beneficio y avanzará solo, poco a poco.'],['¿Necesito internet?','Para una hoja de cálculo básica, no. Para respaldar en la nube y sincronizar entre dispositivos, sí ayuda.']]}
  ]},
  12:{sections:[
-   {kind:'image',src:'images/m12-proyecto-final.jpg',alt:'Ilustración de un proyecto final entregado en pantalla, con gráficos y documentos',
-    cap:'Su proyecto final: la integración de los 11 módulos anteriores en un solo documento presentable.'},
    {label:'Compare',title:'Proyecto que convence vs. proyecto que no convence',kind:'compare',
     a:{icon:'✅',title:'Convence a un banco o socio',items:['Modelo de negocio claro y justificado.','Instalaciones con bioseguridad real, no solo dibujada.','Costo/kg, equilibrio y rentabilidad calculados.','Cifras marcadas como referencia, listas para actualizar.']},
     b:{icon:'⚠️',title:'No convence',items:['«Quiero criar cerdos» sin modelo definido.','Croquis sin flujo ni zona sucia diferenciada.','Sin números financieros o con cifras «infladas».','Presentado como si todo fuera un hecho, no un plan.']}},
@@ -5077,5 +5137,95 @@ router();
 })();
 </script>
 
+<script>
+/* ============================================================
+   REFLEXIÓN DEL MÓDULO
+   Cierra la secuencia: caso práctico → evaluación → reflexión.
+   Lo que el estudiante escribe se publica en el foro, así el
+   instructor puede darle retroalimentación y los demás lo leen.
+   ============================================================ */
+(function(){
+  if(!window.SB) return;
+  const sb = window.SB;
+
+  const REFLEX = {
+    1:'Después de ver el panorama del sector en RD, ¿qué modelo le encaja mejor a su situación real —lechones, engorde o ciclo completo— y por qué? ¿Qué le falta hoy para arrancarlo?',
+    2:'Piense en el lugar donde tiene (o tendría) su granja. ¿Qué decisión de diseño cambiaría si pudiera empezar de nuevo, y cuánto le costaría corregirla ahora?',
+    3:'¿Cómo detecta hoy el celo en su granja? ¿Qué tan seguro está de estar sirviendo dentro de la ventana correcta, y qué va a cambiar a partir de este módulo?',
+    4:'De todo lo que pasa en las primeras 72 horas del lechón, ¿dónde cree que su granja pierde más? ¿Qué hará distinto con la próxima camada?',
+    5:'¿Sabe cuánto le cuesta hoy producir un kilo de cerdo? Si no lo sabe, ¿qué dato concreto va a conseguir esta semana para poder calcularlo?',
+    6:'¿Cuál de las tres capas de bioseguridad está más débil en su granja: el perímetro, la entrada o el corral? ¿Qué haría esta semana para cerrarla?',
+    7:'¿En qué etapa productiva se le atrasan más los animales, y con qué evidencia lo afirma? Si no tiene evidencia, ¿cómo la conseguiría?',
+    8:'¿Qué registro va a empezar a llevar desde mañana y quién en su granja será responsable de llenarlo? Sea concreto: nombre y frecuencia.',
+    9:'Con los números que tiene hoy, ¿su granja gana o pierde por cerdo? Comparta a qué conclusión llegó con la calculadora y qué le sorprendió.',
+    10:'¿A quién le vende hoy y por qué a ese comprador? ¿Qué tendría que cambiar en su granja para acceder a un canal que pague mejor?',
+    11:'¿Cuál es la primera cosa que digitalizaría en su granja, y por qué esa y no otra? ¿Qué se lo ha impedido hasta ahora?',
+    12:'Al cerrar el curso, ¿cuál es el primer cambio concreto que va a implementar en los próximos 30 días? Póngale fecha y compártalo aquí.'
+  };
+
+  const miId    = () => (typeof SESSION!=='undefined' && SESSION && SESSION.id) || null;
+  const miNombre= () => { try{ const s=curStudent(); return (s&&s.name)||'Estudiante'; }catch(e){ return 'Estudiante'; } };
+
+  async function yaReflexiono(mod){
+    const uid=miId(); if(!uid) return null;
+    const {data}=await sb.from('consultas').select('id,cuerpo,created_at')
+      .eq('user_id',uid).eq('tipo','reflexion').eq('modulo',mod).limit(1);
+    return (data&&data[0])||null;
+  }
+
+  window.rfEnviar = async function(mod){
+    const t=document.getElementById('rfTxt'); if(!t) return;
+    const cue=(t.value||'').trim();
+    if(cue.length<40){ toast('Desarrolle un poco más su respuesta: es lo que hace útil la reflexión','✍️'); return; }
+    const {error}=await sb.from('consultas').insert({
+      user_id:miId(), autor:miNombre(), modulo:mod, tipo:'reflexion',
+      visibilidad:'publica', estado:'abierta',
+      titulo:'Reflexión · Módulo '+String(mod).padStart(2,'0'),
+      cuerpo:cue });
+    if(error){ toast('No se pudo enviar: '+error.message,'⛔'); return; }
+    toast('Reflexión compartida. El instructor la leerá y comentará.','🧠');
+    pintarReflexion(mod, {cuerpo:cue, created_at:new Date().toISOString()});
+  };
+
+  function pintarReflexion(mod, hecha){
+    const cont=document.getElementById('rfBox'); if(!cont) return;
+    if(hecha){
+      cont.innerHTML='<div class="rf-hecha"><div class="rf-ico">✅</div><div>'+
+        '<b>Ya compartió su reflexión de este módulo</b>'+
+        '<p>'+esc(hecha.cuerpo)+'</p>'+
+        '<button class="btn btn-ghost" onclick="openConsultas('+mod+')">Ver los comentarios del instructor →</button>'+
+        '</div></div>';
+    } else {
+      cont.innerHTML='<textarea id="rfTxt" placeholder="Escriba su punto de vista. No hay respuesta correcta: lo que cuenta es que lo piense con su granja en la cabeza."></textarea>'+
+        '<div class="rf-pie"><span>Se publicará en el foro con su nombre, para que el instructor pueda comentarla.</span>'+
+        '<button class="btn btn-primary" onclick="rfEnviar('+mod+')">Compartir mi reflexión</button></div>';
+    }
+  }
+
+  /* inserta la sección justo DESPUÉS de la evaluación */
+  const _mount = mount;
+  mount = function(id){
+    _mount(id);
+    if(!(id>=1 && id<=12) || !REFLEX[id]) return;
+    const wrap=document.querySelector('#main .wrap'); if(!wrap) return;
+    const bloques=[...wrap.children].filter(el=>el.classList&&el.classList.contains('block'));
+    const examen=bloques.find(b=>b.querySelector('.exam'));
+
+    const s=document.createElement('section');
+    s.className='block';
+    s.innerHTML='<div class="sec-label rv"><span class="n">'+String(id).padStart(2,'0')+'R</span> Reflexión</div>'+
+      '<h3 class="rv">Ahora piénselo con su granja en la cabeza</h3>'+
+      '<p class="lead-txt rv">'+esc(REFLEX[id])+'</p>'+
+      '<div class="rf rv" id="rfBox"><div class="rf-cargando">Cargando…</div></div>';
+
+    if(examen && examen.nextSibling) wrap.insertBefore(s, examen.nextSibling);
+    else if(examen) wrap.appendChild(s);
+    else wrap.appendChild(s);
+
+    try{ Anim.reveal(wrap); }catch(e){}
+    yaReflexiono(id).then(h=>pintarReflexion(id,h));
+  };
+})();
+</script>
 </body>
 </html>
