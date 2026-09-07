@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08e · cerrar sesion visible en la tarjeta, la fachada y el curso de formulacion -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08f · el resumen del dashboard se calcula con el curso seleccionado -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -9838,7 +9838,174 @@ function nxMiEstadoOk(){
   };
 })();
 
+
+/* ============================================================
+   RESUMEN DEL DASHBOARD POR CURSO
+   El resumen seguía calculándose siempre con los datos de
+   porcicultura: 12 barras y 0/12 aunque estuviera seleccionada
+   Formulación. Aquí se arma con los datos del curso elegido.
+   ============================================================ */
+
+function nxAlumnosDe(curso){
+  const todos=(typeof STUDENTS!=='undefined'?STUDENTS:[]).filter(function(s){return s.status!=='borrado';});
+  /* en el curso que se paga aparte, la base son los que lo compraron */
+  if(curso==='nutricion') return todos.filter(function(a){ return !!NXACCESO[a.id]; });
+  return todos;
+}
+
+function nxEstadisticas(curso){
+  const D=(curso==='nutricion')
+    ? {pre:'nx::', n:10, mods:(typeof NXMOD!=='undefined')?NXMOD.map(function(m){return {n:m.n,num:m.num,t:m.t,ac:m.ac};}):[]}
+    : {pre:'porci::', n:12, mods:(typeof MODULES!=='undefined')?MODULES.slice(1).map(function(m){return {n:m.id,num:m.num,t:m.title,ac:m.ac};}):[]};
+  const alum=nxAlumnosDe(curso);
+  const notas=[0,0,0,0,0];
+  const porMod=D.mods.map(function(){return 0;});
+  let sumPct=0, completados=0, proximos=0, modsDone=0, realizadas=0, aprobadas=0, punt=[];
+  const atencion=[], recientes=[], ultEval=[];
+
+  alum.forEach(function(a){
+    let ap=0, reprob=0, ultima=0;
+    D.mods.forEach(function(m,i){
+      let r=null; try{ r=JSON.parse(localStorage.getItem(D.pre+a.id+'::exam_m'+m.n)); }catch(e){}
+      if(!r) return;
+      realizadas++;
+      const nota=r.best||r.last||0;
+      punt.push(nota);
+      notas[nota<60?0:nota<70?1:nota<80?2:nota<90?3:4]++;
+      if(r.date&&r.date>ultima) ultima=r.date;
+      if(r.passed){ ap++; porMod[i]++; aprobadas++; }
+      else reprob++;
+      ultEval.push({name:a.name, mod:m.num, rec:r});
+    });
+    modsDone+=ap; sumPct+=ap/D.n;
+    if(ap>=D.n) completados++;
+    else if(ap>=D.n-2) proximos++;
+    if(a.status==='activo' && ap<D.n){
+      const dias=ultima?Math.floor((Date.now()-ultima)/86400000):null;
+      if(reprob>=2) atencion.push({s:a, pc:ap, por:reprob+' evaluaciones no aprobadas', urg:2});
+      else if(dias!==null&&dias>=21) atencion.push({s:a, pc:ap, por:'sin actividad hace '+dias+' días', urg:2});
+      else if(ultima===0) atencion.push({s:a, pc:ap, por:'nunca ha presentado una evaluación', urg:1});
+    }
+  });
+
+  atencion.sort(function(x,y){return y.urg-x.urg;});
+  ultEval.sort(function(x,y){return (y.rec.date||0)-(x.rec.date||0);});
+  const orden=alum.slice().sort(function(x,y){return (''+(y.enrolled||'')).localeCompare(''+(x.enrolled||''));});
+  const prom=punt.length?Math.round(punt.reduce(function(a,b){return a+b;},0)/punt.length):0;
+
+  const estados={};
+  alum.forEach(function(a){ estados[a.status]=(estados[a.status]||0)+1; });
+
+  return {D:D, alum:alum, total:alum.length, porMod:porMod, notas:notas,
+    avgPct: alum.length?Math.round(sumPct/alum.length*100):0,
+    modsDone:modsDone, completados:completados, proximos:proximos,
+    realizadas:realizadas, aprobadas:aprobadas, noAprob:realizadas-aprobadas,
+    promedio:prom, atencion:atencion.slice(0,6), recientes:orden.slice(0,5),
+    ultEval:ultEval.slice(0,6), estados:estados};
+}
+
+function nxResumenCurso(curso){
+  const x=nxEstadisticas(curso);
+  const esNut=(curso==='nutricion');
+  const nom=esNut?'Formulación':'Porcicultura';
+  if(!x.total){
+    return '<div class="adm-empty">'+(esNut
+      ? 'Todavía no hay estudiantes con acceso al curso de formulación. Habilítelos en <b>Cursos → Acceso</b>.'
+      : 'Aún no hay estudiantes.')+'</div>';
+  }
+  const COL={activo:'#2F7D4F',pendiente:'#E0A526',inactivo:'#7A736B',retirado:'#C23B3B',completado:'#3D6FB4'};
+  const tasa=x.realizadas?Math.round(x.aprobadas/x.realizadas*100):0;
+  const n=x.D.n;
+  let h='<div class="dsh">';
+
+  h+='<div class="dsh-hero">'+
+    '<div class="dsh-card kpi">'+dashRing(x.avgPct,'#2F7D4F',x.avgPct,'%')+
+      '<div class="kp-t"><b>Progreso promedio</b><span>'+x.total+' estudiante'+(x.total===1?'':'s')+
+      (esNut?' con acceso':'')+' · '+x.modsDone+' módulos aprobados</span></div></div>'+
+    '<div class="dsh-card kpi">'+dashRing(x.promedio,'#3D6FB4',x.promedio,'%')+
+      '<div class="kp-t"><b>Promedio de notas</b><span>sobre '+x.realizadas+' evaluaciones presentadas</span></div></div>'+
+    '<div class="dsh-card kpi">'+dashRing(tasa,'#12876B',tasa,'%')+
+      '<div class="kp-t"><b>Tasa de aprobación</b><span>'+x.aprobadas+' aprobadas · '+x.noAprob+' no aprobadas</span></div></div>'+
+    '<div class="dsh-card kpi">'+dashRing(x.total?Math.round(x.completados/x.total*100):0,'#C08A12',x.completados,'')+
+      '<div class="kp-t"><b>Completaron</b><span>de '+x.total+' · '+x.proximos+' a punto de terminar</span></div></div>'+
+  '</div>';
+
+  const maxM=Math.max(1,Math.max.apply(null,x.porMod));
+  const estados=Object.keys(x.estados).map(function(k){
+    return {n:x.estados[k], color:COL[k]||'#7A736B',
+            label:(typeof STATUS!=='undefined'&&STATUS[k])?STATUS[k][0]:k};
+  });
+  h+='<div class="dsh-grid g21">'+
+    '<div class="dsh-card"><h4>Avance por módulo <em>'+nom+' · cuántos lo tienen aprobado</em></h4>'+
+      '<div class="mbars">'+x.porMod.map(function(v,i){
+        const m=x.D.mods[i]||{num:String(i+1),ac:'#2F7D4F',t:''};
+        const alto=Math.round(v/maxM*100);
+        return '<div class="mb" title="'+ea(m.t)+': '+v+' de '+x.total+'">'+
+          '<span class="mb-n">'+v+'</span>'+
+          '<div class="mb-t"><i style="height:'+Math.max(alto,2)+'%;background:'+(m.ac||'#2F7D4F')+'"></i></div>'+
+          '<span class="mb-l">'+(i+1)+'</span></div>';}).join('')+'</div>'+
+      '<p class="dsh-pie">Los '+n+' módulos de '+nom+'. Donde la barra cae de golpe está el que se le atraviesa a la gente.</p></div>'+
+    '<div class="dsh-card"><h4>Estudiantes por estado'+(esNut?' <em>con acceso al curso</em>':'')+'</h4>'+
+      dashDona(estados,x.total)+
+      '<ul class="dn-leg">'+estados.map(function(e){
+        return '<li><i style="background:'+e.color+'"></i><span>'+esc(e.label)+'</span><b>'+e.n+'</b></li>';}).join('')+'</ul></div>'+
+  '</div>';
+
+  const maxN=Math.max(1,Math.max.apply(null,x.notas)),
+        RN=['&lt;60','60-69','70-79','80-89','90-100'],
+        CN=['#C23B3B','#C56A34','#C08A12','#4FA772','#2F7D4F'];
+  h+='<div class="dsh-grid g11">'+
+    '<div class="dsh-card"><h4>Distribución de notas <em>'+x.realizadas+' evaluaciones de '+nom+'</em></h4>'+
+      (x.realizadas?'<div class="hbars">'+x.notas.map(function(v,i){
+        return '<div class="hb"><span class="hb-l">'+RN[i]+'</span>'+
+          '<div class="hb-t"><i style="width:'+Math.round(v/maxN*100)+'%;background:'+CN[i]+'"></i></div>'+
+          '<b class="hb-n">'+v+'</b></div>';}).join('')+'</div>'
+        :'<div class="dsh-vacio">Todavía nadie ha presentado una evaluación de este curso.</div>')+'</div>'+
+    '<div class="dsh-card"><h4>Requieren atención <em>estudiantes activos</em></h4>'+
+      (x.atencion.length?'<ul class="dsh-at">'+x.atencion.map(function(a){
+        return '<li class="'+(a.urg===2?'alta':'')+'"><div><b>'+esc(a.s.name)+'</b><span>'+esc(a.por)+'</span></div>'+
+          '<em>'+a.pc+'/'+n+'</em></li>';}).join('')+'</ul>'
+        :'<div class="dsh-vacio">Nadie se está quedando atrás en este curso.</div>')+'</div>'+
+  '</div>';
+
+  h+='<div class="dsh-grid g11">'+
+    '<div class="dsh-card"><h4>Últimas evaluaciones <em>'+nom+'</em></h4><ul class="dash-list">'+
+      (x.ultEval.length?x.ultEval.map(function(e){
+        return '<li><span>'+esc(e.name)+' · M'+e.mod+'</span><em class="'+(e.rec.passed?'ok':'bad')+'">'+
+          (e.rec.best||e.rec.last||0)+'% · '+dashDate(e.rec.date)+'</em></li>';}).join('')
+        :'<li class="none">Sin datos</li>')+'</ul></div>'+
+    '<div class="dsh-card"><h4>'+(esNut?'Con acceso al curso':'Últimos inscritos')+'</h4><ul class="dash-list">'+
+      (x.recientes.length?x.recientes.map(function(s){
+        return '<li><span>'+esc(s.name)+'</span><em>'+(s.enrolled||'')+'</em></li>';}).join('')
+        :'<li class="none">Sin datos</li>')+'</ul></div>'+
+  '</div>';
+
+  return h+'</div>';
+}
+
+/* el dashboard entero pasa a depender del curso elegido */
+(function(){
+  const _d=dashboardView;
+  dashboardView=function(){
+    const curso=(typeof ADMCURSO!=='undefined')?ADMCURSO:'porcicultura';
+    let cuerpo='';
+    if(NXDASH.vista==='detalle')      cuerpo='<div class="dsh-card">'+nxTablaDetalle()+'</div>';
+    else if(NXDASH.vista==='embudo')  cuerpo='<div class="dsh-card">'+nxEmbudo()+'</div>';
+    else {
+      try{ cuerpo=nxResumenCurso(curso); }
+      catch(e){ cuerpo='<div class="adm-empty">No se pudo calcular: '+esc(e.message)+'</div>'; }
+    }
+    return nxTarjetaAlerta()+
+      '<div class="nxd-tabs">'+
+        [['general','Resumen'],['detalle','Detalle por estudiante'],['embudo','Avance por módulo']].map(function(t){
+          return '<button class="fchip'+(t[0]===NXDASH.vista?' on':'')+'" onclick="nxDashVista(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+
+        '<span class="nxd-cur">'+(curso==='nutricion'?'🌽 Formulación':'🐷 Porcicultura')+'</span>'+
+      '</div>'+cuerpo;
+  };
+})();
+
 </script>
+
 
 
 
