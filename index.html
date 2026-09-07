@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-07d · mercado con referencia nacional real (SAN) y marca ref por provincia -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-07e · mercado sin linea de fuente -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -5568,9 +5568,7 @@ router();
     if(r.cria&&r.cria.length){
       h+='<div class="mk-cria">'+r.cria.map(function(c){
         return '<span>'+esc(c.que)+' <b>RD$ '+Number(c.precio).toLocaleString('es-DO')+'</b></span>';}).join('')+'</div>';}
-    if(r.fuente){
-      h+='<p class="mk-ref-f">Fuente: '+(r.url?'<a href="'+ea(r.url)+'" target="_blank" rel="noopener">'+esc(r.fuente)+'</a>':esc(r.fuente))+
-        (r.consultado?' · consultado el '+fFecha(r.consultado):'')+'. Verifíquelo antes de cerrar una venta.</p>';}
+    h+='<p class="mk-ref-f">Verifique el precio del día antes de cerrar una compra o una venta.</p>';
     return h+'</div>';
   }
 
@@ -5680,7 +5678,7 @@ router();
     const d=dias(MK.actualizado);
     let h='<p class="adm-note">Lo que publique aquí lo ven todos los estudiantes en su botón <b>📈 Mercado</b>. '+
       'No hay fuente automática: en el país no existe un servicio que entregue el precio por provincia, así que estos números salen de usted. '+
-      'Las que dicen <b>ref.</b> llevan el promedio nacional publicado por SAN, no un precio medido en esa provincia: en cuanto usted escriba el suyo, la marca desaparece. '+
+      'Las que dicen <b>ref.</b> llevan el promedio nacional de referencia, no un precio medido en esa provincia: en cuanto usted escriba el suyo, la marca desaparece. '+
       'Deje en blanco la que no tenga dato — es preferible a poner un número inventado.</p>';
     h+='<div class="adm-card"><h4>Precio por provincia <span style="font-weight:400;color:var(--muted);font-size:12px">'+
       (MK.actualizado?('última publicación: '+fFecha(MK.actualizado)+(d>9?' · ya tiene '+d+' días':'')):'nunca publicado')+'</span></h4>'+
