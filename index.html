@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08a · curso de formulacion (10 modulos, se adquiere aparte) + dashboard con detalle y avisos de consultas -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08b · editor de evaluaciones del curso de formulacion -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -6748,6 +6748,45 @@ router();
 .nxp-tem-l li b{display:block;font-size:13.5px;color:var(--text);line-height:1.3}
 .nxp-tem-l li span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
 
+/* ===== editor de evaluaciones ===== */
+.nxq-cfg{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--bg);
+  border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:16px}
+.nxq-cfg label{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
+.nxq-cfg input{font-family:var(--mono);font-size:14px;color:var(--text);background:var(--panel);
+  border:1px solid var(--border);border-radius:9px;padding:8px 10px;width:74px;text-align:center}
+.nxq-cfg em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.nxq-h{margin-bottom:12px}
+.nxq-h b{display:block;font-size:16px;color:var(--text)}
+.nxq-h span{font-size:12.5px;color:var(--muted)}
+.nxq-per{font-style:normal;color:var(--amber-d);font-weight:600}
+.nxq-q{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  padding:15px 17px;margin-bottom:11px}
+.nxq-q-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.nxq-q-h span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.nxq-e,.nxq-x2{width:100%;font-family:inherit;font-size:14px;color:var(--text);background:var(--bg);
+  border:1px solid var(--border);border-radius:10px;padding:10px 12px;resize:vertical;margin-bottom:9px}
+.nxq-x2{font-size:13px;color:var(--text-2)}
+.nxq-ops{display:flex;flex-direction:column;gap:7px;margin-bottom:9px}
+.nxq-op{display:flex;align-items:center;gap:9px}
+.nxq-op label{display:flex;align-items:center;cursor:pointer;flex:0 0 auto}
+.nxq-op input[type=radio]{width:18px;height:18px;accent-color:var(--green);cursor:pointer}
+.nxq-ot{flex:1;font-family:inherit;font-size:13.5px;color:var(--text);background:var(--bg);
+  border:1px solid var(--border);border-radius:9px;padding:9px 12px}
+.nxq-op input[type=radio]:checked ~ .nxq-ot{border-color:var(--green);background:rgba(47,125,79,.07)}
+.nxq-x{background:none;border:0;color:var(--crit);font-size:15px;cursor:pointer;padding:4px 7px;line-height:1}
+.nxq-x:hover{opacity:.7}
+.nxq-mas{font-family:inherit;font-size:12.5px;color:var(--green);background:none;border:0;
+  cursor:pointer;padding:2px 0;margin-bottom:9px}
+.nxq-mas:hover{text-decoration:underline}
+.nxq-acc{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.nxq-b{font-family:inherit;font-size:13.5px;color:var(--text);background:var(--panel);
+  border:1px solid var(--border);border-radius:11px;padding:12px 20px;cursor:pointer;transition:all .15s}
+.nxq-b:hover{border-color:var(--green);color:var(--green)}
+.nxq-b.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.nxq-b.on:hover{background:var(--green-d);border-color:var(--green-d);color:#fff}
+.fchip b{font-family:inherit;font-size:11px;color:var(--amber-d)}
+.fchip.on b{color:rgba(255,255,255,.85)}
+
 </style>
 <script>
 /* Datos verificados del motor de formulacion — generado, no editar a mano */
@@ -9191,7 +9230,210 @@ function nxFelicitaciones(){
   };
 })();
 
+
+/* ============================================================
+   EDITOR DE EVALUACIONES DEL CURSO DE FORMULACIÓN
+   Mismo mecanismo del curso de porcicultura: se editan las
+   preguntas, se guardan como versión personalizada y se puede
+   restaurar la original.
+   ============================================================ */
+
+let NXQOVR={};
+try{ NXQOVR=JSON.parse(localStorage.getItem('nx_quiz_ovr')||'{}'); }catch(e){}
+function nxGuardarOvr(){ try{ localStorage.setItem('nx_quiz_ovr',JSON.stringify(NXQOVR)); }catch(e){} }
+
+let NXTRIES=0;   /* 0 = intentos ilimitados */
+try{ const c=JSON.parse(localStorage.getItem('nx_curso_cfg')||'{}'); if(c.tries!=null) NXTRIES=+c.tries; }catch(e){}
+
+function nxQuizDefault(id){ return (NXQUIZ[id]||[]).map(function(q){
+  return [q[0], q[1].map(function(o){ return [o[0],o[1]]; }), q[2]]; }); }
+function nxQuizFor(id){ return NXQOVR[id] ? NXQOVR[id] : nxQuizDefault(id); }
+function nxEsPersonalizado(id){ return !!NXQOVR[id]; }
+
+/* el examen del estudiante usa la versión vigente */
+(function(){
+  const _e=nxExamen;
+  nxExamen=function(id){
+    const orig=NXQUIZ[id];
+    NXQUIZ[id]=nxQuizFor(id);
+    try{ return _e.apply(this,arguments); }
+    finally{ NXQUIZ[id]=orig; }
+  };
+})();
+
+/* límite de intentos */
+(function(){
+  const _s=window.nxSel;
+  window.nxSel=function(b){
+    const ex=b.closest('.nx-ex');
+    if(ex && ex.classList.contains('sinint')) return;
+    return _s.apply(this,arguments);
+  };
+  const _en=window.nxEnviar;
+  window.nxEnviar=function(id){
+    if(NXTRIES>0){
+      const r=nxRec(id);
+      if(r && !r.passed && (r.attempts||0)>=NXTRIES){
+        toast('Sin intentos restantes en esta evaluación','⛔'); return;
+      }
+    }
+    return _en.apply(this,arguments);
+  };
+})();
+
+/* ---------- editor ---------- */
+let NXQMOD=1;
+window.nxQMod=function(i){ NXQMOD=i; nxAdmin(); };
+
+function nxAdmEvaluaciones(){
+  const qs=nxQuizFor(NXQMOD);
+  const m=NXMOD[NXQMOD-1]||{num:String(NXQMOD),t:'Módulo '+NXQMOD};
+  let h='<p class="adm-note">Edita las preguntas de cada módulo. Los cambios se guardan como versión personalizada '+
+    '(puedes restaurar la original).</p>';
+
+  h+='<div class="fchips" style="margin-bottom:14px">'+NXMOD.map(function(x){
+    return '<button class="fchip'+(x.n===NXQMOD?' on':'')+'" onclick="nxQMod('+x.n+')">M'+x.num+
+      (nxEsPersonalizado(x.n)?' <b>✎</b>':'')+'</button>';}).join('')+'</div>';
+
+  h+='<div class="nxq-cfg"><label>Nota mínima <input type="number" min="40" max="100" step="5" id="nxqPass" value="'+NXPASS+'"> %</label>'+
+    '<label>Intentos <input type="number" min="0" max="20" step="1" id="nxqTries" value="'+NXTRIES+'"> <em>(0=ilim.)</em></label>'+
+    '<button class="nxq-b on" onclick="nxQAjustes()">Guardar ajustes</button></div>';
+
+  h+='<div class="nxq-h"><b>M'+m.num+' · '+esc(m.t)+'</b>'+
+    '<span>'+qs.length+' pregunta'+(qs.length===1?'':'s')+
+    (nxEsPersonalizado(NXQMOD)?' · <i class="nxq-per">versión personalizada</i>':' · versión original')+'</span></div>';
+
+  h+='<div id="nxqLista">'+qs.map(function(q,i){ return nxQFila(q,i); }).join('')+'</div>';
+
+  h+='<div class="nxq-acc">'+
+    '<button class="nxq-b" onclick="nxQAdd()">➕ Agregar pregunta</button>'+
+    '<button class="nxq-b on" onclick="nxQSave()">💾 Guardar evaluación</button>'+
+    (nxEsPersonalizado(NXQMOD)?'<button class="nxq-b" onclick="nxQReset()">↩ Restaurar original</button>':'')+
+    '<button class="nxq-b" onclick="nxQSubir()">☁️ Publicar a los estudiantes</button>'+
+    '</div>';
+  return h;
+}
+
+function nxQFila(q,i){
+  const ci=q[1].findIndex(function(o){return o[1]===true;});
+  return '<div class="nxq-q" data-i="'+i+'">'+
+    '<div class="nxq-q-h"><span>Pregunta '+(i+1)+'</span>'+
+      '<button class="nxq-x" onclick="nxQDel('+i+')" title="Quitar la pregunta">✕</button></div>'+
+    '<textarea class="nxq-e" rows="2" placeholder="Enunciado de la pregunta">'+esc(q[0]||'')+'</textarea>'+
+    '<div class="nxq-ops">'+q[1].map(function(o,j){
+      return '<div class="nxq-op"><label title="Marcar como correcta">'+
+        '<input type="radio" name="ok'+i+'" '+(j===ci?'checked':'')+'></label>'+
+        '<input type="text" class="nxq-ot" value="'+ea(o[0]||'')+'" placeholder="Opción '+(j+1)+'">'+
+        (q[1].length>2?'<button class="nxq-x" onclick="nxOptDel('+i+','+j+')" title="Quitar la opción">✕</button>':'')+
+        '</div>';}).join('')+'</div>'+
+    '<button class="nxq-mas" onclick="nxOptAdd('+i+')">+ opción</button>'+
+    '<textarea class="nxq-x2" rows="2" placeholder="Explicación que ve el estudiante al calificar">'+esc(q[2]||'')+'</textarea>'+
+    '</div>';
+}
+
+/* lee del DOM lo que el instructor tenga escrito */
+function nxQLeer(){
+  const filas=document.querySelectorAll('#nxqLista .nxq-q');
+  const out=[];
+  [].forEach.call(filas,function(f,i){
+    const en=f.querySelector('.nxq-e').value.trim();
+    const ops=[].map.call(f.querySelectorAll('.nxq-op'),function(o){
+      return [o.querySelector('.nxq-ot').value.trim(), o.querySelector('input[type=radio]').checked];
+    }).filter(function(o){ return o[0]; });
+    const ex=f.querySelector('.nxq-x2').value.trim();
+    if(en && ops.length>=2) out.push([en,ops,ex]);
+  });
+  return out;
+}
+function nxQPintar(qs){
+  const c=document.getElementById('nxqLista'); if(!c) return;
+  c.innerHTML=qs.map(function(q,i){ return nxQFila(q,i); }).join('');
+}
+
+window.nxQAdd=function(){
+  const qs=nxQLeer();
+  qs.push(['',[['',true],['',false],['',false]],'']);
+  nxQPintar(qs);
+  const u=document.querySelectorAll('#nxqLista .nxq-q'); if(u.length) u[u.length-1].scrollIntoView({behavior:'smooth',block:'center'});
+};
+window.nxQDel=function(i){
+  const qs=nxQLeer();
+  if(qs.length<=1){ toast('La evaluación necesita al menos una pregunta','⚠️'); return; }
+  qs.splice(i,1); nxQPintar(qs);
+};
+window.nxOptAdd=function(i){
+  const qs=nxQLeer();
+  if(qs[i] && qs[i][1].length<6) qs[i][1].push(['',false]);
+  nxQPintar(qs);
+};
+window.nxOptDel=function(i,j){
+  const qs=nxQLeer();
+  if(qs[i] && qs[i][1].length>2){
+    const era=qs[i][1][j][1];
+    qs[i][1].splice(j,1);
+    if(era) qs[i][1][0][1]=true;   /* si se borró la correcta, la primera pasa a serlo */
+  }
+  nxQPintar(qs);
+};
+
+window.nxQSave=function(){
+  const qs=nxQLeer();
+  if(!qs.length){ toast('No hay preguntas válidas para guardar','⚠️'); return; }
+  const malas=qs.filter(function(q){ return !q[1].some(function(o){return o[1];}); }).length;
+  if(malas){ toast(malas+' pregunta(s) sin respuesta correcta marcada','⚠️'); return; }
+  const cortas=qs.filter(function(q){ return !q[2]; }).length;
+  NXQOVR[NXQMOD]=qs; nxGuardarOvr();
+  toast('Evaluación guardada: '+qs.length+' pregunta'+(qs.length===1?'':'s')+
+    (cortas?' · '+cortas+' sin explicación':''),'💾');
+  nxAdmin();
+};
+window.nxQReset=function(){
+  if(!confirm('¿Restaurar la evaluación original de este módulo? Se pierde su versión personalizada.')) return;
+  delete NXQOVR[NXQMOD]; nxGuardarOvr();
+  toast('Evaluación restaurada','↩️');
+  nxAdmin();
+};
+window.nxQAjustes=function(){
+  const p=parseInt((document.getElementById('nxqPass')||{}).value,10);
+  const t=parseInt((document.getElementById('nxqTries')||{}).value,10);
+  if(!isNaN(p)) NXPASS=Math.max(40,Math.min(100,p));
+  if(!isNaN(t)) NXTRIES=Math.max(0,Math.min(20,t));
+  try{ localStorage.setItem('nx_curso_cfg', JSON.stringify({gate:NXGATE, passing:NXPASS, tries:NXTRIES})); }catch(e){}
+  toast('Nota mínima '+NXPASS+'% · '+(NXTRIES?NXTRIES+' intento(s)':'intentos ilimitados'),'⚙️');
+  nxAdmin();
+};
+window.nxQSubir=async function(){
+  if(!window.SB){ toast('Guardado solo en este equipo','💾'); return; }
+  const {error}=await SB.from('settings').update({nx_quiz:{ovr:NXQOVR, passing:NXPASS, tries:NXTRIES}}).eq('id',1);
+  toast(error?('No se pudo publicar: '+error.message):'Evaluaciones publicadas para todos los estudiantes', error?'⛔':'☁️');
+};
+async function nxBajarQuiz(){
+  if(!window.SB) return;
+  try{
+    const {data}=await SB.from('settings').select('nx_quiz').eq('id',1).maybeSingle();
+    let c=data&&data.nx_quiz; if(typeof c==='string'){ try{ c=JSON.parse(c); }catch(e){ c=null; } }
+    if(!c) return;
+    if(c.ovr){ NXQOVR=c.ovr; nxGuardarOvr(); }
+    if(c.passing) NXPASS=+c.passing;
+    if(c.tries!=null) NXTRIES=+c.tries;
+    try{ localStorage.setItem('nx_curso_cfg', JSON.stringify({gate:NXGATE, passing:NXPASS, tries:NXTRIES})); }catch(e){}
+  }catch(e){}
+}
+(function(){ setTimeout(nxBajarQuiz,2400); })();
+
+/* la vista de módulos cuenta las preguntas vigentes */
+(function(){
+  const _m=nxAdmModulos;
+  nxAdmModulos=function(){
+    const orig={};
+    NXMOD.forEach(function(m){ orig[m.n]=NXQUIZ[m.n]; NXQUIZ[m.n]=nxQuizFor(m.n); });
+    try{ return _m.apply(this,arguments); }
+    finally{ NXMOD.forEach(function(m){ NXQUIZ[m.n]=orig[m.n]; }); }
+  };
+})();
+
 </script>
+
 
 
 
