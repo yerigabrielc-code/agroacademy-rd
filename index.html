@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-07c · seccion de mercado: precio del kilo por provincia y noticias del sector -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-07d · mercado con referencia nacional real (SAN) y marca ref por provincia -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -5445,6 +5445,26 @@ router();
 .mk-sello.viejo{background:rgba(224,165,38,.16);color:var(--amber-d)}
 .mk-sello.nada{background:var(--panel);border:1px solid var(--border);color:var(--muted)}
 
+.mk-ref{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--green);
+  border-radius:14px;padding:16px 19px;margin:20px 0 0;box-shadow:var(--shadow)}
+.mk-ref h5{font-family:var(--display);font-size:13.5px;font-weight:800;margin:0 0 3px;color:var(--text)}
+.mk-ref>p{font-size:11.5px;color:var(--muted);margin:0 0 13px;line-height:1.45}
+.mk-ref-g{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.mk-ref-i{background:var(--bg);border-radius:10px;padding:11px 13px}
+.mk-ref-i b{display:block;font-family:var(--mono);font-size:19px;font-weight:700;line-height:1.1;color:var(--text)}
+.mk-ref-i b em{font-style:normal;font-size:11.5px;font-weight:400;color:var(--muted);margin-left:4px}
+.mk-ref-i span{display:block;font-size:11.5px;color:var(--text-2);margin-top:4px;line-height:1.35}
+.mk-ref-f{font-size:11px;color:var(--muted);margin:12px 0 0;line-height:1.5}
+.mk-ref-f a{color:var(--accent);text-decoration:none} .mk-ref-f a:hover{text-decoration:underline}
+.mk-cria{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.mk-cria span{font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:999px;
+  padding:5px 10px;color:var(--text-2)}
+.mk-cria span b{font-family:var(--mono);color:var(--text)}
+.mk-reftag{font-style:normal;font-family:var(--sans,inherit);font-size:9.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg);
+  border:1px solid var(--border);border-radius:4px;padding:2px 5px;margin-left:7px;vertical-align:2px}
+.mk-lb{font-size:11px;color:var(--muted);display:block;margin-top:4px}
+@media(max-width:620px){.mk-ref-g{grid-template-columns:1fr}}
 .mk-res{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
 .mk-res div{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:15px 18px;box-shadow:var(--shadow)}
 .mk-res b{display:block;font-family:var(--mono);font-size:25px;font-weight:700;line-height:1;color:var(--text)}
@@ -5516,7 +5536,7 @@ router();
     try{
       const {data}=await sb.from('settings').select('mercado').eq('id',1).maybeSingle();
       let m=data&&data.mercado; if(typeof m==='string'){try{m=JSON.parse(m);}catch(e){m=null;}}
-      MK=Object.assign({precios:[],noticias:[],nota:'',actualizado:null},m||{});
+      MK=Object.assign({precios:[],noticias:[],nota:'',actualizado:null,referencia:null},m||{});
       MK.precios=MK.precios||[]; MK.noticias=MK.noticias||[];
     }catch(e){}
     return MK;
@@ -5536,9 +5556,29 @@ router();
     document.body.style.overflow='';
   };
 
+  const LB=2.20462;
+  function tarjetaRef(r){
+    let h='<div class="mk-ref"><h5>Referencia nacional</h5>'+
+      '<p>Precio en pie a puerta de finca. Es el promedio del país: su zona puede estar por encima o por debajo.</p><div class="mk-ref-g">';
+    (r.series||[]).forEach(function(x){
+      h+='<div class="mk-ref-i"><b>RD$ '+Number(x.kg).toFixed(2)+'<em>/kg</em></b>'+
+        '<span>'+esc(x.que)+'</span>'+
+        '<span class="mk-lb">≈ RD$ '+(Number(x.kg)/LB).toFixed(2)+' por libra</span></div>';});
+    h+='</div>';
+    if(r.cria&&r.cria.length){
+      h+='<div class="mk-cria">'+r.cria.map(function(c){
+        return '<span>'+esc(c.que)+' <b>RD$ '+Number(c.precio).toLocaleString('es-DO')+'</b></span>';}).join('')+'</div>';}
+    if(r.fuente){
+      h+='<p class="mk-ref-f">Fuente: '+(r.url?'<a href="'+ea(r.url)+'" target="_blank" rel="noopener">'+esc(r.fuente)+'</a>':esc(r.fuente))+
+        (r.consultado?' · consultado el '+fFecha(r.consultado):'')+'. Verifíquelo antes de cerrar una venta.</p>';}
+    return h+'</div>';
+  }
+
   function pantalla(){
     const con=MK.precios.filter(p=>p.kg!=null&&p.kg!=='');
-    const vals=con.map(p=>Number(p.kg)).filter(n=>!isNaN(n)&&n>0);
+    /* solo los que el instructor midió cuentan para comparar entre provincias */
+    const med=con.filter(p=>!p.ref);
+    const vals=med.map(p=>Number(p.kg)).filter(n=>!isNaN(n)&&n>0);
     const prom=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
     const max=vals.length?Math.max.apply(null,vals):0, min=vals.length?Math.min.apply(null,vals):0;
     const d=dias(MK.actualizado);
@@ -5550,13 +5590,17 @@ router();
       '<p>Lo que se está pagando por kilo en pie en las principales zonas del país. Sirve para que usted sepa si el precio que le ofrecen está dentro de rango antes de sentarse a negociar.</p>'+
       sello+'</div><button class="mk-x" onclick="cerrarMercado()">✕ Cerrar</button></div>';
 
-    if(!vals.length){
+    if(MK.referencia) h+=tarjetaRef(MK.referencia);
+
+    if(!con.length){
       h+='<div class="mk-vacio" style="margin-top:22px">El instructor aún no ha publicado los precios de esta semana.<br>Vuelva en unos días o pregúntele directamente en el canal privado de consultas.</div>';
     } else {
+      if(vals.length){
       h+='<div class="mk-res">'+
-        '<div><b>RD$ '+prom.toFixed(2)+'</b><span>Promedio de '+vals.length+' provincias</span></div>'+
+        '<div><b>RD$ '+prom.toFixed(2)+'</b><span>Promedio de '+vals.length+' provincia'+(vals.length===1?'':'s')+' con precio propio</span></div>'+
         '<div><b>RD$ '+max.toFixed(2)+'</b><span>El más alto</span></div>'+
         '<div><b>RD$ '+min.toFixed(2)+'</b><span>El más bajo</span></div></div>';
+      }
       const orden=MK.precios.slice().sort(function(a,b){
         const A=(a.kg==null||a.kg==='')?-1:Number(a.kg), B=(b.kg==null||b.kg==='')?-1:Number(b.kg);
         return B-A;});
@@ -5565,9 +5609,9 @@ router();
         const ic=p.tend==='sube'?'▲':p.tend==='baja'?'▼':p.tend==='igual'?'=':'';
         return '<div class="mk-fila'+(tiene?'':' sin')+'">'+
           '<span class="mk-prov">'+esc(p.prov)+'</span>'+
-          '<div class="mk-barra">'+(tiene&&max?'<i style="width:'+(max>min?Math.round(28+72*(n-min)/(max-min)):100)+'%"></i>':'')+'</div>'+
+          (vals.length?'<div class="mk-barra">'+((tiene&&!p.ref&&max)?'<i style="width:'+(max>min?Math.round(28+72*(n-min)/(max-min)):100)+'%"></i>':'')+'</div>':'')+
           '<span class="mk-t '+(p.tend||'')+'">'+ic+'</span>'+
-          '<span class="mk-kg">'+(tiene?'RD$ '+n.toFixed(2)+'<small>/kg</small>':'sin dato')+'</span>'+
+          '<span class="mk-kg">'+(tiene?'RD$ '+n.toFixed(2)+'<small>/kg</small>'+(p.ref?'<i class="mk-reftag" title="Valor nacional de referencia, no medido en esta provincia">ref.</i>':''):'sin dato')+'</span>'+
           '</div>';}).join('')+'</div>';
       if(MK.nota) h+='<p class="mk-nota">'+esc(MK.nota)+'</p>';
     }
@@ -5636,7 +5680,8 @@ router();
     const d=dias(MK.actualizado);
     let h='<p class="adm-note">Lo que publique aquí lo ven todos los estudiantes en su botón <b>📈 Mercado</b>. '+
       'No hay fuente automática: en el país no existe un servicio que entregue el precio por provincia, así que estos números salen de usted. '+
-      'Deje en blanco la provincia que no tenga dato — es preferible a poner un número inventado.</p>';
+      'Las que dicen <b>ref.</b> llevan el promedio nacional publicado por SAN, no un precio medido en esa provincia: en cuanto usted escriba el suyo, la marca desaparece. '+
+      'Deje en blanco la que no tenga dato — es preferible a poner un número inventado.</p>';
     h+='<div class="adm-card"><h4>Precio por provincia <span style="font-weight:400;color:var(--muted);font-size:12px">'+
       (MK.actualizado?('última publicación: '+fFecha(MK.actualizado)+(d>9?' · ya tiene '+d+' días':'')):'nunca publicado')+'</span></h4>'+
       '<table class="mk-ed"><thead><tr><th>Provincia</th><th style="width:130px">RD$ / kg</th><th style="width:120px">Tendencia</th><th style="width:40px"></th></tr></thead><tbody id="mkFilas">'+
@@ -5705,9 +5750,12 @@ router();
     if(filas.length){
       MK.precios=[].map.call(filas,function(tr){
         const k=tr.querySelector('.mkK').value.trim();
+        const i=Number(tr.getAttribute('data-i')), ant=MK.precios[i]||{};
+        const val=k===''?null:Number(k);
         return {prov:tr.querySelector('.mkP').value.trim(),
-                kg:k===''?null:Number(k),
-                tend:tr.querySelector('.mkT').value};
+                kg:val,
+                tend:tr.querySelector('.mkT').value,
+                ref:!!ant.ref && val===ant.kg};
       }).filter(function(p){return p.prov;});
     }
     const nots=document.querySelectorAll('#mkNoticias .mk-nw');
