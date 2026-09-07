@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08b · editor de evaluaciones del curso de formulacion -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08c · candados visibles para el instructor y navegacion con teclado -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -6787,6 +6787,35 @@ router();
 .fchip b{font-family:inherit;font-size:11px;color:var(--amber-d)}
 .fchip.on b{color:rgba(255,255,255,.85)}
 
+/* ===== candados y aviso al instructor ===== */
+.nx-inst{display:flex;gap:10px;background:rgba(224,165,38,.13);border:1px solid rgba(224,165,38,.3);
+  border-radius:11px;padding:11px 13px;margin:0 0 12px}
+.nx-inst span{font-size:16px;line-height:1.2}
+.nx-inst b{display:block;font-size:12.5px;color:#F0C468;margin-bottom:3px}
+.nx-inst p{margin:0;font-size:11.5px;line-height:1.45;color:#C4BCB1}
+/* bloqueado de verdad (estudiante) */
+.nx-nl.lock{opacity:.42;cursor:not-allowed}
+/* bloqueado solo para el estudiante: el instructor lo ve y puede entrar */
+.nx-nl.lock-info{opacity:.72}
+.nx-nl.lock-info .nx-nn{background:rgba(224,165,38,.22)}
+.nx-nl.lock-info:hover{opacity:1;background:rgba(255,255,255,.07)}
+
+/* ===== atajos de teclado ===== */
+.nxat-ov{position:fixed;inset:0;z-index:9600;background:rgba(22,19,17,.72);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;padding:22px}
+.nxat-w{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:26px 30px;
+  max-width:470px;width:100%;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.nxat-x{position:absolute;top:14px;right:14px;background:var(--bg);border:1px solid var(--border);
+  border-radius:9px;color:var(--text);padding:6px 11px;cursor:pointer;font-family:inherit}
+.nxat-w h3{font-family:var(--display);font-size:20px;font-weight:800;margin:0 0 16px;color:var(--text)}
+.nxat-l{display:flex;flex-direction:column;gap:9px}
+.nxat-l div{display:flex;align-items:center;gap:11px}
+.nxat-l span{flex:1;font-size:14px;color:var(--text-2)}
+.nxat-l kbd{font-family:var(--mono);font-size:11.5px;color:var(--text);background:var(--bg);
+  border:1px solid var(--border);border-bottom-width:2px;border-radius:7px;padding:5px 9px;white-space:nowrap}
+.nxat-n{font-size:12.5px;color:var(--muted);line-height:1.55;margin:16px 0 0;padding-top:14px;
+  border-top:1px solid var(--border)}
+
 </style>
 <script>
 /* Datos verificados del motor de formulacion — generado, no editar a mano */
@@ -9432,7 +9461,138 @@ async function nxBajarQuiz(){
   };
 })();
 
+
+/* ============================================================
+   CANDADOS VISIBLES PARA EL INSTRUCTOR + NAVEGACIÓN CON TECLADO
+   ============================================================ */
+
+/* ---------- el instructor ve los candados, pero puede pasar ---------- */
+function nxBloqueadoParaAlumno(id){
+  if(!NXGATE) return false;
+  return id>1 && !nxAprob(id-1);
+}
+
+nxNav=function(){
+  const n=document.getElementById('nxNav'); if(!n) return;
+  const p=nxProgreso(), inst=nxEsInstructor();
+  n.innerHTML='<div class="nx-pg"><span>PROGRESO</span><b>'+Math.round(p/10*100)+'%</b>'+
+    '<div class="nx-pgb"><i style="width:'+(p/10*100)+'%"></i></div></div>'+
+    (inst?'<div class="nx-inst"><span>👁️</span><div><b>Está viendo como instructor</b>'+
+      '<p>Los candados le muestran lo que vería un estudiante, pero usted puede entrar a cualquier módulo.</p></div></div>':'')+
+    '<button class="nx-nl'+(NXCUR===0?' on':'')+'" onclick="nxIr(0)"><span class="nx-nn">◆</span> Portada</button>'+
+    NXMOD.map(function(m){
+      const ap=nxAprob(m.n);
+      const cerrado=nxBloqueadoParaAlumno(m.n);
+      const cls=(NXCUR===m.n?' on':'')+(cerrado?(inst?' lock-info':' lock'):'');
+      const ico=ap?'✓':(cerrado?'🔒':m.num);
+      return '<button class="nx-nl'+cls+'" onclick="nxIr('+m.n+')"'+
+        (cerrado?' title="'+(inst?'Bloqueado para el estudiante hasta aprobar el módulo '+(m.n-1):'Apruebe el módulo '+(m.n-1)+' para abrirlo')+'"':'')+'>'+
+        '<span class="nx-nn" style="'+(NXCUR===m.n?'background:'+m.ac+';color:#fff':'')+'">'+ico+'</span> '+esc(m.t)+'</button>';
+    }).join('');
+};
+
+/* aviso al entrar a un módulo que el estudiante todavía no tendría abierto */
+(function(){
+  const _ir=nxIr;
+  nxIr=function(id){
+    const antes=NXCUR;
+    _ir.apply(this,arguments);
+    if(NXCUR===id && id>0 && nxEsInstructor() && nxBloqueadoParaAlumno(id) && antes!==id){
+      toast('Este módulo está bloqueado para el estudiante hasta que apruebe el '+(id-1),'🔒');
+    }
+  };
+})();
+
+/* ---------- navegación con el teclado ---------- */
+function nxEscribiendo(e){
+  const t=e.target;
+  if(!t) return false;
+  const n=(t.tagName||'').toLowerCase();
+  return n==='input'||n==='textarea'||n==='select'||t.isContentEditable;
+}
+
+function nxTecla(e){
+  /* la ayuda de atajos se cierra primero, esté donde esté */
+  const ayuda=document.getElementById('nxAtOv');
+  if(ayuda){ if(e.key==='Escape'||e.key==='?'){ e.preventDefault(); ayuda.remove(); } return; }
+  const ov=document.getElementById('nxOv');
+  /* si el curso no está abierto, no se toca nada */
+  if(!ov||ov.style.display==='none') return;
+  /* si hay un modal encima, solo se atiende Escape */
+  const encima=document.getElementById('nxPagoOv')||document.getElementById('nxdOv')||
+               document.getElementById('csOv')||document.querySelector('.cq-ov');
+  if(encima){
+    if(e.key==='Escape'){
+      if(document.getElementById('nxPagoOv')) nxCerrarPago();
+      else if(document.getElementById('nxdOv')) document.getElementById('nxdOv').remove();
+      else if(document.getElementById('csOv')) cerrarCursos();
+    }
+    return;
+  }
+  if(nxEscribiendo(e)) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+
+  const k=e.key;
+  if(k==='ArrowRight'||k==='PageDown'){
+    e.preventDefault();
+    if(NXLECCION && document.querySelector('.nx-lnav')) nxPagina(1);
+    else if(NXCUR<10) nxIr(NXCUR+1);
+    return;
+  }
+  if(k==='ArrowLeft'||k==='PageUp'){
+    e.preventDefault();
+    if(NXLECCION && document.querySelector('.nx-lnav')) nxPagina(-1);
+    else if(NXCUR>0) nxIr(NXCUR-1);
+    return;
+  }
+  if(k==='Home'){ e.preventDefault(); if(NXLECCION) nxMostrarSeccion(0); else nxIr(0); return; }
+  if(k==='Escape'){ e.preventDefault(); cerrarNutricion(); return; }
+  if(k==='l'||k==='L'){ e.preventDefault(); nxToggleLeccion(); return; }
+  if(k==='f'||k==='F'){ e.preventDefault(); nxToggleEnfoque(); return; }
+  if(k==='?'){ e.preventDefault(); nxAtajos(); return; }
+  /* números 1-9 y 0 para el décimo */
+  if(/^[0-9]$/.test(k)){
+    const n=(k==='0')?10:parseInt(k,10);
+    if(n>=1&&n<=10){ e.preventDefault(); nxIr(n); }
+  }
+}
+document.addEventListener('keydown', nxTecla);
+
+window.nxAtajos=function(){
+  let ov=document.getElementById('nxAtOv');
+  if(ov){ ov.remove(); return; }
+  ov=document.createElement('div'); ov.id='nxAtOv'; ov.className='nxat-ov';
+  ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+  const filas=[
+    ['→ · Av Pág','Siguiente sección o módulo'],
+    ['← · Re Pág','Sección o módulo anterior'],
+    ['1 … 9 · 0','Ir directo a un módulo (0 es el décimo)'],
+    ['Inicio','Volver al comienzo'],
+    ['L','Modo lección: una sección a la vez'],
+    ['F','Modo enfoque'],
+    ['Esc','Salir del curso'],
+    ['?','Mostrar u ocultar esta ayuda']
+  ];
+  ov.innerHTML='<div class="nxat-w"><button class="nxat-x" onclick="document.getElementById(\'nxAtOv\').remove()">✕</button>'+
+    '<h3>Atajos de teclado</h3>'+
+    '<div class="nxat-l">'+filas.map(function(f){
+      return '<div><kbd>'+f[0].split(' · ').join('</kbd> <kbd>')+'</kbd><span>'+f[1]+'</span></div>';}).join('')+'</div>'+
+    '<p class="nxat-n">No funcionan mientras escribe en una casilla, para no interrumpirlo respondiendo.</p></div>';
+  document.body.appendChild(ov);
+};
+
+/* pista discreta de los atajos dentro del curso */
+(function(){
+  const _c=nxControles;
+  nxControles=function(){
+    return _c.apply(this,arguments).replace('</div>',
+      '<button class="nx-cb2" onclick="nxAtajos()" title="Atajos de teclado">⌨</button></div>');
+  };
+})();
+
 </script>
+
+
 
 
 
