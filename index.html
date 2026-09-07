@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08d · evaluaciones de 3 preguntas y fachada de los dos cursos para cuentas pendientes -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08e · cerrar sesion visible en la tarjeta, la fachada y el curso de formulacion -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -6818,6 +6818,24 @@ router();
 .nxat-n{font-size:12.5px;color:var(--muted);line-height:1.55;margin:16px 0 0;padding-top:14px;
   border-top:1px solid var(--border)}
 
+/* ===== cerrar sesión siempre visible ===== */
+/* la fila de la tarjeta del estudiante ahora envuelve */
+.stu-actions{flex-wrap:wrap}
+.stu-actions .stu-salir{flex:1 0 100%;margin-top:2px;color:var(--crit)!important;
+  border-color:color-mix(in srgb,var(--crit) 40%,transparent)!important}
+.stu-actions .stu-salir:hover{background:var(--crit)!important;color:#fff!important;border-color:var(--crit)!important}
+
+/* en la fachada de cursos */
+.cs-salir{font-family:inherit;font-size:13px;color:var(--crit);background:var(--panel);
+  border:1px solid color-mix(in srgb,var(--crit) 35%,var(--border));border-radius:10px;
+  padding:9px 14px;cursor:pointer;white-space:nowrap;margin-right:8px}
+.cs-salir:hover{background:var(--crit);border-color:var(--crit);color:#fff}
+
+/* en la barra lateral del curso de formulación */
+.nx-salir2{width:100%;margin-top:8px;background:rgba(194,59,59,.14);border:1px solid rgba(194,59,59,.3);
+  color:#E39A9A;font-family:inherit;font-size:12.5px;padding:10px;border-radius:9px;cursor:pointer}
+.nx-salir2:hover{background:rgba(194,59,59,.28);color:#fff}
+
 </style>
 <script>
 /* Datos verificados del motor de formulacion — generado, no editar a mano */
@@ -9751,7 +9769,78 @@ function nxMiEstadoOk(){
   };
 })();
 
+
+/* ============================================================
+   CERRAR SESIÓN SIEMPRE A LA MANO
+   La fila de botones de la tarjeta del estudiante creció con
+   Mercado, Consultas y Mis cursos, y "Cerrar sesión" se salía
+   de la vista. Además, el estudiante con la cuenta pendiente
+   quedaba atrapado en la fachada sin forma de salir.
+   ============================================================ */
+
+/* 1 · en la fachada de los cursos */
+(function(){
+  const _ab=window.abrirCursos;
+  window.abrirCursos=function(){
+    _ab.apply(this,arguments);
+    const h=document.querySelector('.cs-h');
+    if(!h || h.querySelector('.cs-salir')) return;
+    const b=document.createElement('button');
+    b.className='cs-salir';
+    b.innerHTML='🚪 Cerrar sesión';
+    b.onclick=function(){ if(typeof logout==='function') logout(); };
+    const x=h.querySelector('.cs-x');
+    if(x) x.parentNode.insertBefore(b,x); else h.appendChild(b);
+  };
+})();
+
+/* 2 · en la barra lateral del curso de formulación */
+(function(){
+  const _o=window.openNutricion;
+  window.openNutricion=function(){
+    _o.apply(this,arguments);
+    const pie=document.querySelector('#nxOv .nx-side-f');
+    if(!pie || pie.querySelector('.nx-salir2')) return;
+    const b=document.createElement('button');
+    b.className='nx-salir2';
+    b.innerHTML='🚪 Cerrar sesión';
+    b.onclick=function(){ if(typeof logout==='function') logout(); };
+    pie.appendChild(b);
+  };
+})();
+
+/* 3 · la tarjeta del estudiante: que quepan todos los botones */
+(function(){
+  const _r=renderStudentCard;
+  renderStudentCard=function(){
+    _r.apply(this,arguments);
+    const a=document.querySelector('#studentCard .stu-actions');
+    if(!a) return;
+    /* el de cerrar sesión va siempre de último y en su propia línea */
+    const salir=[].slice.call(a.querySelectorAll('button')).filter(function(b){
+      return /Cerrar sesi/i.test(b.textContent); })[0];
+    if(salir){ salir.classList.add('stu-salir'); a.appendChild(salir); }
+  };
+})();
+
+/* al cerrar sesión se retiran las capas del curso: si no, quedan encima
+   de la pantalla de inicio de sesión y el siguiente no ve dónde entrar */
+(function(){
+  if(typeof logout!=="function") return;
+  const _l=logout;
+  logout=function(){
+    ["nxOv","csOv","nxPagoOv","nxdOv","nxAtOv"].forEach(function(id){
+      const e=document.getElementById(id); if(e) e.remove();
+    });
+    document.body.style.overflow="";
+    try{ NXMIESTADO=undefined; }catch(e){}
+    return _l.apply(this,arguments);
+  };
+})();
+
 </script>
+
+
 
 
 
