@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08f · el resumen del dashboard se calcula con el curso seleccionado -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08g · la vista de Modulos igual en los dos cursos -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -6836,6 +6836,11 @@ router();
   color:#E39A9A;font-family:inherit;font-size:12.5px;padding:10px;border-radius:9px;cursor:pointer}
 .nx-salir2:hover{background:rgba(194,59,59,.28);color:#fff}
 
+/* marca de evaluación editada en la lista de módulos */
+.mod-per{font-style:normal;color:var(--amber-d);font-weight:600}
+/* dos botones caben en la fila de acciones */
+.mod-item .mact{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+
 </style>
 <script>
 /* Datos verificados del motor de formulacion — generado, no editar a mano */
@@ -10004,7 +10009,64 @@ function nxResumenCurso(curso){
   };
 })();
 
+
+/* ============================================================
+   MÓDULOS DEL CURSO DE FORMULACIÓN CON LA MISMA CARA
+   Se usa el mismo armado del curso de porcicultura: aviso,
+   interruptor de bloqueo y la lista de tarjetas con el número
+   en el color del módulo y el botón de editar evaluación.
+   ============================================================ */
+
+nxAdmModulos=function(){
+  const n=NXMOD.length;
+  let h='<p class="adm-note">Los '+n+' módulos del programa. El contenido pedagógico está integrado; '+
+    'aquí gestionas su <b>evaluación</b> y el <b>bloqueo por nota</b>.</p>';
+
+  h+='<div class="cfg-row" style="max-width:520px"><label>Bloqueo de avance por nota'+
+    '<small>Exige aprobar para desbloquear el siguiente módulo</small></label>'+
+    '<span class="switch"><input type="checkbox" id="nxModGate"'+(NXGATE?' checked':'')+
+    ' onchange="nxSetGate(this.checked);toast(this.checked?\'Bloqueo activado\':\'Bloqueo desactivado\',\'⚙️\')">'+
+    '<span></span></span></div>';
+
+  h+='<div class="mod-list" style="margin-top:14px">'+NXMOD.map(function(m){
+    const nq=nxQuizFor(m.n).length;
+    const per=nxEsPersonalizado(m.n);
+    /* del subtítulo salen las etiquetas, igual que las tags del otro curso */
+    const tags=String(m.sub||'').split('·').map(function(t){return t.trim();}).filter(Boolean).slice(0,3);
+    return '<div class="mod-item"><div class="mnum" style="background:'+m.ac+'">'+m.num+'</div>'+
+      '<div class="mtitle"><b>'+esc(m.t)+'</b><span>'+nq+' pregunta'+(nq===1?'':'s')+' de evaluación'+
+        (tags.length?' · '+tags.map(esc).join(' · '):'')+
+        (per?' · <i class="mod-per">editada</i>':'')+'</span></div>'+
+      '<div class="mact">'+
+        '<button onclick="nxVerModulo('+m.n+')">👁️ Ver</button>'+
+        '<button onclick="nxIrEval('+m.n+')">📝 Editar evaluación</button>'+
+      '</div></div>';}).join('')+'</div>';
+  return h;
+};
+
+/* el botón lleva a Evaluaciones con ese módulo ya abierto */
+window.nxIrEval=function(id){
+  NXQMOD=id;
+  if(typeof ADMCURSO!=='undefined') ADMCURSO='nutricion';
+  admTab('evals');
+  setTimeout(function(){ nxDecorarPanel(); },0);
+};
+
+/* y el del curso base también, para que los dos se comporten igual */
+(function(){
+  if(typeof evalPick!=='function') return;
+  const _m=modulesView;
+  modulesView=function(){
+    const h=_m.apply(this,arguments);
+    /* se agrega el botón de ver, que el otro curso ya tenía */
+    return h.replace(/<div class="mact"><button onclick="admTab\('evals'\);evalPick\((\d+)\)">/g,
+      '<div class="mact"><button onclick="goto($1);location.hash=&#39;#/curso&#39;">👁️ Ver</button>'+
+      '<button onclick="admTab(&#39;evals&#39;);evalPick($1)">');
+  };
+})();
+
 </script>
+
 
 
 
