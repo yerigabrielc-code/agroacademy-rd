@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08g · la vista de Modulos igual en los dos cursos -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08i · gestion de cursos unificada (un motor por-curso) + progreso admin desde la nube -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -4802,7 +4802,10 @@ router();
     try{ window.NXMIESTADO = prof && prof.status; }catch(e){}
     if(prof.role==='admin'){SESSION={role:'ADMIN'};saveSession();await pullSettings();location.hash='#/admin';router();return;}
     SESSION={role:'STUDENT',id:user.id};saveSession();STU=user.id;localStorage.setItem('porci_active',user.id);
-    putLocalStudent(user.id,prof);await pullProgress(user.id);await pullSettings();loadStudent();location.hash='#/curso';router();}
+    putLocalStudent(user.id,prof);
+    await pushLocalProgress(user.id);   /* respalda a la nube lo que solo esté en este equipo */
+    await pullProgress(user.id);        /* y trae lo que haya en la nube */
+    await pullSettings();loadStudent();location.hash='#/curso';router();}
 
   /* ---- LOGIN ---- */
   doLogin=async function(){
@@ -4893,6 +4896,31 @@ router();
   /* progreso de OTROS estudiantes (para el admin) desde la nube */
   const _studentPassed=studentPassed;
   studentPassed=function(id,m){if(CLOUDPROG[id])return !!(CLOUDPROG[id][m]&&CLOUDPROG[id][m].passed);return _studentPassed(id,m);};
+  /* expuesto para la gestión unificada: el panel debe leer el progreso de la NUBE, no el localStorage del instructor */
+  window.CLOUDPROG=CLOUDPROG;
+  window.cloudRec=function(id,m){return (CLOUDPROG[id]&&CLOUDPROG[id][m])||null;};
+  window.pullProgress=pullProgress;
+  /* respalda a la nube el progreso que solo esté en ESTE dispositivo (para que no se pierda al cambiar de equipo) */
+  async function pushLocalProgress(uid){
+    if(!uid) return;
+    try{
+      const {data}=await sb.from('progress').select('module,updated_at,best,passed').eq('user_id',uid);
+      const nube={};(data||[]).forEach(function(r){nube[r.module]={t:r.updated_at?new Date(r.updated_at).getTime():0,best:r.best||0};});
+      const subir=[];
+      for(let m=1;m<=12;m++){
+        let rec=null;try{rec=JSON.parse(localStorage.getItem('porci::'+uid+'::exam_m'+m)||'null');}catch(e){}
+        if(!rec) continue;
+        const loc=rec.date||0, ncloud=nube[m];
+        /* sube si la nube no lo tiene, o si lo local es más nuevo, o tiene mejor nota */
+        if(!ncloud || loc>ncloud.t+1000 || (rec.best||0)>ncloud.best){
+          subir.push({user_id:uid,module:m,passed:!!rec.passed,best:rec.best||0,last_score:rec.last||0,attempts:rec.attempts||0,updated_at:new Date(loc||Date.now()).toISOString()});
+        }
+      }
+      if(subir.length){ await sb.from('progress').upsert(subir,{onConflict:'user_id,module'}); }
+      return subir.length;
+    }catch(e){ return 0; }
+  }
+  window.pushLocalProgress=pushLocalProgress;
 
   /* ---- renderAdmin: cargar la nube antes de pintar ---- */
   const _renderAdmin=renderAdmin; let _admLoaded=false;
@@ -8747,119 +8775,6 @@ function publicado1(){ return (typeof NXPUB==='undefined')?true:NXPUB.porcicultu
 
 
 /* ============================================================
-   CONMUTADOR DE CURSO EN EL PANEL
-   Arriba de todo se elige el producto y el panel entero responde:
-   módulos, evaluaciones, progreso, certificados y consultas
-   pasan a mostrar el curso seleccionado.
-
-   Ojo: el conector de Supabase envuelve admTab para 'students',
-   'dashboard', 'progress' y 'certs', y llama a una referencia
-   guardada de renderAdmin de forma ASÍNCRONA. Por eso no basta
-   con envolver renderAdmin: hay que redecorar también después,
-   cuando esa carga termina.
-   ============================================================ */
-
-let ADMCURSO='porcicultura';
-try{ ADMCURSO=localStorage.getItem('nx_adm_curso')||'porcicultura'; }catch(e){}
-
-const NXPORCURSO={
-  modules:  {n:'Módulos',      nx:function(){ return nxAdmModulos(); }},
-  evals:    {n:'Evaluaciones', nx:function(){ return nxAdmEvaluaciones(); }},
-  progress: {n:'Progreso',     nx:function(){ return nxAdmProgreso(); }},
-  certs:    {n:'Certificados', nx:function(){ return nxAdmCertificados(); }},
-  consultas:{n:'Consultas',    nx:null}
-};
-
-function nxSelectorCurso(){
-  return '<div class="nxsel">'+
-    '<span class="nxsel-t">Gestionando</span>'+
-    NXCURSOS.map(function(c){
-      return '<button class="nxsel-b'+(c.id===ADMCURSO?' on':'')+'" onclick="nxCambiarCurso(\''+c.id+'\')">'+
-        '<span>'+c.ico+'</span><b>'+esc(c.id==='porcicultura'?'Porcicultura':'Formulación')+'</b>'+
-        (NXPUB[c.id]?'':'<i class="nxsel-oc">oculto</i>')+'</button>';}).join('')+
-    '<span class="nxsel-n">'+(ADMCURSO==='porcicultura'?'12 módulos · 120 preguntas':'10 módulos · 50 preguntas · se paga aparte')+'</span>'+
-    '</div>';
-}
-
-/* decora el panel para el curso elegido · se puede llamar las veces que haga falta */
-function nxDecorarPanel(){
-  const tab=(typeof ADM!=='undefined')?ADM.tab:null;
-  const root=document.getElementById('adminBody');
-  if(!root||!tab) return;
-  const dep=NXPORCURSO[tab];
-  if(!dep){ root.removeAttribute('data-nxc'); return; }
-  /* ya está decorado para este curso y esta pestaña */
-  if(root.getAttribute('data-nxc')===tab+'|'+ADMCURSO && root.querySelector('.nxsel')) return;
-
-  if(ADMCURSO==='nutricion' && dep.nx){
-    try{ root.innerHTML=dep.nx(); }
-    catch(e){ root.innerHTML='<div class="adm-empty">No se pudo cargar: '+esc(e.message)+'</div>'; }
-  }
-  if(!root.querySelector(':scope > .nxsel')) root.insertAdjacentHTML('afterbegin', nxSelectorCurso());
-  root.setAttribute('data-nxc', tab+'|'+ADMCURSO);
-  const tt=document.getElementById('adminTitle');
-  if(tt) tt.innerHTML=esc(dep.n)+' <span class="adm-cur">'+(ADMCURSO==='porcicultura'?'🐷 Porcicultura':'🌽 Formulación')+'</span>';
-}
-
-window.nxCambiarCurso=function(c){
-  ADMCURSO=c;
-  try{ localStorage.setItem('nx_adm_curso',c); }catch(e){}
-  window.CQADM=(c==='nutricion')?'nutricion':'porcicultura';
-  const root=document.getElementById('adminBody'); if(root) root.removeAttribute('data-nxc');
-  if(typeof ADM!=='undefined' && ADM.tab) admTab(ADM.tab);
-  toast('Gestionando: '+(c==='porcicultura'?'Porcicultura':'Formulación'), c==='porcicultura'?'🐷':'🌽');
-};
-
-/* vigila el panel: el conector de la nube reescribe el contenido de forma
-   asíncrona y sin pasar por renderAdmin, así que se redecora al detectarlo */
-let NXOBS=null;
-function nxVigilarPanel(){
-  const root=document.getElementById('adminBody');
-  if(!root||NXOBS) return;
-  NXOBS=new MutationObserver(function(){ nxDecorarPanel(); });
-  NXOBS.observe(root,{childList:true});
-}
-
-/* 1 · camino síncrono */
-(function(){
-  if(typeof renderAdmin!=='function') return;
-  const _r=renderAdmin;
-  renderAdmin=function(){ _r.apply(this,arguments); nxDecorarPanel(); };
-})();
-
-/* 2 · camino asíncrono del conector de la nube: redecorar cuando termine */
-(function(){
-  if(typeof admTab!=='function') return;
-  const _a=admTab;
-  admTab=function(t){
-    const root=document.getElementById('adminBody');
-    if(root && root.getAttribute('data-nxc') && root.getAttribute('data-nxc').split('|')[0]!==t) root.removeAttribute('data-nxc');
-    const r=_a.apply(this,arguments);
-    nxDecorarPanel();
-    nxVigilarPanel();
-    [0,60,250].forEach(function(ms){ setTimeout(nxDecorarPanel,ms); });
-    return r;
-  };
-})();
-
-/* el chip del canal de consultas sigue la selección de arriba */
-(function(){
-  if(typeof cqCursoAdmin!=='function') return;
-  const _c=window.cqCursoAdmin;
-  window.cqCursoAdmin=function(c){
-    ADMCURSO=c; try{ localStorage.setItem('nx_adm_curso',c); }catch(e){}
-    _c(c); setTimeout(nxDecorarPanel,0);
-  };
-})();
-
-(function(){ if(typeof ADM_TITLES!=='undefined') ADM_TITLES.cursos='Gestión de cursos'; })();
-
-window.nxVerActual=function(){
-  if(ADMCURSO==='nutricion') openNutricion(); else location.hash='#/curso';
-};
-
-
-/* ============================================================
    AVISOS DE CONSULTAS + DASHBOARD CON DETALLE
    ============================================================ */
 
@@ -10065,7 +9980,486 @@ window.nxIrEval=function(id){
   };
 })();
 
+
+/* ============================================================
+   GESTIÓN UNIFICADA DE CURSOS  ·  un solo motor por-curso
+   ------------------------------------------------------------
+   Reemplaza la capa de reconciliación (nxDecorarPanel + el
+   MutationObserver de shell5) y los caminos duplicados de la
+   pestaña "Cursos". A partir de aquí el panel del instructor
+   trabaja SIEMPRE con el curso elegido en el conmutador:
+   Dashboard, Estudiantes, Módulos, Evaluaciones, Progreso y
+   Certificados leen ese curso y nada más.
+
+   Se carga el último, así sus reasignaciones ganan.
+   ============================================================ */
+(function(){
+
+  /* ---------- 0 · estado del curso seleccionado ---------- */
+  if(typeof ADM==='undefined'){ try{ window.ADM={tab:'dashboard'}; }catch(e){} }
+  try{ ADM.course = localStorage.getItem('porci_adm_course') || 'porcicultura'; }catch(e){ ADM.course='porcicultura'; }
+  if(ADM.course!=='porcicultura' && ADM.course!=='nutricion') ADM.course='porcicultura';
+  /* alias que shell6/shell7 todavía leen */
+  window.ADMCURSO = ADM.course;
+  window.CQADM    = ADM.course;
+
+  /* ---------- 1 · registro de cursos (única fuente de verdad) ---------- */
+  function porciMods(){
+    if(typeof MODULES==='undefined') return [];
+    return MODULES.slice(1).map(function(m){ return {n:m.id, num:m.num, title:m.title, ac:m.ac}; });
+  }
+  function nutriMods(){
+    if(typeof NXMOD==='undefined') return [];
+    return NXMOD.map(function(m){ return {n:m.n, num:m.num, title:m.t, ac:m.ac}; });
+  }
+  function readRec(pre,uid,n){ try{ return JSON.parse(localStorage.getItem(pre+uid+'::exam_m'+n)); }catch(e){ return null; } }
+
+  var COURSES = {
+    porcicultura: {
+      id:'porcicultura', icon:'🐷', label:'Porcicultura',
+      name:'Porcicultura aplicada a República Dominicana',
+      hasFormulas:false, sellsSeparately:false,
+      modules: porciMods,
+      get n(){ return porciMods().length || 12; },
+      /* en modo nube el progreso de los demás estudiantes vive en la NUBE (CLOUDPROG), no en el localStorage del instructor */
+      rec:  function(uid,n){ return (typeof cloudRec==='function' && cloudRec(uid,n)) || readRec('porci::',uid,n); },
+      passed:function(uid,n){ if(typeof studentPassed==='function') return !!studentPassed(uid,n); var r=readRec('porci::',uid,n); return !!(r&&r.passed); },
+      count:function(uid){ if(typeof studentProgress==='function') return studentProgress(uid); var c=0,ms=porciMods(); for(var i=0;i<ms.length;i++) if(this.passed(uid,ms[i].n)) c++; return c; },
+      quiz: function(n){ return (typeof quizFor==='function')?quizFor(n):[]; },
+      get cfg(){ return {passing:(typeof CFG!=='undefined'?CFG.passing:80), gating:(typeof CFG!=='undefined'?!!CFG.gating:true)}; },
+      setCfg:function(p){ if(typeof CFG==='undefined')return; if(p.passing!=null)CFG.passing=+p.passing; if(p.gating!=null)CFG.gating=!!p.gating; if(typeof saveCFG==='function')saveCFG(); },
+      published:function(){ return (typeof NXPUB!=='undefined') ? NXPUB.porcicultura!==false : true; },
+      /* el curso base lo tienen todas las cuentas vivas */
+      enrolled:function(s){ return s && s.status!=='borrado'; },
+      certLabel:'verde · 12/12'
+    },
+    nutricion: {
+      id:'nutricion', icon:'🌽', label:'Formulación',
+      name:'Formulación y fabricación de alimentos balanceados',
+      hasFormulas:true, sellsSeparately:true,
+      modules: nutriMods,
+      get n(){ return nutriMods().length || 10; },
+      rec:  function(uid,n){ return readRec('nx::',uid,n); },
+      passed:function(uid,n){ var r=readRec('nx::',uid,n); return !!(r&&r.passed); },
+      count:function(uid){ var c=0,ms=nutriMods(); for(var i=0;i<ms.length;i++) if(this.passed(uid,ms[i].n)) c++; return c; },
+      quiz: function(n){ return (typeof nxQuizFor==='function')?nxQuizFor(n):((typeof NXQUIZ!=='undefined'&&NXQUIZ[n])||[]); },
+      get cfg(){ return {passing:(typeof NXPASS!=='undefined'?NXPASS:80), gating:(typeof NXGATE!=='undefined'?!!NXGATE:true)}; },
+      setCfg:function(p){
+        /* NXPASS/NXGATE son 'let' de shell.js: se tocan por sus setters, que además persisten */
+        if(p.passing!=null && typeof nxSetPass==='function') nxSetPass(p.passing);
+        if(p.gating!=null  && typeof nxSetGate==='function') nxSetGate(p.gating);
+      },
+      published:function(){ if(typeof NXPUB!=='undefined') return !!NXPUB.nutricion; if(typeof NXACTIVO!=='undefined') return !!NXACTIVO; return true; },
+      /* este curso se paga aparte: solo los que lo compraron */
+      enrolled:function(s){ return s && s.status!=='borrado' && (typeof NXACCESO!=='undefined') && !!NXACCESO[s.id]; },
+      certLabel:'bronce · 10/10'
+    }
+  };
+  window.COURSES = COURSES;
+  window.courseCtx = function(){ return COURSES[ADM.course] || COURSES.porcicultura; };
+
+  function enrolledStudents(C){
+    var all=(typeof STUDENTS!=='undefined'?STUDENTS:[])||[];
+    return all.filter(function(s){ return C.enrolled(s); });
+  }
+
+  /* ---------- 2 · conmutador único de curso ---------- */
+  window.nxSetCourse = function(id){
+    if(!COURSES[id]) return;
+    ADM.course=id; window.ADMCURSO=id; window.CQADM=id;
+    try{ localStorage.setItem('porci_adm_course',id); }catch(e){}
+    mountCourseSwitch(true);
+    if(typeof toast==='function') toast('Gestionando: '+COURSES[id].label, COURSES[id].icon);
+    var t=(typeof ADM!=='undefined')?ADM.tab:'dashboard';
+    if((t==='consultas'||t==='mercado') && typeof admTab==='function') admTab(t);
+    else if(typeof renderAdmin==='function') renderAdmin();
+  };
+
+  function switchHTML(){
+    var cur=ADM.course;
+    return '<div class="ucsw" id="ucsw">'+
+      '<span class="ucsw-t">Gestionando</span>'+
+      Object.keys(COURSES).map(function(k){
+        var C=COURSES[k], on=(k===cur);
+        return '<button class="ucsw-b'+(on?' on':'')+'" onclick="nxSetCourse(\''+k+'\')" '+(on?'aria-current="true"':'')+'>'+
+          '<span class="ucsw-i">'+C.icon+'</span><b>'+C.label+'</b>'+
+          (C.published()?'':'<i class="ucsw-oc">oculto</i>')+'</button>';
+      }).join('')+
+      '<span class="ucsw-n">'+courseCtx().n+' módulos'+(courseCtx().sellsSeparately?' · se paga aparte':'')+'</span>'+
+      '</div>';
+  }
+  function mountCourseSwitch(force){
+    var body=document.getElementById('adminBody');
+    var host=body ? body.parentNode : document.querySelector('.adminp-main');
+    if(!host) return false;
+    var ex=document.getElementById('ucsw');
+    if(ex && !force) return true;
+    if(ex){ ex.outerHTML=switchHTML(); return true; }
+    var frag=document.createElement('div'); frag.innerHTML=switchHTML();
+    if(body && body.parentNode===host) host.insertBefore(frag.firstChild, body);
+    else host.appendChild(frag.firstChild);
+    return true;
+  }
+  (function tryMount(i){
+    if(mountCourseSwitch(false)) return;
+    if(i>40) return;
+    setTimeout(function(){ tryMount(i+1); }, 120);
+  })(0);
+  /* si el panel se re-renderiza, el conmutador vive en .adminp-top (estático) y no se pierde */
+
+  var _css='.ucsw{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--border,#3a3a3a);font-size:13px}'+
+    '.ucsw-t{color:var(--muted,#8a8a8a);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:11px}'+
+    '.ucsw-b{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--border,#3a3a3a);'+
+      'background:transparent;color:var(--text,#ddd);cursor:pointer;font:inherit;line-height:1}'+
+    '.ucsw-b b{font-weight:600}'+
+    '.ucsw-b.on{background:var(--green,#2F7D4F);border-color:var(--green,#2F7D4F);color:#fff}'+
+    '.ucsw-oc{font-style:normal;font-size:10px;opacity:.7;border:1px solid currentColor;border-radius:4px;padding:0 4px}'+
+    '.ucsw-n{color:var(--muted,#8a8a8a);font-size:12px}'+
+    '.uc-cat{display:grid;gap:12px}'+
+    '.uc-c{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--border,#3a3a3a);border-radius:12px}'+
+    '.uc-c .uc-ico{font-size:26px}.uc-c .uc-t{flex:1}.uc-c .uc-t b{display:block}.uc-c .uc-t span{color:var(--muted,#8a8a8a);font-size:12.5px}'+
+    '.uc-c .uc-pill{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--green,#2F7D4F);color:#fff}'+
+    '.uc-c .uc-pill.off{background:var(--muted,#7a736b)}';
+  try{ var st=document.createElement('style'); st.textContent=_css; document.head.appendChild(st); }catch(e){}
+
+  /* ---------- 3 · apagar la capa de reconciliación de shell5 ---------- */
+  try{ if(typeof NXOBS!=='undefined' && NXOBS && NXOBS.disconnect){ NXOBS.disconnect(); window.NXOBS=null; } }catch(e){}
+  try{ window.nxDecorarPanel = function(){}; }catch(e){}
+  try{ window.nxVigilarPanel = function(){}; }catch(e){}
+
+  /* ---------- 4 · vistas de la barra lateral, por curso ---------- */
+
+  /* -- Módulos -- */
+  window.modulesView = function(){
+    var C=courseCtx(), ms=C.modules();
+    var gate = C.cfg.gating;
+    var h='<p class="adm-note">Los '+ms.length+' módulos de <b>'+esc(C.label)+'</b>. El contenido está integrado; aquí se gestiona su <b>evaluación</b> y el <b>bloqueo por nota</b>.</p>'+
+      '<div class="cfg-row" style="max-width:520px"><label>Bloqueo de avance por nota<small>Exige aprobar para desbloquear el siguiente módulo</small></label>'+
+      '<span class="switch"><input type="checkbox" id="ucGate"'+(gate?' checked':'')+' onchange="ucSetGate(this.checked)"><span></span></span></div>'+
+      '<div class="mod-list" style="margin-top:14px">'+ms.map(function(m){
+        var nq=(C.quiz(m.n)||[]).length;
+        return '<div class="mod-item"><div class="mnum" style="background:'+(m.ac||'#2F7D4F')+'">'+m.num+'</div>'+
+          '<div class="mtitle"><b>'+esc(m.title)+'</b><span>'+nq+' pregunta'+(nq===1?'':'s')+' de evaluación</span></div>'+
+          '<div class="mact"><button onclick="ucVerModulo('+m.n+')">👁️ Ver</button>'+
+          '<button onclick="ucEditEval('+m.n+')">📝 Editar evaluación</button></div></div>';
+      }).join('')+'</div>';
+    return h;
+  };
+  window.ucSetGate=function(v){ courseCtx().setCfg({gating:!!v}); if(typeof toast==='function')toast(v?'Bloqueo activado':'Bloqueo desactivado','⚙️'); };
+  window.ucVerModulo=function(n){
+    if(ADM.course==='nutricion'){ if(typeof nxVerModulo==='function') return nxVerModulo(n); }
+    if(typeof goto==='function'){ goto(n); location.hash='#/curso'; }
+  };
+  window.ucEditEval=function(n){
+    if(ADM.course==='nutricion'){ if(typeof NXQMOD!=='undefined') window.NXQMOD=n; if(typeof admTab==='function') admTab('evals'); return; }
+    if(typeof admTab==='function'){ admTab('evals'); if(typeof evalPick==='function') evalPick(n); }
+  };
+
+  /* -- Evaluaciones -- (porci = editor original · nutrición = editor de shell9) */
+  var _evalsView = (typeof evalsView==='function') ? evalsView : function(){ return ''; };
+  var _renderQEdit = (typeof renderQEdit==='function') ? renderQEdit : function(){};
+  window.evalsView = function(){
+    if(ADM.course==='nutricion' && typeof nxAdmEvaluaciones==='function') return nxAdmEvaluaciones();
+    return _evalsView.apply(this, arguments);
+  };
+  window.renderQEdit = function(){
+    if(ADM.course==='nutricion') return;      /* shell9 pinta en línea */
+    return _renderQEdit.apply(this, arguments);
+  };
+
+  /* -- Progreso -- */
+  window.progressView = function(){
+    var C=courseCtx(), ms=C.modules(), N=ms.length;
+    var alum=enrolledStudents(C);
+    if(!alum.length) return '<div class="adm-empty">'+(C.sellsSeparately
+      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Actívalos en <b>Cursos → Catálogo</b>.'
+      : 'Sin estudiantes.')+'</div>';
+    var rows=alum.map(function(s){
+      var pc=C.count(s.id), pct=Math.round(pc/N*100), sc=[];
+      ms.forEach(function(m){ var r=C.rec(s.id,m.n); if(r) sc.push(r.best||r.last||0); });
+      var avg=sc.length?Math.round(sc.reduce(function(a,b){return a+b;},0)/sc.length):0;
+      return '<tr><td><b>'+esc(s.name)+'</b></td><td>'+esc((typeof sectionName==='function')?sectionName(s.section):'—')+'</td>'+
+        '<td><div class="adm-prog"><div class="adm-prog-bar"><i style="width:'+pct+'%"></i></div><span>'+pct+'%</span></div></td>'+
+        '<td>'+pc+'/'+N+'</td><td>'+(sc.length?avg+'%':'—')+'</td>'+
+        '<td><button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="studentProfile('+((typeof jsq==='function')?jsq(s.id):("'"+s.id+"'"))+')">Ver perfil</button></td></tr>';
+    }).join('');
+    var nota='<p class="adm-note">Avance en <b>'+esc(C.label)+'</b>. Se guarda por separado de los demás cursos.'+
+      (C.id==='nutricion'
+        ? ' <b>Ojo:</b> el progreso de formulación todavía se guarda solo en el equipo de cada estudiante; aún no se sincroniza a la nube.'
+        : ' Si a alguien no le aparece su avance, que inicie sesión una vez desde el dispositivo donde estudió: al entrar, su progreso local se respalda a la nube.')+
+      '</p>';
+    var tabla='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Sección</th><th>Progreso</th><th>Aprobados</th><th>Promedio</th><th></th></tr></thead><tbody>'+
+      rows+'</tbody></table></div>';
+    return nota+tabla+(C.id==='porcicultura'?ucRescatePanel(alum):'');
+  };
+
+  /* ---- recuperar avance que quedó guardado en ESTE equipo (localStorage) y no en la nube ---- */
+  function ucScanLocalProgress(){
+    var out={}, re=/^porci::(.+)::exam_m(\d+)$/;
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i), m=re.exec(k); if(!m) continue;
+      var id=m[1]; if(id==='local') continue;
+      var rec=null; try{ rec=JSON.parse(localStorage.getItem(k)); }catch(e){}
+      if(!rec) continue;
+      if(!out[id]) out[id]={n:0,passed:0,last:0};
+      out[id].n++; if(rec.passed) out[id].passed++; if(rec.date&&rec.date>out[id].last) out[id].last=rec.date;
+    }
+    return out;
+  }
+  function ucRescatePanel(alum){
+    var scan=ucScanLocalProgress();
+    var ids=Object.keys(scan);
+    var known={}; alum.forEach(function(s){ known[s.id]=s.name; });
+    var huerfanos=ids.filter(function(id){ return !known[id]; });
+    var opts=alum.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name)+'</option>'; }).join('');
+    var body='';
+    if(!ids.length){
+      body='<p class="adm-note" style="margin:0">No hay avance guardado en este equipo fuera de la nube. '+
+        'Si a un estudiante no le aparece su progreso, la copia está en el navegador donde estudió: que inicie sesión ahí una vez.</p>';
+    }else{
+      body='<p class="adm-note" style="margin:0 0 10px">Avance encontrado en el almacenamiento de <b>este equipo</b>. '+
+        'Si alguno es de un estudiante y no está en la nube, asígnelo y súbalo.</p>'+
+        '<table class="adm-table"><thead><tr><th>Origen (id local)</th><th>Módulos</th><th>Aprob.</th><th>Últ. actividad</th><th>Asignar a</th></tr></thead><tbody>'+
+        ids.map(function(id){
+          var d=scan[id];
+          var etq=known[id]?('<b>'+esc(known[id])+'</b> <span style="color:var(--muted)">(ya en la nube)</span>'):('<code>'+esc(id.slice(0,18))+(id.length>18?'…':'')+'</code>');
+          return '<tr><td>'+etq+'</td><td>'+d.n+'</td><td>'+d.passed+'</td>'+
+            '<td>'+(d.last?new Date(d.last).toLocaleDateString('es-DO',{day:'2-digit',month:'short'}):'—')+'</td>'+
+            '<td><select id="ucres_'+esc(id)+'" style="max-width:180px"><option value="">— elegir —</option>'+opts+'</select> '+
+            '<button class="adm-add" style="padding:5px 10px;font-size:12px" onclick="ucAsignarProgreso(\''+esc(id).replace(/'/g,"\\'")+'\')">Subir</button></td></tr>';
+        }).join('')+'</tbody></table>';
+    }
+    return '<details class="adm-card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">🔧 Recuperar avance guardado en este equipo'+
+      (Object.keys(scan).length?' ('+Object.keys(scan).length+')':'')+'</summary><div style="margin-top:12px">'+body+'</div></details>';
+  }
+  window.ucAsignarProgreso=async function(localId){
+    var sel=document.getElementById('ucres_'+localId);
+    var uid=sel && sel.value;
+    if(!uid){ if(typeof toast==='function')toast('Elija a qué estudiante corresponde','✍️'); return; }
+    if(!window.SB){ if(typeof toast==='function')toast('Sin conexión a la nube','⛔'); return; }
+    var subir=[];
+    for(var m=1;m<=12;m++){
+      var rec=null; try{ rec=JSON.parse(localStorage.getItem('porci::'+localId+'::exam_m'+m)); }catch(e){}
+      if(!rec) continue;
+      subir.push({user_id:uid,module:m,passed:!!rec.passed,best:rec.best||0,last_score:rec.last||0,attempts:rec.attempts||0,updated_at:new Date(rec.date||Date.now()).toISOString()});
+    }
+    if(!subir.length){ if(typeof toast==='function')toast('No había módulos que subir','ℹ️'); return; }
+    try{
+      var r=await SB.from('progress').upsert(subir,{onConflict:'user_id,module'});
+      if(r.error){ if(typeof toast==='function')toast('No se pudo subir: '+r.error.message,'⛔'); return; }
+      if(typeof pullProgress==='function') await pullProgress(uid);
+      if(typeof toast==='function')toast(subir.length+' módulo(s) subidos y asignados','✅');
+      if(typeof admTab==='function') admTab('progress');
+    }catch(e){ if(typeof toast==='function')toast('Error: '+e.message,'⛔'); }
+  };
+
+  /* -- Estudiantes -- (KPIs y lista, filtrados por inscripción al curso) */
+  var _studentsView = (typeof studentsView==='function') ? studentsView : function(){ return ''; };
+  window.studentsView = function(){
+    var C=courseCtx();
+    if(!C.sellsSeparately) return _studentsView.apply(this, arguments);   /* curso base: lista completa */
+    var alum=enrolledStudents(C);
+    var activos=alum.filter(function(s){return s.status==='activo';}).length;
+    var chips='';
+    if(typeof STATUS!=='undefined'){
+      var cnt={}; Object.keys(STATUS).forEach(function(k){ cnt[k]=alum.filter(function(s){return s.status===k;}).length; });
+      chips='<div class="fchips" id="grpEst">'+
+        '<button class="fchip on" onclick="admFiltro(\'admSt\',\'\',this)">Todos <b>'+alum.length+'</b></button>'+
+        Object.keys(STATUS).filter(function(k){return k!=='borrado';}).map(function(k){
+          return '<button class="fchip c-'+k+'" onclick="admFiltro(\'admSt\',\''+k+'\',this)">'+STATUS[k][0]+' <b>'+cnt[k]+'</b></button>';
+        }).join('')+'</div>';
+    }
+    return '<p class="adm-note">Estudiantes con acceso a <b>'+esc(C.label)+'</b>. '+
+      'Para dar o quitar acceso use <b>Cursos → Acceso</b>.</p>'+
+      '<div class="adm-summary">'+
+      '<div class="adm-kpi"><b>'+alum.length+'</b><span>Con acceso</span></div>'+
+      '<div class="adm-kpi"><b>'+activos+'</b><span>Activos</span></div>'+
+      '<div class="adm-kpi"><b>'+(typeof SECTIONS!=='undefined'?SECTIONS.length:1)+'</b><span>Secciones</span></div></div>'+
+      '<div class="adm-toolbar">'+
+      '<input id="admQ" type="search" placeholder="Buscar nombre, correo o teléfono…" oninput="renderStudentsTable()">'+
+      '</div>'+
+      '<input type="hidden" id="admSt" value=""><input type="hidden" id="admSec" value="">'+
+      chips+'<div id="studentsTableWrap"></div>';
+  };
+  var _renderStudentsTable = (typeof renderStudentsTable==='function') ? renderStudentsTable : function(){};
+  window.renderStudentsTable = function(){
+    var wrap=document.getElementById('studentsTableWrap'); if(!wrap) return;
+    var C=courseCtx(), N=C.modules().length;
+    var secF=(document.getElementById('admSec')||{}).value||'';
+    var q=((document.getElementById('admQ')||{}).value||'').toLowerCase();
+    var stF=(document.getElementById('admSt')||{}).value||'';
+    var base=(typeof STUDENTS!=='undefined'?STUDENTS:[])||[];
+    var rows=base.filter(function(s){
+      if(!C.enrolled(s) && stF!=='borrado') return false;
+      if(stF){ if(s.status!==stF) return false; }
+      else if(s.status==='borrado') return false;
+      if(secF && s.section!==secF) return false;
+      if(q && !(s.name.toLowerCase().indexOf(q)>=0 || (s.email||'').toLowerCase().indexOf(q)>=0 || (s.phone||'').toLowerCase().indexOf(q)>=0)) return false;
+      return true;
+    });
+    if(!rows.length){ wrap.innerHTML='<div class="adm-empty">'+(stF==='borrado'?'La papelera está vacía.':'No hay estudiantes de '+esc(C.label)+' que coincidan con este filtro.')+'</div>'; return; }
+    var js=function(id){ return (typeof jsq==='function')?jsq(id):("'"+String(id).replace(/'/g,"\\'")+"'"); };
+    var badge=function(s){ return (typeof STATUS!=='undefined'&&STATUS[s.status])?('<span class="st-badge '+STATUS[s.status][1]+'">'+STATUS[s.status][0]+'</span>'):s.status; };
+    wrap.innerHTML='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Contacto</th><th>Sección</th><th>Estado</th><th>Progreso ('+esc(C.label)+')</th><th>Acciones</th></tr></thead><tbody>'+
+      rows.map(function(s){ var pc=C.count(s.id), pct=Math.round(pc/N*100);
+        return '<tr>'+
+          '<td><div class="adm-stu"><b>'+esc(s.name)+'</b><span>'+esc(s.email||'sin correo')+'</span></div></td>'+
+          '<td>'+(s.phone?('<a class="adm-tel" href="tel:'+ea(s.phone)+'">'+esc(s.phone)+'</a>'):'<span style="color:var(--muted)">—</span>')+'</td>'+
+          '<td>'+esc((typeof sectionName==='function')?sectionName(s.section):'—')+'</td>'+
+          '<td>'+badge(s)+'</td>'+
+          '<td><div class="adm-prog"><div class="adm-prog-bar"><i style="width:'+pct+'%"></i></div><span>'+pc+'/'+N+'</span></div></td>'+
+          '<td class="adm-acts">'+
+            (s.status==='borrado'
+              ? '<button title="Restaurar" onclick="restoreStudent('+js(s.id)+')">↩</button><button class="del" title="Eliminar definitivamente" onclick="purgeStudent('+js(s.id)+')">🗑</button>'
+              : '<button title="Ver perfil" onclick="studentProfile('+js(s.id)+')">👁</button>'+
+                '<button title="Editar" onclick="editStudent('+js(s.id)+')">✎</button>'+
+                '<button title="'+(s.status==='inactivo'?'Reactivar':'Desactivar')+'" onclick="toggleActive('+js(s.id)+')">'+(s.status==='inactivo'?'✔':'⏸')+'</button>'+
+                '<button class="del" title="Enviar a la papelera" onclick="deleteStudent('+js(s.id)+')">🗑</button>')+
+          '</td></tr>';
+      }).join('')+'</tbody></table></div>';
+  };
+
+  /* -- Certificados -- (porci = editor original · nutrición = editor de shell7) */
+  var _certsView = (typeof certsView==='function') ? certsView : function(){ return ''; };
+  window.certsView = function(){
+    if(ADM.course==='nutricion' && typeof nxAdmCertificados==='function') return nxAdmCertificados();
+    return _certsView.apply(this, arguments);
+  };
+
+  /* -- Dashboard -- (una sola definición, keyed por courseCtx) */
+  window.dashboardView = function(){
+    var C=courseCtx();
+    var alum=enrolledStudents(C);
+    if(!alum.length) return '<div class="adm-empty">'+(C.sellsSeparately
+      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Actívalos en <b>Cursos → Catálogo</b>.'
+      : 'Aún no hay estudiantes. Ve a <b>Estudiantes</b> y agrega el primero.')+'</div>';
+    var vista=(typeof NXDASH!=='undefined' && NXDASH)?NXDASH.vista:'general';
+    var cuerpo;
+    try{
+      if(vista==='detalle' && typeof nxTablaDetalle==='function') cuerpo='<div class="dsh-card">'+nxTablaDetalle()+'</div>';
+      else if(vista==='embudo' && typeof nxEmbudo==='function')   cuerpo='<div class="dsh-card">'+nxEmbudo()+'</div>';
+      else if(typeof nxResumenCurso==='function')                 cuerpo=nxResumenCurso(C.id);
+      else cuerpo='<div class="adm-empty">Resumen no disponible.</div>';
+    }catch(e){ cuerpo='<div class="adm-empty">No se pudo calcular: '+esc(e.message)+'</div>'; }
+    var alerta=(typeof nxTarjetaAlerta==='function')?nxTarjetaAlerta():'';
+    var tabs='<div class="nxd-tabs">'+
+      [['general','Resumen'],['detalle','Detalle por estudiante'],['embudo','Avance por módulo']].map(function(t){
+        return '<button class="fchip'+(t[0]===vista?' on':'')+'" onclick="nxDashVista(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+
+      '<span class="nxd-cur">'+C.icon+' '+esc(C.label)+'</span></div>';
+    return alerta+tabs+cuerpo;
+  };
+  if(typeof window.nxDashVista!=='function'){
+    window.nxDashVista=function(v){ if(typeof NXDASH!=='undefined')NXDASH.vista=v; if(typeof admTab==='function')admTab('dashboard'); };
+  }
+
+  /* ---------- 5 · pestaña "Cursos" adelgazada ---------- */
+  function ucCatalogo(){
+    var h='<p class="adm-note">Sus productos. Cada curso se gestiona por separado desde el conmutador de arriba; aquí solo lo que es propio del producto.</p>'+
+      '<div class="uc-cat">';
+    Object.keys(COURSES).forEach(function(k){
+      var C=COURSES[k], ms=C.modules();
+      var nq=ms.reduce(function(a,m){ return a+((C.quiz(m.n)||[]).length); },0);
+      var pub=C.published();
+      var con=enrolledStudents(C).length;
+      h+='<div class="uc-c"><div class="uc-ico">'+C.icon+'</div>'+
+        '<div class="uc-t"><b>'+esc(C.name)+'</b>'+
+          '<span>'+ms.length+' módulos · '+nq+' preguntas · '+con+
+          (C.sellsSeparately?' con acceso':' estudiante'+(con===1?'':'s'))+'</span></div>'+
+        (C.sellsSeparately
+          ? '<label class="nxa-sw" title="Publicar / ocultar para estudiantes"><input type="checkbox"'+(pub?' checked':'')+' onchange="ucPublicar(\''+k+'\',this.checked)"><span></span><em>'+(pub?'Visible':'Oculto')+'</em></label>'
+          : '<span class="uc-pill">Publicado</span>')+
+        '</div>';
+    });
+    h+='</div>';
+    var nut=COURSES.nutricion;
+    if(nut){
+      h+='<div class="adm-card" style="margin-top:14px"><h4>🔒 '+esc(nut.label)+' se paga aparte</h4>'+
+        '<p class="adm-note" style="margin-top:0">Mientras esté <b>Visible</b>, a <b>todos</b> los estudiantes les aparece '+
+        'bloqueado con las instrucciones de pago. Cuando alguien le confirme la transferencia, usted lo <b>activa uno por uno</b> '+
+        'en la pestaña <b>Acceso</b> y a esa persona —y solo a esa— se le desbloquea. Si lo pone en <b>Oculto</b>, no le aparece a nadie.</p>'+
+        '<button class="adm-add" onclick="nxAdmTab(\'acceso\')">🔑 Ir a Acceso</button></div>';
+    }
+    return h;
+  }
+  window.ucPublicar=function(k,v){
+    if(typeof nxPublicar==='function') return nxPublicar(k,v);
+    if(k==='nutricion'){ if(typeof NXACTIVO!=='undefined')window.NXACTIVO=!!v; try{localStorage.setItem('nx_activo',v?'1':'0');}catch(e){} }
+    if(typeof toast==='function')toast(v?'Publicado':'Oculto', v?'✅':'🙈');
+    if(typeof nxAdmin==='function')nxAdmin();
+    mountCourseSwitch(true);
+  };
+
+  function ucAjustes(C){
+    var cfg=C.cfg;
+    var h='<div class="adm-card"><h4>Parámetros de '+esc(C.label)+'</h4>'+
+      '<div class="cfg-row" style="max-width:560px"><label>Nota mínima para aprobar</label>'+
+        '<div><input type="number" min="40" max="100" step="5" id="ucPass" value="'+cfg.passing+'" style="width:90px"> %</div></div>'+
+      '<div class="cfg-row" style="max-width:560px"><label>Bloqueo de avance por nota<small>Exige aprobar un módulo para abrir el siguiente</small></label>'+
+        '<span class="switch"><input type="checkbox" id="ucGate2"'+(cfg.gating?' checked':'')+'><span></span></span></div>';
+    if(C.id==='nutricion' && typeof NXCFG!=='undefined'){
+      h+='<div class="cfg-row" style="max-width:560px"><label>Inclusión de premezcla<small>La define la etiqueta de su fabricante. Recalcula las 12 fórmulas.</small></label>'+
+        '<input type="number" step="0.05" min="0" max="3" value="'+(NXCFG.premix!=null?NXCFG.premix:0.30)+'" oninput="nxSetPremix(this.value)" style="width:100px"></div>';
+    }
+    h+='<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
+      '<button class="adm-add" onclick="ucGuardarAjustes()">Guardar</button>'+
+      (C.id==='nutricion' && typeof nxSubirCfg==='function'
+        ? '<button class="nxa-btn on" style="margin:0" onclick="nxSubirCfg()">☁️ Publicar para todos los estudiantes</button>'
+        : '')+
+      '</div></div>';
+    return h;
+  }
+  window.ucGuardarAjustes=function(){
+    var C=courseCtx();
+    var p=parseInt((document.getElementById('ucPass')||{}).value,10);
+    var g=(document.getElementById('ucGate2')||{}).checked;
+    C.setCfg({ passing:isNaN(p)?null:Math.max(40,Math.min(100,p)), gating:g });
+    if(typeof toast==='function')toast('Ajustes de '+C.label+' guardados','⚙️');
+  };
+
+  window.nxAdmin = function(){
+    var body=document.getElementById('adminBody'); if(!body) return;
+    var C=courseCtx();
+    var tabs=[['catalogo','Catálogo']];
+    if(C.sellsSeparately) tabs.push(['acceso','Acceso']);
+    if(C.hasFormulas) tabs.push(['formulas','Fórmulas']);
+    tabs.push(['ajustes','Ajustes · '+C.label]);
+    var ids=tabs.map(function(t){return t[0];});
+    /* NXADMTAB es 'let' de shell2: se asigna por nombre desde este mismo <script> */
+    try{ if(typeof NXADMTAB==='undefined' || ids.indexOf(NXADMTAB)<0) NXADMTAB='catalogo'; }catch(e){}
+    var h='<div class="fchips" style="margin-bottom:14px">'+tabs.map(function(t){
+      return '<button class="fchip'+(t[0]===NXADMTAB?' on':'')+'" onclick="nxAdmTab(\''+t[0]+'\')">'+esc(t[1])+'</button>';}).join('')+'</div>';
+    if(NXADMTAB==='acceso' && typeof nxAdmAcceso==='function') h+=nxAdmAcceso();
+    else if(NXADMTAB==='formulas' && C.hasFormulas && typeof nxAdmFormulas==='function') h+=nxAdmFormulas();
+    else if(NXADMTAB==='ajustes') h+=ucAjustes(C);
+    else h+=ucCatalogo();
+    body.innerHTML=h;
+  };
+  if(typeof window.nxAdmTab!=='function') window.nxAdmTab=function(t){ window.NXADMTAB=t; if(typeof nxAdmin==='function')nxAdmin(); };
+
+  /* ---------- 6b · detalle/embudo del dashboard: leer el progreso de porcicultura desde la NUBE ---------- */
+  if(typeof nxExamenDe==='function'){
+    var _nxExamenDe=nxExamenDe;
+    window.nxExamenDe=function(pre,id,i){
+      if(pre==='porci::' && typeof cloudRec==='function'){ var r=cloudRec(id,i); if(r) return r; }
+      return _nxExamenDe(pre,id,i);
+    };
+  }
+
+  /* ---------- 6 · los chips de curso del panel de consultas siguen el conmutador ---------- */
+  if(typeof window.cqCursoAdmin==='function'){
+    var _cq=window.cqCursoAdmin;
+    window.cqCursoAdmin=function(c){ if(COURSES[c]) return nxSetCourse(c); return _cq(c); };
+  }
+
+})();
+
 </script>
+
+
+
+
+
+
 
 
 
