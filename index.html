@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08i · gestion de cursos unificada (un motor por-curso) + progreso admin desde la nube -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-08j · fix boton "Ir a Acceso" y conmutador de curso en la pestana Cursos -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10072,7 +10072,15 @@ window.nxIrEval=function(id){
     if(typeof toast==='function') toast('Gestionando: '+COURSES[id].label, COURSES[id].icon);
     var t=(typeof ADM!=='undefined')?ADM.tab:'dashboard';
     if((t==='consultas'||t==='mercado') && typeof admTab==='function') admTab(t);
+    else if(t==='cursos' && typeof nxAdmin==='function') nxAdmin();   /* la pestaña Cursos no pasa por renderAdmin */
     else if(typeof renderAdmin==='function') renderAdmin();
+  };
+  /* botón "Ir a Acceso" del catálogo: cambia al curso que se paga aparte y abre su pestaña Acceso */
+  window.ucIrAcceso=function(cid){
+    var id=cid||'nutricion';
+    try{ NXADMTAB='acceso'; }catch(e){}
+    if(ADM.course!==id) nxSetCourse(id);   /* nxSetCourse re-renderiza nxAdmin y respeta NXADMTAB */
+    else if(typeof nxAdmin==='function') nxAdmin();
   };
 
   function switchHTML(){
@@ -10371,14 +10379,14 @@ window.nxIrEval=function(id){
         '</div>';
     });
     h+='</div>';
-    var nut=COURSES.nutricion;
-    if(nut){
-      h+='<div class="adm-card" style="margin-top:14px"><h4>🔒 '+esc(nut.label)+' se paga aparte</h4>'+
+    Object.keys(COURSES).forEach(function(k){
+      var C=COURSES[k]; if(!C.sellsSeparately) return;
+      h+='<div class="adm-card" style="margin-top:14px"><h4>🔒 '+esc(C.label)+' se paga aparte</h4>'+
         '<p class="adm-note" style="margin-top:0">Mientras esté <b>Visible</b>, a <b>todos</b> los estudiantes les aparece '+
         'bloqueado con las instrucciones de pago. Cuando alguien le confirme la transferencia, usted lo <b>activa uno por uno</b> '+
         'en la pestaña <b>Acceso</b> y a esa persona —y solo a esa— se le desbloquea. Si lo pone en <b>Oculto</b>, no le aparece a nadie.</p>'+
-        '<button class="adm-add" onclick="nxAdmTab(\'acceso\')">🔑 Ir a Acceso</button></div>';
-    }
+        '<button class="adm-add" onclick="ucIrAcceso(\''+k+'\')">🔑 Ir a Acceso</button></div>';
+    });
     return h;
   }
   window.ucPublicar=function(k,v){
@@ -10454,6 +10462,7 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
 
 
 
