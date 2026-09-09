@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09a · estudiantes ordenados por orden de llegada (columna #) + verificacion headless OK -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09b · progreso de Formulacion a la nube + video por modulo + CSV + anuncios + notas + recuperar contrasena + pagina publica + materiales + log de errores -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -4891,12 +4891,23 @@ router();
   };
   /* ---- RECUPERAR CONTRASEÑA ---- */
   window.supaReset=async function(){
+    if(typeof window.ucAbrirRecuperar==='function'){ window.ucAbrirRecuperar(); return; }
     const email=window.prompt('Escribe tu correo y te enviaremos un enlace para restablecer tu contraseña:',(document.getElementById('loginUser').value||'').trim());
     if(!email)return;
     const {error}=await sb.auth.resetPasswordForEmail(email.trim(),{redirectTo:location.origin+location.pathname});
     if(error){toast('No se pudo enviar: '+error.message,'⛔');}else toast('Listo. Revisa tu correo para restablecer la contraseña.','📧');
   };
+  window.ucEnviarEnlaceReset=async function(email){
+    const {error}=await sb.auth.resetPasswordForEmail(String(email||'').trim(),{redirectTo:location.origin+location.pathname});
+    return error?error.message:null;
+  };
+  window.ucFijarPassword=async function(np){
+    const {error}=await sb.auth.updateUser({password:np});
+    if(!error){ try{await sb.auth.signOut();}catch(e){} location.hash='#/login'; router(); }
+    return error?error.message:null;
+  };
   sb.auth.onAuthStateChange(async (event)=>{ if(event==='PASSWORD_RECOVERY'){
+    if(typeof window.ucAbrirNuevaPassword==='function'){ window.ucAbrirNuevaPassword(); return; }
     const np=window.prompt('Escribe tu nueva contraseña (mínimo 6 caracteres):');
     if(np&&np.length>=6){const {error}=await sb.auth.updateUser({password:np});
       toast(error?('No se pudo: '+error.message):'Contraseña actualizada. Inicia sesión.',error?'⛔':'✅');
@@ -10091,8 +10102,9 @@ window.nxIrEval=function(id){
       hasFormulas:true, sellsSeparately:true,
       modules: nutriMods,
       get n(){ return nutriMods().length || 10; },
-      rec:  function(uid,n){ return readRec('nx::',uid,n); },
-      passed:function(uid,n){ var r=readRec('nx::',uid,n); return !!(r&&r.passed); },
+      /* progreso desde la NUBE (course='nutricion') si está sincronizado; si no, localStorage del equipo */
+      rec:  function(uid,n){ return (typeof cloudRec==='function' && cloudRec(uid,n,'nutricion')) || readRec('nx::',uid,n); },
+      passed:function(uid,n){ var r=this.rec(uid,n); return !!(r&&r.passed); },
       count:function(uid){ var c=0,ms=nutriMods(); for(var i=0;i<ms.length;i++) if(this.passed(uid,ms[i].n)) c++; return c; },
       quiz: function(n){ return (typeof nxQuizFor==='function')?nxQuizFor(n):((typeof NXQUIZ!=='undefined'&&NXQUIZ[n])||[]); },
       get cfg(){ return {passing:(typeof NXPASS!=='undefined'?NXPASS:80), gating:(typeof NXGATE!=='undefined'?!!NXGATE:true)}; },
@@ -10185,7 +10197,11 @@ window.nxIrEval=function(id){
     '.uc-c .uc-ico{font-size:26px}.uc-c .uc-t{flex:1}.uc-c .uc-t b{display:block}.uc-c .uc-t span{color:var(--muted,#8a8a8a);font-size:12.5px}'+
     '.uc-c .uc-pill{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--green,#2F7D4F);color:#fff}'+
     '.uc-c .uc-pill.off{background:var(--muted,#7a736b)}'+
-    '.uc-pos{color:var(--muted,#8a8a8a);font-variant-numeric:tabular-nums;text-align:center;width:34px;font-weight:600}';
+    '.uc-pos{color:var(--muted,#8a8a8a);font-variant-numeric:tabular-nums;text-align:center;width:34px;font-weight:600}'+
+    '.uc-video{margin:0 0 22px}'+
+    '.uc-video-fr{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000}'+
+    '.uc-video-fr iframe{position:absolute;inset:0;width:100%;height:100%;border:0}'+
+    '.uc-vid-in{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--border,#3a3a3a);border-radius:8px;background:transparent;color:var(--text,#ddd)}';
   try{ var st=document.createElement('style'); st.textContent=_css; document.head.appendChild(st); }catch(e){}
 
   /* ---------- 3 · apagar la capa de reconciliación de shell5 ---------- */
@@ -10204,10 +10220,15 @@ window.nxIrEval=function(id){
       '<span class="switch"><input type="checkbox" id="ucGate"'+(gate?' checked':'')+' onchange="ucSetGate(this.checked)"><span></span></span></div>'+
       '<div class="mod-list" style="margin-top:14px">'+ms.map(function(m){
         var nq=(C.quiz(m.n)||[]).length;
-        return '<div class="mod-item"><div class="mnum" style="background:'+(m.ac||'#2F7D4F')+'">'+m.num+'</div>'+
-          '<div class="mtitle"><b>'+esc(m.title)+'</b><span>'+nq+' pregunta'+(nq===1?'':'s')+' de evaluación</span></div>'+
+        var vurl=ucVideoURL(C.id, m.n);
+        return '<div class="mod-item" style="flex-wrap:wrap"><div class="mnum" style="background:'+(m.ac||'#2F7D4F')+'">'+m.num+'</div>'+
+          '<div class="mtitle"><b>'+esc(m.title)+'</b><span>'+nq+' pregunta'+(nq===1?'':'s')+' de evaluación'+(vurl?' · 🎬 con video':'')+'</span></div>'+
           '<div class="mact"><button onclick="ucVerModulo('+m.n+')">👁️ Ver</button>'+
-          '<button onclick="ucEditEval('+m.n+')">📝 Editar evaluación</button></div></div>';
+          '<button onclick="ucEditEval('+m.n+')">📝 Editar evaluación</button></div>'+
+          '<label style="flex:1 1 100%;display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:var(--muted)">🎬 Video'+
+            '<input class="uc-vid-in" type="url" placeholder="Pega el enlace de YouTube o Vimeo (no listado)" value="'+ea(vurl)+'" '+
+            'onchange="ucSetVideo(\''+C.id+'\','+m.n+',this.value); admTab(\'modules\')"></label>'+
+          '</div>';
       }).join('')+'</div>';
     return h;
   };
@@ -10232,6 +10253,131 @@ window.nxIrEval=function(id){
     if(ADM.course==='nutricion') return;      /* shell9 pinta en línea */
     return _renderQEdit.apply(this, arguments);
   };
+
+  /* ============================================================
+     VIDEO POR MÓDULO (YouTube / Vimeo "no listado")
+     ============================================================ */
+  var UC_VIDEOS = {porcicultura:{}, nutricion:{}};
+  try{ var v=JSON.parse(localStorage.getItem('porci_videos')||'null'); if(v){ UC_VIDEOS.porcicultura=v.porcicultura||{}; UC_VIDEOS.nutricion=v.nutricion||{}; } }catch(e){}
+  function ucGuardarVideosLocal(){ try{ localStorage.setItem('porci_videos', JSON.stringify(UC_VIDEOS)); }catch(e){} }
+  window.ucVideoURL = function(course, n){ return (UC_VIDEOS[course]||{})[n] || ''; };
+
+  function ucEmbed(url){
+    if(!url) return '';
+    var m;
+    if((m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/))) return 'https://www.youtube.com/embed/'+m[1];
+    if((m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return 'https://player.vimeo.com/video/'+m[1];
+    if(/^https:\/\/(www\.)?(youtube\.com\/embed\/|player\.vimeo\.com\/video\/)/.test(url)) return url;
+    return '';
+  }
+  function ucVideoBloque(course, n){
+    var src=ucEmbed(ucVideoURL(course, n));
+    if(!src) return '';
+    return '<div class="uc-video"><div class="uc-video-fr"><iframe src="'+src+'" title="Video del módulo" '+
+      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '+
+      'allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div>';
+  }
+  window.ucSetVideo = function(course, n, url){
+    url=String(url||'').trim();
+    if(!UC_VIDEOS[course]) UC_VIDEOS[course]={};
+    if(url) UC_VIDEOS[course][n]=url; else delete UC_VIDEOS[course][n];
+    ucGuardarVideosLocal();
+    if(window.SB){ try{ window.SB.from('settings').update({videos:UC_VIDEOS}).eq('id',1).then(function(r){
+      if(r&&r.error && typeof toast==='function') toast('Video guardado en este equipo (falta la columna settings.videos en Supabase)','⚠️');
+    }); }catch(e){} }
+  };
+  window.ucCargarVideosNube = async function(){
+    if(!window.SB) return;
+    try{
+      var r=await window.SB.from('settings').select('videos').eq('id',1).maybeSingle();
+      var v=r&&r.data&&r.data.videos; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v=null; } }
+      if(v){ UC_VIDEOS.porcicultura=v.porcicultura||{}; UC_VIDEOS.nutricion=v.nutricion||{}; ucGuardarVideosLocal();
+        if(typeof nxPinta==='function' && document.getElementById('nxMain')) nxPinta();
+        if(typeof mount==='function' && typeof current!=='undefined' && current>=1 && document.getElementById('main')) mount(current);
+      }
+    }catch(e){}
+  };
+  /* traer los videos junto con el resto de settings (mismo momento) */
+  if(typeof window._pullCertSettings==='function'){
+    var _pcs=window._pullCertSettings;
+    window._pullCertSettings=function(){ var r=_pcs.apply(this,arguments); try{ ucCargarVideosNube(); }catch(e){} return r; };
+  } else { setTimeout(function(){ try{ ucCargarVideosNube(); }catch(e){} }, 2600); }
+
+  /* inyectar el video en la lección del estudiante */
+  (function(){
+    if(typeof mount==='function'){
+      var _mount=mount;
+      window.mount=function(idm){
+        var r=_mount.apply(this,arguments);
+        try{
+          if(idm>=1){
+            var host=document.querySelector('#main .module');
+            var b=ucVideoBloque('porcicultura', idm);
+            if(host && b && !host.querySelector('.uc-video')){
+              var hero=host.querySelector('.hero, .mod-hero, .block');
+              if(hero) hero.insertAdjacentHTML('afterend', b); else host.insertAdjacentHTML('afterbegin', b);
+            }
+          }
+        }catch(e){}
+        return r;
+      };
+    }
+    if(typeof window.nxPinta==='function'){
+      var _np=window.nxPinta;
+      window.nxPinta=function(){
+        var r=_np.apply(this,arguments);
+        try{
+          if(typeof NXCUR!=='undefined' && NXCUR>=1){
+            var host=document.querySelector('#nxMain .nx-wrap');
+            var b=ucVideoBloque('nutricion', NXCUR);
+            if(host && b && !host.querySelector('.uc-video')) host.insertAdjacentHTML('afterbegin', b);
+          }
+        }catch(e){}
+        return r;
+      };
+    }
+  })();
+
+  /* ---------- exportar CSV (estudiantes / calificaciones) ---------- */
+  function csvCell(v){ v=(v==null?'':String(v)); return '"'+v.replace(/"/g,'""')+'"'; }
+  function csvBaja(nombre, filas){
+    var txt='﻿'+filas.map(function(f){ return f.map(csvCell).join(';'); }).join('\r\n');
+    try{
+      var blob=new Blob([txt],{type:'text/csv;charset=utf-8'});
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre;
+      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },400);
+    }catch(e){ if(typeof toast==='function')toast('No se pudo generar el CSV','⛔'); }
+  }
+  window.ucExportCSV=function(kind){
+    var C=courseCtx(), ms=C.modules(), N=ms.length;
+    var alum=enrolledStudents(C);
+    var hoy=new Date().toISOString().slice(0,10);
+    if(kind==='estudiantes'){
+      var head=['#','Nombre','Correo','Teléfono','Sección','Estado','Llegó el','Aprobados','Progreso %'];
+      var rows=[head].concat(alum.map(function(s,i){
+        var pc=C.count(s.id);
+        return [i+1, s.name, s.email||'', s.phone||'', (typeof sectionName==='function')?sectionName(s.section):'', s.status||'',
+          s.enrolled||'', pc+'/'+N, Math.round(pc/N*100)];
+      }));
+      csvBaja('estudiantes_'+C.id+'_'+hoy+'.csv', rows);
+    }else{ /* calificaciones: una fila por estudiante, una columna por módulo */
+      var head2=['#','Nombre','Correo'].concat(ms.map(function(m){return 'M'+String(m.num).padStart(2,'0');})).concat(['Aprobados','Promedio %']);
+      var rows2=[head2].concat(alum.map(function(s,i){
+        var notas=ms.map(function(m){ var r=C.rec(s.id,m.n); return r?(r.best||r.last||0):''; });
+        var num=notas.filter(function(x){return x!=='';});
+        var prom=num.length?Math.round(num.reduce(function(a,b){return a+(+b);},0)/num.length):'';
+        return [i+1, s.name, s.email||''].concat(notas).concat([C.count(s.id)+'/'+N, prom]);
+      }));
+      csvBaja('calificaciones_'+C.id+'_'+hoy+'.csv', rows2);
+    }
+  };
+  function ucBotonesCSV(){
+    return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px">'+
+      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportCSV(\'estudiantes\')">⬇ Estudiantes (CSV)</button>'+
+      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportCSV(\'calificaciones\')">⬇ Calificaciones (CSV)</button>'+
+      '</div>';
+  }
+  window.ucBotonesCSV = ucBotonesCSV;
 
   /* -- Progreso -- */
   window.progressView = function(){
@@ -10258,7 +10404,7 @@ window.nxIrEval=function(id){
       '</p>';
     var tabla='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th title="Orden de llegada">#</th><th>Estudiante</th><th>Sección</th><th>Progreso</th><th>Aprobados</th><th>Promedio</th><th></th></tr></thead><tbody>'+
       rows+'</tbody></table></div>';
-    return nota+tabla+(C.id==='porcicultura'?ucRescatePanel(alum):'');
+    return nota+ucBotonesCSV()+tabla+(C.id==='porcicultura'?ucRescatePanel(alum):'');
   };
 
   /* ---- recuperar avance que quedó guardado en ESTE equipo (localStorage) y no en la nube ---- */
@@ -10324,7 +10470,11 @@ window.nxIrEval=function(id){
   var _studentsView = (typeof studentsView==='function') ? studentsView : function(){ return ''; };
   window.studentsView = function(){
     var C=courseCtx();
-    if(!C.sellsSeparately) return _studentsView.apply(this, arguments);   /* curso base: lista completa */
+    if(!C.sellsSeparately){
+      var h0=_studentsView.apply(this, arguments);   /* curso base: lista completa */
+      /* inserta los botones CSV justo antes de la tabla de estudiantes */
+      return h0.replace('<div id="studentsTableWrap">', ucBotonesCSV()+'<div id="studentsTableWrap">');
+    }
     var alum=enrolledStudents(C);
     var activos=alum.filter(function(s){return s.status==='activo';}).length;
     var chips='';
@@ -10346,7 +10496,7 @@ window.nxIrEval=function(id){
       '<input id="admQ" type="search" placeholder="Buscar nombre, correo o teléfono…" oninput="renderStudentsTable()">'+
       '</div>'+
       '<input type="hidden" id="admSt" value=""><input type="hidden" id="admSec" value="">'+
-      chips+'<div id="studentsTableWrap"></div>';
+      chips+ucBotonesCSV()+'<div id="studentsTableWrap"></div>';
   };
   var _renderStudentsTable = (typeof renderStudentsTable==='function') ? renderStudentsTable : function(){};
   window.renderStudentsTable = function(){
@@ -10386,6 +10536,34 @@ window.nxIrEval=function(id){
           '</td></tr>';
       }).join('')+'</tbody></table></div>';
   };
+
+  /* -- Ficha del estudiante -- (por curso seleccionado) */
+  if(typeof studentProfile==='function'){
+    window.studentProfile=function(id){
+      var s=(typeof getStudent==='function')?getStudent(id):null; if(!s) return;
+      var C=courseCtx(), ms=C.modules(), N=ms.length;
+      var pc=C.count(id), rows='', last=0, next=0;
+      ms.forEach(function(m){
+        var r=C.rec(id,m.n); if(!r) return;
+        last=Math.max(last, r.date||0);
+        rows+='<tr><td>M'+String(m.num).padStart(2,'0')+' · '+esc(m.title)+'</td><td>'+(r.best||0)+'%</td><td>'+(r.attempts||1)+'</td><td>'+
+          (r.passed?'<span class="st-badge st-activo">Aprobado</span>':'<span class="st-badge st-pendiente">Pendiente</span>')+'</td></tr>';
+      });
+      for(var k=0;k<ms.length;k++){ if(!C.passed(id,ms[k].n)){ next=ms[k].num; break; } }
+      var badge=(typeof STATUS!=='undefined'&&STATUS[s.status])?('<span class="st-badge '+STATUS[s.status][1]+'">'+STATUS[s.status][0]+'</span>'):s.status;
+      var body='<div class="nxd-cur" style="margin-bottom:10px">'+C.icon+' '+esc(C.label)+'</div>'+
+        '<div class="prof-grid">'+profRow('Correo',esc(s.email||'—'))+profRow('Teléfono',esc(s.phone||'—'))+
+        profRow('Sección',esc((typeof sectionName==='function')?sectionName(s.section):'—'))+profRow('Estado',badge)+
+        profRow('Llegó el',s.enrolled||'—')+profRow('Progreso',pc+'/'+N+' ('+Math.round(pc/N*100)+'%)')+
+        profRow('Módulo actual',next?('M'+String(next).padStart(2,'0')):'Completado ✓')+
+        profRow('Última actividad',last?new Date(last).toLocaleDateString('es-DO'):'—')+'</div>'+
+        (rows?'<h4 style="margin:18px 0 8px">Calificaciones e intentos · '+esc(C.label)+'</h4><div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Módulo</th><th>Nota</th><th>Intentos</th><th>Estado</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+          :'<p style="color:var(--muted);margin-top:14px">Sin evaluaciones de '+esc(C.label)+' todavía.</p>');
+      openForm('Perfil · '+esc(s.name), body,
+        '<button class="btn btn-ghost" onclick="closeForm()">Cerrar</button>'+
+        '<button class="btn btn-primary" onclick="closeForm();editStudent('+((typeof jsq==='function')?jsq(id):("'"+id+"'"))+')">Editar datos</button>');
+    };
+  }
 
   /* -- Certificados -- (porci = editor original · nutrición = editor de shell7) */
   var _certsView = (typeof certsView==='function') ? certsView : function(){ return ''; };
@@ -10447,6 +10625,8 @@ window.nxIrEval=function(id){
         'en la pestaña <b>Acceso</b> y a esa persona —y solo a esa— se le desbloquea. Si lo pone en <b>Oculto</b>, no le aparece a nadie.</p>'+
         '<button class="adm-add" onclick="ucIrAcceso(\''+k+'\')">🔑 Ir a Acceso</button></div>';
     });
+    if(typeof ucAnunciosAdminHTML==='function') h+=ucAnunciosAdminHTML();
+    if(typeof ucMaterialesHTML==='function')    h+=ucMaterialesHTML(courseCtx().id);
     return h;
   }
   window.ucPublicar=function(k,v){
@@ -10501,15 +10681,78 @@ window.nxIrEval=function(id){
     else if(NXADMTAB==='ajustes') h+=ucAjustes(C);
     else h+=ucCatalogo();
     body.innerHTML=h;
+    if((NXADMTAB==='catalogo'||!NXADMTAB) && typeof ucInitDrop==='function') setTimeout(function(){ ucInitDrop(courseCtx().id); }, 0);
   };
   if(typeof window.nxAdmTab!=='function') window.nxAdmTab=function(t){ window.NXADMTAB=t; if(typeof nxAdmin==='function')nxAdmin(); };
 
-  /* ---------- 6b · detalle/embudo del dashboard: leer el progreso de porcicultura desde la NUBE ---------- */
+  /* ---------- 6b · detalle/embudo del dashboard: leer el progreso desde la NUBE ---------- */
   if(typeof nxExamenDe==='function'){
     var _nxExamenDe=nxExamenDe;
     window.nxExamenDe=function(pre,id,i){
-      if(pre==='porci::' && typeof cloudRec==='function'){ var r=cloudRec(id,i); if(r) return r; }
+      if(typeof cloudRec==='function'){
+        var r=cloudRec(id,i, pre==='nx::'?'nutricion':'porcicultura');
+        if(r) return r;
+      }
       return _nxExamenDe(pre,id,i);
+    };
+  }
+
+  /* ---------- 6d · nxEstadisticas (resumen del dashboard) lee de la NUBE ---------- */
+  if(typeof nxEstadisticas==='function' && typeof nxAlumnosDe==='function'){
+    window.nxEstadisticas=function(curso){
+      var C=(window.COURSES&&window.COURSES[curso])||courseCtx();
+      var mods=C.modules(), N=mods.length;
+      var alum=nxAlumnosDe(curso);
+      var notas=[0,0,0,0,0], porMod=mods.map(function(){return 0;});
+      var sumPct=0,completados=0,proximos=0,modsDone=0,realizadas=0,aprobadas=0,punt=[];
+      var atencion=[], ultEval=[];
+      alum.forEach(function(a){
+        var ap=0,reprob=0,ultima=0;
+        mods.forEach(function(m,i){
+          var r = C.rec(a.id, m.n);
+          if(!r) return;
+          realizadas++;
+          var nota=r.best||r.last||0; punt.push(nota);
+          notas[nota<60?0:nota<70?1:nota<80?2:nota<90?3:4]++;
+          if(r.date&&r.date>ultima) ultima=r.date;
+          if(r.passed){ ap++; porMod[i]++; aprobadas++; } else reprob++;
+          ultEval.push({name:a.name, mod:m.num, rec:r});
+        });
+        modsDone+=ap; sumPct+=ap/N;
+        if(ap>=N) completados++; else if(ap>=N-2) proximos++;
+        if(a.status==='activo' && ap<N){
+          var dias=ultima?Math.floor((Date.now()-ultima)/86400000):null;
+          if(reprob>=2) atencion.push({s:a,pc:ap,por:reprob+' evaluaciones no aprobadas',urg:2});
+          else if(dias!==null&&dias>=21) atencion.push({s:a,pc:ap,por:'sin actividad hace '+dias+' días',urg:2});
+          else if(ultima===0) atencion.push({s:a,pc:ap,por:'nunca ha presentado una evaluación',urg:1});
+        }
+      });
+      atencion.sort(function(x,y){return y.urg-x.urg;});
+      ultEval.sort(function(x,y){return (y.rec.date||0)-(x.rec.date||0);});
+      var orden=alum.slice().sort(function(x,y){return String(y.enrolled||'').localeCompare(String(x.enrolled||''));});
+      var prom=punt.length?Math.round(punt.reduce(function(a,b){return a+b;},0)/punt.length):0;
+      var estados={}; alum.forEach(function(a){ estados[a.status]=(estados[a.status]||0)+1; });
+      return {D:{n:N, mods:mods.map(function(m){return {n:m.n,num:m.num,t:m.title,ac:m.ac};})}, alum:alum, total:alum.length, porMod:porMod, notas:notas,
+        avgPct: alum.length?Math.round(sumPct/alum.length*100):0,
+        modsDone:modsDone, completados:completados, proximos:proximos,
+        realizadas:realizadas, aprobadas:aprobadas, noAprob:realizadas-aprobadas,
+        promedio:prom, atencion:atencion.slice(0,6), recientes:orden.slice(0,5),
+        ultEval:ultEval.slice(0,6), estados:estados};
+    };
+  }
+
+  /* ---------- 6c · el envío de examen de FORMULACIÓN también respalda a la nube ---------- */
+  if(typeof window.nxEnviar==='function'){
+    var _nxEnviar=window.nxEnviar;
+    window.nxEnviar=function(idm){
+      var r=_nxEnviar.apply(this,arguments);
+      try{
+        if(typeof SESSION!=='undefined' && SESSION && SESSION.role==='STUDENT' && typeof pushExamProgress==='function'){
+          var rec=null; try{ rec=JSON.parse(localStorage.getItem('nx::'+SESSION.id+'::exam_m'+idm)); }catch(e){}
+          if(rec) pushExamProgress('nutricion', SESSION.id, idm, rec);
+        }
+      }catch(e){}
+      return r;
     };
   }
 
@@ -10521,7 +10764,350 @@ window.nxIrEval=function(id){
 
 })();
 
+
+/* ============================================================
+   PLATAFORMA · extras de producto
+   - pantalla propia de recuperar / fijar contraseña
+   - anuncios del instructor (banner para el estudiante)
+   - notas del estudiante por módulo
+   - página pública de información (instructor · FAQ · testimonios)
+   - subida de materiales a Supabase Storage (arrastrar y soltar)
+   - monitoreo de errores del cliente -> error_log
+   Se carga después de gestion-unificada.js.
+   ============================================================ */
+(function(){
+  var E = (typeof esc==='function') ? esc : function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+  var A = (typeof ea==='function') ? ea : function(s){ return E(s).replace(/"/g,'&quot;'); };
+  function T(m,i){ if(typeof toast==='function') toast(m,i); }
+  function ov(idAttr){
+    var o=document.getElementById(idAttr);
+    if(!o){ o=document.createElement('div'); o.id=idAttr; o.className='pe-ov'; document.body.appendChild(o); }
+    return o;
+  }
+  function cerrar(idAttr){ var o=document.getElementById(idAttr); if(o) o.remove(); document.body.style.overflow=''; }
+  window.peCerrar=cerrar;
+
+  var css='.pe-ov{position:fixed;inset:0;z-index:1200;background:rgba(10,10,12,.72);display:flex;align-items:flex-start;'+
+      'justify-content:center;padding:5vh 16px;overflow:auto}'+
+    '.pe-card{background:var(--panel,#17161a);color:var(--text,#e8e6e3);border:1px solid var(--border,#34323a);'+
+      'border-radius:16px;max-width:560px;width:100%;padding:26px 24px;box-shadow:0 24px 60px rgba(0,0,0,.5)}'+
+    '.pe-card h2{margin:0 0 6px;font-size:20px}.pe-card p.sub{margin:0 0 16px;color:var(--muted,#9a968f);font-size:13.5px}'+
+    '.pe-f{margin:0 0 12px}.pe-f label{display:block;font-size:12px;color:var(--muted,#9a968f);margin-bottom:4px}'+
+    '.pe-f input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--border,#34323a);border-radius:10px;'+
+      'background:transparent;color:var(--text,#e8e6e3)}'+
+    '.pe-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}'+
+    '.pe-b{font:inherit;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--green,#2F7D4F);color:#fff}'+
+    '.pe-b.ghost{background:transparent;border:1px solid var(--border,#34323a);color:var(--text,#e8e6e3)}'+
+    '.pe-msg{font-size:13px;margin-top:10px}.pe-msg.err{color:#e0736a}.pe-msg.ok{color:#5bbd83}'+
+    '.pe-x{position:absolute;top:12px;right:14px;background:none;border:0;color:var(--muted,#9a968f);font-size:20px;cursor:pointer}'+
+    '.pe-anun{background:linear-gradient(90deg,rgba(47,125,79,.16),rgba(47,125,79,.04));border:1px solid rgba(47,125,79,.35);'+
+      'border-radius:12px;padding:12px 14px;margin:0 0 16px;display:flex;gap:10px;align-items:flex-start;font-size:13.5px}'+
+    '.pe-anun b{display:block;margin-bottom:2px}.pe-anun button{margin-left:auto;background:none;border:0;color:var(--muted,#9a968f);cursor:pointer;font-size:16px}'+
+    '.pe-notas{margin:20px 0 8px;border:1px dashed var(--border,#34323a);border-radius:12px;padding:12px 14px}'+
+    '.pe-notas textarea{width:100%;min-height:90px;font:inherit;background:transparent;color:var(--text,#e8e6e3);'+
+      'border:1px solid var(--border,#34323a);border-radius:8px;padding:8px 10px;resize:vertical}'+
+    '.pe-drop{border:2px dashed var(--border,#34323a);border-radius:12px;padding:22px;text-align:center;color:var(--muted,#9a968f);cursor:pointer}'+
+    '.pe-drop.hot{border-color:var(--green,#2F7D4F);color:var(--text,#e8e6e3)}'+
+    '.pe-mat{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#34323a);font-size:13px}'+
+    '.pe-mat a{color:var(--green,#4FA772)}.pe-info-sec{margin:0 0 26px}.pe-info-sec h3{margin:0 0 8px}'+
+    '.pe-faq details{border-bottom:1px solid var(--border,#34323a);padding:10px 0}.pe-faq summary{cursor:pointer;font-weight:600}'+
+    '.pe-tst{border:1px solid var(--border,#34323a);border-radius:12px;padding:14px;margin:0 0 10px}.pe-tst span{color:var(--muted,#9a968f);font-size:12px}';
+  try{ var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st); }catch(e){}
+
+  /* =========================================================
+     1 · RECUPERAR / FIJAR CONTRASEÑA
+     ========================================================= */
+  window.ucAbrirRecuperar=function(){
+    var o=ov('ucRecuperar'); document.body.style.overflow='hidden';
+    var pre=(document.getElementById('loginUser')||{}).value||'';
+    o.innerHTML='<div class="pe-card" style="position:relative"><button class="pe-x" onclick="peCerrar(\'ucRecuperar\')">×</button>'+
+      '<h2>Recuperar contraseña</h2><p class="sub">Te enviamos un enlace a tu correo para crear una nueva.</p>'+
+      '<div class="pe-f"><label>Correo electrónico</label><input id="ucRecMail" type="email" value="'+A(pre)+'" placeholder="tucorreo@ejemplo.com"></div>'+
+      '<div class="pe-row"><button class="pe-b" onclick="ucRecEnviar()">Enviar enlace</button>'+
+      '<button class="pe-b ghost" onclick="peCerrar(\'ucRecuperar\')">Cancelar</button></div>'+
+      '<div class="pe-msg" id="ucRecMsg"></div></div>';
+  };
+  window.ucRecEnviar=async function(){
+    var mail=(document.getElementById('ucRecMail')||{}).value||'';
+    var msg=document.getElementById('ucRecMsg');
+    if(!/.+@.+\..+/.test(mail)){ msg.className='pe-msg err'; msg.textContent='Escribe un correo válido.'; return; }
+    msg.className='pe-msg'; msg.textContent='Enviando…';
+    var err = (typeof ucEnviarEnlaceReset==='function') ? await ucEnviarEnlaceReset(mail) : 'Sin conexión.';
+    if(err){ msg.className='pe-msg err'; msg.textContent='No se pudo: '+err; }
+    else { msg.className='pe-msg ok'; msg.textContent='Listo. Revisa tu correo (y la carpeta de spam).'; }
+  };
+  window.ucAbrirNuevaPassword=function(){
+    var o=ov('ucNuevaPass'); document.body.style.overflow='hidden';
+    o.innerHTML='<div class="pe-card" style="position:relative"><h2>Crea tu nueva contraseña</h2>'+
+      '<p class="sub">Mínimo 6 caracteres. Al guardar, inicia sesión con la nueva.</p>'+
+      '<div class="pe-f"><label>Nueva contraseña</label><input id="ucNP1" type="password" autocomplete="new-password"></div>'+
+      '<div class="pe-f"><label>Repítela</label><input id="ucNP2" type="password" autocomplete="new-password"></div>'+
+      '<div class="pe-row"><button class="pe-b" onclick="ucNPGuardar()">Guardar y entrar</button></div>'+
+      '<div class="pe-msg" id="ucNPMsg"></div></div>';
+  };
+  window.ucNPGuardar=async function(){
+    var a=(document.getElementById('ucNP1')||{}).value||'', b=(document.getElementById('ucNP2')||{}).value||'';
+    var msg=document.getElementById('ucNPMsg');
+    if(a.length<6){ msg.className='pe-msg err'; msg.textContent='Muy corta (mínimo 6).'; return; }
+    if(a!==b){ msg.className='pe-msg err'; msg.textContent='No coinciden.'; return; }
+    msg.className='pe-msg'; msg.textContent='Guardando…';
+    var err = (typeof ucFijarPassword==='function') ? await ucFijarPassword(a) : 'Sin conexión.';
+    if(err){ msg.className='pe-msg err'; msg.textContent='No se pudo: '+err; }
+    else { cerrar('ucNuevaPass'); T('Contraseña actualizada. Inicia sesión.','✅'); }
+  };
+
+  /* =========================================================
+     2 · ANUNCIOS DEL INSTRUCTOR
+     settings.announcements = [{id, texto, fecha}]
+     ========================================================= */
+  var ANUN = [];
+  try{ ANUN = JSON.parse(localStorage.getItem('porci_anuncios')||'[]') || []; }catch(e){}
+  function guardarAnunLocal(){ try{ localStorage.setItem('porci_anuncios', JSON.stringify(ANUN)); }catch(e){} }
+  window.ucAnuncios=function(){ return ANUN.slice(); };
+  window.ucCargarAnunciosNube=async function(){
+    if(!window.SB) return;
+    try{
+      var r=await window.SB.from('settings').select('announcements').eq('id',1).maybeSingle();
+      var v=r&&r.data&&r.data.announcements; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v=null; } }
+      if(Array.isArray(v)){ ANUN=v; guardarAnunLocal(); ucPintarAnuncioBanner(); }
+    }catch(e){}
+  };
+  window.ucGuardarAnunciosNube=async function(){
+    guardarAnunLocal();
+    if(!window.SB){ T('Guardado solo en este equipo','💾'); return; }
+    try{
+      var r=await window.SB.from('settings').update({announcements:ANUN}).eq('id',1);
+      T(r&&r.error ? ('No se publicó: '+r.error.message) : 'Anuncio publicado a los estudiantes', r&&r.error?'⛔':'📣');
+    }catch(e){ T('No se pudo publicar','⛔'); }
+  };
+  window.ucAnuncioAgregar=function(){
+    var txt=(document.getElementById('ucAnunTxt')||{}).value||'';
+    txt=txt.trim(); if(!txt){ T('Escribe el anuncio','✍️'); return; }
+    ANUN.unshift({id:'a'+Date.now(), texto:txt, fecha:new Date().toISOString().slice(0,10)});
+    ANUN=ANUN.slice(0,20);
+    ucGuardarAnunciosNube();
+    if(typeof admTab==='function' && typeof ADM!=='undefined' && ADM.tab==='cursos') admTab('cursos');
+  };
+  window.ucAnuncioBorrar=function(id){
+    ANUN=ANUN.filter(function(a){ return a.id!==id; });
+    ucGuardarAnunciosNube();
+    if(typeof admTab==='function' && typeof ADM!=='undefined' && ADM.tab==='cursos') admTab('cursos');
+  };
+  window.ucAnunciosAdminHTML=function(){
+    var h='<div class="adm-card" style="margin-top:14px"><h4>📣 Anuncios para los estudiantes</h4>'+
+      '<p class="adm-note" style="margin-top:0">Lo último que publiques aparece como aviso en la pantalla de inicio del estudiante.</p>'+
+      '<textarea id="ucAnunTxt" rows="2" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--border,#34323a);border-radius:8px;background:transparent;color:var(--text,#e8e6e3)" placeholder="Ej: El sábado 20 hay sesión en vivo a las 7pm…"></textarea>'+
+      '<div style="margin-top:8px"><button class="adm-add" onclick="ucAnuncioAgregar()">Publicar anuncio</button></div>';
+    if(ANUN.length){
+      h+='<div style="margin-top:12px">'+ANUN.map(function(a){
+        return '<div class="pe-mat"><span style="flex:1">'+E(a.texto)+' <em style="color:var(--muted,#9a968f)">· '+E(a.fecha)+'</em></span>'+
+          '<button class="adm-add" style="padding:4px 9px;font-size:12px" onclick="ucAnuncioBorrar(\''+a.id+'\')">Quitar</button></div>';
+      }).join('')+'</div>';
+    }
+    return h+'</div>';
+  };
+  function ucPintarAnuncioBanner(){
+    var host=document.querySelector('#main .welcome, #main .cover');
+    if(!host) return;
+    var prev=document.getElementById('ucAnunBanner'); if(prev) prev.remove();
+    if(!ANUN.length) return;
+    var visto=''; try{ visto=localStorage.getItem('porci_anun_visto')||''; }catch(e){}
+    var a=ANUN[0]; if(a.id===visto) return;
+    var d=document.createElement('div'); d.id='ucAnunBanner'; d.className='pe-anun';
+    d.innerHTML='<span>📣</span><div><b>Anuncio del instructor</b>'+E(a.texto)+'</div>'+
+      '<button title="Ocultar" onclick="ucAnunOcultar(\''+a.id+'\')">×</button>';
+    host.insertBefore(d, host.firstChild);
+  }
+  window.ucAnunOcultar=function(id){ try{ localStorage.setItem('porci_anun_visto', id); }catch(e){} var b=document.getElementById('ucAnunBanner'); if(b) b.remove(); };
+  window.ucPintarAnuncioBanner=ucPintarAnuncioBanner;
+  /* re-pintar cuando el estudiante vea su portada */
+  if(typeof renderWelcome==='function'){
+    var _rw=renderWelcome;
+    window.renderWelcome=function(){ var r=_rw.apply(this,arguments); setTimeout(ucPintarAnuncioBanner,40); return r; };
+  }
+  if(typeof renderCover==='function'){
+    var _rc=renderCover;
+    window.renderCover=function(){ var r=_rc.apply(this,arguments); setTimeout(ucPintarAnuncioBanner,40); return r; };
+  }
+
+  /* =========================================================
+     3 · NOTAS DEL ESTUDIANTE POR MÓDULO (localStorage)
+     ========================================================= */
+  function notasKey(course,n){
+    var uid=(typeof SESSION!=='undefined'&&SESSION&&SESSION.id)||'local';
+    return 'porci::'+uid+'::notas_'+course+'_m'+n;
+  }
+  window.ucNotasGuardar=function(course,n){
+    var el=document.getElementById('ucNotasArea'); if(!el) return;
+    try{ localStorage.setItem(notasKey(course,n), el.value); }catch(e){}
+    var s=document.getElementById('ucNotasEstado'); if(s){ s.textContent='guardado ✓'; setTimeout(function(){ s.textContent=''; },1500); }
+  };
+  function ucNotasBloque(course,n){
+    var val=''; try{ val=localStorage.getItem(notasKey(course,n))||''; }catch(e){}
+    return '<div class="pe-notas"><b>📝 Mis notas de este módulo</b> <span id="ucNotasEstado" style="color:var(--muted,#9a968f);font-size:12px"></span>'+
+      '<textarea id="ucNotasArea" placeholder="Apunta aquí lo que quieras recordar…" '+
+      'oninput="clearTimeout(window.__ucNT);window.__ucNT=setTimeout(function(){ucNotasGuardar(\''+course+'\','+n+')},600)">'+E(val)+'</textarea>'+
+      '<div style="margin-top:6px"><button class="pe-b ghost" style="padding:6px 12px" onclick="ucNotasGuardar(\''+course+'\','+n+')">Guardar</button></div></div>';
+  }
+  function ucInyectarNotas(sel, course, curFn){
+    var host=document.querySelector(sel); if(!host) return;
+    if(host.querySelector('.pe-notas')) return;
+    var n = curFn(); if(!(n>=1)) return;
+    host.insertAdjacentHTML('beforeend', ucNotasBloque(course, n));
+  }
+  if(typeof mount==='function'){
+    var _m2=window.mount || mount;
+    window.mount=function(idm){
+      var r=_m2.apply(this,arguments);
+      try{ if(idm>=1) setTimeout(function(){ ucInyectarNotas('#main .module', 'porcicultura', function(){ return idm; }); }, 30); }catch(e){}
+      return r;
+    };
+  }
+  if(typeof window.nxPinta==='function'){
+    var _np2=window.nxPinta;
+    window.nxPinta=function(){
+      var r=_np2.apply(this,arguments);
+      try{ setTimeout(function(){ ucInyectarNotas('#nxMain .nx-wrap', 'nutricion', function(){ return (typeof NXCUR!=='undefined')?NXCUR:0; }); }, 30); }catch(e){}
+      return r;
+    };
+  }
+
+  /* =========================================================
+     4 · PÁGINA PÚBLICA DE INFORMACIÓN  (#/info)
+     ========================================================= */
+  window.ucAbrirInfo=function(){
+    var o=ov('ucInfo'); document.body.style.overflow='hidden';
+    o.innerHTML='<div class="pe-card" style="position:relative;max-width:720px"><button class="pe-x" onclick="peCerrar(\'ucInfo\')">×</button>'+
+      '<div class="pe-info-sec"><h3>Sobre el instructor</h3>'+
+      '<p>Formación práctica en porcicultura y nutrición animal aplicada a la realidad dominicana: clima tropical, '+
+      'insumos locales y precios en RD$. El objetivo es que termines <b>haciendo</b>: manejar la granja, formular el alimento, '+
+      'llevar los registros y saber si estás ganando dinero.</p></div>'+
+      '<div class="pe-info-sec"><h3>Preguntas frecuentes</h3><div class="pe-faq">'+
+        faqItem('¿Cómo pago?','Por transferencia a una de las cuentas que aparecen al crear tu cuenta. Envías el comprobante por WhatsApp o correo y el instructor activa tu acceso.')+
+        faqItem('¿Cuánto tardo en tener acceso?','En cuanto se confirma la transferencia. Normalmente el mismo día.')+
+        faqItem('¿El curso caduca?','No. El acceso es de por vida y puedes repasar cuando quieras.')+
+        faqItem('¿Desde el teléfono?','Sí. Funciona en celular, tablet y computadora, y tu avance se guarda en tu cuenta.')+
+        faqItem('¿Recibo certificado?','Sí, al aprobar todos los módulos. Lleva un código de verificación.')+
+        faqItem('¿Y el curso de Formulación?','Se adquiere aparte. Una vez dentro, en «Mis cursos» ves cómo obtenerlo.')+
+      '</div></div>'+
+      '<div class="pe-info-sec"><h3>Lo que dicen</h3>'+
+        tst('«Por fin entendí los números de mi granja. La calculadora de rentabilidad sola ya valió el curso.»','Productor, Bonao')+
+        tst('«Las tablas están adaptadas a lo que uno consigue aquí, no a fórmulas de otro país.»','Técnico agropecuario, Cibao')+
+        tst('«El modo lección hace que sea fácil ir poco a poco después del trabajo.»','Estudiante, San Cristóbal')+
+      '</div>'+
+      '<div class="pe-row"><button class="pe-b" onclick="peCerrar(\'ucInfo\')">Volver a iniciar sesión</button></div>'+
+      '<p style="color:var(--muted,#9a968f);font-size:11px;margin-top:14px">Los testimonios son ilustrativos. Actualízalos con reseñas reales cuando las tengas.</p>'+
+      '</div>';
+  };
+  function faqItem(q,a){ return '<details><summary>'+E(q)+'</summary><p>'+E(a)+'</p></details>'; }
+  function tst(t,w){ return '<div class="pe-tst">'+E(t)+'<br><span>— '+E(w)+'</span></div>'; }
+  /* enlace en la pantalla de login */
+  (function ponerEnlace(i){
+    var card=document.querySelector('#screenLogin .login-card');
+    if(card && !document.getElementById('ucInfoLink')){
+      var p=document.createElement('div'); p.id='ucInfoLink'; p.style.cssText='margin-top:10px;font-size:12.5px';
+      p.innerHTML='<a href="javascript:void 0" onclick="ucAbrirInfo()" style="color:var(--muted,#9a968f)">Información del curso, precios y preguntas frecuentes →</a>';
+      card.appendChild(p);
+      return;
+    }
+    if(i<40) setTimeout(function(){ ponerEnlace(i+1); }, 150);
+  })(0);
+  if(typeof router==='function'){
+    var _rt=router;
+    window.router=function(){ if((location.hash||'')==='#/info'){ ucAbrirInfo(); location.hash='#/login'; return; } return _rt.apply(this,arguments); };
+  }
+
+  /* =========================================================
+     5 · SUBIR MATERIALES  (Supabase Storage, arrastrar y soltar)
+     bucket público "materiales"
+     ========================================================= */
+  window.ucMaterialesHTML=function(course){
+    return '<div class="adm-card" style="margin-top:14px"><h4>📎 Materiales de '+E(course==='nutricion'?'Formulación':'Porcicultura')+'</h4>'+
+      '<p class="adm-note" style="margin-top:0">Sube PDF, hojas de cálculo o imágenes. Se guardan en Supabase Storage (bucket <code>materiales</code>) '+
+      'y obtienes un enlace para compartir.</p>'+
+      '<div class="pe-drop" id="ucDrop" onclick="document.getElementById(\'ucFile\').click()">Arrastra un archivo aquí o haz clic para elegirlo</div>'+
+      '<input type="file" id="ucFile" hidden onchange="ucSubirMaterial(this.files[0],\''+course+'\')">'+
+      '<div id="ucMatList" style="margin-top:12px"></div></div>';
+  };
+  window.ucInitDrop=function(course){
+    var d=document.getElementById('ucDrop'); if(!d || d.__wired) return; d.__wired=1;
+    ['dragenter','dragover'].forEach(function(ev){ d.addEventListener(ev,function(e){ e.preventDefault(); d.classList.add('hot'); }); });
+    ['dragleave','drop'].forEach(function(ev){ d.addEventListener(ev,function(e){ e.preventDefault(); d.classList.remove('hot'); }); });
+    d.addEventListener('drop',function(e){ var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) ucSubirMaterial(f,course); });
+    ucListarMateriales(course);
+  };
+  window.ucSubirMaterial=async function(file,course){
+    if(!file) return;
+    if(!window.SB || !window.SB.storage){ T('Sin conexión a Storage','⛔'); return; }
+    if(file.size>25*1024*1024){ T('El archivo pasa de 25 MB','⚠️'); return; }
+    var path=course+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]+/g,'_');
+    T('Subiendo '+file.name+'…','⏳');
+    try{
+      var up=await window.SB.storage.from('materiales').upload(path,file,{upsert:false});
+      if(up.error){
+        var m=up.error.message||'';
+        T(/bucket/i.test(m)?'Falta crear el bucket "materiales" en Supabase (te dejé el paso en progress-course.sql)':'No se pudo subir: '+m,'⛔');
+        return;
+      }
+      T('Subido ✓','✅');
+      ucListarMateriales(course);
+    }catch(e){ T('Error al subir','⛔'); }
+  };
+  window.ucListarMateriales=async function(course){
+    var box=document.getElementById('ucMatList'); if(!box) return;
+    if(!window.SB || !window.SB.storage){ box.innerHTML=''; return; }
+    try{
+      var r=await window.SB.storage.from('materiales').list(course,{limit:100,sortBy:{column:'created_at',order:'desc'}});
+      if(r.error){ box.innerHTML='<span style="color:var(--muted,#9a968f);font-size:12px">Crea el bucket «materiales» para empezar.</span>'; return; }
+      var files=(r.data||[]).filter(function(f){ return f.name && f.id!==null; });
+      if(!files.length){ box.innerHTML='<span style="color:var(--muted,#9a968f);font-size:12px">Todavía no hay materiales.</span>'; return; }
+      box.innerHTML=files.map(function(f){
+        var pub=window.SB.storage.from('materiales').getPublicUrl(course+'/'+f.name).data.publicUrl;
+        return '<div class="pe-mat"><span style="flex:1">'+E(f.name.replace(/^\d+_/,''))+'</span>'+
+          '<a href="'+A(pub)+'" target="_blank" rel="noopener">abrir</a>'+
+          '<button class="adm-add" style="padding:4px 9px;font-size:12px" onclick="ucCopiar(\''+A(pub)+'\')">copiar enlace</button>'+
+          '<button class="adm-add" style="padding:4px 9px;font-size:12px" onclick="ucBorrarMaterial(\''+course+'\',\''+A(f.name)+'\')">borrar</button></div>';
+      }).join('');
+    }catch(e){ box.innerHTML=''; }
+  };
+  window.ucBorrarMaterial=async function(course,name){
+    if(!confirm('¿Borrar '+name+'?')) return;
+    try{ await window.SB.storage.from('materiales').remove([course+'/'+name]); ucListarMateriales(course); T('Borrado','🗑'); }catch(e){ T('No se pudo borrar','⛔'); }
+  };
+  window.ucCopiar=function(t){ try{ navigator.clipboard.writeText(t); T('Enlace copiado','📋'); }catch(e){} };
+
+  /* =========================================================
+     6 · MONITOREO DE ERRORES DEL CLIENTE -> error_log
+     ========================================================= */
+  var errEnviados=0, ultimoErr=0;
+  async function logError(msg){
+    if(!window.SB || errEnviados>15) return;
+    var now=Date.now(); if(now-ultimoErr<3000) return; ultimoErr=now; errEnviados++;
+    try{
+      await window.SB.from('error_log').insert({
+        user_id:(typeof SESSION!=='undefined'&&SESSION&&SESSION.id)||null,
+        role:(typeof SESSION!=='undefined'&&SESSION&&SESSION.role)||null,
+        msg:String(msg).slice(0,500), url:location.href.slice(0,300),
+        ua:(navigator.userAgent||'').slice(0,200)
+      });
+    }catch(e){}
+  }
+  window.addEventListener('error', function(e){ logError((e && (e.message||e.error&&e.error.message)) || 'error'); });
+  window.addEventListener('unhandledrejection', function(e){ logError('promise: '+((e && e.reason && (e.reason.message||e.reason)) || 'rejection')); });
+  window.ucLogError=logError;
+
+  /* traer anuncios junto con el resto de settings */
+  if(typeof window._pullCertSettings==='function'){
+    var _pcs2=window._pullCertSettings;
+    window._pullCertSettings=function(){ var r=_pcs2.apply(this,arguments); try{ ucCargarAnunciosNube(); }catch(e){} return r; };
+  } else { setTimeout(function(){ try{ ucCargarAnunciosNube(); }catch(e){} }, 2800); }
+
+})();
+
 </script>
+
+
+
 
 
 
