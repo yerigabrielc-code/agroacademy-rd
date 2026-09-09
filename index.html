@@ -4759,6 +4759,10 @@ function router(){const h=location.hash||'';const role=currentRole();
     if(role==='ADMIN'){location.hash='#/admin';return;}
     if(role==='STUDENT'){location.hash='#/curso';return;}
     showScreen('login');
+    /* #/crear (o #/registro), o ?crear=1 en la URL: abrir el login directo en modo "crear cuenta" */
+    if(h.indexOf('#/crear')===0||h.indexOf('#/registro')===0||/[?&]crear=1/.test(location.search)){
+      if(window.toggleRegister){try{window.toggleRegister(true);}catch(e){}}
+    }
   }}
 addEventListener('hashchange',router);
 
@@ -4938,23 +4942,32 @@ router();
   window.pullProgress=pullProgress;
   /* respalda a la nube el progreso que solo esté en ESTE dispositivo (para que no se pierda al cambiar de equipo) */
   async function pushLocalProgress(uid){
-    if(!uid) return;
-    try{
-      const {data}=await sb.from('progress').select('module,updated_at,best,passed').eq('user_id',uid);
-      const nube={};(data||[]).forEach(function(r){nube[r.module]={t:r.updated_at?new Date(r.updated_at).getTime():0,best:r.best||0};});
-      const subir=[];
-      for(let m=1;m<=12;m++){
-        let rec=null;try{rec=JSON.parse(localStorage.getItem('porci::'+uid+'::exam_m'+m)||'null');}catch(e){}
-        if(!rec) continue;
-        const loc=rec.date||0, ncloud=nube[m];
-        /* sube si la nube no lo tiene, o si lo local es más nuevo, o tiene mejor nota */
-        if(!ncloud || loc>ncloud.t+1000 || (rec.best||0)>ncloud.best){
-          subir.push({user_id:uid,module:m,passed:!!rec.passed,best:rec.best||0,last_score:rec.last||0,attempts:rec.attempts||0,updated_at:new Date(loc||Date.now()).toISOString()});
+    if(!uid) return 0;
+    const hc=await progHasCourse();
+    /* cursos a respaldar: siempre porcicultura; nutrición solo si la tabla tiene columna course */
+    const cursos = hc ? [['porcicultura','porci::',12],['nutricion','nx::',12]] : [['porcicultura','porci::',12]];
+    let total=0;
+    for(const [curso,ns,maxM] of cursos){
+      try{
+        let q=sb.from('progress').select('module,updated_at,best,passed').eq('user_id',uid);
+        if(hc) q=q.eq('course',curso);
+        const {data}=await q;
+        const nube={};(data||[]).forEach(function(r){nube[r.module]={t:r.updated_at?new Date(r.updated_at).getTime():0,best:r.best||0};});
+        const subir=[];
+        for(let m=1;m<=maxM;m++){
+          let rec=null;try{rec=JSON.parse(localStorage.getItem(ns+uid+'::exam_m'+m)||'null');}catch(e){}
+          if(!rec) continue;
+          const loc=rec.date||0, ncloud=nube[m];
+          if(!ncloud || loc>ncloud.t+1000 || (rec.best||0)>ncloud.best){
+            const row={user_id:uid,module:m,passed:!!rec.passed,best:rec.best||0,last_score:rec.last||0,attempts:rec.attempts||0,updated_at:new Date(loc||Date.now()).toISOString()};
+            if(hc) row.course=curso;
+            subir.push(row);
+          }
         }
-      }
-      if(subir.length){ await sb.from('progress').upsert(subir,{onConflict:'user_id,module'}); }
-      return subir.length;
-    }catch(e){ return 0; }
+        if(subir.length){ await sb.from('progress').upsert(subir,{onConflict: hc?'user_id,course,module':'user_id,module'}); total+=subir.length; }
+      }catch(e){}
+    }
+    return total;
   }
   window.pushLocalProgress=pushLocalProgress;
 
@@ -4998,7 +5011,7 @@ router();
   const _submitExam=submitExam;
   submitExam=function(id){_submitExam(id);
     if(SESSION&&SESSION.role==='STUDENT'){try{const rec=JSON.parse(localStorage.getItem('porci::'+STU+'::exam_m'+id)||'null');
-      if(rec)sb.from('progress').upsert({user_id:STU,module:id,passed:rec.passed,best:rec.best,last_score:rec.last,attempts:rec.attempts,updated_at:new Date().toISOString()},{onConflict:'user_id,module'}).then(()=>{});}catch(e){}}};
+      if(rec)pushExamProgress('porcicultura',STU,id,rec);}catch(e){}}};
 
   /* ---- MI CUENTA: guardar en la nube ---- */
   saveAccount=async function(){
