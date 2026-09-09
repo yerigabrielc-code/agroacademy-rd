@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09j · M1: infografia de razas + fotos Duroc y Pietrain; M4: pie de foto del diagrama de jaula paridera ampliado (faltan los archivos de imagen) -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09k · fix: los videos de modulo ahora SI se traen de la nube en el celular (antes el hook nunca se ejecutaba); tambien anuncios -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10334,10 +10334,19 @@ window.nxIrEval=function(id){
     }); }catch(e){} }
   };
   function ucVideosVacio(o){ return !o || (!Object.keys(o.porcicultura||{}).length && !Object.keys(o.nutricion||{}).length); }
+  var UC_VID_PULLED=false, UC_VID_TRYING=false;
+  function ucRepintarModulo(){
+    try{
+      if(document.getElementById('nxMain') && typeof nxPinta==='function') nxPinta();
+      if(document.querySelector('#main .module') && typeof current!=='undefined' && current>=1 && typeof mount==='function') mount(current);
+    }catch(e){}
+  }
   window.ucCargarVideosNube = async function(){
-    if(!window.SB) return;
+    if(!window.SB || UC_VID_TRYING) return;
+    UC_VID_TRYING=true;
     try{
       var r=await window.SB.from('settings').select('videos').eq('id',1).maybeSingle();
+      UC_VID_PULLED=true;
       var v=r&&r.data&&r.data.videos; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v=null; } }
       var localTiene = !ucVideosVacio(UC_VIDEOS);
       if(!ucVideosVacio(v)){
@@ -10346,13 +10355,16 @@ window.nxIrEval=function(id){
         UC_VIDEOS.nutricion    = Object.assign({}, UC_VIDEOS.nutricion,    v.nutricion||{});
         ucGuardarVideosLocal();
       } else if(localTiene){
-        /* la nube está vacía pero este equipo tiene links (se agregaron antes de correr el SQL): súbelos */
+        /* la nube está vacía pero este equipo tiene links: súbelos */
         try{ await window.SB.from('settings').update({videos:UC_VIDEOS}).eq('id',1); }catch(e){}
       }
-      if(typeof nxPinta==='function' && document.getElementById('nxMain')) nxPinta();
-      if(typeof mount==='function' && typeof current!=='undefined' && current>=1 && document.getElementById('main')) mount(current);
+      ucRepintarModulo();
     }catch(e){}
+    UC_VID_TRYING=false;
   };
+  /* carga de la nube al arrancar (no depende de ningún hook interno) */
+  setTimeout(function(){ try{ ucCargarVideosNube(); }catch(e){} }, 2200);
+  setTimeout(function(){ if(!UC_VID_PULLED){ try{ ucCargarVideosNube(); }catch(e){} } }, 6000);
   /* botón manual: sube a la nube TODOS los videos guardados en este equipo */
   window.ucSubirVideosEquipo = async function(){
     if(!window.SB){ if(typeof toast==='function') toast('Sin conexión a la nube','⛔'); return; }
@@ -10363,11 +10375,11 @@ window.nxIrEval=function(id){
       if(typeof admTab==='function' && typeof ADM!=='undefined' && ADM.tab==='modules') admTab('modules');
     }catch(e){ if(typeof toast==='function') toast('No se pudo subir','⛔'); }
   };
-  /* traer los videos junto con el resto de settings (mismo momento) */
+  /* si algo llegara a llamar _pullCertSettings, aprovechar */
   if(typeof window._pullCertSettings==='function'){
     var _pcs=window._pullCertSettings;
     window._pullCertSettings=function(){ var r=_pcs.apply(this,arguments); try{ ucCargarVideosNube(); }catch(e){} return r; };
-  } else { setTimeout(function(){ try{ ucCargarVideosNube(); }catch(e){} }, 2600); }
+  }
 
   /* inyectar el video en la lección del estudiante */
   /* Inserta el video DENTRO de la primera sección de contenido, así el
@@ -10380,6 +10392,8 @@ window.nxIrEval=function(id){
         var r=_mount.apply(this,arguments);
         try{
           if(idm>=1){
+            /* si aún no se trajeron los videos de la nube y este equipo no los tiene, tráelos ahora */
+            if(!UC_VID_PULLED && ucVideosVacio(UC_VIDEOS) && window.SB) ucCargarVideosNube();
             var mod=document.querySelector('#main .module');
             var b=ucVideoBloque('porcicultura', idm);
             if(mod && b && !mod.querySelector('.uc-video')){
@@ -10399,6 +10413,7 @@ window.nxIrEval=function(id){
         var r=_np.apply(this,arguments);
         try{
           if(typeof NXCUR!=='undefined' && NXCUR>=1){
+            if(!UC_VID_PULLED && ucVideosVacio(UC_VIDEOS) && window.SB) ucCargarVideosNube();
             var wrap=document.querySelector('#nxMain .nx-wrap');
             var b=ucVideoBloque('nutricion', NXCUR);
             if(wrap && b && !wrap.querySelector('.uc-video')){
@@ -11238,11 +11253,15 @@ window.nxIrEval=function(id){
   if(typeof window._pullCertSettings==='function'){
     var _pcs2=window._pullCertSettings;
     window._pullCertSettings=function(){ var r=_pcs2.apply(this,arguments); try{ ucCargarAnunciosNube(); }catch(e){} return r; };
-  } else { setTimeout(function(){ try{ ucCargarAnunciosNube(); }catch(e){} }, 2800); }
+  }
+  /* nada interno llama a _pullCertSettings, así que además se trae por temporizador */
+  setTimeout(function(){ try{ ucCargarAnunciosNube(); }catch(e){} }, 2400);
+  setTimeout(function(){ try{ ucCargarAnunciosNube(); }catch(e){} }, 6500);
 
 })();
 
 </script>
+
 
 
 
