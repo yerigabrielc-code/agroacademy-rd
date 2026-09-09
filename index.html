@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09f · campo de video: Enter para guardar + aviso de confirmacion + boton quitar -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09g · exportar a Excel .xls con formato limpio (reemplaza CSV) + se quita el recuadro "Secciones" de la vista de Estudiantes -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10401,46 +10401,62 @@ window.nxIrEval=function(id){
     }
   })();
 
-  /* ---------- exportar CSV (estudiantes / calificaciones) ---------- */
-  function csvCell(v){ v=(v==null?'':String(v)); return '"'+v.replace(/"/g,'""')+'"'; }
-  function csvBaja(nombre, filas){
-    var txt='﻿'+filas.map(function(f){ return f.map(csvCell).join(';'); }).join('\r\n');
+  /* ---------- exportar a EXCEL (.xls) — estudiantes / calificaciones ---------- */
+  function xlsEsc(v){ return String(v==null?'':v).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function xlsCell(v){
+    if(typeof v==='number' && isFinite(v)) return '<td style="mso-number-format:\'0\'" x:num>'+v+'</td>';
+    /* texto: forzar formato texto para que Excel no reinterprete correos/teléfonos/fechas */
+    return '<td style="mso-number-format:\'\\@\'">'+xlsEsc(v)+'</td>';
+  }
+  function xlsBaja(nombre, titulo, headers, rows){
+    var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">'+
+      '<head><meta charset="UTF-8">'+
+      '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'+
+      '<x:Name>'+xlsEsc(titulo||'Datos')+'</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>'+
+      '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'+
+      '<style>table{border-collapse:collapse;font-family:Calibri,Arial,sans-serif;font-size:11pt}'+
+      'th{background:#2F7D4F;color:#fff;font-weight:bold;text-align:left;border:1px solid #1c5330;padding:6px 10px;white-space:nowrap}'+
+      'td{border:1px solid #cfcfcf;padding:5px 10px;vertical-align:top}'+
+      'tr:nth-child(even) td{background:#f3f7f4}</style></head><body>'+
+      '<table><thead><tr>'+headers.map(function(h){return '<th>'+xlsEsc(h)+'</th>';}).join('')+'</tr></thead><tbody>'+
+      rows.map(function(r){ return '<tr>'+r.map(xlsCell).join('')+'</tr>'; }).join('')+
+      '</tbody></table></body></html>';
     try{
-      var blob=new Blob([txt],{type:'text/csv;charset=utf-8'});
+      var blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
       var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre;
       document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },400);
-    }catch(e){ if(typeof toast==='function')toast('No se pudo generar el CSV','⛔'); }
+    }catch(e){ if(typeof toast==='function')toast('No se pudo generar el Excel','⛔'); }
   }
-  window.ucExportCSV=function(kind){
+  window.ucExportXLS=function(kind){
     var C=courseCtx(), ms=C.modules(), N=ms.length;
     var alum=enrolledStudents(C);
     var hoy=new Date().toISOString().slice(0,10);
     if(kind==='estudiantes'){
-      var head=['#','Nombre','Correo','Teléfono','Sección','Estado','Llegó el','Aprobados','Progreso %'];
-      var rows=[head].concat(alum.map(function(s,i){
+      var head=['#','Nombre','Correo','Teléfono','Estado','Llegó el','Módulos aprobados','Total módulos','Progreso %'];
+      var rows=alum.map(function(s,i){
         var pc=C.count(s.id);
-        return [i+1, s.name, s.email||'', s.phone||'', (typeof sectionName==='function')?sectionName(s.section):'', s.status||'',
-          s.enrolled||'', pc+'/'+N, Math.round(pc/N*100)];
-      }));
-      csvBaja('estudiantes_'+C.id+'_'+hoy+'.csv', rows);
-    }else{ /* calificaciones: una fila por estudiante, una columna por módulo */
-      var head2=['#','Nombre','Correo'].concat(ms.map(function(m){return 'M'+String(m.num).padStart(2,'0');})).concat(['Aprobados','Promedio %']);
-      var rows2=[head2].concat(alum.map(function(s,i){
-        var notas=ms.map(function(m){ var r=C.rec(s.id,m.n); return r?(r.best||r.last||0):''; });
+        return [i+1, s.name, s.email||'', s.phone||'', s.status||'', s.enrolled||'', pc, N, Math.round(pc/N*100)];
+      });
+      xlsBaja('estudiantes_'+C.id+'_'+hoy+'.xls', 'Estudiantes '+C.label, head, rows);
+    }else{
+      var head2=['#','Nombre','Correo'].concat(ms.map(function(m){return 'M'+String(m.num).padStart(2,'0');})).concat(['Aprobados','Total','Promedio %']);
+      var rows2=alum.map(function(s,i){
+        var notas=ms.map(function(m){ var r=C.rec(s.id,m.n); return r?(+(r.best||r.last||0)):''; });
         var num=notas.filter(function(x){return x!=='';});
-        var prom=num.length?Math.round(num.reduce(function(a,b){return a+(+b);},0)/num.length):'';
-        return [i+1, s.name, s.email||''].concat(notas).concat([C.count(s.id)+'/'+N, prom]);
-      }));
-      csvBaja('calificaciones_'+C.id+'_'+hoy+'.csv', rows2);
+        var prom=num.length?Math.round(num.reduce(function(a,b){return a+b;},0)/num.length):'';
+        return [i+1, s.name, s.email||''].concat(notas).concat([C.count(s.id), N, prom]);
+      });
+      xlsBaja('calificaciones_'+C.id+'_'+hoy+'.xls', 'Calificaciones '+C.label, head2, rows2);
     }
   };
   function ucBotonesCSV(){
     return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px">'+
-      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportCSV(\'estudiantes\')">⬇ Estudiantes (CSV)</button>'+
-      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportCSV(\'calificaciones\')">⬇ Calificaciones (CSV)</button>'+
+      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportXLS(\'estudiantes\')">⬇ Estudiantes (Excel)</button>'+
+      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportXLS(\'calificaciones\')">⬇ Calificaciones (Excel)</button>'+
       '</div>';
   }
   window.ucBotonesCSV = ucBotonesCSV;
+  window.ucExportCSV = window.ucExportXLS;   /* compatibilidad con llamadas viejas */
 
   /* -- Progreso -- */
   window.progressView = function(){
@@ -10460,11 +10476,8 @@ window.nxIrEval=function(id){
         '<td>'+pc+'/'+N+'</td><td>'+(sc.length?avg+'%':'—')+'</td>'+
         '<td><button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="studentProfile('+((typeof jsq==='function')?jsq(s.id):("'"+s.id+"'"))+')">Ver perfil</button></td></tr>';
     }).join('');
-    var nota='<p class="adm-note">Avance en <b>'+esc(C.label)+'</b>. Se guarda por separado de los demás cursos.'+
-      (C.id==='nutricion'
-        ? ' <b>Ojo:</b> el progreso de formulación todavía se guarda solo en el equipo de cada estudiante; aún no se sincroniza a la nube.'
-        : ' Si a alguien no le aparece su avance, que inicie sesión una vez desde el dispositivo donde estudió: al entrar, su progreso local se respalda a la nube.')+
-      '</p>';
+    var nota='<p class="adm-note">Avance en <b>'+esc(C.label)+'</b>. Se guarda por separado de los demás cursos. '+
+      'Si a alguien no le aparece su avance, que inicie sesión una vez desde el dispositivo donde estudió: al entrar, su progreso local se respalda a la nube.</p>';
     var tabla='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th title="Orden de llegada">#</th><th>Estudiante</th><th>Sección</th><th>Progreso</th><th>Aprobados</th><th>Promedio</th><th></th></tr></thead><tbody>'+
       rows+'</tbody></table></div>';
     return nota+ucBotonesCSV()+tabla+(C.id==='porcicultura'?ucRescatePanel(alum):'');
@@ -10535,7 +10548,8 @@ window.nxIrEval=function(id){
     var C=courseCtx();
     if(!C.sellsSeparately){
       var h0=_studentsView.apply(this, arguments);   /* curso base: lista completa */
-      /* inserta los botones CSV justo antes de la tabla de estudiantes */
+      /* quita el recuadro "Secciones" del resumen (no aporta aquí) e inserta los botones de Excel */
+      h0=h0.replace(/<div class="adm-kpi"><b>[^<]*<\/b><span>Secciones<\/span><\/div>/,'');
       return h0.replace('<div id="studentsTableWrap">', ucBotonesCSV()+'<div id="studentsTableWrap">');
     }
     var alum=enrolledStudents(C);
@@ -10553,8 +10567,7 @@ window.nxIrEval=function(id){
       'Para dar o quitar acceso use <b>Cursos → Acceso</b>.</p>'+
       '<div class="adm-summary">'+
       '<div class="adm-kpi"><b>'+alum.length+'</b><span>Con acceso</span></div>'+
-      '<div class="adm-kpi"><b>'+activos+'</b><span>Activos</span></div>'+
-      '<div class="adm-kpi"><b>'+(typeof SECTIONS!=='undefined'?SECTIONS.length:1)+'</b><span>Secciones</span></div></div>'+
+      '<div class="adm-kpi"><b>'+activos+'</b><span>Activos</span></div></div>'+
       '<div class="adm-toolbar">'+
       '<input id="admQ" type="search" placeholder="Buscar nombre, correo o teléfono…" oninput="renderStudentsTable()">'+
       '</div>'+
@@ -11168,6 +11181,7 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
 
 
 
