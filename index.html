@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09e · los videos agregados antes del SQL se suben solos a la nube al abrir el panel (+ boton manual) -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09f · campo de video: Enter para guardar + aviso de confirmacion + boton quitar -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10236,13 +10236,23 @@ window.nxIrEval=function(id){
           '<div class="mact"><button onclick="ucVerModulo('+m.n+')">👁️ Ver</button>'+
           '<button onclick="ucEditEval('+m.n+')">📝 Editar evaluación</button></div>'+
           '<label style="flex:1 1 100%;display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:var(--muted)">🎬 Video'+
-            '<input class="uc-vid-in" type="url" placeholder="Pega el enlace de YouTube o Vimeo (no listado)" value="'+ea(vurl)+'" '+
-            'onchange="ucSetVideo(\''+C.id+'\','+m.n+',this.value); admTab(\'modules\')"></label>'+
+            '<input class="uc-vid-in" type="url" placeholder="Pega el enlace de YouTube o Vimeo (no listado) y pulsa Enter" value="'+ea(vurl)+'" '+
+            'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}" '+
+            'onchange="ucGuardarVideoCampo(\''+C.id+'\','+m.n+',this.value)">'+
+            (vurl?'<button class="adm-add" style="padding:4px 9px;font-size:11px" onclick="ucGuardarVideoCampo(\''+C.id+'\','+m.n+',\'\')">quitar</button>':'')+
+            '</label>'+
           '</div>';
       }).join('')+'</div>';
     return h;
   };
   window.ucSetGate=function(v){ courseCtx().setCfg({gating:!!v}); if(typeof toast==='function')toast(v?'Bloqueo activado':'Bloqueo desactivado','⚙️'); };
+  window.ucGuardarVideoCampo=function(course,n,url){
+    var antes=ucVideoURL(course,n);
+    ucSetVideo(course,n,url);
+    var ahora=ucVideoURL(course,n);
+    if(ahora!==antes && typeof toast==='function') toast(ahora?('🎬 Video del módulo '+n+' guardado'):('Video del módulo '+n+' quitado'), ahora?'✅':'🗑');
+    if(typeof admTab==='function') admTab('modules');
+  };
   window.ucVerModulo=function(n){
     if(ADM.course==='nutricion'){ if(typeof nxVerModulo==='function') return nxVerModulo(n); }
     if(typeof goto==='function'){ goto(n); location.hash='#/curso'; }
@@ -10306,6 +10316,7 @@ window.nxIrEval=function(id){
         '<span class="uc-video-ov">'+YT_LOGO+'<b>Ver el video del módulo</b><em>Haz clic para abrirlo</em></span>'+
       '</div></a>';
   }
+  window.ucVideoBloque = ucVideoBloque;
   window.ucSetVideo = function(course, n, url){
     url=String(url||'').trim();
     if(url && !ucEmbed(url)){
@@ -11157,6 +11168,8 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
+
 
 
 
