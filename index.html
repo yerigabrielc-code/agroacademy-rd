@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09g · exportar a Excel .xls con formato limpio (reemplaza CSV) + se quita el recuadro "Secciones" de la vista de Estudiantes -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09h · movil: tarjeta de modulo/dashboard/certificados sin encimarse; panel admin (barra lateral incluida) cambia de tema con el fondo; conmutador con respiro lateral -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10887,7 +10887,57 @@ window.nxIrEval=function(id){
     '.pe-mat{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#34323a);font-size:13px}'+
     '.pe-mat a{color:var(--green,#4FA772)}.pe-info-sec{margin:0 0 26px}.pe-info-sec h3{margin:0 0 8px}'+
     '.pe-faq details{border-bottom:1px solid var(--border,#34323a);padding:10px 0}.pe-faq summary{cursor:pointer;font-weight:600}'+
-    '.pe-tst{border:1px solid var(--border,#34323a);border-radius:12px;padding:14px;margin:0 0 10px}.pe-tst span{color:var(--muted,#9a968f);font-size:12px}';
+    '.pe-tst{border:1px solid var(--border,#34323a);border-radius:12px;padding:14px;margin:0 0 10px}.pe-tst span{color:var(--muted,#9a968f);font-size:12px}'+
+
+    /* ===== A · el PANEL DE ADMIN sigue el tema (fondo negro <-> blanco) ===== */
+    '#screenAdmin{color-scheme:light dark}'+
+    '.adminp-side{background:var(--ivory-2)!important;color:var(--text-2)!important;border-right:1px solid var(--border)!important}'+
+    '.adminp-brand{border-bottom:1px solid var(--border)!important}'+
+    '.adminp-brand b{color:var(--text)!important}.adminp-brand span{color:var(--muted)!important}'+
+    '.adminp-brand .lg{background:linear-gradient(135deg,var(--green-l),var(--green-d))!important}'+
+    '.adminp-menu button{color:var(--text-2)!important}'+
+    '.adminp-menu button:hover{background:rgba(128,128,128,.16)!important;color:var(--text)!important}'+
+    '.adminp-menu button.on{background:linear-gradient(90deg,var(--green),var(--green-d))!important;color:#fff!important;box-shadow:0 6px 18px -10px var(--green)!important}'+
+    '.adminp-menu .sep{background:var(--border)!important}'+
+    '.adminp-menu .logout{color:var(--crit)!important}'+
+    '.adminp-menu .prev-btn{color:var(--text-2)!important}'+
+    '.adminp-top{background:var(--panel)!important;border-bottom:1px solid var(--border)!important}'+
+    /* la barra "Ver como estudiante" y otros restos oscuros del panel */
+    '#previewBar{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}'+
+
+    /* ===== B · MÓVIL: nada se pisa ===== */
+    'html,body{max-width:100%;overflow-x:hidden}'+
+    '.uc-video-fr,.pe-drop,.nx-tw,.adm-tablewrap{max-width:100%}'+
+    '@media(max-width:640px){'+
+      '.adminp-content{padding:16px 14px!important}'+
+      '.adm-summary{gap:10px!important}.adm-kpi{min-width:0!important;flex:1 1 45%!important;padding:13px 14px!important}'+
+      '.adm-kpi b{font-size:22px!important}'+
+      /* tarjeta de módulo: número + título arriba, botones y video en sus propias filas */
+      '.mod-item{flex-wrap:wrap!important;align-items:flex-start!important;row-gap:10px!important;padding:13px 14px!important}'+
+      '.mod-item .mtitle{flex:1 1 auto!important;min-width:120px!important}'+
+      '.mod-item .mtitle b{font-size:14px!important}'+
+      '.mod-item .mact{flex:1 1 100%!important;justify-content:flex-start!important}'+
+      '.mod-item .mact button{flex:1 1 auto!important;text-align:center}'+
+      '.mod-item label{flex:1 1 100%!important;flex-wrap:wrap}'+
+      '.mod-item label input{flex:1 1 100%!important;min-width:0!important;width:100%!important}'+
+      /* evaluaciones / qcards */
+      '.qcard .qopt{flex-wrap:wrap}.eval-modpick{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}'+
+      /* certificados: editor en una columna */
+      '.cert-layout,.nxc-g{grid-template-columns:1fr!important;display:block!important}'+
+      '.cert-preview-col,.nxc-prev{margin-top:14px}'+
+      /* dashboard: anillos y grids apilados */
+      '.dsh-hero{grid-template-columns:1fr 1fr!important}'+
+      '.dsh-grid,.dsh-grid.g21,.dsh-grid.g11{grid-template-columns:1fr!important;display:block!important}'+
+      '.dsh-grid>*{margin-bottom:12px}'+
+      '.cfg-row{flex-direction:column;align-items:stretch!important;gap:6px}'+
+    '}'+
+
+    /* ===== C · conmutador de curso: respiro lateral y en móvil ===== */
+    '.ucsw{padding:10px 24px!important}'+
+    '@media(max-width:640px){.ucsw{padding:9px 14px!important;font-size:12px!important}'+
+      '.ucsw-b{padding:5px 10px!important}.ucsw-n{flex:1 1 100%!important;margin-top:2px}}'+
+    /* la fachada de video ocupa el ancho disponible */
+    '.uc-video{width:100%}';
   try{ var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st); }catch(e){}
 
   /* =========================================================
@@ -11181,6 +11231,8 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
+
 
 
 
