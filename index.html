@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09h · movil: tarjeta de modulo/dashboard/certificados sin encimarse; panel admin (barra lateral incluida) cambia de tema con el fondo; conmutador con respiro lateral -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09i · el video del modulo va dentro de la 1a seccion: en modo leccion solo aparece en la pagina 1 y "Continuar" ya no salta hacia arriba -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10367,6 +10367,9 @@ window.nxIrEval=function(id){
   } else { setTimeout(function(){ try{ ucCargarVideosNube(); }catch(e){} }, 2600); }
 
   /* inyectar el video en la lección del estudiante */
+  /* Inserta el video DENTRO de la primera sección de contenido, así el
+     "modo lección" lo muestra solo en la sección 1 y no queda flotando
+     encima de las demás ni hace que "Continuar" salte hacia arriba. */
   (function(){
     if(typeof mount==='function'){
       var _mount=mount;
@@ -10374,11 +10377,13 @@ window.nxIrEval=function(id){
         var r=_mount.apply(this,arguments);
         try{
           if(idm>=1){
-            var host=document.querySelector('#main .module');
+            var mod=document.querySelector('#main .module');
             var b=ucVideoBloque('porcicultura', idm);
-            if(host && b && !host.querySelector('.uc-video')){
-              var hero=host.querySelector('.hero, .mod-hero, .block');
-              if(hero) hero.insertAdjacentHTML('afterend', b); else host.insertAdjacentHTML('afterbegin', b);
+            if(mod && b && !mod.querySelector('.uc-video')){
+              var wrap=mod.querySelector('.wrap')||mod;
+              var first=wrap.querySelector(':scope > .block') || wrap.querySelector('.block');
+              if(first) first.insertAdjacentHTML('afterbegin', b);
+              else { var hero=mod.querySelector('.mod-hero,.hero'); if(hero) hero.insertAdjacentHTML('afterend', b); else mod.insertAdjacentHTML('afterbegin', b); }
             }
           }
         }catch(e){}
@@ -10391,9 +10396,13 @@ window.nxIrEval=function(id){
         var r=_np.apply(this,arguments);
         try{
           if(typeof NXCUR!=='undefined' && NXCUR>=1){
-            var host=document.querySelector('#nxMain .nx-wrap');
+            var wrap=document.querySelector('#nxMain .nx-wrap');
             var b=ucVideoBloque('nutricion', NXCUR);
-            if(host && b && !host.querySelector('.uc-video')) host.insertAdjacentHTML('afterbegin', b);
+            if(wrap && b && !wrap.querySelector('.uc-video')){
+              var firstSec=wrap.querySelector('section.nx-b');
+              if(firstSec) firstSec.insertAdjacentHTML('afterbegin', b);
+              else wrap.insertAdjacentHTML('afterbegin', b);
+            }
           }
         }catch(e){}
         return r;
@@ -11231,6 +11240,7 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
 
 
 
