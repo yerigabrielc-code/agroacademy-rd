@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09d · video: tarjeta con miniatura + logo de YouTube que abre el video al hacer clic (sin iframe, sin errores) -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09e · los videos agregados antes del SQL se suben solos a la nube al abrir el panel (+ boton manual) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10222,7 +10222,10 @@ window.nxIrEval=function(id){
   window.modulesView = function(){
     var C=courseCtx(), ms=C.modules();
     var gate = C.cfg.gating;
-    var h='<p class="adm-note">Los '+ms.length+' módulos de <b>'+esc(C.label)+'</b>. El contenido está integrado; aquí se gestiona su <b>evaluación</b> y el <b>bloqueo por nota</b>.</p>'+
+    var hayVid = Object.keys((UC_VIDEOS[C.id]||{})).length;
+    var h='<p class="adm-note">Los '+ms.length+' módulos de <b>'+esc(C.label)+'</b>. El contenido está integrado; aquí se gestiona su <b>evaluación</b>, el <b>bloqueo por nota</b> y el <b>video</b> de cada módulo (YouTube o Vimeo).</p>'+
+      (hayVid ? '<div style="margin:0 0 10px"><button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucSubirVideosEquipo()">☁️ Subir a la nube los videos de este equipo</button> '+
+        '<span style="font-size:11.5px;color:var(--muted)">úsalo si agregaste los enlaces antes de habilitar la nube</span></div>' : '')+
       '<div class="cfg-row" style="max-width:520px"><label>Bloqueo de avance por nota<small>Exige aprobar para desbloquear el siguiente módulo</small></label>'+
       '<span class="switch"><input type="checkbox" id="ucGate"'+(gate?' checked':'')+' onchange="ucSetGate(this.checked)"><span></span></span></div>'+
       '<div class="mod-list" style="margin-top:14px">'+ms.map(function(m){
@@ -10316,16 +10319,35 @@ window.nxIrEval=function(id){
       if(r&&r.error && typeof toast==='function') toast('Video guardado en este equipo (falta la columna settings.videos en Supabase)','⚠️');
     }); }catch(e){} }
   };
+  function ucVideosVacio(o){ return !o || (!Object.keys(o.porcicultura||{}).length && !Object.keys(o.nutricion||{}).length); }
   window.ucCargarVideosNube = async function(){
     if(!window.SB) return;
     try{
       var r=await window.SB.from('settings').select('videos').eq('id',1).maybeSingle();
       var v=r&&r.data&&r.data.videos; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v=null; } }
-      if(v){ UC_VIDEOS.porcicultura=v.porcicultura||{}; UC_VIDEOS.nutricion=v.nutricion||{}; ucGuardarVideosLocal();
-        if(typeof nxPinta==='function' && document.getElementById('nxMain')) nxPinta();
-        if(typeof mount==='function' && typeof current!=='undefined' && current>=1 && document.getElementById('main')) mount(current);
+      var localTiene = !ucVideosVacio(UC_VIDEOS);
+      if(!ucVideosVacio(v)){
+        /* la nube manda; se conservan los que solo estén en este equipo */
+        UC_VIDEOS.porcicultura = Object.assign({}, UC_VIDEOS.porcicultura, v.porcicultura||{});
+        UC_VIDEOS.nutricion    = Object.assign({}, UC_VIDEOS.nutricion,    v.nutricion||{});
+        ucGuardarVideosLocal();
+      } else if(localTiene){
+        /* la nube está vacía pero este equipo tiene links (se agregaron antes de correr el SQL): súbelos */
+        try{ await window.SB.from('settings').update({videos:UC_VIDEOS}).eq('id',1); }catch(e){}
       }
+      if(typeof nxPinta==='function' && document.getElementById('nxMain')) nxPinta();
+      if(typeof mount==='function' && typeof current!=='undefined' && current>=1 && document.getElementById('main')) mount(current);
     }catch(e){}
+  };
+  /* botón manual: sube a la nube TODOS los videos guardados en este equipo */
+  window.ucSubirVideosEquipo = async function(){
+    if(!window.SB){ if(typeof toast==='function') toast('Sin conexión a la nube','⛔'); return; }
+    try{
+      var r=await window.SB.from('settings').update({videos:UC_VIDEOS}).eq('id',1);
+      if(r&&r.error){ if(typeof toast==='function') toast('No se pudo subir: '+r.error.message,'⛔'); return; }
+      if(typeof toast==='function') toast('Videos de este equipo subidos a la nube','☁️');
+      if(typeof admTab==='function' && typeof ADM!=='undefined' && ADM.tab==='modules') admTab('modules');
+    }catch(e){ if(typeof toast==='function') toast('No se pudo subir','⛔'); }
   };
   /* traer los videos junto con el resto de settings (mismo momento) */
   if(typeof window._pullCertSettings==='function'){
@@ -11135,6 +11157,7 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
 
 
 
