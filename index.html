@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-08j · fix boton "Ir a Acceso" y conmutador de curso en la pestana Cursos -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09a · estudiantes ordenados por orden de llegada (columna #) + verificacion headless OK -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -4792,7 +4792,7 @@ router();
   function recFromRow(r){return {best:r.best||0,attempts:r.attempts||0,passed:!!r.passed,last:r.last_score||0,date:r.updated_at?new Date(r.updated_at).getTime():Date.now()};}
   async function pullProgress(uid){try{const {data}=await sb.from('progress').select('*').eq('user_id',uid);
     (data||[]).forEach(r=>{try{localStorage.setItem('porci::'+uid+'::exam_m'+r.module,JSON.stringify(recFromRow(r)));}catch(e){}});}catch(e){}}
-  function putLocalStudent(uid,prof){try{const s={id:uid,name:prof.full_name||prof.email||'Estudiante',email:prof.email||'',phone:prof.phone||'',enrolled:prof.enrolled_at||'',section:prof.section_id||'',status:prof.status||'activo',pass:'',notes:prof.notes||''};
+  function putLocalStudent(uid,prof){try{const s={id:uid,name:prof.full_name||prof.email||'Estudiante',email:prof.email||'',phone:prof.phone||'',enrolled:prof.enrolled_at||(prof.created_at?String(prof.created_at).slice(0,10):''),created:prof.created_at||prof.enrolled_at||'',section:prof.section_id||'',status:prof.status||'activo',pass:'',notes:prof.notes||''};
     const i=STUDENTS.findIndex(x=>x.id===uid);if(i>=0)STUDENTS[i]=s;else STUDENTS.push(s);}catch(e){}}
   async function pullSettings(){try{const {data}=await sb.from('settings').select('*').eq('id',1).maybeSingle();
     if(data&&data.cert){try{const cj=(typeof data.cert==='string')?JSON.parse(data.cert):data.cert;
@@ -4881,7 +4881,8 @@ router();
       const {data:secs}=await sb.from('sections').select('*').order('created_at');
       if(secs)SECTIONS=secs.map(s=>({id:s.id,name:s.name,notes:s.notes||''}));
       const {data:profs}=await sb.from('profiles').select('*');
-      if(profs)STUDENTS=profs.filter(p=>p.role!=='admin').map(p=>({id:p.id,name:p.full_name||p.email||'(sin nombre)',email:p.email||'',phone:p.phone||'',enrolled:p.enrolled_at||'',section:p.section_id||'',status:p.status||'activo',pass:'',notes:p.notes||''}));
+      if(profs)STUDENTS=profs.filter(p=>p.role!=='admin').map(p=>({id:p.id,name:p.full_name||p.email||'(sin nombre)',email:p.email||'',phone:p.phone||'',enrolled:p.enrolled_at||(p.created_at?String(p.created_at).slice(0,10):''),created:p.created_at||p.enrolled_at||'',section:p.section_id||'',status:p.status||'activo',pass:'',notes:p.notes||''}))
+        .sort((a,b)=>String(a.created||a.enrolled).localeCompare(String(b.created||b.enrolled))||String(a.name).localeCompare(String(b.name)));
       const {data:prog}=await sb.from('progress').select('*');
       for(const k in CLOUDPROG)delete CLOUDPROG[k];
       (prog||[]).forEach(r=>{(CLOUDPROG[r.user_id]=CLOUDPROG[r.user_id]||{})[r.module]=recFromRow(r);});
@@ -5075,7 +5076,10 @@ router();
     +'.pay-btn:hover{filter:brightness(1.08)}'
     +'.pay-foot{font-size:11px;color:#8a8378;margin-top:12px;line-height:1.6}.pay-foot b{color:#c9c2b6}';
   document.head.appendChild(_st);
-  if(document.readyState!=='loading')injectLoginUI();else document.addEventListener('DOMContentLoaded',injectLoginUI);
+  /* ---- si el enlace de entrada pide "crear cuenta" (p.ej. desde la landing), abrir directo en modo registro ---- */
+  function maybeAutoRegister(){ if(/[?&]crear=1/.test(location.search)){ try{window.toggleRegister(true);}catch(e){} } }
+  if(document.readyState!=='loading'){injectLoginUI();maybeAutoRegister();}
+  else document.addEventListener('DOMContentLoaded',function(){injectLoginUI();maybeAutoRegister();});
 
   /* ---- mostrar login y auto-restaurar sesión ---- */
   router();
@@ -10058,9 +10062,14 @@ window.nxIrEval=function(id){
   window.COURSES = COURSES;
   window.courseCtx = function(){ return COURSES[ADM.course] || COURSES.porcicultura; };
 
+  /* orden de llegada: por fecha de registro (created_at / enrolled_at), luego nombre */
+  function llaveLlegada(s){ return String(s.created||s.enrolled||s.enrolled_at||'9999')+'|'+String(s.name||''); }
+  function porLlegada(a,b){ return llaveLlegada(a)<llaveLlegada(b)?-1:(llaveLlegada(a)>llaveLlegada(b)?1:0); }
+  window.ucPorLlegada = porLlegada;
+
   function enrolledStudents(C){
     var all=(typeof STUDENTS!=='undefined'?STUDENTS:[])||[];
-    return all.filter(function(s){ return C.enrolled(s); });
+    return all.filter(function(s){ return C.enrolled(s); }).sort(porLlegada);
   }
 
   /* ---------- 2 · conmutador único de curso ---------- */
@@ -10127,7 +10136,8 @@ window.nxIrEval=function(id){
     '.uc-c{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--border,#3a3a3a);border-radius:12px}'+
     '.uc-c .uc-ico{font-size:26px}.uc-c .uc-t{flex:1}.uc-c .uc-t b{display:block}.uc-c .uc-t span{color:var(--muted,#8a8a8a);font-size:12.5px}'+
     '.uc-c .uc-pill{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--green,#2F7D4F);color:#fff}'+
-    '.uc-c .uc-pill.off{background:var(--muted,#7a736b)}';
+    '.uc-c .uc-pill.off{background:var(--muted,#7a736b)}'+
+    '.uc-pos{color:var(--muted,#8a8a8a);font-variant-numeric:tabular-nums;text-align:center;width:34px;font-weight:600}';
   try{ var st=document.createElement('style'); st.textContent=_css; document.head.appendChild(st); }catch(e){}
 
   /* ---------- 3 · apagar la capa de reconciliación de shell5 ---------- */
@@ -10182,11 +10192,13 @@ window.nxIrEval=function(id){
     if(!alum.length) return '<div class="adm-empty">'+(C.sellsSeparately
       ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Actívalos en <b>Cursos → Catálogo</b>.'
       : 'Sin estudiantes.')+'</div>';
-    var rows=alum.map(function(s){
+    var rows=alum.map(function(s,idx){
       var pc=C.count(s.id), pct=Math.round(pc/N*100), sc=[];
       ms.forEach(function(m){ var r=C.rec(s.id,m.n); if(r) sc.push(r.best||r.last||0); });
       var avg=sc.length?Math.round(sc.reduce(function(a,b){return a+b;},0)/sc.length):0;
-      return '<tr><td><b>'+esc(s.name)+'</b></td><td>'+esc((typeof sectionName==='function')?sectionName(s.section):'—')+'</td>'+
+      return '<tr><td class="uc-pos">'+(idx+1)+'</td><td><b>'+esc(s.name)+'</b>'+
+          (s.enrolled?'<span style="display:block;font-size:11px;color:var(--muted)">llegó el '+esc(s.enrolled)+'</span>':'')+'</td>'+
+        '<td>'+esc((typeof sectionName==='function')?sectionName(s.section):'—')+'</td>'+
         '<td><div class="adm-prog"><div class="adm-prog-bar"><i style="width:'+pct+'%"></i></div><span>'+pct+'%</span></div></td>'+
         '<td>'+pc+'/'+N+'</td><td>'+(sc.length?avg+'%':'—')+'</td>'+
         '<td><button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="studentProfile('+((typeof jsq==='function')?jsq(s.id):("'"+s.id+"'"))+')">Ver perfil</button></td></tr>';
@@ -10196,7 +10208,7 @@ window.nxIrEval=function(id){
         ? ' <b>Ojo:</b> el progreso de formulación todavía se guarda solo en el equipo de cada estudiante; aún no se sincroniza a la nube.'
         : ' Si a alguien no le aparece su avance, que inicie sesión una vez desde el dispositivo donde estudió: al entrar, su progreso local se respalda a la nube.')+
       '</p>';
-    var tabla='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Sección</th><th>Progreso</th><th>Aprobados</th><th>Promedio</th><th></th></tr></thead><tbody>'+
+    var tabla='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th title="Orden de llegada">#</th><th>Estudiante</th><th>Sección</th><th>Progreso</th><th>Aprobados</th><th>Promedio</th><th></th></tr></thead><tbody>'+
       rows+'</tbody></table></div>';
     return nota+tabla+(C.id==='porcicultura'?ucRescatePanel(alum):'');
   };
@@ -10221,24 +10233,23 @@ window.nxIrEval=function(id){
     var huerfanos=ids.filter(function(id){ return !known[id]; });
     var opts=alum.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name)+'</option>'; }).join('');
     var body='';
-    if(!ids.length){
-      body='<p class="adm-note" style="margin:0">No hay avance guardado en este equipo fuera de la nube. '+
+    if(!huerfanos.length){
+      body='<p class="adm-note" style="margin:0">No hay avance suelto en este equipo por asignar. '+
         'Si a un estudiante no le aparece su progreso, la copia está en el navegador donde estudió: que inicie sesión ahí una vez.</p>';
     }else{
-      body='<p class="adm-note" style="margin:0 0 10px">Avance encontrado en el almacenamiento de <b>este equipo</b>. '+
-        'Si alguno es de un estudiante y no está en la nube, asígnelo y súbalo.</p>'+
+      body='<p class="adm-note" style="margin:0 0 10px">Se encontró avance en este equipo que <b>no corresponde a ningún estudiante actual</b>. '+
+        'Si es de alguien de la lista, asígnelo y súbalo a la nube.</p>'+
         '<table class="adm-table"><thead><tr><th>Origen (id local)</th><th>Módulos</th><th>Aprob.</th><th>Últ. actividad</th><th>Asignar a</th></tr></thead><tbody>'+
-        ids.map(function(id){
+        huerfanos.map(function(id){
           var d=scan[id];
-          var etq=known[id]?('<b>'+esc(known[id])+'</b> <span style="color:var(--muted)">(ya en la nube)</span>'):('<code>'+esc(id.slice(0,18))+(id.length>18?'…':'')+'</code>');
-          return '<tr><td>'+etq+'</td><td>'+d.n+'</td><td>'+d.passed+'</td>'+
+          return '<tr><td><code>'+esc(id.slice(0,18))+(id.length>18?'…':'')+'</code></td><td>'+d.n+'</td><td>'+d.passed+'</td>'+
             '<td>'+(d.last?new Date(d.last).toLocaleDateString('es-DO',{day:'2-digit',month:'short'}):'—')+'</td>'+
             '<td><select id="ucres_'+esc(id)+'" style="max-width:180px"><option value="">— elegir —</option>'+opts+'</select> '+
             '<button class="adm-add" style="padding:5px 10px;font-size:12px" onclick="ucAsignarProgreso(\''+esc(id).replace(/'/g,"\\'")+'\')">Subir</button></td></tr>';
         }).join('')+'</tbody></table>';
     }
     return '<details class="adm-card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">🔧 Recuperar avance guardado en este equipo'+
-      (Object.keys(scan).length?' ('+Object.keys(scan).length+')':'')+'</summary><div style="margin-top:12px">'+body+'</div></details>';
+      (huerfanos.length?' ('+huerfanos.length+')':'')+'</summary><div style="margin-top:12px">'+body+'</div></details>';
   }
   window.ucAsignarProgreso=async function(localId){
     var sel=document.getElementById('ucres_'+localId);
@@ -10304,14 +10315,15 @@ window.nxIrEval=function(id){
       if(secF && s.section!==secF) return false;
       if(q && !(s.name.toLowerCase().indexOf(q)>=0 || (s.email||'').toLowerCase().indexOf(q)>=0 || (s.phone||'').toLowerCase().indexOf(q)>=0)) return false;
       return true;
-    });
+    }).sort(porLlegada);
     if(!rows.length){ wrap.innerHTML='<div class="adm-empty">'+(stF==='borrado'?'La papelera está vacía.':'No hay estudiantes de '+esc(C.label)+' que coincidan con este filtro.')+'</div>'; return; }
     var js=function(id){ return (typeof jsq==='function')?jsq(id):("'"+String(id).replace(/'/g,"\\'")+"'"); };
     var badge=function(s){ return (typeof STATUS!=='undefined'&&STATUS[s.status])?('<span class="st-badge '+STATUS[s.status][1]+'">'+STATUS[s.status][0]+'</span>'):s.status; };
-    wrap.innerHTML='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Contacto</th><th>Sección</th><th>Estado</th><th>Progreso ('+esc(C.label)+')</th><th>Acciones</th></tr></thead><tbody>'+
-      rows.map(function(s){ var pc=C.count(s.id), pct=Math.round(pc/N*100);
+    wrap.innerHTML='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th title="Orden de llegada">#</th><th>Estudiante</th><th>Contacto</th><th>Sección</th><th>Estado</th><th>Progreso ('+esc(C.label)+')</th><th>Acciones</th></tr></thead><tbody>'+
+      rows.map(function(s,idx){ var pc=C.count(s.id), pct=Math.round(pc/N*100);
         return '<tr>'+
-          '<td><div class="adm-stu"><b>'+esc(s.name)+'</b><span>'+esc(s.email||'sin correo')+'</span></div></td>'+
+          '<td class="uc-pos">'+(idx+1)+'</td>'+
+          '<td><div class="adm-stu"><b>'+esc(s.name)+'</b><span>'+esc(s.email||'sin correo')+(s.enrolled?' · llegó el '+esc(s.enrolled):'')+'</span></div></td>'+
           '<td>'+(s.phone?('<a class="adm-tel" href="tel:'+ea(s.phone)+'">'+esc(s.phone)+'</a>'):'<span style="color:var(--muted)">—</span>')+'</td>'+
           '<td>'+esc((typeof sectionName==='function')?sectionName(s.section):'—')+'</td>'+
           '<td>'+badge(s)+'</td>'+
@@ -10462,6 +10474,7 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
 
 
 
