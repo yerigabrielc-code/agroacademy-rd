@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-09b · progreso de Formulacion a la nube + video por modulo + CSV + anuncios + notas + recuperar contrasena + pagina publica + materiales + log de errores -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-09c · video: youtube-nocookie + origin + id de 11 chars + enlace de respaldo (arregla Error 153) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -10201,6 +10201,7 @@ window.nxIrEval=function(id){
     '.uc-video{margin:0 0 22px}'+
     '.uc-video-fr{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000}'+
     '.uc-video-fr iframe{position:absolute;inset:0;width:100%;height:100%;border:0}'+
+    '.uc-video-alt{font-size:12px;color:var(--muted,#8a8a8a);margin-top:6px}.uc-video-alt a{color:var(--green,#4FA772)}'+
     '.uc-vid-in{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--border,#3a3a3a);border-radius:8px;background:transparent;color:var(--text,#ddd)}';
   try{ var st=document.createElement('style'); st.textContent=_css; document.head.appendChild(st); }catch(e){}
 
@@ -10263,22 +10264,40 @@ window.nxIrEval=function(id){
   window.ucVideoURL = function(course, n){ return (UC_VIDEOS[course]||{})[n] || ''; };
 
   function ucEmbed(url){
-    if(!url) return '';
-    var m;
-    if((m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/))) return 'https://www.youtube.com/embed/'+m[1];
-    if((m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return 'https://player.vimeo.com/video/'+m[1];
-    if(/^https:\/\/(www\.)?(youtube\.com\/embed\/|player\.vimeo\.com\/video\/)/.test(url)) return url;
-    return '';
+    if(!url) return null;
+    url=String(url).trim();
+    var m, org='';
+    try{ if(/^https?:/.test(location.origin)) org='&origin='+encodeURIComponent(location.origin); }catch(e){}
+    /* YouTube: id de 11 caracteres */
+    if((m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/))
+       || (m=url.match(/[?&]v=([A-Za-z0-9_-]{11})/))){
+      var id=m[1];
+      return { kind:'yt', id:id,
+        src:'https://www.youtube-nocookie.com/embed/'+id+'?rel=0&modestbranding=1&playsinline=1&iv_load_policy=3'+org,
+        watch:'https://www.youtube.com/watch?v='+id };
+    }
+    if((m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/))){
+      return { kind:'vimeo', id:m[1], src:'https://player.vimeo.com/video/'+m[1], watch:'https://vimeo.com/'+m[1] };
+    }
+    if(/^https:\/\/(www\.)?(youtube(-nocookie)?\.com\/embed\/|player\.vimeo\.com\/video\/)/.test(url)){
+      return { kind:'raw', src:url, watch:url };
+    }
+    return null;
   }
   function ucVideoBloque(course, n){
-    var src=ucEmbed(ucVideoURL(course, n));
-    if(!src) return '';
-    return '<div class="uc-video"><div class="uc-video-fr"><iframe src="'+src+'" title="Video del módulo" '+
-      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '+
-      'allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div>';
+    var v=ucEmbed(ucVideoURL(course, n));
+    if(!v) return '';
+    return '<div class="uc-video"><div class="uc-video-fr"><iframe src="'+v.src+'" title="Video del módulo" '+
+      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" '+
+      'allowfullscreen loading="lazy" referrerpolicy="origin-when-cross-origin"></iframe></div>'+
+      '<div class="uc-video-alt">¿No carga el video? <a href="'+v.watch+'" target="_blank" rel="noopener">Ábrelo en '+(v.kind==='vimeo'?'Vimeo':'YouTube')+' ↗</a></div></div>';
   }
   window.ucSetVideo = function(course, n, url){
     url=String(url||'').trim();
+    if(url && !ucEmbed(url)){
+      if(typeof toast==='function') toast('No reconocí ese enlace. Pega la URL de la página del video de YouTube o Vimeo (ej. youtube.com/watch?v=… o youtu.be/…).','⚠️');
+      return;
+    }
     if(!UC_VIDEOS[course]) UC_VIDEOS[course]={};
     if(url) UC_VIDEOS[course][n]=url; else delete UC_VIDEOS[course][n];
     ucGuardarVideosLocal();
@@ -11105,6 +11124,7 @@ window.nxIrEval=function(id){
 })();
 
 </script>
+
 
 
 
