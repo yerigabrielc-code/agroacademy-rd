@@ -11311,5 +11311,357 @@ window.nxIrEval=function(id){
 
 
 
+<style>
+
+/* ===== exámenes: nada revela la respuesta ===== */
+.ex-neutra{opacity:.62}
+.exam.graded .ex-neutra,.nx-ex.cal .ex-neutra{cursor:default}
+.ex-fb-ok{color:var(--text-2)}
+.ex-fb-mal .ex-rep{display:flex;align-items:flex-start;gap:8px;font-size:13.5px;line-height:1.55;color:var(--amber-d)}
+.ex-fb-mal .ex-rep i{font-style:normal}
+.ex-fb-mal .ex-rep b{color:var(--text)}
+.ex-res{margin:18px 0;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+.ex-res.ok{border-color:rgba(47,125,79,.34)}
+.ex-res.mal{border-color:rgba(224,165,38,.34)}
+.ex-res-h{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 20px}
+.ex-res.ok .ex-res-h{background:rgba(47,125,79,.11)}
+.ex-res.mal .ex-res-h{background:rgba(224,165,38,.12)}
+.ex-res-h b{font-family:var(--display);font-size:17px;font-weight:800;color:var(--text)}
+.ex-res-h span{font-family:var(--mono);font-size:22px;font-weight:700}
+.ex-res.ok .ex-res-h span{color:var(--green)}
+.ex-res.mal .ex-res-h span{color:var(--amber-d)}
+.ex-res-g{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+.ex-res-g>div{background:var(--panel);padding:14px 12px;text-align:center}
+.ex-res-g b{display:block;font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);line-height:1}
+.ex-res-g>div.mal b{color:var(--crit)}
+.ex-res-g span{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.3}
+.ex-rep-b{background:var(--panel);padding:17px 20px}
+.ex-rep-b>b{display:block;font-size:15px;color:var(--text);margin-bottom:12px}
+.ex-rep-i{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:var(--bg);border-radius:12px;padding:13px 16px;margin-bottom:9px}
+.ex-rep-i>div{flex:1;min-width:220px}
+.ex-rep-i b{display:block;font-size:14px;color:var(--text)}
+.ex-rep-i span{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px}
+.ex-rep-i em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-family:var(--mono);margin-top:5px}
+.ex-rep-b2{font-family:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--green);
+  border:0;border-radius:10px;padding:10px 17px;cursor:pointer;white-space:nowrap}
+.ex-rep-b2:hover{background:var(--green-d)}
+.ex-rep-n{font-size:13px;color:var(--muted);line-height:1.6;margin:12px 0 0;padding-top:12px;border-top:1px solid var(--border)}
+/* la seccion a la que se llega se resalta un momento */
+.ex-resalta{animation:exPulso 2.2s ease}
+@keyframes exPulso{0%,100%{box-shadow:none}12%,60%{box-shadow:0 0 0 3px rgba(224,165,38,.45)}}
+@media(max-width:700px){.ex-res-g{grid-template-columns:repeat(2,1fr)}}
+
+</style>
+<script>
+/* ============================================================
+   EXÁMENES SIN CLAVE A LA VISTA · LOS DOS CURSOS
+   ------------------------------------------------------------
+   El estudiante ve qué acertó y qué falló, pero NUNCA cuál era
+   la respuesta correcta de lo que falló. En su lugar recibe el
+   módulo y la sección que le toca repasar.
+
+   La clave sale del HTML: se guarda en memoria y solo se repone
+   durante la llamada de calificación, que es síncrona.
+   ============================================================ */
+
+const EXCLAVE = {};      /* 'curso|modulo' -> {ci:[...], fb:[...]} */
+const EXPAL = /[^a-záéíóúñü0-9]+/gi;
+const EXVACIAS = ('de la el los las un una unos unas y o u en con por para que se su sus al del lo le les es son ser está están ' +
+  'como más menos muy cual cuales cuando donde qué cuál este esta estos estas ese esa eso aquel si no sí ni pero sino ' +
+  'hay hace hacer tiene tienen tener debe deben puede pueden entre sobre desde hasta cada todo toda todos todas').split(' ');
+
+function exNorm(t){
+  return String(t||'').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .split(EXPAL).filter(function(w){ return w.length>3 && EXVACIAS.indexOf(w)<0; });
+}
+
+/* ---------- índice de secciones de un módulo ---------- */
+const EXIDX = {};
+/* estas secciones no son contenido para repasar: el examen contiene las
+   preguntas y por eso ganaba siempre el emparejamiento */
+const EXNOSIRVE=/evaluaci|examen|autoevaluaci|recursos|descargab|resumen del m|consulta|reflexi|proyecto final|cierre|al terminar este m|objetivos|lo que va a poder/i;
+/* aplana lo que venga: aquí hay strings sueltos, arrays y arrays de arrays.
+   Antes esto reventaba con las alertas (p es un string) y dejaba el índice vacío. */
+function exPlano(v){
+  if(v==null) return '';
+  if(Array.isArray(v)) return v.map(exPlano).join(' ');
+  if(typeof v==='object') return Object.keys(v).map(function(k){ return exPlano(v[k]); }).join(' ');
+  return String(v);
+}
+function exIndice(curso, mod){
+  const k=curso+'|'+mod;
+  if(EXIDX[k]) return EXIDX[k];
+  let secs=[];
+  try{
+    if(curso==='nutricion'){
+      const m=(typeof NXMOD!=='undefined')?NXMOD[mod-1]:null;
+      if(m){
+        let n=1;   /* el primer bloque en pantalla es el de objetivos */
+        secs=m.sec.map(function(s){
+          n++;
+          const t=s.t || ({ingredientes:'Biblioteca de materias primas',requerimientos:'Requerimientos por peso y etapa',
+            biblioteca:'Las 12 fórmulas',simulador:'Formule usted',infografia:'Los diez pasos, en orden',
+            asistente:'Asistente paso a paso',comparador:'Preiniciador contra destete',curva:'Las cinco etapas',
+            sop:'Los doce pasos de fabricación',costos:'Calculadora de costos',sustituciones:'Tabla de sustituciones',
+            casos:'Situaciones reales',conversion:'Costo de cada punto de conversión',proyecto:'Proyecto final',
+            error:'Encuentre el error',cierre:'Cierre del curso',alerta:s.t,fuentes:null}[s.k] || null);
+          if(!t || EXNOSIRVE.test(t)) return null;
+          const txt=exPlano([t, s.p, s.items, s.rows, s.cap, s.sub, s.obj, s.li]);
+          return {n:n, t:t, w:exNorm(txt)};
+        }).filter(Boolean);
+        secs.totalDom=n+2;   /* más el bloque de consultas y el examen */
+      }
+    } else {
+      /* del curso base se lee el módulo ya armado */
+      const d=document.createElement('div');
+      d.innerHTML=(typeof renderModule==='function')?renderModule(mod):'';
+      let n=0;
+      secs=[].map.call(d.querySelectorAll('section.block'),function(s){
+        n++;
+        const lab=s.querySelector('.sec-label'), h=s.querySelector('h3');
+        const t=(h&&h.textContent.trim()) || (lab&&lab.textContent.trim()) || '';
+        if(!t || EXNOSIRVE.test(t) || s.querySelector('.exam')) return null;
+        return {n:n, t:t, w:exNorm(t+' '+s.textContent.slice(0,1400))};
+      }).filter(Boolean);
+      secs.totalDom=n;
+    }
+  }catch(e){ secs=[]; }
+  EXIDX[k]=secs;
+  return secs;
+}
+
+/* la sección que más se parece a la pregunta */
+function exRepaso(curso, mod, pregunta){
+  const secs=exIndice(curso,mod);
+  const nom=exModNombre(curso,mod);
+  if(!secs.length) return {mod:mod, modNom:nom, sec:null};
+  const q=exNorm(pregunta);
+  let mejor=null, mejorP=0;
+  secs.forEach(function(s){
+    let p=0;
+    q.forEach(function(w){ if(s.w.indexOf(w)>=0) p++; });
+    /* pesa más si la palabra está en el título de la sección */
+    const tw=exNorm(s.t);
+    q.forEach(function(w){ if(tw.indexOf(w)>=0) p+=2; });
+    if(p>mejorP){ mejorP=p; mejor=s; }
+  });
+  /* con poca coincidencia se manda al módulo completo: vale más eso que
+     mandarlo a una sección que no tiene que ver */
+  return {mod:mod, modNom:nom, sec:(mejorP>=4?mejor:null), total:(secs.totalDom||secs.length)};
+}
+function exModNombre(curso, mod){
+  try{
+    if(curso==='nutricion'){ const m=NXMOD[mod-1]; return m?m.t:('Módulo '+mod); }
+    const m=MODULES[mod]; return m?m.title:('Módulo '+mod);
+  }catch(e){ return 'Módulo '+mod; }
+}
+function exModNum(curso, mod){
+  try{
+    if(curso==='nutricion'){ const m=NXMOD[mod-1]; return m?m.num:String(mod).padStart(2,'0'); }
+    const m=MODULES[mod]; return m?m.num:String(mod).padStart(2,'0');
+  }catch(e){ return String(mod).padStart(2,'0'); }
+}
+
+/* ---------- se retira la clave del HTML antes de mostrarlo ---------- */
+function exDesarmar(html, curso, mod, selQ, attr, selFb){
+  const d=document.createElement('div');
+  d.innerHTML=html;
+  const ci=[], fb=[];
+  [].forEach.call(d.querySelectorAll(selQ),function(q,i){
+    ci.push(parseInt(q.getAttribute(attr),10));
+    q.removeAttribute(attr);
+    const f=q.querySelector(selFb);
+    fb.push(f?f.innerHTML:'');
+    if(f){ f.innerHTML=''; }
+  });
+  EXCLAVE[curso+'|'+mod]={ci:ci, fb:fb};
+  return d.innerHTML;
+}
+function exArmar(cont, curso, mod, selQ, attr, selFb){
+  const k=EXCLAVE[curso+'|'+mod]; if(!k||!cont) return;
+  [].forEach.call(cont.querySelectorAll(selQ),function(q,i){
+    if(k.ci[i]!=null && !isNaN(k.ci[i])) q.setAttribute(attr,k.ci[i]);
+    const f=q.querySelector(selFb); if(f) f.innerHTML=k.fb[i]||'';
+  });
+}
+
+/* ---------- después de calificar: se tapa lo que revela ---------- */
+function exTapar(cont, curso, mod, selQ, attr, selOpt, selFb, clsOk, clsBad){
+  const k=EXCLAVE[curso+'|'+mod]; if(!k||!cont) return [];
+  const fallos=[];
+  [].forEach.call(cont.querySelectorAll(selQ),function(q,i){
+    const ops=[].slice.call(q.querySelectorAll(selOpt));
+    const sel=ops.findIndex(function(o){ return o.classList.contains('sel'); });
+    const bien=(sel===k.ci[i]);
+    /* solo se marca lo que el estudiante eligió: nunca la correcta que no eligió */
+    ops.forEach(function(o,j){
+      o.classList.remove(clsOk, clsBad);
+      if(j===sel) o.classList.add(bien?clsOk:clsBad);
+      if(j!==sel) o.classList.add('ex-neutra');
+    });
+    q.removeAttribute(attr);
+    const f=q.querySelector(selFb);
+    if(f){
+      if(bien){ f.innerHTML=k.fb[i]||''; f.classList.add('ex-fb-ok'); }
+      else{
+        const r=exRepaso(curso,mod,(q.querySelector('.exq-q')||q.querySelector('p')||{}).textContent||'');
+        fallos.push({n:i+1, r:r});
+        f.innerHTML='<span class="ex-rep"><i>📚</i> Vuelva a <b>'+esc(r.modNom)+'</b>'+
+          (r.sec?' · <b>'+esc(r.sec.t)+'</b>'+(r.total?' (sección '+r.sec.n+' de '+r.total+')':''):'')+
+          '</span>';
+        f.classList.add('ex-fb-mal');
+      }
+    }
+  });
+  return fallos;
+}
+
+/* ---------- resumen del intento ---------- */
+function exResumen(cont, curso, mod, fallos, total, nota, pasa, intento){
+  if(!cont) return;
+  const viejo=cont.querySelector('.ex-res'); if(viejo) viejo.remove();
+  const bien=total-fallos.length;
+  const grupos={};
+  fallos.forEach(function(f){
+    const clave=f.r.sec?('s'+f.r.sec.n):'m';
+    if(!grupos[clave]) grupos[clave]={r:f.r, qs:[]};
+    grupos[clave].qs.push(f.n);
+  });
+  const lista=Object.keys(grupos).map(function(k){ return grupos[k]; });
+
+  let h='<div class="ex-res '+(pasa?'ok':'mal')+'">'+
+    '<div class="ex-res-h"><b>'+(pasa?'✅ Evaluación aprobada':'Resultado del intento '+intento)+'</b>'+
+    '<span>'+nota+' %</span></div>'+
+    '<div class="ex-res-g">'+
+      '<div><b>'+bien+'</b><span>correcta'+(bien===1?'':'s')+'</span></div>'+
+      '<div class="'+(fallos.length?'mal':'')+'"><b>'+fallos.length+'</b><span>incorrecta'+(fallos.length===1?'':'s')+'</span></div>'+
+      '<div><b>'+nota+' %</b><span>calificación</span></div>'+
+      '<div><b>'+lista.length+'</b><span>tema'+(lista.length===1?'':'s')+' por repasar</span></div>'+
+    '</div>';
+
+  if(fallos.length){
+    h+='<div class="ex-rep-b"><b>📚 Lo que debe repasar</b>'+
+      lista.map(function(g){
+        const num=exModNum(curso,g.r.mod);
+        return '<div class="ex-rep-i">'+
+          '<div><b>Módulo '+num+' — '+esc(g.r.modNom)+'</b>'+
+          (g.r.sec?'<span>'+esc(g.r.sec.t)+' · sección '+g.r.sec.n+' de '+g.r.total+'</span>'
+                  :'<span>Repase el módulo completo</span>')+
+          '<em>Pregunta'+(g.qs.length===1?'':'s')+' '+g.qs.join(', ')+'</em></div>'+
+          '<button class="ex-rep-b2" onclick="exRepasar(\''+curso+'\','+g.r.mod+','+(g.r.sec?g.r.sec.n:0)+')">Repasar →</button>'+
+          '</div>';}).join('')+
+      '<p class="ex-rep-n">No le decimos cuál era la respuesta: la idea es que vuelva al contenido y la encuentre usted. '+
+      'Cuando termine de repasar, vuelva a presentar la evaluación.</p></div>';
+  } else if(!pasa){
+    h+='<p class="ex-rep-n">Le faltó nota para aprobar. Repase el módulo y vuelva a intentarlo.</p>';
+  }
+  h+='</div>';
+
+  const acc=cont.querySelector('.exam-actions')||cont.querySelector('.nx-ex-a');
+  if(acc) acc.insertAdjacentHTML('beforebegin',h); else cont.insertAdjacentHTML('beforeend',h);
+}
+
+/* llevar al estudiante al módulo y sección que le tocó repasar */
+/* la entrada a un modulo trae animacion: se reintenta hasta que la seccion
+   exista y quede a la vista, en vez de confiar en un solo temporizador */
+function exLlevar(buscar, sec, intentos){
+  if(sec<1) return;
+  var n=intentos||0;
+  var b=buscar()[sec-1];
+  if(b){
+    b.scrollIntoView({behavior:(n?'auto':'smooth'), block:'start'});
+    b.classList.add('ex-resalta');
+    setTimeout(function(){ b.classList.remove('ex-resalta'); },2400);
+  }
+  if(n<6) setTimeout(function(){ exLlevar(buscar,sec,n+1); }, n<2?450:700);
+}
+
+/* pasar a la hoja indicada cuando el módulo está paginado */
+function exPaginar(mostrar, buscar, sec, intentos){
+  var n=intentos||0;
+  var bs=buscar();
+  if(bs.length>=sec){
+    try{ mostrar(sec-1); }catch(e){}
+    var b=buscar()[sec-1];
+    if(b){ b.classList.add('ex-resalta'); setTimeout(function(){ b.classList.remove('ex-resalta'); },2400); }
+    if(n>=2) return;
+  }
+  if(n<5) setTimeout(function(){ exPaginar(mostrar,buscar,sec,n+1); }, n<2?500:800);
+}
+
+window.exRepasar=function(curso, mod, sec){
+  if(curso==='nutricion'){
+    if(!document.getElementById('nxOv')) openNutricion();
+    NXGATE=false;
+    nxIr(mod);
+    if(sec>0){
+      if(NXLECCION) exPaginar(function(i){ nxMostrarSeccion(i); }, function(){ return document.querySelectorAll('#nxMain .nx-b'); }, sec);
+      else exLlevar(function(){ return document.querySelectorAll('#nxMain .nx-b'); }, sec);
+    }
+  } else {
+    const o=document.getElementById('nxOv'); if(o) o.remove();
+    try{ cerrarCursos(); }catch(e){}
+    if(typeof goto==='function') goto(mod);
+    location.hash='#/curso';
+    if(sec>0){
+      /* en modo lección el módulo va paginado: hay que pasar a esa hoja,
+         desplazarse no sirve porque las demás están ocultas */
+      var enLeccion=(typeof LESSON!=='undefined' && LESSON && typeof showSection==='function');
+      if(enLeccion) exPaginar(function(i){ showSection(i); }, function(){ return document.querySelectorAll('#main .block'); }, sec);
+      else exLlevar(function(){ return document.querySelectorAll('#main .block'); }, sec);
+    }
+  }
+};
+
+/* ============================================================
+   ENGANCHE · CURSO DE PORCICULTURA
+   ============================================================ */
+(function(){
+  if(typeof renderExam!=='function'||typeof submitExam!=='function') return;
+  const _r=renderExam, _s=submitExam;
+  renderExam=function(id){
+    const html=_r.apply(this,arguments);
+    if(!html || html.indexOf('data-correct')<0) return html;
+    return exDesarmar(html,'porcicultura',id,'.exq','data-correct','.exq-fb');
+  };
+  submitExam=function(id){
+    const ex=document.getElementById('exam-'+id);
+    exArmar(ex,'porcicultura',id,'.exq','data-correct','.exq-fb');
+    const antes=(function(){ try{ return JSON.parse(localStorage.getItem(examKey(id)))||{}; }catch(e){ return {}; } })();
+    _s.apply(this,arguments);
+    if(!ex||!ex.classList.contains('graded')){ exArmar(ex,'porcicultura',id,'.exq','data-correct','.exq-fb'); return; }
+    const fallos=exTapar(ex,'porcicultura',id,'.exq','data-correct','.exq-opt','.exq-fb','ok','bad');
+    const r=(function(){ try{ return JSON.parse(localStorage.getItem(examKey(id)))||{}; }catch(e){ return {}; } })();
+    const total=ex.querySelectorAll('.exq').length;
+    exResumen(ex,'porcicultura',id,fallos,total,r.last||0,(r.last||0)>=CFG.passing,r.attempts||1);
+  };
+})();
+
+/* ============================================================
+   ENGANCHE · CURSO DE FORMULACIÓN
+   ============================================================ */
+(function(){
+  if(typeof nxExamen!=='function'||typeof window.nxEnviar!=='function') return;
+  const _r=nxExamen, _s=window.nxEnviar;
+  nxExamen=function(id){
+    const html=_r.apply(this,arguments);
+    if(!html || html.indexOf('data-c=')<0) return html;
+    return exDesarmar(html,'nutricion',id,'.nx-q','data-c','.nx-fb');
+  };
+  window.nxEnviar=function(id){
+    const ex=document.getElementById('nxex-'+id);
+    exArmar(ex,'nutricion',id,'.nx-q','data-c','.nx-fb');
+    _s.apply(this,arguments);
+    if(!ex||!ex.classList.contains('cal')){ exArmar(ex,'nutricion',id,'.nx-q','data-c','.nx-fb'); return; }
+    const fallos=exTapar(ex,'nutricion',id,'.nx-q','data-c','.nx-opt','.nx-fb','ok','bad');
+    const r=nxRec(id)||{};
+    const total=ex.querySelectorAll('.nx-q').length;
+    exResumen(ex,'nutricion',id,fallos,total,r.last||0,(r.last||0)>=NXPASS,r.attempts||1);
+  };
+})();
+
+</script>
 </body>
 </html>
