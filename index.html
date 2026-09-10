@@ -11637,5 +11637,91 @@ window.exRepasar=function(curso, mod, sec){
 
 
 
+<style>
+
+/* ===== fotos de portada del curso de formulación ===== */
+.nx-hero.nx-foto{position:relative;overflow:hidden;background:#161311}
+.nx-hero.nx-foto::before{content:'';position:absolute;inset:0;
+  background-image:var(--foto);background-size:cover;background-position:center;
+  transform:scale(1.02)}
+.nx-hero.nx-foto::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(100deg,
+    color-mix(in srgb,var(--ac) 93%,#161311) 0%,
+    color-mix(in srgb,var(--ac) 88%,#161311) 26%,
+    color-mix(in srgb,var(--ac) 60%,transparent) 58%,
+    color-mix(in srgb,#161311 34%,transparent) 100%)}
+.nx-hero.nx-foto>*{position:relative;z-index:1}
+.nx-hero.nx-foto h2{text-shadow:0 1px 18px rgba(22,19,17,.34)}
+/* en pantalla estrecha el texto ocupa todo: el velo tiene que cubrir más */
+@media(max-width:720px){
+  .nx-hero.nx-foto::after{background:linear-gradient(160deg,
+    color-mix(in srgb,var(--ac) 93%,#161311) 0%,
+    color-mix(in srgb,var(--ac) 80%,#161311) 55%,
+    color-mix(in srgb,var(--ac) 55%,transparent) 100%)}
+}
+
+</style>
+<script>
+/* ============================================================
+   FOTOS DE PORTADA · CURSO DE FORMULACIÓN
+   ------------------------------------------------------------
+   Cada módulo ya tenía su color propio (--ac). La foto se pone
+   DEBAJO de ese color, no en lugar de él: así el módulo se
+   reconoce igual y además tiene imagen.
+   Si una foto no carga, la portada se queda como estaba.
+   ============================================================ */
+
+var NXFOTO = {
+  1:  'images/nutri-m01-alimento-peletizado.jpg',
+  2:  'images/nutri-m02-maiz-grano.jpg',
+  3:  'images/nutri-m03-cerdos-crecimiento.jpg',
+  4:  'images/nutri-m04-pesando-batch.jpg',
+  5:  'images/nutri-m05-lechones-destete.jpg',
+  6:  'images/nutri-m06-nave-engorde.jpg',
+  7:  'images/nutri-m07-molino.jpg',
+  8:  'images/nutri-m08-mercado-granos.jpg',
+  9:  'images/nutri-m09-granos-variados.jpg',
+  10: 'images/nutri-m10-corrales-comedero.jpg'
+};
+
+/* las que ya se comprobaron, para no volver a pedirlas */
+var NXFOTOOK = {};
+
+function nxPonerFoto(){
+  var h = document.querySelector('#nxMain .nx-hero');
+  if(!h) return;
+  var m = (typeof NXCUR !== 'undefined') ? NXCUR : 0;
+  var f = NXFOTO[m];
+  if(!f){ h.classList.remove('nx-foto'); h.style.removeProperty('--foto'); return; }
+
+  function pintar(){
+    /* puede haber cambiado de módulo mientras cargaba */
+    var hoy = document.querySelector('#nxMain .nx-hero');
+    if(!hoy || ((typeof NXCUR !== 'undefined') ? NXCUR : 0) !== m) return;
+    hoy.style.setProperty('--foto', 'url("' + f + '")');
+    hoy.classList.add('nx-foto');
+  }
+
+  if(NXFOTOOK[f]){ pintar(); return; }
+  var img = new Image();
+  img.onload  = function(){ NXFOTOOK[f] = true; pintar(); };
+  img.onerror = function(){ /* sin foto: se queda el color de siempre */ };
+  img.src = f;
+}
+
+/* se engancha al repintado del módulo, sin tocar el original */
+if(typeof window.nxPinta === 'function'){
+  var _nxPintaFoto = window.nxPinta;
+  window.nxPinta = function(){
+    var r = _nxPintaFoto.apply(this, arguments);
+    try{ setTimeout(nxPonerFoto, 10); }catch(e){}
+    return r;
+  };
+}
+
+/* la primera portada, si el curso ya está abierto al cargar esto */
+try{ setTimeout(nxPonerFoto, 400); }catch(e){}
+
+</script>
 </body>
 </html>
