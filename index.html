@@ -11374,6 +11374,24 @@ function exIndice(curso, mod){
 }
 
 /* la sección que más se parece a la pregunta */
+/* El pie del módulo dice "Sección 4 de 38" contando lo que hay en pantalla,
+   que incluye bloques que se añaden al final (notas, consultas). Si estamos
+   dentro de ese mismo módulo usamos su cuenta, para no dar dos números
+   distintos en la misma pantalla. */
+function exTotalVivo(curso, mod, secs){
+  try{
+    if(curso==='nutricion'){
+      if(typeof NXCUR!=='undefined' && NXCUR===mod){
+        const n=document.querySelectorAll('#nxMain .nx-wrap section.nx-b').length;
+        if(n) return n;
+      }
+    }else if(typeof current!=='undefined' && current===mod){
+      const n=document.querySelectorAll('#main .module section.block, #main .wrap section.block').length;
+      if(n) return n;
+    }
+  }catch(e){}
+  return secs.totalDom||secs.length;
+}
 function exRepaso(curso, mod, pregunta){
   const secs=exIndice(curso,mod);
   const nom=exModNombre(curso,mod);
@@ -11390,7 +11408,7 @@ function exRepaso(curso, mod, pregunta){
   });
   /* con poca coincidencia se manda al módulo completo: vale más eso que
      mandarlo a una sección que no tiene que ver */
-  return {mod:mod, modNom:nom, sec:(mejorP>=4?mejor:null), total:(secs.totalDom||secs.length)};
+  return {mod:mod, modNom:nom, sec:(mejorP>=4?mejor:null), total:exTotalVivo(curso, mod, secs)};
 }
 function exModNombre(curso, mod){
   try{
@@ -11536,7 +11554,8 @@ window.exRepasar=function(curso, mod, sec){
   if(curso==='nutricion'){
     if(!document.getElementById('nxOv')) openNutricion();
     NXGATE=false;
-    nxIr(mod);
+    var nxYaEstoy=(typeof NXCUR!=='undefined' && NXCUR===mod && document.querySelector('#nxMain .nx-b'));
+    if(!nxYaEstoy) nxIr(mod);
     if(sec>0){
       if(NXLECCION) exPaginar(function(i){ nxMostrarSeccion(i); }, function(){ return document.querySelectorAll('#nxMain .nx-b'); }, sec);
       else exLlevar(function(){ return document.querySelectorAll('#nxMain .nx-b'); }, sec);
@@ -11544,8 +11563,19 @@ window.exRepasar=function(curso, mod, sec){
   } else {
     const o=document.getElementById('nxOv'); if(o) o.remove();
     try{ cerrarCursos(); }catch(e){}
-    if(typeof goto==='function') goto(mod);
-    location.hash='#/curso';
+    /* Nada de forzar la ruta: en la vista de estudiante el admin conserva el
+       rol ADMIN, y el enrutador, al ver #/curso con ese rol, lo devuelve al
+       panel. Se cambia la pantalla igual que hace enterPreview(). */
+    if(document.body.dataset.screen!=='curso'){
+      if(typeof showScreen==='function') showScreen('curso');
+      else location.hash='#/curso';
+    }
+    /* goto() lanza la portada del módulo y se queda esperando un clic en
+       "Continuar". Como el examen que se reprueba es del mismo módulo que
+       toca repasar, casi siempre ya estamos dentro: abrirlo de nuevo solo
+       añade una portada de más. */
+    var yaEstoy=(typeof current!=='undefined' && current===mod && document.querySelector('#main .block'));
+    if(!yaEstoy && typeof goto==='function') goto(mod);
     if(sec>0){
       /* en modo lección el módulo va paginado: hay que pasar a esa hoja,
          desplazarse no sirve porque las demás están ocultas */
@@ -11604,5 +11634,8 @@ window.exRepasar=function(curso, mod, sec){
 })();
 
 </script>
+
+
+
 </body>
 </html>
