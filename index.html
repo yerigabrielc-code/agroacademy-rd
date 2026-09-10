@@ -6935,6 +6935,44 @@ router();
 /* dos botones caben en la fila de acciones */
 .mod-item .mact{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
 
+/* ===== exámenes: nada revela la respuesta ===== */
+.ex-neutra{opacity:.62}
+.nx-ex.cal .ex-neutra,.exam.graded .ex-neutra{cursor:default}
+.ex-fb-ok{color:var(--text-2)}
+.ex-fb-mal .ex-rep{display:flex;align-items:flex-start;gap:8px;font-size:13.5px;line-height:1.55;color:var(--amber-d)}
+.ex-fb-mal .ex-rep i{font-style:normal}
+.ex-fb-mal .ex-rep b{color:var(--text)}
+
+/* resumen del intento */
+.ex-res{margin:18px 0;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+.ex-res.ok{border-color:rgba(47,125,79,.34)}
+.ex-res.mal{border-color:rgba(224,165,38,.34)}
+.ex-res-h{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 20px}
+.ex-res.ok .ex-res-h{background:rgba(47,125,79,.11)}
+.ex-res.mal .ex-res-h{background:rgba(224,165,38,.12)}
+.ex-res-h b{font-family:var(--display);font-size:17px;font-weight:800;color:var(--text)}
+.ex-res-h span{font-family:var(--mono);font-size:22px;font-weight:700}
+.ex-res.ok .ex-res-h span{color:var(--green)}
+.ex-res.mal .ex-res-h span{color:var(--amber-d)}
+.ex-res-g{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+.ex-res-g>div{background:var(--panel);padding:14px 12px;text-align:center}
+.ex-res-g b{display:block;font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);line-height:1}
+.ex-res-g>div.mal b{color:var(--crit)}
+.ex-res-g span{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.3}
+.ex-rep-b{background:var(--panel);padding:17px 20px}
+.ex-rep-b>b{display:block;font-size:15px;color:var(--text);margin-bottom:12px}
+.ex-rep-i{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:var(--bg);border-radius:12px;padding:13px 16px;margin-bottom:9px}
+.ex-rep-i>div{flex:1;min-width:220px}
+.ex-rep-i b{display:block;font-size:14px;color:var(--text)}
+.ex-rep-i span{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px}
+.ex-rep-i em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-family:var(--mono);margin-top:5px}
+.ex-rep-b2{font-family:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--green);
+  border:0;border-radius:10px;padding:10px 17px;cursor:pointer;white-space:nowrap}
+.ex-rep-b2:hover{background:var(--green-d)}
+.ex-rep-n{font-size:13px;color:var(--muted);line-height:1.6;margin:12px 0 0;padding-top:12px;border-top:1px solid var(--border)}
+@media(max-width:700px){.ex-res-g{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 <script>
 /* Datos verificados del motor de formulacion — generado, no editar a mano */
@@ -8841,6 +8879,119 @@ function publicado1(){ return (typeof NXPUB==='undefined')?true:NXPUB.porcicultu
 
 
 /* ============================================================
+   CONMUTADOR DE CURSO EN EL PANEL
+   Arriba de todo se elige el producto y el panel entero responde:
+   módulos, evaluaciones, progreso, certificados y consultas
+   pasan a mostrar el curso seleccionado.
+
+   Ojo: el conector de Supabase envuelve admTab para 'students',
+   'dashboard', 'progress' y 'certs', y llama a una referencia
+   guardada de renderAdmin de forma ASÍNCRONA. Por eso no basta
+   con envolver renderAdmin: hay que redecorar también después,
+   cuando esa carga termina.
+   ============================================================ */
+
+let ADMCURSO='porcicultura';
+try{ ADMCURSO=localStorage.getItem('nx_adm_curso')||'porcicultura'; }catch(e){}
+
+const NXPORCURSO={
+  modules:  {n:'Módulos',      nx:function(){ return nxAdmModulos(); }},
+  evals:    {n:'Evaluaciones', nx:function(){ return nxAdmEvaluaciones(); }},
+  progress: {n:'Progreso',     nx:function(){ return nxAdmProgreso(); }},
+  certs:    {n:'Certificados', nx:function(){ return nxAdmCertificados(); }},
+  consultas:{n:'Consultas',    nx:null}
+};
+
+function nxSelectorCurso(){
+  return '<div class="nxsel">'+
+    '<span class="nxsel-t">Gestionando</span>'+
+    NXCURSOS.map(function(c){
+      return '<button class="nxsel-b'+(c.id===ADMCURSO?' on':'')+'" onclick="nxCambiarCurso(\''+c.id+'\')">'+
+        '<span>'+c.ico+'</span><b>'+esc(c.id==='porcicultura'?'Porcicultura':'Formulación')+'</b>'+
+        (NXPUB[c.id]?'':'<i class="nxsel-oc">oculto</i>')+'</button>';}).join('')+
+    '<span class="nxsel-n">'+(ADMCURSO==='porcicultura'?'12 módulos · 120 preguntas':'10 módulos · 50 preguntas · se paga aparte')+'</span>'+
+    '</div>';
+}
+
+/* decora el panel para el curso elegido · se puede llamar las veces que haga falta */
+function nxDecorarPanel(){
+  const tab=(typeof ADM!=='undefined')?ADM.tab:null;
+  const root=document.getElementById('adminBody');
+  if(!root||!tab) return;
+  const dep=NXPORCURSO[tab];
+  if(!dep){ root.removeAttribute('data-nxc'); return; }
+  /* ya está decorado para este curso y esta pestaña */
+  if(root.getAttribute('data-nxc')===tab+'|'+ADMCURSO && root.querySelector('.nxsel')) return;
+
+  if(ADMCURSO==='nutricion' && dep.nx){
+    try{ root.innerHTML=dep.nx(); }
+    catch(e){ root.innerHTML='<div class="adm-empty">No se pudo cargar: '+esc(e.message)+'</div>'; }
+  }
+  if(!root.querySelector(':scope > .nxsel')) root.insertAdjacentHTML('afterbegin', nxSelectorCurso());
+  root.setAttribute('data-nxc', tab+'|'+ADMCURSO);
+  const tt=document.getElementById('adminTitle');
+  if(tt) tt.innerHTML=esc(dep.n)+' <span class="adm-cur">'+(ADMCURSO==='porcicultura'?'🐷 Porcicultura':'🌽 Formulación')+'</span>';
+}
+
+window.nxCambiarCurso=function(c){
+  ADMCURSO=c;
+  try{ localStorage.setItem('nx_adm_curso',c); }catch(e){}
+  window.CQADM=(c==='nutricion')?'nutricion':'porcicultura';
+  const root=document.getElementById('adminBody'); if(root) root.removeAttribute('data-nxc');
+  if(typeof ADM!=='undefined' && ADM.tab) admTab(ADM.tab);
+  toast('Gestionando: '+(c==='porcicultura'?'Porcicultura':'Formulación'), c==='porcicultura'?'🐷':'🌽');
+};
+
+/* vigila el panel: el conector de la nube reescribe el contenido de forma
+   asíncrona y sin pasar por renderAdmin, así que se redecora al detectarlo */
+let NXOBS=null;
+function nxVigilarPanel(){
+  const root=document.getElementById('adminBody');
+  if(!root||NXOBS) return;
+  NXOBS=new MutationObserver(function(){ nxDecorarPanel(); });
+  NXOBS.observe(root,{childList:true});
+}
+
+/* 1 · camino síncrono */
+(function(){
+  if(typeof renderAdmin!=='function') return;
+  const _r=renderAdmin;
+  renderAdmin=function(){ _r.apply(this,arguments); nxDecorarPanel(); };
+})();
+
+/* 2 · camino asíncrono del conector de la nube: redecorar cuando termine */
+(function(){
+  if(typeof admTab!=='function') return;
+  const _a=admTab;
+  admTab=function(t){
+    const root=document.getElementById('adminBody');
+    if(root && root.getAttribute('data-nxc') && root.getAttribute('data-nxc').split('|')[0]!==t) root.removeAttribute('data-nxc');
+    const r=_a.apply(this,arguments);
+    nxDecorarPanel();
+    nxVigilarPanel();
+    [0,60,250].forEach(function(ms){ setTimeout(nxDecorarPanel,ms); });
+    return r;
+  };
+})();
+
+/* el chip del canal de consultas sigue la selección de arriba */
+(function(){
+  if(typeof cqCursoAdmin!=='function') return;
+  const _c=window.cqCursoAdmin;
+  window.cqCursoAdmin=function(c){
+    ADMCURSO=c; try{ localStorage.setItem('nx_adm_curso',c); }catch(e){}
+    _c(c); setTimeout(nxDecorarPanel,0);
+  };
+})();
+
+(function(){ if(typeof ADM_TITLES!=='undefined') ADM_TITLES.cursos='Gestión de cursos'; })();
+
+window.nxVerActual=function(){
+  if(ADMCURSO==='nutricion') openNutricion(); else location.hash='#/curso';
+};
+
+
+/* ============================================================
    AVISOS DE CONSULTAS + DASHBOARD CON DETALLE
    ============================================================ */
 
@@ -10048,1219 +10199,339 @@ window.nxIrEval=function(id){
 
 
 /* ============================================================
-   GESTIÓN UNIFICADA DE CURSOS  ·  un solo motor por-curso
-   ------------------------------------------------------------
-   Reemplaza la capa de reconciliación (nxDecorarPanel + el
-   MutationObserver de shell5) y los caminos duplicados de la
-   pestaña "Cursos". A partir de aquí el panel del instructor
-   trabaja SIEMPRE con el curso elegido en el conmutador:
-   Dashboard, Estudiantes, Módulos, Evaluaciones, Progreso y
-   Certificados leen ese curso y nada más.
-
-   Se carga el último, así sus reasignaciones ganan.
+   CURSOS DEJA DE DUPLICAR LAS SECCIONES DE LA BARRA LATERAL
+   Módulos, Evaluaciones, Progreso y Certificados ya viven en el
+   menú y siguen el curso seleccionado. Tenerlos también dentro
+   de Cursos creaba dos caminos, y el de aquí estaba fijo al
+   curso de formulación: por eso el progreso salía siempre de
+   ese curso aunque arriba dijera otra cosa.
+   Cursos queda para lo que es propio de los productos.
    ============================================================ */
+
+nxAdminTabs=function(){
+  const t=[['resumen','Resumen'],['acceso','Acceso'],['formulas','Fórmulas'],['ajustes','Ajustes']];
+  return '<div class="fchips" style="margin-bottom:14px">'+t.map(function(x){
+    return '<button class="fchip'+(x[0]===NXADMTAB?' on':'')+'" onclick="nxAdmTab(\''+x[0]+'\')">'+x[1]+'</button>';}).join('')+'</div>';
+};
+
+/* si alguien llega con una pestaña que ya no existe, cae en el resumen */
 (function(){
-
-  /* ---------- 0 · estado del curso seleccionado ---------- */
-  if(typeof ADM==='undefined'){ try{ window.ADM={tab:'dashboard'}; }catch(e){} }
-  try{ ADM.course = localStorage.getItem('porci_adm_course') || 'porcicultura'; }catch(e){ ADM.course='porcicultura'; }
-  if(ADM.course!=='porcicultura' && ADM.course!=='nutricion') ADM.course='porcicultura';
-  /* alias que shell6/shell7 todavía leen */
-  window.ADMCURSO = ADM.course;
-  window.CQADM    = ADM.course;
-
-  /* ---------- 1 · registro de cursos (única fuente de verdad) ---------- */
-  function porciMods(){
-    if(typeof MODULES==='undefined') return [];
-    return MODULES.slice(1).map(function(m){ return {n:m.id, num:m.num, title:m.title, ac:m.ac}; });
-  }
-  function nutriMods(){
-    if(typeof NXMOD==='undefined') return [];
-    return NXMOD.map(function(m){ return {n:m.n, num:m.num, title:m.t, ac:m.ac}; });
-  }
-  function readRec(pre,uid,n){ try{ return JSON.parse(localStorage.getItem(pre+uid+'::exam_m'+n)); }catch(e){ return null; } }
-
-  var COURSES = {
-    porcicultura: {
-      id:'porcicultura', icon:'🐷', label:'Porcicultura',
-      name:'Porcicultura aplicada a República Dominicana',
-      hasFormulas:false, sellsSeparately:false,
-      modules: porciMods,
-      get n(){ return porciMods().length || 12; },
-      /* en modo nube el progreso de los demás estudiantes vive en la NUBE (CLOUDPROG), no en el localStorage del instructor */
-      rec:  function(uid,n){ return (typeof cloudRec==='function' && cloudRec(uid,n)) || readRec('porci::',uid,n); },
-      passed:function(uid,n){ if(typeof studentPassed==='function') return !!studentPassed(uid,n); var r=readRec('porci::',uid,n); return !!(r&&r.passed); },
-      count:function(uid){ if(typeof studentProgress==='function') return studentProgress(uid); var c=0,ms=porciMods(); for(var i=0;i<ms.length;i++) if(this.passed(uid,ms[i].n)) c++; return c; },
-      quiz: function(n){ return (typeof quizFor==='function')?quizFor(n):[]; },
-      get cfg(){ return {passing:(typeof CFG!=='undefined'?CFG.passing:80), gating:(typeof CFG!=='undefined'?!!CFG.gating:true)}; },
-      setCfg:function(p){ if(typeof CFG==='undefined')return; if(p.passing!=null)CFG.passing=+p.passing; if(p.gating!=null)CFG.gating=!!p.gating; if(typeof saveCFG==='function')saveCFG(); },
-      published:function(){ return (typeof NXPUB!=='undefined') ? NXPUB.porcicultura!==false : true; },
-      /* el curso base lo tienen todas las cuentas vivas */
-      enrolled:function(s){ return s && s.status!=='borrado'; },
-      certLabel:'verde · 12/12'
-    },
-    nutricion: {
-      id:'nutricion', icon:'🌽', label:'Formulación',
-      name:'Formulación y fabricación de alimentos balanceados',
-      hasFormulas:true, sellsSeparately:true,
-      modules: nutriMods,
-      get n(){ return nutriMods().length || 10; },
-      /* progreso desde la NUBE (course='nutricion') si está sincronizado; si no, localStorage del equipo */
-      rec:  function(uid,n){ return (typeof cloudRec==='function' && cloudRec(uid,n,'nutricion')) || readRec('nx::',uid,n); },
-      passed:function(uid,n){ var r=this.rec(uid,n); return !!(r&&r.passed); },
-      count:function(uid){ var c=0,ms=nutriMods(); for(var i=0;i<ms.length;i++) if(this.passed(uid,ms[i].n)) c++; return c; },
-      quiz: function(n){ return (typeof nxQuizFor==='function')?nxQuizFor(n):((typeof NXQUIZ!=='undefined'&&NXQUIZ[n])||[]); },
-      get cfg(){ return {passing:(typeof NXPASS!=='undefined'?NXPASS:80), gating:(typeof NXGATE!=='undefined'?!!NXGATE:true)}; },
-      setCfg:function(p){
-        /* NXPASS/NXGATE son 'let' de shell.js: se tocan por sus setters, que además persisten */
-        if(p.passing!=null && typeof nxSetPass==='function') nxSetPass(p.passing);
-        if(p.gating!=null  && typeof nxSetGate==='function') nxSetGate(p.gating);
-      },
-      published:function(){ if(typeof NXPUB!=='undefined') return !!NXPUB.nutricion; if(typeof NXACTIVO!=='undefined') return !!NXACTIVO; return true; },
-      /* este curso se paga aparte: solo los que lo compraron */
-      enrolled:function(s){ return s && s.status!=='borrado' && (typeof NXACCESO!=='undefined') && !!NXACCESO[s.id]; },
-      certLabel:'bronce · 10/10'
-    }
+  const vivas=['resumen','acceso','formulas','ajustes'];
+  if(vivas.indexOf(NXADMTAB)<0) NXADMTAB='resumen';
+  const _t=window.nxAdmTab;
+  window.nxAdmTab=function(t){
+    if(vivas.indexOf(t)<0) t='resumen';
+    return _t.call(this,t);
   };
-  window.COURSES = COURSES;
-  window.courseCtx = function(){ return COURSES[ADM.course] || COURSES.porcicultura; };
+})();
 
-  /* orden de llegada: por fecha de registro (created_at / enrolled_at), luego nombre */
-  function llaveLlegada(s){ return String(s.created||s.enrolled||s.enrolled_at||'9999')+'|'+String(s.name||''); }
-  function porLlegada(a,b){ return llaveLlegada(a)<llaveLlegada(b)?-1:(llaveLlegada(a)>llaveLlegada(b)?1:0); }
-  window.ucPorLlegada = porLlegada;
-
-  function enrolledStudents(C){
-    var all=(typeof STUDENTS!=='undefined'?STUDENTS:[])||[];
-    return all.filter(function(s){ return C.enrolled(s); }).sort(porLlegada);
-  }
-
-  /* ---------- 2 · conmutador único de curso ---------- */
-  window.nxSetCourse = function(id){
-    if(!COURSES[id]) return;
-    ADM.course=id; window.ADMCURSO=id; window.CQADM=id;
-    try{ localStorage.setItem('porci_adm_course',id); }catch(e){}
-    mountCourseSwitch(true);
-    if(typeof toast==='function') toast('Gestionando: '+COURSES[id].label, COURSES[id].icon);
-    var t=(typeof ADM!=='undefined')?ADM.tab:'dashboard';
-    if((t==='consultas'||t==='mercado') && typeof admTab==='function') admTab(t);
-    else if(t==='cursos' && typeof nxAdmin==='function') nxAdmin();   /* la pestaña Cursos no pasa por renderAdmin */
-    else if(typeof renderAdmin==='function') renderAdmin();
-  };
-  /* botón "Ir a Acceso" del catálogo: cambia al curso que se paga aparte y abre su pestaña Acceso */
-  window.ucIrAcceso=function(cid){
-    var id=cid||'nutricion';
-    try{ NXADMTAB='acceso'; }catch(e){}
-    if(ADM.course!==id) nxSetCourse(id);   /* nxSetCourse re-renderiza nxAdmin y respeta NXADMTAB */
-    else if(typeof nxAdmin==='function') nxAdmin();
-  };
-
-  function switchHTML(){
-    var cur=ADM.course;
-    return '<div class="ucsw" id="ucsw">'+
-      '<span class="ucsw-t">Gestionando</span>'+
-      Object.keys(COURSES).map(function(k){
-        var C=COURSES[k], on=(k===cur);
-        return '<button class="ucsw-b'+(on?' on':'')+'" onclick="nxSetCourse(\''+k+'\')" '+(on?'aria-current="true"':'')+'>'+
-          '<span class="ucsw-i">'+C.icon+'</span><b>'+C.label+'</b>'+
-          (C.published()?'':'<i class="ucsw-oc">oculto</i>')+'</button>';
-      }).join('')+
-      '<span class="ucsw-n">'+courseCtx().n+' módulos'+(courseCtx().sellsSeparately?' · se paga aparte':'')+'</span>'+
-      '</div>';
-  }
-  function mountCourseSwitch(force){
-    var body=document.getElementById('adminBody');
-    var host=body ? body.parentNode : document.querySelector('.adminp-main');
-    if(!host) return false;
-    var ex=document.getElementById('ucsw');
-    if(ex && !force) return true;
-    if(ex){ ex.outerHTML=switchHTML(); return true; }
-    var frag=document.createElement('div'); frag.innerHTML=switchHTML();
-    if(body && body.parentNode===host) host.insertBefore(frag.firstChild, body);
-    else host.appendChild(frag.firstChild);
-    return true;
-  }
-  (function tryMount(i){
-    if(mountCourseSwitch(false)) return;
-    if(i>40) return;
-    setTimeout(function(){ tryMount(i+1); }, 120);
-  })(0);
-  /* si el panel se re-renderiza, el conmutador vive en .adminp-top (estático) y no se pierde */
-
-  var _css='.ucsw{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--border,#3a3a3a);font-size:13px}'+
-    '.ucsw-t{color:var(--muted,#8a8a8a);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:11px}'+
-    '.ucsw-b{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--border,#3a3a3a);'+
-      'background:transparent;color:var(--text,#ddd);cursor:pointer;font:inherit;line-height:1}'+
-    '.ucsw-b b{font-weight:600}'+
-    '.ucsw-b.on{background:var(--green,#2F7D4F);border-color:var(--green,#2F7D4F);color:#fff}'+
-    '.ucsw-oc{font-style:normal;font-size:10px;opacity:.7;border:1px solid currentColor;border-radius:4px;padding:0 4px}'+
-    '.ucsw-n{color:var(--muted,#8a8a8a);font-size:12px}'+
-    '.uc-cat{display:grid;gap:12px}'+
-    '.uc-c{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--border,#3a3a3a);border-radius:12px}'+
-    '.uc-c .uc-ico{font-size:26px}.uc-c .uc-t{flex:1}.uc-c .uc-t b{display:block}.uc-c .uc-t span{color:var(--muted,#8a8a8a);font-size:12.5px}'+
-    '.uc-c .uc-pill{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--green,#2F7D4F);color:#fff}'+
-    '.uc-c .uc-pill.off{background:var(--muted,#7a736b)}'+
-    '.uc-pos{color:var(--muted,#8a8a8a);font-variant-numeric:tabular-nums;text-align:center;width:34px;font-weight:600}'+
-    '.uc-video{display:block;margin:0 0 22px;text-decoration:none}'+
-    '.uc-video-fr{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#0a0a0a}'+
-    '.uc-video-th{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55}'+
-    '.uc-video-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;'+
-      'background:radial-gradient(ellipse at center,rgba(0,0,0,.25),rgba(0,0,0,.55));transition:background .15s}'+
-    '.uc-video:hover .uc-video-ov{background:radial-gradient(ellipse at center,rgba(0,0,0,.15),rgba(0,0,0,.45))}'+
-    '.uc-video-ov svg{filter:drop-shadow(0 4px 14px rgba(0,0,0,.5));transition:transform .15s}'+
-    '.uc-video:hover .uc-video-ov svg{transform:scale(1.06)}'+
-    '.uc-video-ov b{color:#fff;font-size:15px;font-weight:600;margin-top:4px}'+
-    '.uc-video-ov em{color:rgba(255,255,255,.75);font-size:12px;font-style:normal}'+
-    '.uc-vid-in{width:100%;font:inherit;padding:6px 8px;border:1px solid var(--border,#3a3a3a);border-radius:8px;background:transparent;color:var(--text,#ddd)}';
-  try{ var st=document.createElement('style'); st.textContent=_css; document.head.appendChild(st); }catch(e){}
-
-  /* ---------- 3 · apagar la capa de reconciliación de shell5 ---------- */
-  try{ if(typeof NXOBS!=='undefined' && NXOBS && NXOBS.disconnect){ NXOBS.disconnect(); window.NXOBS=null; } }catch(e){}
-  try{ window.nxDecorarPanel = function(){}; }catch(e){}
-  try{ window.nxVigilarPanel = function(){}; }catch(e){}
-
-  /* ---------- 4 · vistas de la barra lateral, por curso ---------- */
-
-  /* -- Módulos -- */
-  window.modulesView = function(){
-    var C=courseCtx(), ms=C.modules();
-    var gate = C.cfg.gating;
-    var hayVid = Object.keys((UC_VIDEOS[C.id]||{})).length;
-    var h='<p class="adm-note">Los '+ms.length+' módulos de <b>'+esc(C.label)+'</b>. El contenido está integrado; aquí se gestiona su <b>evaluación</b>, el <b>bloqueo por nota</b> y el <b>video</b> de cada módulo (YouTube o Vimeo).</p>'+
-      (hayVid ? '<div style="margin:0 0 10px"><button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucSubirVideosEquipo()">☁️ Subir a la nube los videos de este equipo</button> '+
-        '<span style="font-size:11.5px;color:var(--muted)">úsalo si agregaste los enlaces antes de habilitar la nube</span></div>' : '')+
-      '<div class="cfg-row" style="max-width:520px"><label>Bloqueo de avance por nota<small>Exige aprobar para desbloquear el siguiente módulo</small></label>'+
-      '<span class="switch"><input type="checkbox" id="ucGate"'+(gate?' checked':'')+' onchange="ucSetGate(this.checked)"><span></span></span></div>'+
-      '<div class="mod-list" style="margin-top:14px">'+ms.map(function(m){
-        var nq=(C.quiz(m.n)||[]).length;
-        var vurl=ucVideoURL(C.id, m.n);
-        return '<div class="mod-item" style="flex-wrap:wrap"><div class="mnum" style="background:'+(m.ac||'#2F7D4F')+'">'+m.num+'</div>'+
-          '<div class="mtitle"><b>'+esc(m.title)+'</b><span>'+nq+' pregunta'+(nq===1?'':'s')+' de evaluación'+(vurl?' · 🎬 con video':'')+'</span></div>'+
-          '<div class="mact"><button onclick="ucVerModulo('+m.n+')">👁️ Ver</button>'+
-          '<button onclick="ucEditEval('+m.n+')">📝 Editar evaluación</button></div>'+
-          '<label style="flex:1 1 100%;display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:var(--muted)">🎬 Video'+
-            '<input class="uc-vid-in" type="url" placeholder="Pega el enlace de YouTube o Vimeo (no listado) y pulsa Enter" value="'+ea(vurl)+'" '+
-            'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}" '+
-            'onchange="ucGuardarVideoCampo(\''+C.id+'\','+m.n+',this.value)">'+
-            (vurl?'<button class="adm-add" style="padding:4px 9px;font-size:11px" onclick="ucGuardarVideoCampo(\''+C.id+'\','+m.n+',\'\')">quitar</button>':'')+
-            '</label>'+
-          '</div>';
-      }).join('')+'</div>';
-    return h;
-  };
-  window.ucSetGate=function(v){ courseCtx().setCfg({gating:!!v}); if(typeof toast==='function')toast(v?'Bloqueo activado':'Bloqueo desactivado','⚙️'); };
-  window.ucGuardarVideoCampo=function(course,n,url){
-    var antes=ucVideoURL(course,n);
-    ucSetVideo(course,n,url);
-    var ahora=ucVideoURL(course,n);
-    if(ahora!==antes && typeof toast==='function') toast(ahora?('🎬 Video del módulo '+n+' guardado'):('Video del módulo '+n+' quitado'), ahora?'✅':'🗑');
-    if(typeof admTab==='function') admTab('modules');
-  };
-  window.ucVerModulo=function(n){
-    if(ADM.course==='nutricion'){ if(typeof nxVerModulo==='function') return nxVerModulo(n); }
-    if(typeof goto==='function'){ goto(n); location.hash='#/curso'; }
-  };
-  window.ucEditEval=function(n){
-    if(ADM.course==='nutricion'){ if(typeof NXQMOD!=='undefined') window.NXQMOD=n; if(typeof admTab==='function') admTab('evals'); return; }
-    if(typeof admTab==='function'){ admTab('evals'); if(typeof evalPick==='function') evalPick(n); }
-  };
-
-  /* -- Evaluaciones -- (porci = editor original · nutrición = editor de shell9) */
-  var _evalsView = (typeof evalsView==='function') ? evalsView : function(){ return ''; };
-  var _renderQEdit = (typeof renderQEdit==='function') ? renderQEdit : function(){};
-  window.evalsView = function(){
-    if(ADM.course==='nutricion' && typeof nxAdmEvaluaciones==='function') return nxAdmEvaluaciones();
-    return _evalsView.apply(this, arguments);
-  };
-  window.renderQEdit = function(){
-    if(ADM.course==='nutricion') return;      /* shell9 pinta en línea */
-    return _renderQEdit.apply(this, arguments);
-  };
-
-  /* ============================================================
-     VIDEO POR MÓDULO (YouTube / Vimeo "no listado")
-     ============================================================ */
-  var UC_VIDEOS = {porcicultura:{}, nutricion:{}};
-  try{ var v=JSON.parse(localStorage.getItem('porci_videos')||'null'); if(v){ UC_VIDEOS.porcicultura=v.porcicultura||{}; UC_VIDEOS.nutricion=v.nutricion||{}; } }catch(e){}
-  function ucGuardarVideosLocal(){ try{ localStorage.setItem('porci_videos', JSON.stringify(UC_VIDEOS)); }catch(e){} }
-  window.ucVideoURL = function(course, n){ return (UC_VIDEOS[course]||{})[n] || ''; };
-
-  function ucEmbed(url){
-    if(!url) return null;
-    url=String(url).trim();
-    var m, org='';
-    try{ if(/^https?:/.test(location.origin)) org='&origin='+encodeURIComponent(location.origin); }catch(e){}
-    /* YouTube: id de 11 caracteres */
-    if((m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/))
-       || (m=url.match(/[?&]v=([A-Za-z0-9_-]{11})/))){
-      var id=m[1];
-      return { kind:'yt', id:id,
-        src:'https://www.youtube-nocookie.com/embed/'+id+'?rel=0&modestbranding=1&playsinline=1&iv_load_policy=3'+org,
-        watch:'https://www.youtube.com/watch?v='+id };
-    }
-    if((m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/))){
-      return { kind:'vimeo', id:m[1], src:'https://player.vimeo.com/video/'+m[1], watch:'https://vimeo.com/'+m[1] };
-    }
-    if(/^https:\/\/(www\.)?(youtube(-nocookie)?\.com\/embed\/|player\.vimeo\.com\/video\/)/.test(url)){
-      return { kind:'raw', src:url, watch:url };
-    }
-    return null;
-  }
-  var YT_LOGO='<svg viewBox="0 0 90 64" width="90" height="64" aria-hidden="true">'+
-    '<path fill="#FF0000" d="M88 10c-1-4-4-7-8-8C73 0 45 0 45 0S17 0 10 2C6 3 3 6 2 10 0 17 0 32 0 32s0 15 2 22c1 4 4 7 8 8 7 2 35 2 35 2s28 0 35-2c4-1 7-4 8-8 2-7 2-22 2-22s0-15-2-22z"/>'+
-    '<path fill="#fff" d="M36 46l23-14-23-14z"/></svg>';
-  function ucVideoBloque(course, n){
-    var v=ucEmbed(ucVideoURL(course, n));
-    if(!v) return '';
-    var thumb = v.kind==='yt' ? 'https://i.ytimg.com/vi/'+v.id+'/hqdefault.jpg' : '';
-    return '<a class="uc-video" href="'+v.watch+'" target="_blank" rel="noopener" aria-label="Ver el video del módulo en '+(v.kind==='vimeo'?'Vimeo':'YouTube')+'">'+
-      '<div class="uc-video-fr">'+
-        (thumb?'<img class="uc-video-th" src="'+thumb+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'')+
-        '<span class="uc-video-ov">'+YT_LOGO+'<b>Ver el video del módulo</b><em>Haz clic para abrirlo</em></span>'+
-      '</div></a>';
-  }
-  window.ucVideoBloque = ucVideoBloque;
-  window.ucSetVideo = function(course, n, url){
-    url=String(url||'').trim();
-    if(url && !ucEmbed(url)){
-      if(typeof toast==='function') toast('No reconocí ese enlace. Pega la URL de la página del video de YouTube o Vimeo (ej. youtube.com/watch?v=… o youtu.be/…).','⚠️');
-      return;
-    }
-    if(!UC_VIDEOS[course]) UC_VIDEOS[course]={};
-    if(url) UC_VIDEOS[course][n]=url; else delete UC_VIDEOS[course][n];
-    ucGuardarVideosLocal();
-    if(window.SB){ try{ window.SB.from('settings').update({videos:UC_VIDEOS}).eq('id',1).then(function(r){
-      if(r&&r.error && typeof toast==='function') toast('Video guardado en este equipo (falta la columna settings.videos en Supabase)','⚠️');
-    }); }catch(e){} }
-  };
-  function ucVideosVacio(o){ return !o || (!Object.keys(o.porcicultura||{}).length && !Object.keys(o.nutricion||{}).length); }
-  var UC_VID_PULLED=false, UC_VID_TRYING=false;
-  function ucRepintarModulo(){
-    try{
-      if(document.getElementById('nxMain') && typeof nxPinta==='function') nxPinta();
-      if(document.querySelector('#main .module') && typeof current!=='undefined' && current>=1 && typeof mount==='function') mount(current);
-    }catch(e){}
-  }
-  window.ucCargarVideosNube = async function(){
-    if(!window.SB || UC_VID_TRYING) return;
-    UC_VID_TRYING=true;
-    try{
-      var r=await window.SB.from('settings').select('videos').eq('id',1).maybeSingle();
-      UC_VID_PULLED=true;
-      var v=r&&r.data&&r.data.videos; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v=null; } }
-      var localTiene = !ucVideosVacio(UC_VIDEOS);
-      if(!ucVideosVacio(v)){
-        /* la nube manda; se conservan los que solo estén en este equipo */
-        UC_VIDEOS.porcicultura = Object.assign({}, UC_VIDEOS.porcicultura, v.porcicultura||{});
-        UC_VIDEOS.nutricion    = Object.assign({}, UC_VIDEOS.nutricion,    v.nutricion||{});
-        ucGuardarVideosLocal();
-      } else if(localTiene){
-        /* la nube está vacía pero este equipo tiene links: súbelos */
-        try{ await window.SB.from('settings').update({videos:UC_VIDEOS}).eq('id',1); }catch(e){}
-      }
-      ucRepintarModulo();
-    }catch(e){}
-    UC_VID_TRYING=false;
-  };
-  /* carga de la nube al arrancar (no depende de ningún hook interno) */
-  setTimeout(function(){ try{ ucCargarVideosNube(); }catch(e){} }, 2200);
-  setTimeout(function(){ if(!UC_VID_PULLED){ try{ ucCargarVideosNube(); }catch(e){} } }, 6000);
-  /* botón manual: sube a la nube TODOS los videos guardados en este equipo */
-  window.ucSubirVideosEquipo = async function(){
-    if(!window.SB){ if(typeof toast==='function') toast('Sin conexión a la nube','⛔'); return; }
-    try{
-      var r=await window.SB.from('settings').update({videos:UC_VIDEOS}).eq('id',1);
-      if(r&&r.error){ if(typeof toast==='function') toast('No se pudo subir: '+r.error.message,'⛔'); return; }
-      if(typeof toast==='function') toast('Videos de este equipo subidos a la nube','☁️');
-      if(typeof admTab==='function' && typeof ADM!=='undefined' && ADM.tab==='modules') admTab('modules');
-    }catch(e){ if(typeof toast==='function') toast('No se pudo subir','⛔'); }
-  };
-  /* si algo llegara a llamar _pullCertSettings, aprovechar */
-  if(typeof window._pullCertSettings==='function'){
-    var _pcs=window._pullCertSettings;
-    window._pullCertSettings=function(){ var r=_pcs.apply(this,arguments); try{ ucCargarVideosNube(); }catch(e){} return r; };
-  }
-
-  /* inyectar el video en la lección del estudiante */
-  /* Inserta el video DENTRO de la primera sección de contenido, así el
-     "modo lección" lo muestra solo en la sección 1 y no queda flotando
-     encima de las demás ni hace que "Continuar" salte hacia arriba. */
-  (function(){
-    if(typeof mount==='function'){
-      var _mount=mount;
-      window.mount=function(idm){
-        var r=_mount.apply(this,arguments);
-        try{
-          if(idm>=1){
-            /* si aún no se trajeron los videos de la nube y este equipo no los tiene, tráelos ahora */
-            if(!UC_VID_PULLED && ucVideosVacio(UC_VIDEOS) && window.SB) ucCargarVideosNube();
-            var mod=document.querySelector('#main .module');
-            var b=ucVideoBloque('porcicultura', idm);
-            if(mod && b && !mod.querySelector('.uc-video')){
-              var wrap=mod.querySelector('.wrap')||mod;
-              var first=wrap.querySelector(':scope > .block') || wrap.querySelector('.block');
-              if(first) first.insertAdjacentHTML('afterbegin', b);
-              else { var hero=mod.querySelector('.mod-hero,.hero'); if(hero) hero.insertAdjacentHTML('afterend', b); else mod.insertAdjacentHTML('afterbegin', b); }
-            }
-          }
-        }catch(e){}
-        return r;
-      };
-    }
-    if(typeof window.nxPinta==='function'){
-      var _np=window.nxPinta;
-      window.nxPinta=function(){
-        var r=_np.apply(this,arguments);
-        try{
-          if(typeof NXCUR!=='undefined' && NXCUR>=1){
-            if(!UC_VID_PULLED && ucVideosVacio(UC_VIDEOS) && window.SB) ucCargarVideosNube();
-            var wrap=document.querySelector('#nxMain .nx-wrap');
-            var b=ucVideoBloque('nutricion', NXCUR);
-            if(wrap && b && !wrap.querySelector('.uc-video')){
-              var firstSec=wrap.querySelector('section.nx-b');
-              if(firstSec) firstSec.insertAdjacentHTML('afterbegin', b);
-              else wrap.insertAdjacentHTML('afterbegin', b);
-            }
-          }
-        }catch(e){}
-        return r;
-      };
-    }
-  })();
-
-  /* ---------- exportar a EXCEL (.xls) — estudiantes / calificaciones ---------- */
-  function xlsEsc(v){ return String(v==null?'':v).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
-  function xlsCell(v){
-    if(typeof v==='number' && isFinite(v)) return '<td style="mso-number-format:\'0\'" x:num>'+v+'</td>';
-    /* texto: forzar formato texto para que Excel no reinterprete correos/teléfonos/fechas */
-    return '<td style="mso-number-format:\'\\@\'">'+xlsEsc(v)+'</td>';
-  }
-  function xlsBaja(nombre, titulo, headers, rows){
-    var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">'+
-      '<head><meta charset="UTF-8">'+
-      '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'+
-      '<x:Name>'+xlsEsc(titulo||'Datos')+'</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>'+
-      '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'+
-      '<style>table{border-collapse:collapse;font-family:Calibri,Arial,sans-serif;font-size:11pt}'+
-      'th{background:#2F7D4F;color:#fff;font-weight:bold;text-align:left;border:1px solid #1c5330;padding:6px 10px;white-space:nowrap}'+
-      'td{border:1px solid #cfcfcf;padding:5px 10px;vertical-align:top}'+
-      'tr:nth-child(even) td{background:#f3f7f4}</style></head><body>'+
-      '<table><thead><tr>'+headers.map(function(h){return '<th>'+xlsEsc(h)+'</th>';}).join('')+'</tr></thead><tbody>'+
-      rows.map(function(r){ return '<tr>'+r.map(xlsCell).join('')+'</tr>'; }).join('')+
-      '</tbody></table></body></html>';
-    try{
-      var blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
-      var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre;
-      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },400);
-    }catch(e){ if(typeof toast==='function')toast('No se pudo generar el Excel','⛔'); }
-  }
-  window.ucExportXLS=function(kind){
-    var C=courseCtx(), ms=C.modules(), N=ms.length;
-    var alum=enrolledStudents(C);
-    var hoy=new Date().toISOString().slice(0,10);
-    if(kind==='estudiantes'){
-      var head=['#','Nombre','Correo','Teléfono','Estado','Llegó el','Módulos aprobados','Total módulos','Progreso %'];
-      var rows=alum.map(function(s,i){
-        var pc=C.count(s.id);
-        return [i+1, s.name, s.email||'', s.phone||'', s.status||'', s.enrolled||'', pc, N, Math.round(pc/N*100)];
-      });
-      xlsBaja('estudiantes_'+C.id+'_'+hoy+'.xls', 'Estudiantes '+C.label, head, rows);
-    }else{
-      var head2=['#','Nombre','Correo'].concat(ms.map(function(m){return 'M'+String(m.num).padStart(2,'0');})).concat(['Aprobados','Total','Promedio %']);
-      var rows2=alum.map(function(s,i){
-        var notas=ms.map(function(m){ var r=C.rec(s.id,m.n); return r?(+(r.best||r.last||0)):''; });
-        var num=notas.filter(function(x){return x!=='';});
-        var prom=num.length?Math.round(num.reduce(function(a,b){return a+b;},0)/num.length):'';
-        return [i+1, s.name, s.email||''].concat(notas).concat([C.count(s.id), N, prom]);
-      });
-      xlsBaja('calificaciones_'+C.id+'_'+hoy+'.xls', 'Calificaciones '+C.label, head2, rows2);
-    }
-  };
-  function ucBotonesCSV(){
-    return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px">'+
-      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportXLS(\'estudiantes\')">⬇ Estudiantes (Excel)</button>'+
-      '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="ucExportXLS(\'calificaciones\')">⬇ Calificaciones (Excel)</button>'+
-      '</div>';
-  }
-  window.ucBotonesCSV = ucBotonesCSV;
-  window.ucExportCSV = window.ucExportXLS;   /* compatibilidad con llamadas viejas */
-
-  /* -- Progreso -- */
-  window.progressView = function(){
-    var C=courseCtx(), ms=C.modules(), N=ms.length;
-    var alum=enrolledStudents(C);
-    if(!alum.length) return '<div class="adm-empty">'+(C.sellsSeparately
-      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Actívalos en <b>Cursos → Catálogo</b>.'
-      : 'Sin estudiantes.')+'</div>';
-    var rows=alum.map(function(s,idx){
-      var pc=C.count(s.id), pct=Math.round(pc/N*100), sc=[];
-      ms.forEach(function(m){ var r=C.rec(s.id,m.n); if(r) sc.push(r.best||r.last||0); });
-      var avg=sc.length?Math.round(sc.reduce(function(a,b){return a+b;},0)/sc.length):0;
-      return '<tr><td class="uc-pos">'+(idx+1)+'</td><td><b>'+esc(s.name)+'</b>'+
-          (s.enrolled?'<span style="display:block;font-size:11px;color:var(--muted)">llegó el '+esc(s.enrolled)+'</span>':'')+'</td>'+
-        '<td>'+esc((typeof sectionName==='function')?sectionName(s.section):'—')+'</td>'+
-        '<td><div class="adm-prog"><div class="adm-prog-bar"><i style="width:'+pct+'%"></i></div><span>'+pct+'%</span></div></td>'+
-        '<td>'+pc+'/'+N+'</td><td>'+(sc.length?avg+'%':'—')+'</td>'+
-        '<td><button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="studentProfile('+((typeof jsq==='function')?jsq(s.id):("'"+s.id+"'"))+')">Ver perfil</button></td></tr>';
-    }).join('');
-    var nota='<p class="adm-note">Avance en <b>'+esc(C.label)+'</b>. Se guarda por separado de los demás cursos. '+
-      'Si a alguien no le aparece su avance, que inicie sesión una vez desde el dispositivo donde estudió: al entrar, su progreso local se respalda a la nube.</p>';
-    var tabla='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th title="Orden de llegada">#</th><th>Estudiante</th><th>Sección</th><th>Progreso</th><th>Aprobados</th><th>Promedio</th><th></th></tr></thead><tbody>'+
-      rows+'</tbody></table></div>';
-    return nota+ucBotonesCSV()+tabla+(C.id==='porcicultura'?ucRescatePanel(alum):'');
-  };
-
-  /* ---- recuperar avance que quedó guardado en ESTE equipo (localStorage) y no en la nube ---- */
-  function ucScanLocalProgress(){
-    var out={}, re=/^porci::(.+)::exam_m(\d+)$/;
-    for(var i=0;i<localStorage.length;i++){
-      var k=localStorage.key(i), m=re.exec(k); if(!m) continue;
-      var id=m[1]; if(id==='local') continue;
-      var rec=null; try{ rec=JSON.parse(localStorage.getItem(k)); }catch(e){}
-      if(!rec) continue;
-      if(!out[id]) out[id]={n:0,passed:0,last:0};
-      out[id].n++; if(rec.passed) out[id].passed++; if(rec.date&&rec.date>out[id].last) out[id].last=rec.date;
-    }
-    return out;
-  }
-  function ucRescatePanel(alum){
-    var scan=ucScanLocalProgress();
-    var ids=Object.keys(scan);
-    var known={}; alum.forEach(function(s){ known[s.id]=s.name; });
-    var huerfanos=ids.filter(function(id){ return !known[id]; });
-    var opts=alum.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name)+'</option>'; }).join('');
-    var body='';
-    if(!huerfanos.length){
-      body='<p class="adm-note" style="margin:0">No hay avance suelto en este equipo por asignar. '+
-        'Si a un estudiante no le aparece su progreso, la copia está en el navegador donde estudió: que inicie sesión ahí una vez.</p>';
-    }else{
-      body='<p class="adm-note" style="margin:0 0 10px">Se encontró avance en este equipo que <b>no corresponde a ningún estudiante actual</b>. '+
-        'Si es de alguien de la lista, asígnelo y súbalo a la nube.</p>'+
-        '<table class="adm-table"><thead><tr><th>Origen (id local)</th><th>Módulos</th><th>Aprob.</th><th>Últ. actividad</th><th>Asignar a</th></tr></thead><tbody>'+
-        huerfanos.map(function(id){
-          var d=scan[id];
-          return '<tr><td><code>'+esc(id.slice(0,18))+(id.length>18?'…':'')+'</code></td><td>'+d.n+'</td><td>'+d.passed+'</td>'+
-            '<td>'+(d.last?new Date(d.last).toLocaleDateString('es-DO',{day:'2-digit',month:'short'}):'—')+'</td>'+
-            '<td><select id="ucres_'+esc(id)+'" style="max-width:180px"><option value="">— elegir —</option>'+opts+'</select> '+
-            '<button class="adm-add" style="padding:5px 10px;font-size:12px" onclick="ucAsignarProgreso(\''+esc(id).replace(/'/g,"\\'")+'\')">Subir</button></td></tr>';
-        }).join('')+'</tbody></table>';
-    }
-    return '<details class="adm-card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">🔧 Recuperar avance guardado en este equipo'+
-      (huerfanos.length?' ('+huerfanos.length+')':'')+'</summary><div style="margin-top:12px">'+body+'</div></details>';
-  }
-  window.ucAsignarProgreso=async function(localId){
-    var sel=document.getElementById('ucres_'+localId);
-    var uid=sel && sel.value;
-    if(!uid){ if(typeof toast==='function')toast('Elija a qué estudiante corresponde','✍️'); return; }
-    if(!window.SB){ if(typeof toast==='function')toast('Sin conexión a la nube','⛔'); return; }
-    var subir=[];
-    for(var m=1;m<=12;m++){
-      var rec=null; try{ rec=JSON.parse(localStorage.getItem('porci::'+localId+'::exam_m'+m)); }catch(e){}
-      if(!rec) continue;
-      subir.push({user_id:uid,module:m,passed:!!rec.passed,best:rec.best||0,last_score:rec.last||0,attempts:rec.attempts||0,updated_at:new Date(rec.date||Date.now()).toISOString()});
-    }
-    if(!subir.length){ if(typeof toast==='function')toast('No había módulos que subir','ℹ️'); return; }
-    try{
-      var r=await SB.from('progress').upsert(subir,{onConflict:'user_id,module'});
-      if(r.error){ if(typeof toast==='function')toast('No se pudo subir: '+r.error.message,'⛔'); return; }
-      if(typeof pullProgress==='function') await pullProgress(uid);
-      if(typeof toast==='function')toast(subir.length+' módulo(s) subidos y asignados','✅');
-      if(typeof admTab==='function') admTab('progress');
-    }catch(e){ if(typeof toast==='function')toast('Error: '+e.message,'⛔'); }
-  };
-
-  /* -- Estudiantes -- (KPIs y lista, filtrados por inscripción al curso) */
-  var _studentsView = (typeof studentsView==='function') ? studentsView : function(){ return ''; };
-  window.studentsView = function(){
-    var C=courseCtx();
-    if(!C.sellsSeparately){
-      var h0=_studentsView.apply(this, arguments);   /* curso base: lista completa */
-      /* quita el recuadro "Secciones" del resumen (no aporta aquí) e inserta los botones de Excel */
-      h0=h0.replace(/<div class="adm-kpi"><b>[^<]*<\/b><span>Secciones<\/span><\/div>/,'');
-      return h0.replace('<div id="studentsTableWrap">', ucBotonesCSV()+'<div id="studentsTableWrap">');
-    }
-    var alum=enrolledStudents(C);
-    var activos=alum.filter(function(s){return s.status==='activo';}).length;
-    var chips='';
-    if(typeof STATUS!=='undefined'){
-      var cnt={}; Object.keys(STATUS).forEach(function(k){ cnt[k]=alum.filter(function(s){return s.status===k;}).length; });
-      chips='<div class="fchips" id="grpEst">'+
-        '<button class="fchip on" onclick="admFiltro(\'admSt\',\'\',this)">Todos <b>'+alum.length+'</b></button>'+
-        Object.keys(STATUS).filter(function(k){return k!=='borrado';}).map(function(k){
-          return '<button class="fchip c-'+k+'" onclick="admFiltro(\'admSt\',\''+k+'\',this)">'+STATUS[k][0]+' <b>'+cnt[k]+'</b></button>';
-        }).join('')+'</div>';
-    }
-    return '<p class="adm-note">Estudiantes con acceso a <b>'+esc(C.label)+'</b>. '+
-      'Para dar o quitar acceso use <b>Cursos → Acceso</b>.</p>'+
-      '<div class="adm-summary">'+
-      '<div class="adm-kpi"><b>'+alum.length+'</b><span>Con acceso</span></div>'+
-      '<div class="adm-kpi"><b>'+activos+'</b><span>Activos</span></div></div>'+
-      '<div class="adm-toolbar">'+
-      '<input id="admQ" type="search" placeholder="Buscar nombre, correo o teléfono…" oninput="renderStudentsTable()">'+
-      '</div>'+
-      '<input type="hidden" id="admSt" value=""><input type="hidden" id="admSec" value="">'+
-      chips+ucBotonesCSV()+'<div id="studentsTableWrap"></div>';
-  };
-  var _renderStudentsTable = (typeof renderStudentsTable==='function') ? renderStudentsTable : function(){};
-  window.renderStudentsTable = function(){
-    var wrap=document.getElementById('studentsTableWrap'); if(!wrap) return;
-    var C=courseCtx(), N=C.modules().length;
-    var secF=(document.getElementById('admSec')||{}).value||'';
-    var q=((document.getElementById('admQ')||{}).value||'').toLowerCase();
-    var stF=(document.getElementById('admSt')||{}).value||'';
-    var base=(typeof STUDENTS!=='undefined'?STUDENTS:[])||[];
-    var rows=base.filter(function(s){
-      if(!C.enrolled(s) && stF!=='borrado') return false;
-      if(stF){ if(s.status!==stF) return false; }
-      else if(s.status==='borrado') return false;
-      if(secF && s.section!==secF) return false;
-      if(q && !(s.name.toLowerCase().indexOf(q)>=0 || (s.email||'').toLowerCase().indexOf(q)>=0 || (s.phone||'').toLowerCase().indexOf(q)>=0)) return false;
-      return true;
-    }).sort(porLlegada);
-    if(!rows.length){ wrap.innerHTML='<div class="adm-empty">'+(stF==='borrado'?'La papelera está vacía.':'No hay estudiantes de '+esc(C.label)+' que coincidan con este filtro.')+'</div>'; return; }
-    var js=function(id){ return (typeof jsq==='function')?jsq(id):("'"+String(id).replace(/'/g,"\\'")+"'"); };
-    var badge=function(s){ return (typeof STATUS!=='undefined'&&STATUS[s.status])?('<span class="st-badge '+STATUS[s.status][1]+'">'+STATUS[s.status][0]+'</span>'):s.status; };
-    wrap.innerHTML='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th title="Orden de llegada">#</th><th>Estudiante</th><th>Contacto</th><th>Sección</th><th>Estado</th><th>Progreso ('+esc(C.label)+')</th><th>Acciones</th></tr></thead><tbody>'+
-      rows.map(function(s,idx){ var pc=C.count(s.id), pct=Math.round(pc/N*100);
-        return '<tr>'+
-          '<td class="uc-pos">'+(idx+1)+'</td>'+
-          '<td><div class="adm-stu"><b>'+esc(s.name)+'</b><span>'+esc(s.email||'sin correo')+(s.enrolled?' · llegó el '+esc(s.enrolled):'')+'</span></div></td>'+
-          '<td>'+(s.phone?('<a class="adm-tel" href="tel:'+ea(s.phone)+'">'+esc(s.phone)+'</a>'):'<span style="color:var(--muted)">—</span>')+'</td>'+
-          '<td>'+esc((typeof sectionName==='function')?sectionName(s.section):'—')+'</td>'+
-          '<td>'+badge(s)+'</td>'+
-          '<td><div class="adm-prog"><div class="adm-prog-bar"><i style="width:'+pct+'%"></i></div><span>'+pc+'/'+N+'</span></div></td>'+
-          '<td class="adm-acts">'+
-            (s.status==='borrado'
-              ? '<button title="Restaurar" onclick="restoreStudent('+js(s.id)+')">↩</button><button class="del" title="Eliminar definitivamente" onclick="purgeStudent('+js(s.id)+')">🗑</button>'
-              : '<button title="Ver perfil" onclick="studentProfile('+js(s.id)+')">👁</button>'+
-                '<button title="Editar" onclick="editStudent('+js(s.id)+')">✎</button>'+
-                '<button title="'+(s.status==='inactivo'?'Reactivar':'Desactivar')+'" onclick="toggleActive('+js(s.id)+')">'+(s.status==='inactivo'?'✔':'⏸')+'</button>'+
-                '<button class="del" title="Enviar a la papelera" onclick="deleteStudent('+js(s.id)+')">🗑</button>')+
-          '</td></tr>';
-      }).join('')+'</tbody></table></div>';
-  };
-
-  /* -- Ficha del estudiante -- (por curso seleccionado) */
-  if(typeof studentProfile==='function'){
-    window.studentProfile=function(id){
-      var s=(typeof getStudent==='function')?getStudent(id):null; if(!s) return;
-      var C=courseCtx(), ms=C.modules(), N=ms.length;
-      var pc=C.count(id), rows='', last=0, next=0;
-      ms.forEach(function(m){
-        var r=C.rec(id,m.n); if(!r) return;
-        last=Math.max(last, r.date||0);
-        rows+='<tr><td>M'+String(m.num).padStart(2,'0')+' · '+esc(m.title)+'</td><td>'+(r.best||0)+'%</td><td>'+(r.attempts||1)+'</td><td>'+
-          (r.passed?'<span class="st-badge st-activo">Aprobado</span>':'<span class="st-badge st-pendiente">Pendiente</span>')+'</td></tr>';
-      });
-      for(var k=0;k<ms.length;k++){ if(!C.passed(id,ms[k].n)){ next=ms[k].num; break; } }
-      var badge=(typeof STATUS!=='undefined'&&STATUS[s.status])?('<span class="st-badge '+STATUS[s.status][1]+'">'+STATUS[s.status][0]+'</span>'):s.status;
-      var body='<div class="nxd-cur" style="margin-bottom:10px">'+C.icon+' '+esc(C.label)+'</div>'+
-        '<div class="prof-grid">'+profRow('Correo',esc(s.email||'—'))+profRow('Teléfono',esc(s.phone||'—'))+
-        profRow('Sección',esc((typeof sectionName==='function')?sectionName(s.section):'—'))+profRow('Estado',badge)+
-        profRow('Llegó el',s.enrolled||'—')+profRow('Progreso',pc+'/'+N+' ('+Math.round(pc/N*100)+'%)')+
-        profRow('Módulo actual',next?('M'+String(next).padStart(2,'0')):'Completado ✓')+
-        profRow('Última actividad',last?new Date(last).toLocaleDateString('es-DO'):'—')+'</div>'+
-        (rows?'<h4 style="margin:18px 0 8px">Calificaciones e intentos · '+esc(C.label)+'</h4><div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Módulo</th><th>Nota</th><th>Intentos</th><th>Estado</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
-          :'<p style="color:var(--muted);margin-top:14px">Sin evaluaciones de '+esc(C.label)+' todavía.</p>');
-      openForm('Perfil · '+esc(s.name), body,
-        '<button class="btn btn-ghost" onclick="closeForm()">Cerrar</button>'+
-        '<button class="btn btn-primary" onclick="closeForm();editStudent('+((typeof jsq==='function')?jsq(id):("'"+id+"'"))+')">Editar datos</button>');
+/* atajos desde el resumen a las secciones de enseñanza, ya con el curso puesto */
+(function(){
+  const _r=nxAdmResumen;
+  nxAdmResumen=function(){
+    const h=_r.apply(this,arguments);
+    const ir=function(tab,et,ico){
+      return '<button class="nxa-btn" style="margin:0" onclick="nxIrSeccion(\''+tab+'\')">'+ico+' '+et+'</button>';
     };
-  }
-
-  /* -- Certificados -- (porci = editor original · nutrición = editor de shell7) */
-  var _certsView = (typeof certsView==='function') ? certsView : function(){ return ''; };
-  window.certsView = function(){
-    if(ADM.course==='nutricion' && typeof nxAdmCertificados==='function') return nxAdmCertificados();
-    return _certsView.apply(this, arguments);
-  };
-
-  /* -- Dashboard -- (una sola definición, keyed por courseCtx) */
-  window.dashboardView = function(){
-    var C=courseCtx();
-    var alum=enrolledStudents(C);
-    if(!alum.length) return '<div class="adm-empty">'+(C.sellsSeparately
-      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Actívalos en <b>Cursos → Catálogo</b>.'
-      : 'Aún no hay estudiantes. Ve a <b>Estudiantes</b> y agrega el primero.')+'</div>';
-    var vista=(typeof NXDASH!=='undefined' && NXDASH)?NXDASH.vista:'general';
-    var cuerpo;
-    try{
-      if(vista==='detalle' && typeof nxTablaDetalle==='function') cuerpo='<div class="dsh-card">'+nxTablaDetalle()+'</div>';
-      else if(vista==='embudo' && typeof nxEmbudo==='function')   cuerpo='<div class="dsh-card">'+nxEmbudo()+'</div>';
-      else if(typeof nxResumenCurso==='function')                 cuerpo=nxResumenCurso(C.id);
-      else cuerpo='<div class="adm-empty">Resumen no disponible.</div>';
-    }catch(e){ cuerpo='<div class="adm-empty">No se pudo calcular: '+esc(e.message)+'</div>'; }
-    var alerta=(typeof nxTarjetaAlerta==='function')?nxTarjetaAlerta():'';
-    var tabs='<div class="nxd-tabs">'+
-      [['general','Resumen'],['detalle','Detalle por estudiante'],['embudo','Avance por módulo']].map(function(t){
-        return '<button class="fchip'+(t[0]===vista?' on':'')+'" onclick="nxDashVista(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+
-      '<span class="nxd-cur">'+C.icon+' '+esc(C.label)+'</span></div>';
-    return alerta+tabs+cuerpo;
-  };
-  if(typeof window.nxDashVista!=='function'){
-    window.nxDashVista=function(v){ if(typeof NXDASH!=='undefined')NXDASH.vista=v; if(typeof admTab==='function')admTab('dashboard'); };
-  }
-
-  /* ---------- 5 · pestaña "Cursos" adelgazada ---------- */
-  function ucCatalogo(){
-    var h='<p class="adm-note">Sus productos. Cada curso se gestiona por separado desde el conmutador de arriba; aquí solo lo que es propio del producto.</p>'+
-      '<div class="uc-cat">';
-    Object.keys(COURSES).forEach(function(k){
-      var C=COURSES[k], ms=C.modules();
-      var nq=ms.reduce(function(a,m){ return a+((C.quiz(m.n)||[]).length); },0);
-      var pub=C.published();
-      var con=enrolledStudents(C).length;
-      h+='<div class="uc-c"><div class="uc-ico">'+C.icon+'</div>'+
-        '<div class="uc-t"><b>'+esc(C.name)+'</b>'+
-          '<span>'+ms.length+' módulos · '+nq+' preguntas · '+con+
-          (C.sellsSeparately?' con acceso':' estudiante'+(con===1?'':'s'))+'</span></div>'+
-        (C.sellsSeparately
-          ? '<label class="nxa-sw" title="Publicar / ocultar para estudiantes"><input type="checkbox"'+(pub?' checked':'')+' onchange="ucPublicar(\''+k+'\',this.checked)"><span></span><em>'+(pub?'Visible':'Oculto')+'</em></label>'
-          : '<span class="uc-pill">Publicado</span>')+
-        '</div>';
-    });
-    h+='</div>';
-    Object.keys(COURSES).forEach(function(k){
-      var C=COURSES[k]; if(!C.sellsSeparately) return;
-      h+='<div class="adm-card" style="margin-top:14px"><h4>🔒 '+esc(C.label)+' se paga aparte</h4>'+
-        '<p class="adm-note" style="margin-top:0">Mientras esté <b>Visible</b>, a <b>todos</b> los estudiantes les aparece '+
-        'bloqueado con las instrucciones de pago. Cuando alguien le confirme la transferencia, usted lo <b>activa uno por uno</b> '+
-        'en la pestaña <b>Acceso</b> y a esa persona —y solo a esa— se le desbloquea. Si lo pone en <b>Oculto</b>, no le aparece a nadie.</p>'+
-        '<button class="adm-add" onclick="ucIrAcceso(\''+k+'\')">🔑 Ir a Acceso</button></div>';
-    });
-    if(typeof ucAnunciosAdminHTML==='function') h+=ucAnunciosAdminHTML();
-    if(typeof ucMaterialesHTML==='function')    h+=ucMaterialesHTML(courseCtx().id);
-    return h;
-  }
-  window.ucPublicar=function(k,v){
-    if(typeof nxPublicar==='function') return nxPublicar(k,v);
-    if(k==='nutricion'){ if(typeof NXACTIVO!=='undefined')window.NXACTIVO=!!v; try{localStorage.setItem('nx_activo',v?'1':'0');}catch(e){} }
-    if(typeof toast==='function')toast(v?'Publicado':'Oculto', v?'✅':'🙈');
-    if(typeof nxAdmin==='function')nxAdmin();
-    mountCourseSwitch(true);
-  };
-
-  function ucAjustes(C){
-    var cfg=C.cfg;
-    var h='<div class="adm-card"><h4>Parámetros de '+esc(C.label)+'</h4>'+
-      '<div class="cfg-row" style="max-width:560px"><label>Nota mínima para aprobar</label>'+
-        '<div><input type="number" min="40" max="100" step="5" id="ucPass" value="'+cfg.passing+'" style="width:90px"> %</div></div>'+
-      '<div class="cfg-row" style="max-width:560px"><label>Bloqueo de avance por nota<small>Exige aprobar un módulo para abrir el siguiente</small></label>'+
-        '<span class="switch"><input type="checkbox" id="ucGate2"'+(cfg.gating?' checked':'')+'><span></span></span></div>';
-    if(C.id==='nutricion' && typeof NXCFG!=='undefined'){
-      h+='<div class="cfg-row" style="max-width:560px"><label>Inclusión de premezcla<small>La define la etiqueta de su fabricante. Recalcula las 12 fórmulas.</small></label>'+
-        '<input type="number" step="0.05" min="0" max="3" value="'+(NXCFG.premix!=null?NXCFG.premix:0.30)+'" oninput="nxSetPremix(this.value)" style="width:100px"></div>';
-    }
-    h+='<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
-      '<button class="adm-add" onclick="ucGuardarAjustes()">Guardar</button>'+
-      (C.id==='nutricion' && typeof nxSubirCfg==='function'
-        ? '<button class="nxa-btn on" style="margin:0" onclick="nxSubirCfg()">☁️ Publicar para todos los estudiantes</button>'
-        : '')+
+    return h+
+      '<div class="adm-card" style="margin-top:14px"><h4>Gestionar la enseñanza '+
+        '<span style="font-weight:400;color:var(--muted);font-size:12px">del curso que elija arriba en cada sección</span></h4>'+
+      '<p class="adm-note" style="margin-top:0">Estas secciones están en el menú de la izquierda y muestran el curso que tenga seleccionado. '+
+      'Desde aquí entra directo al de formulación.</p>'+
+      '<div style="display:flex;gap:9px;flex-wrap:wrap">'+
+        ir('modules','Módulos','📚')+ir('evals','Evaluaciones','📝')+
+        ir('progress','Progreso','📈')+ir('certs','Certificados','🎓')+
+        ir('consultas','Consultas','💬')+
       '</div></div>';
-    return h;
-  }
-  window.ucGuardarAjustes=function(){
-    var C=courseCtx();
-    var p=parseInt((document.getElementById('ucPass')||{}).value,10);
-    var g=(document.getElementById('ucGate2')||{}).checked;
-    C.setCfg({ passing:isNaN(p)?null:Math.max(40,Math.min(100,p)), gating:g });
-    if(typeof toast==='function')toast('Ajustes de '+C.label+' guardados','⚙️');
   };
+})();
 
-  window.nxAdmin = function(){
-    var body=document.getElementById('adminBody'); if(!body) return;
-    var C=courseCtx();
-    var tabs=[['catalogo','Catálogo']];
-    if(C.sellsSeparately) tabs.push(['acceso','Acceso']);
-    if(C.hasFormulas) tabs.push(['formulas','Fórmulas']);
-    tabs.push(['ajustes','Ajustes · '+C.label]);
-    var ids=tabs.map(function(t){return t[0];});
-    /* NXADMTAB es 'let' de shell2: se asigna por nombre desde este mismo <script> */
-    try{ if(typeof NXADMTAB==='undefined' || ids.indexOf(NXADMTAB)<0) NXADMTAB='catalogo'; }catch(e){}
-    var h='<div class="fchips" style="margin-bottom:14px">'+tabs.map(function(t){
-      return '<button class="fchip'+(t[0]===NXADMTAB?' on':'')+'" onclick="nxAdmTab(\''+t[0]+'\')">'+esc(t[1])+'</button>';}).join('')+'</div>';
-    if(NXADMTAB==='acceso' && typeof nxAdmAcceso==='function') h+=nxAdmAcceso();
-    else if(NXADMTAB==='formulas' && C.hasFormulas && typeof nxAdmFormulas==='function') h+=nxAdmFormulas();
-    else if(NXADMTAB==='ajustes') h+=ucAjustes(C);
-    else h+=ucCatalogo();
-    body.innerHTML=h;
-    if((NXADMTAB==='catalogo'||!NXADMTAB) && typeof ucInitDrop==='function') setTimeout(function(){ ucInitDrop(courseCtx().id); }, 0);
-  };
-  if(typeof window.nxAdmTab!=='function') window.nxAdmTab=function(t){ window.NXADMTAB=t; if(typeof nxAdmin==='function')nxAdmin(); };
+window.nxIrSeccion=function(tab){
+  if(typeof ADMCURSO!=='undefined'){ ADMCURSO='nutricion'; try{ localStorage.setItem('nx_adm_curso','nutricion'); }catch(e){} }
+  window.CQADM='nutricion';
+  admTab(tab);
+  setTimeout(function(){ nxDecorarPanel(); },0);
+};
 
-  /* ---------- 6b · detalle/embudo del dashboard: leer el progreso desde la NUBE ---------- */
-  if(typeof nxExamenDe==='function'){
-    var _nxExamenDe=nxExamenDe;
-    window.nxExamenDe=function(pre,id,i){
-      if(typeof cloudRec==='function'){
-        var r=cloudRec(id,i, pre==='nx::'?'nutricion':'porcicultura');
-        if(r) return r;
-      }
-      return _nxExamenDe(pre,id,i);
-    };
-  }
-
-  /* ---------- 6d · nxEstadisticas (resumen del dashboard) lee de la NUBE ---------- */
-  if(typeof nxEstadisticas==='function' && typeof nxAlumnosDe==='function'){
-    window.nxEstadisticas=function(curso){
-      var C=(window.COURSES&&window.COURSES[curso])||courseCtx();
-      var mods=C.modules(), N=mods.length;
-      var alum=nxAlumnosDe(curso);
-      var notas=[0,0,0,0,0], porMod=mods.map(function(){return 0;});
-      var sumPct=0,completados=0,proximos=0,modsDone=0,realizadas=0,aprobadas=0,punt=[];
-      var atencion=[], ultEval=[];
-      alum.forEach(function(a){
-        var ap=0,reprob=0,ultima=0;
-        mods.forEach(function(m,i){
-          var r = C.rec(a.id, m.n);
-          if(!r) return;
-          realizadas++;
-          var nota=r.best||r.last||0; punt.push(nota);
-          notas[nota<60?0:nota<70?1:nota<80?2:nota<90?3:4]++;
-          if(r.date&&r.date>ultima) ultima=r.date;
-          if(r.passed){ ap++; porMod[i]++; aprobadas++; } else reprob++;
-          ultEval.push({name:a.name, mod:m.num, rec:r});
-        });
-        modsDone+=ap; sumPct+=ap/N;
-        if(ap>=N) completados++; else if(ap>=N-2) proximos++;
-        if(a.status==='activo' && ap<N){
-          var dias=ultima?Math.floor((Date.now()-ultima)/86400000):null;
-          if(reprob>=2) atencion.push({s:a,pc:ap,por:reprob+' evaluaciones no aprobadas',urg:2});
-          else if(dias!==null&&dias>=21) atencion.push({s:a,pc:ap,por:'sin actividad hace '+dias+' días',urg:2});
-          else if(ultima===0) atencion.push({s:a,pc:ap,por:'nunca ha presentado una evaluación',urg:1});
-        }
-      });
-      atencion.sort(function(x,y){return y.urg-x.urg;});
-      ultEval.sort(function(x,y){return (y.rec.date||0)-(x.rec.date||0);});
-      var orden=alum.slice().sort(function(x,y){return String(y.enrolled||'').localeCompare(String(x.enrolled||''));});
-      var prom=punt.length?Math.round(punt.reduce(function(a,b){return a+b;},0)/punt.length):0;
-      var estados={}; alum.forEach(function(a){ estados[a.status]=(estados[a.status]||0)+1; });
-      return {D:{n:N, mods:mods.map(function(m){return {n:m.n,num:m.num,t:m.title,ac:m.ac};})}, alum:alum, total:alum.length, porMod:porMod, notas:notas,
-        avgPct: alum.length?Math.round(sumPct/alum.length*100):0,
-        modsDone:modsDone, completados:completados, proximos:proximos,
-        realizadas:realizadas, aprobadas:aprobadas, noAprob:realizadas-aprobadas,
-        promedio:prom, atencion:atencion.slice(0,6), recientes:orden.slice(0,5),
-        ultEval:ultEval.slice(0,6), estados:estados};
-    };
-  }
-
-  /* ---------- 6c · el envío de examen de FORMULACIÓN también respalda a la nube ---------- */
-  if(typeof window.nxEnviar==='function'){
-    var _nxEnviar=window.nxEnviar;
-    window.nxEnviar=function(idm){
-      var r=_nxEnviar.apply(this,arguments);
-      try{
-        if(typeof SESSION!=='undefined' && SESSION && SESSION.role==='STUDENT' && typeof pushExamProgress==='function'){
-          var rec=null; try{ rec=JSON.parse(localStorage.getItem('nx::'+SESSION.id+'::exam_m'+idm)); }catch(e){}
-          if(rec) pushExamProgress('nutricion', SESSION.id, idm, rec);
-        }
-      }catch(e){}
-      return r;
-    };
-  }
-
-  /* ---------- 6 · los chips de curso del panel de consultas siguen el conmutador ---------- */
-  if(typeof window.cqCursoAdmin==='function'){
-    var _cq=window.cqCursoAdmin;
-    window.cqCursoAdmin=function(c){ if(COURSES[c]) return nxSetCourse(c); return _cq(c); };
-  }
-
+/* el título de Cursos deja claro de qué va la sección */
+(function(){
+  if(typeof ADM_TITLES!=='undefined') ADM_TITLES.cursos='Gestión de cursos';
 })();
 
 
 /* ============================================================
-   PLATAFORMA · extras de producto
-   - pantalla propia de recuperar / fijar contraseña
-   - anuncios del instructor (banner para el estudiante)
-   - notas del estudiante por módulo
-   - página pública de información (instructor · FAQ · testimonios)
-   - subida de materiales a Supabase Storage (arrastrar y soltar)
-   - monitoreo de errores del cliente -> error_log
-   Se carga después de gestion-unificada.js.
+   EXÁMENES SIN CLAVE A LA VISTA · LOS DOS CURSOS
+   ------------------------------------------------------------
+   El estudiante ve qué acertó y qué falló, pero NUNCA cuál era
+   la respuesta correcta de lo que falló. En su lugar recibe el
+   módulo y la sección que le toca repasar.
+
+   La clave sale del HTML: se guarda en memoria y solo se repone
+   durante la llamada de calificación, que es síncrona.
+   ============================================================ */
+
+const EXCLAVE = {};      /* 'curso|modulo' -> {ci:[...], fb:[...]} */
+const EXPAL = /[^a-záéíóúñü0-9]+/gi;
+const EXVACIAS = ('de la el los las un una unos unas y o u en con por para que se su sus al del lo le les es son ser está están ' +
+  'como más menos muy cual cuales cuando donde qué cuál este esta estos estas ese esa eso aquel si no sí ni pero sino ' +
+  'hay hace hacer tiene tienen tener debe deben puede pueden entre sobre desde hasta cada todo toda todos todas').split(' ');
+
+function exNorm(t){
+  return String(t||'').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .split(EXPAL).filter(function(w){ return w.length>3 && EXVACIAS.indexOf(w)<0; });
+}
+
+/* ---------- índice de secciones de un módulo ---------- */
+const EXIDX = {};
+/* estas secciones no son contenido para repasar: el examen contiene las
+   preguntas y por eso ganaba siempre el emparejamiento */
+const EXNOSIRVE=/evaluaci|examen|autoevaluaci|recursos|descargab|resumen del m|consulta|reflexi|proyecto final|cierre|al terminar este m|objetivos|lo que va a poder/i;
+function exIndice(curso, mod){
+  const k=curso+'|'+mod;
+  if(EXIDX[k]) return EXIDX[k];
+  let secs=[];
+  try{
+    if(curso==='nutricion'){
+      const m=(typeof NXMOD!=='undefined')?NXMOD[mod-1]:null;
+      if(m){
+        let n=0;
+        secs=m.sec.map(function(s){
+          n++;
+          const t=s.t || ({ingredientes:'Biblioteca de materias primas',requerimientos:'Requerimientos por peso y etapa',
+            biblioteca:'Las 12 fórmulas',simulador:'Formule usted',infografia:'Los diez pasos, en orden',
+            asistente:'Asistente paso a paso',comparador:'Preiniciador contra destete',curva:'Las cinco etapas',
+            sop:'Los doce pasos de fabricación',costos:'Calculadora de costos',sustituciones:'Tabla de sustituciones',
+            casos:'Situaciones reales',conversion:'Costo de cada punto de conversión',proyecto:'Proyecto final',
+            error:'Encuentre el error',cierre:'Cierre del curso',alerta:s.t,fuentes:null}[s.k] || null);
+          if(!t || EXNOSIRVE.test(t)) return null;
+          const txt=[t, (s.p||[]).join(' '), (s.items||[]).map(function(i){return Array.isArray(i)?i.join(' '):i;}).join(' '),
+                    (s.rows||[]).map(function(r){return r.join(' ');}).join(' '), s.cap||''].join(' ');
+          return {n:n, t:t, w:exNorm(txt)};
+        }).filter(Boolean);
+      }
+    } else {
+      /* del curso base se lee el módulo ya armado */
+      const d=document.createElement('div');
+      d.innerHTML=(typeof renderModule==='function')?renderModule(mod):'';
+      let n=0;
+      secs=[].map.call(d.querySelectorAll('section.block'),function(s){
+        n++;
+        const lab=s.querySelector('.sec-label'), h=s.querySelector('h3');
+        const t=(h&&h.textContent.trim()) || (lab&&lab.textContent.trim()) || '';
+        if(!t || EXNOSIRVE.test(t) || s.querySelector('.exam')) return null;
+        return {n:n, t:t, w:exNorm(t+' '+s.textContent.slice(0,1400))};
+      }).filter(Boolean);
+    }
+  }catch(e){ secs=[]; }
+  EXIDX[k]=secs;
+  return secs;
+}
+
+/* la sección que más se parece a la pregunta */
+function exRepaso(curso, mod, pregunta){
+  const secs=exIndice(curso,mod);
+  const nom=exModNombre(curso,mod);
+  if(!secs.length) return {mod:mod, modNom:nom, sec:null};
+  const q=exNorm(pregunta);
+  let mejor=null, mejorP=0;
+  secs.forEach(function(s){
+    let p=0;
+    q.forEach(function(w){ if(s.w.indexOf(w)>=0) p++; });
+    /* pesa más si la palabra está en el título de la sección */
+    const tw=exNorm(s.t);
+    q.forEach(function(w){ if(tw.indexOf(w)>=0) p+=2; });
+    if(p>mejorP){ mejorP=p; mejor=s; }
+  });
+  /* con poca coincidencia se manda al módulo completo: vale más eso que
+     mandarlo a una sección que no tiene que ver */
+  return {mod:mod, modNom:nom, sec:(mejorP>=4?mejor:null), total:secs.length};
+}
+function exModNombre(curso, mod){
+  try{
+    if(curso==='nutricion'){ const m=NXMOD[mod-1]; return m?m.t:('Módulo '+mod); }
+    const m=MODULES[mod]; return m?m.title:('Módulo '+mod);
+  }catch(e){ return 'Módulo '+mod; }
+}
+function exModNum(curso, mod){
+  try{
+    if(curso==='nutricion'){ const m=NXMOD[mod-1]; return m?m.num:String(mod).padStart(2,'0'); }
+    const m=MODULES[mod]; return m?m.num:String(mod).padStart(2,'0');
+  }catch(e){ return String(mod).padStart(2,'0'); }
+}
+
+/* ---------- se retira la clave del HTML antes de mostrarlo ---------- */
+function exDesarmar(html, curso, mod, selQ, attr, selFb){
+  const d=document.createElement('div');
+  d.innerHTML=html;
+  const ci=[], fb=[];
+  [].forEach.call(d.querySelectorAll(selQ),function(q,i){
+    ci.push(parseInt(q.getAttribute(attr),10));
+    q.removeAttribute(attr);
+    const f=q.querySelector(selFb);
+    fb.push(f?f.innerHTML:'');
+    if(f){ f.innerHTML=''; }
+  });
+  EXCLAVE[curso+'|'+mod]={ci:ci, fb:fb};
+  return d.innerHTML;
+}
+function exArmar(cont, curso, mod, selQ, attr, selFb){
+  const k=EXCLAVE[curso+'|'+mod]; if(!k||!cont) return;
+  [].forEach.call(cont.querySelectorAll(selQ),function(q,i){
+    if(k.ci[i]!=null && !isNaN(k.ci[i])) q.setAttribute(attr,k.ci[i]);
+    const f=q.querySelector(selFb); if(f) f.innerHTML=k.fb[i]||'';
+  });
+}
+
+/* ---------- después de calificar: se tapa lo que revela ---------- */
+function exTapar(cont, curso, mod, selQ, attr, selOpt, selFb, clsOk, clsBad){
+  const k=EXCLAVE[curso+'|'+mod]; if(!k||!cont) return [];
+  const fallos=[];
+  [].forEach.call(cont.querySelectorAll(selQ),function(q,i){
+    const ops=[].slice.call(q.querySelectorAll(selOpt));
+    const sel=ops.findIndex(function(o){ return o.classList.contains('sel'); });
+    const bien=(sel===k.ci[i]);
+    /* solo se marca lo que el estudiante eligió: nunca la correcta que no eligió */
+    ops.forEach(function(o,j){
+      o.classList.remove(clsOk, clsBad);
+      if(j===sel) o.classList.add(bien?clsOk:clsBad);
+      if(j!==sel) o.classList.add('ex-neutra');
+    });
+    q.removeAttribute(attr);
+    const f=q.querySelector(selFb);
+    if(f){
+      if(bien){ f.innerHTML=k.fb[i]||''; f.classList.add('ex-fb-ok'); }
+      else{
+        const r=exRepaso(curso,mod,(q.querySelector('.exq-q')||q.querySelector('p')||{}).textContent||'');
+        fallos.push({n:i+1, r:r});
+        f.innerHTML='<span class="ex-rep"><i>📚</i> Vuelva a <b>'+esc(r.modNom)+'</b>'+
+          (r.sec?' · <b>'+esc(r.sec.t)+'</b>'+(r.total?' (sección '+r.sec.n+' de '+r.total+')':''):'')+
+          '</span>';
+        f.classList.add('ex-fb-mal');
+      }
+    }
+  });
+  return fallos;
+}
+
+/* ---------- resumen del intento ---------- */
+function exResumen(cont, curso, mod, fallos, total, nota, pasa, intento){
+  if(!cont) return;
+  const viejo=cont.querySelector('.ex-res'); if(viejo) viejo.remove();
+  const bien=total-fallos.length;
+  const grupos={};
+  fallos.forEach(function(f){
+    const clave=f.r.sec?('s'+f.r.sec.n):'m';
+    if(!grupos[clave]) grupos[clave]={r:f.r, qs:[]};
+    grupos[clave].qs.push(f.n);
+  });
+  const lista=Object.keys(grupos).map(function(k){ return grupos[k]; });
+
+  let h='<div class="ex-res '+(pasa?'ok':'mal')+'">'+
+    '<div class="ex-res-h"><b>'+(pasa?'✅ Evaluación aprobada':'Resultado del intento '+intento)+'</b>'+
+    '<span>'+nota+' %</span></div>'+
+    '<div class="ex-res-g">'+
+      '<div><b>'+bien+'</b><span>correcta'+(bien===1?'':'s')+'</span></div>'+
+      '<div class="'+(fallos.length?'mal':'')+'"><b>'+fallos.length+'</b><span>incorrecta'+(fallos.length===1?'':'s')+'</span></div>'+
+      '<div><b>'+nota+' %</b><span>calificación</span></div>'+
+      '<div><b>'+lista.length+'</b><span>tema'+(lista.length===1?'':'s')+' por repasar</span></div>'+
+    '</div>';
+
+  if(fallos.length){
+    h+='<div class="ex-rep-b"><b>📚 Lo que debe repasar</b>'+
+      lista.map(function(g){
+        const num=exModNum(curso,g.r.mod);
+        return '<div class="ex-rep-i">'+
+          '<div><b>Módulo '+num+' — '+esc(g.r.modNom)+'</b>'+
+          (g.r.sec?'<span>'+esc(g.r.sec.t)+' · sección '+g.r.sec.n+' de '+g.r.total+'</span>'
+                  :'<span>Repase el módulo completo</span>')+
+          '<em>Pregunta'+(g.qs.length===1?'':'s')+' '+g.qs.join(', ')+'</em></div>'+
+          '<button class="ex-rep-b2" onclick="exRepasar(\''+curso+'\','+g.r.mod+','+(g.r.sec?g.r.sec.n:0)+')">Repasar →</button>'+
+          '</div>';}).join('')+
+      '<p class="ex-rep-n">No le decimos cuál era la respuesta: la idea es que vuelva al contenido y la encuentre usted. '+
+      'Cuando termine de repasar, vuelva a presentar la evaluación.</p></div>';
+  } else if(!pasa){
+    h+='<p class="ex-rep-n">Le faltó nota para aprobar. Repase el módulo y vuelva a intentarlo.</p>';
+  }
+  h+='</div>';
+
+  const acc=cont.querySelector('.exam-actions')||cont.querySelector('.nx-ex-a');
+  if(acc) acc.insertAdjacentHTML('beforebegin',h); else cont.insertAdjacentHTML('beforeend',h);
+}
+
+/* llevar al estudiante al módulo y sección que le tocó repasar */
+window.exRepasar=function(curso, mod, sec){
+  if(curso==='nutricion'){
+    if(!document.getElementById('nxOv')) openNutricion();
+    NXGATE=false;
+    nxIr(mod);
+    if(sec>0){ setTimeout(function(){
+      if(!NXLECCION){ const b=document.querySelectorAll('#nxMain .nx-b')[sec-1]; if(b) b.scrollIntoView({behavior:'smooth'}); }
+      else nxMostrarSeccion(sec-1);
+    },420); }
+  } else {
+    const o=document.getElementById('nxOv'); if(o) o.remove();
+    try{ cerrarCursos(); }catch(e){}
+    if(typeof goto==='function') goto(mod);
+    location.hash='#/curso';
+    if(sec>0) setTimeout(function(){
+      const b=document.querySelectorAll('#main .block')[sec-1]; if(b) b.scrollIntoView({behavior:'smooth'});
+    },520);
+  }
+};
+
+/* ============================================================
+   ENGANCHE · CURSO DE PORCICULTURA
    ============================================================ */
 (function(){
-  var E = (typeof esc==='function') ? esc : function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
-  var A = (typeof ea==='function') ? ea : function(s){ return E(s).replace(/"/g,'&quot;'); };
-  function T(m,i){ if(typeof toast==='function') toast(m,i); }
-  function ov(idAttr){
-    var o=document.getElementById(idAttr);
-    if(!o){ o=document.createElement('div'); o.id=idAttr; o.className='pe-ov'; document.body.appendChild(o); }
-    return o;
-  }
-  function cerrar(idAttr){ var o=document.getElementById(idAttr); if(o) o.remove(); document.body.style.overflow=''; }
-  window.peCerrar=cerrar;
+  if(typeof renderExam!=='function'||typeof submitExam!=='function') return;
+  const _r=renderExam, _s=submitExam;
+  renderExam=function(id){
+    const html=_r.apply(this,arguments);
+    if(!html || html.indexOf('data-correct')<0) return html;
+    return exDesarmar(html,'porcicultura',id,'.exq','data-correct','.exq-fb');
+  };
+  submitExam=function(id){
+    const ex=document.getElementById('exam-'+id);
+    exArmar(ex,'porcicultura',id,'.exq','data-correct','.exq-fb');
+    const antes=(function(){ try{ return JSON.parse(localStorage.getItem(examKey(id)))||{}; }catch(e){ return {}; } })();
+    _s.apply(this,arguments);
+    if(!ex||!ex.classList.contains('graded')){ exArmar(ex,'porcicultura',id,'.exq','data-correct','.exq-fb'); return; }
+    const fallos=exTapar(ex,'porcicultura',id,'.exq','data-correct','.exq-opt','.exq-fb','ok','bad');
+    const r=(function(){ try{ return JSON.parse(localStorage.getItem(examKey(id)))||{}; }catch(e){ return {}; } })();
+    const total=ex.querySelectorAll('.exq').length;
+    exResumen(ex,'porcicultura',id,fallos,total,r.last||0,(r.last||0)>=CFG.passing,r.attempts||1);
+  };
+})();
 
-  var css='.pe-ov{position:fixed;inset:0;z-index:1200;background:rgba(10,10,12,.72);display:flex;align-items:flex-start;'+
-      'justify-content:center;padding:5vh 16px;overflow:auto}'+
-    '.pe-card{background:var(--panel,#17161a);color:var(--text,#e8e6e3);border:1px solid var(--border,#34323a);'+
-      'border-radius:16px;max-width:560px;width:100%;padding:26px 24px;box-shadow:0 24px 60px rgba(0,0,0,.5)}'+
-    '.pe-card h2{margin:0 0 6px;font-size:20px}.pe-card p.sub{margin:0 0 16px;color:var(--muted,#9a968f);font-size:13.5px}'+
-    '.pe-f{margin:0 0 12px}.pe-f label{display:block;font-size:12px;color:var(--muted,#9a968f);margin-bottom:4px}'+
-    '.pe-f input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--border,#34323a);border-radius:10px;'+
-      'background:transparent;color:var(--text,#e8e6e3)}'+
-    '.pe-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}'+
-    '.pe-b{font:inherit;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--green,#2F7D4F);color:#fff}'+
-    '.pe-b.ghost{background:transparent;border:1px solid var(--border,#34323a);color:var(--text,#e8e6e3)}'+
-    '.pe-msg{font-size:13px;margin-top:10px}.pe-msg.err{color:#e0736a}.pe-msg.ok{color:#5bbd83}'+
-    '.pe-x{position:absolute;top:12px;right:14px;background:none;border:0;color:var(--muted,#9a968f);font-size:20px;cursor:pointer}'+
-    '.pe-anun{background:linear-gradient(90deg,rgba(47,125,79,.16),rgba(47,125,79,.04));border:1px solid rgba(47,125,79,.35);'+
-      'border-radius:12px;padding:12px 14px;margin:0 0 16px;display:flex;gap:10px;align-items:flex-start;font-size:13.5px}'+
-    '.pe-anun b{display:block;margin-bottom:2px}.pe-anun button{margin-left:auto;background:none;border:0;color:var(--muted,#9a968f);cursor:pointer;font-size:16px}'+
-    '.pe-notas{margin:20px 0 8px;border:1px dashed var(--border,#34323a);border-radius:12px;padding:12px 14px}'+
-    '.pe-notas textarea{width:100%;min-height:90px;font:inherit;background:transparent;color:var(--text,#e8e6e3);'+
-      'border:1px solid var(--border,#34323a);border-radius:8px;padding:8px 10px;resize:vertical}'+
-    '.pe-drop{border:2px dashed var(--border,#34323a);border-radius:12px;padding:22px;text-align:center;color:var(--muted,#9a968f);cursor:pointer}'+
-    '.pe-drop.hot{border-color:var(--green,#2F7D4F);color:var(--text,#e8e6e3)}'+
-    '.pe-mat{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border,#34323a);font-size:13px}'+
-    '.pe-mat a{color:var(--green,#4FA772)}.pe-info-sec{margin:0 0 26px}.pe-info-sec h3{margin:0 0 8px}'+
-    '.pe-faq details{border-bottom:1px solid var(--border,#34323a);padding:10px 0}.pe-faq summary{cursor:pointer;font-weight:600}'+
-    '.pe-tst{border:1px solid var(--border,#34323a);border-radius:12px;padding:14px;margin:0 0 10px}.pe-tst span{color:var(--muted,#9a968f);font-size:12px}'+
-
-    /* ===== A · el PANEL DE ADMIN sigue el tema (fondo negro <-> blanco) ===== */
-    '#screenAdmin{color-scheme:light dark}'+
-    '.adminp-side{background:var(--ivory-2)!important;color:var(--text-2)!important;border-right:1px solid var(--border)!important}'+
-    '.adminp-brand{border-bottom:1px solid var(--border)!important}'+
-    '.adminp-brand b{color:var(--text)!important}.adminp-brand span{color:var(--muted)!important}'+
-    '.adminp-brand .lg{background:linear-gradient(135deg,var(--green-l),var(--green-d))!important}'+
-    '.adminp-menu button{color:var(--text-2)!important}'+
-    '.adminp-menu button:hover{background:rgba(128,128,128,.16)!important;color:var(--text)!important}'+
-    '.adminp-menu button.on{background:linear-gradient(90deg,var(--green),var(--green-d))!important;color:#fff!important;box-shadow:0 6px 18px -10px var(--green)!important}'+
-    '.adminp-menu .sep{background:var(--border)!important}'+
-    '.adminp-menu .logout{color:var(--crit)!important}'+
-    '.adminp-menu .prev-btn{color:var(--text-2)!important}'+
-    '.adminp-top{background:var(--panel)!important;border-bottom:1px solid var(--border)!important}'+
-    /* la barra "Ver como estudiante" y otros restos oscuros del panel */
-    '#previewBar{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}'+
-
-    /* ===== B · MÓVIL: nada se pisa ===== */
-    'html,body{max-width:100%;overflow-x:hidden}'+
-    '.uc-video-fr,.pe-drop,.nx-tw,.adm-tablewrap{max-width:100%}'+
-    '@media(max-width:640px){'+
-      '.adminp-content{padding:16px 14px!important}'+
-      '.adm-summary{gap:10px!important}.adm-kpi{min-width:0!important;flex:1 1 45%!important;padding:13px 14px!important}'+
-      '.adm-kpi b{font-size:22px!important}'+
-      /* tarjeta de módulo: número + título arriba, botones y video en sus propias filas */
-      '.mod-item{flex-wrap:wrap!important;align-items:flex-start!important;row-gap:10px!important;padding:13px 14px!important}'+
-      '.mod-item .mtitle{flex:1 1 auto!important;min-width:120px!important}'+
-      '.mod-item .mtitle b{font-size:14px!important}'+
-      '.mod-item .mact{flex:1 1 100%!important;justify-content:flex-start!important}'+
-      '.mod-item .mact button{flex:1 1 auto!important;text-align:center}'+
-      '.mod-item label{flex:1 1 100%!important;flex-wrap:wrap}'+
-      '.mod-item label input{flex:1 1 100%!important;min-width:0!important;width:100%!important}'+
-      /* evaluaciones / qcards */
-      '.qcard .qopt{flex-wrap:wrap}.eval-modpick{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}'+
-      /* certificados: editor en una columna */
-      '.cert-layout,.nxc-g{grid-template-columns:1fr!important;display:block!important}'+
-      '.cert-preview-col,.nxc-prev{margin-top:14px}'+
-      /* dashboard: anillos y grids apilados */
-      '.dsh-hero{grid-template-columns:1fr 1fr!important}'+
-      '.dsh-grid,.dsh-grid.g21,.dsh-grid.g11{grid-template-columns:1fr!important;display:block!important}'+
-      '.dsh-grid>*{margin-bottom:12px}'+
-      '.cfg-row{flex-direction:column;align-items:stretch!important;gap:6px}'+
-    '}'+
-
-    /* ===== C · conmutador de curso: respiro lateral y en móvil ===== */
-    '.ucsw{padding:10px 24px!important}'+
-    '@media(max-width:640px){.ucsw{padding:9px 14px!important;font-size:12px!important}'+
-      '.ucsw-b{padding:5px 10px!important}.ucsw-n{flex:1 1 100%!important;margin-top:2px}}'+
-    /* la fachada de video ocupa el ancho disponible */
-    '.uc-video{width:100%}';
-  try{ var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st); }catch(e){}
-
-  /* =========================================================
-     1 · RECUPERAR / FIJAR CONTRASEÑA
-     ========================================================= */
-  window.ucAbrirRecuperar=function(){
-    var o=ov('ucRecuperar'); document.body.style.overflow='hidden';
-    var pre=(document.getElementById('loginUser')||{}).value||'';
-    o.innerHTML='<div class="pe-card" style="position:relative"><button class="pe-x" onclick="peCerrar(\'ucRecuperar\')">×</button>'+
-      '<h2>Recuperar contraseña</h2><p class="sub">Te enviamos un enlace a tu correo para crear una nueva.</p>'+
-      '<div class="pe-f"><label>Correo electrónico</label><input id="ucRecMail" type="email" value="'+A(pre)+'" placeholder="tucorreo@ejemplo.com"></div>'+
-      '<div class="pe-row"><button class="pe-b" onclick="ucRecEnviar()">Enviar enlace</button>'+
-      '<button class="pe-b ghost" onclick="peCerrar(\'ucRecuperar\')">Cancelar</button></div>'+
-      '<div class="pe-msg" id="ucRecMsg"></div></div>';
+/* ============================================================
+   ENGANCHE · CURSO DE FORMULACIÓN
+   ============================================================ */
+(function(){
+  if(typeof nxExamen!=='function'||typeof window.nxEnviar!=='function') return;
+  const _r=nxExamen, _s=window.nxEnviar;
+  nxExamen=function(id){
+    const html=_r.apply(this,arguments);
+    if(!html || html.indexOf('data-c=')<0) return html;
+    return exDesarmar(html,'nutricion',id,'.nx-q','data-c','.nx-fb');
   };
-  window.ucRecEnviar=async function(){
-    var mail=(document.getElementById('ucRecMail')||{}).value||'';
-    var msg=document.getElementById('ucRecMsg');
-    if(!/.+@.+\..+/.test(mail)){ msg.className='pe-msg err'; msg.textContent='Escribe un correo válido.'; return; }
-    msg.className='pe-msg'; msg.textContent='Enviando…';
-    var err = (typeof ucEnviarEnlaceReset==='function') ? await ucEnviarEnlaceReset(mail) : 'Sin conexión.';
-    if(err){ msg.className='pe-msg err'; msg.textContent='No se pudo: '+err; }
-    else { msg.className='pe-msg ok'; msg.textContent='Listo. Revisa tu correo (y la carpeta de spam).'; }
+  window.nxEnviar=function(id){
+    const ex=document.getElementById('nxex-'+id);
+    exArmar(ex,'nutricion',id,'.nx-q','data-c','.nx-fb');
+    _s.apply(this,arguments);
+    if(!ex||!ex.classList.contains('cal')){ exArmar(ex,'nutricion',id,'.nx-q','data-c','.nx-fb'); return; }
+    const fallos=exTapar(ex,'nutricion',id,'.nx-q','data-c','.nx-opt','.nx-fb','ok','bad');
+    const r=nxRec(id)||{};
+    const total=ex.querySelectorAll('.nx-q').length;
+    exResumen(ex,'nutricion',id,fallos,total,r.last||0,(r.last||0)>=NXPASS,r.attempts||1);
   };
-  window.ucAbrirNuevaPassword=function(){
-    var o=ov('ucNuevaPass'); document.body.style.overflow='hidden';
-    o.innerHTML='<div class="pe-card" style="position:relative"><h2>Crea tu nueva contraseña</h2>'+
-      '<p class="sub">Mínimo 6 caracteres. Al guardar, inicia sesión con la nueva.</p>'+
-      '<div class="pe-f"><label>Nueva contraseña</label><input id="ucNP1" type="password" autocomplete="new-password"></div>'+
-      '<div class="pe-f"><label>Repítela</label><input id="ucNP2" type="password" autocomplete="new-password"></div>'+
-      '<div class="pe-row"><button class="pe-b" onclick="ucNPGuardar()">Guardar y entrar</button></div>'+
-      '<div class="pe-msg" id="ucNPMsg"></div></div>';
-  };
-  window.ucNPGuardar=async function(){
-    var a=(document.getElementById('ucNP1')||{}).value||'', b=(document.getElementById('ucNP2')||{}).value||'';
-    var msg=document.getElementById('ucNPMsg');
-    if(a.length<6){ msg.className='pe-msg err'; msg.textContent='Muy corta (mínimo 6).'; return; }
-    if(a!==b){ msg.className='pe-msg err'; msg.textContent='No coinciden.'; return; }
-    msg.className='pe-msg'; msg.textContent='Guardando…';
-    var err = (typeof ucFijarPassword==='function') ? await ucFijarPassword(a) : 'Sin conexión.';
-    if(err){ msg.className='pe-msg err'; msg.textContent='No se pudo: '+err; }
-    else { cerrar('ucNuevaPass'); T('Contraseña actualizada. Inicia sesión.','✅'); }
-  };
-
-  /* =========================================================
-     2 · ANUNCIOS DEL INSTRUCTOR
-     settings.announcements = [{id, texto, fecha}]
-     ========================================================= */
-  var ANUN = [];
-  try{ ANUN = JSON.parse(localStorage.getItem('porci_anuncios')||'[]') || []; }catch(e){}
-  function guardarAnunLocal(){ try{ localStorage.setItem('porci_anuncios', JSON.stringify(ANUN)); }catch(e){} }
-  window.ucAnuncios=function(){ return ANUN.slice(); };
-  window.ucCargarAnunciosNube=async function(){
-    if(!window.SB) return;
-    try{
-      var r=await window.SB.from('settings').select('announcements').eq('id',1).maybeSingle();
-      var v=r&&r.data&&r.data.announcements; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v=null; } }
-      if(Array.isArray(v)){ ANUN=v; guardarAnunLocal(); ucPintarAnuncioBanner(); }
-    }catch(e){}
-  };
-  window.ucGuardarAnunciosNube=async function(){
-    guardarAnunLocal();
-    if(!window.SB){ T('Guardado solo en este equipo','💾'); return; }
-    try{
-      var r=await window.SB.from('settings').update({announcements:ANUN}).eq('id',1);
-      T(r&&r.error ? ('No se publicó: '+r.error.message) : 'Anuncio publicado a los estudiantes', r&&r.error?'⛔':'📣');
-    }catch(e){ T('No se pudo publicar','⛔'); }
-  };
-  window.ucAnuncioAgregar=function(){
-    var txt=(document.getElementById('ucAnunTxt')||{}).value||'';
-    txt=txt.trim(); if(!txt){ T('Escribe el anuncio','✍️'); return; }
-    ANUN.unshift({id:'a'+Date.now(), texto:txt, fecha:new Date().toISOString().slice(0,10)});
-    ANUN=ANUN.slice(0,20);
-    ucGuardarAnunciosNube();
-    if(typeof admTab==='function' && typeof ADM!=='undefined' && ADM.tab==='cursos') admTab('cursos');
-  };
-  window.ucAnuncioBorrar=function(id){
-    ANUN=ANUN.filter(function(a){ return a.id!==id; });
-    ucGuardarAnunciosNube();
-    if(typeof admTab==='function' && typeof ADM!=='undefined' && ADM.tab==='cursos') admTab('cursos');
-  };
-  window.ucAnunciosAdminHTML=function(){
-    var h='<div class="adm-card" style="margin-top:14px"><h4>📣 Anuncios para los estudiantes</h4>'+
-      '<p class="adm-note" style="margin-top:0">Lo último que publiques aparece como aviso en la pantalla de inicio del estudiante.</p>'+
-      '<textarea id="ucAnunTxt" rows="2" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--border,#34323a);border-radius:8px;background:transparent;color:var(--text,#e8e6e3)" placeholder="Ej: El sábado 20 hay sesión en vivo a las 7pm…"></textarea>'+
-      '<div style="margin-top:8px"><button class="adm-add" onclick="ucAnuncioAgregar()">Publicar anuncio</button></div>';
-    if(ANUN.length){
-      h+='<div style="margin-top:12px">'+ANUN.map(function(a){
-        return '<div class="pe-mat"><span style="flex:1">'+E(a.texto)+' <em style="color:var(--muted,#9a968f)">· '+E(a.fecha)+'</em></span>'+
-          '<button class="adm-add" style="padding:4px 9px;font-size:12px" onclick="ucAnuncioBorrar(\''+a.id+'\')">Quitar</button></div>';
-      }).join('')+'</div>';
-    }
-    return h+'</div>';
-  };
-  function ucPintarAnuncioBanner(){
-    var host=document.querySelector('#main .welcome, #main .cover');
-    if(!host) return;
-    var prev=document.getElementById('ucAnunBanner'); if(prev) prev.remove();
-    if(!ANUN.length) return;
-    var visto=''; try{ visto=localStorage.getItem('porci_anun_visto')||''; }catch(e){}
-    var a=ANUN[0]; if(a.id===visto) return;
-    var d=document.createElement('div'); d.id='ucAnunBanner'; d.className='pe-anun';
-    d.innerHTML='<span>📣</span><div><b>Anuncio del instructor</b>'+E(a.texto)+'</div>'+
-      '<button title="Ocultar" onclick="ucAnunOcultar(\''+a.id+'\')">×</button>';
-    host.insertBefore(d, host.firstChild);
-  }
-  window.ucAnunOcultar=function(id){ try{ localStorage.setItem('porci_anun_visto', id); }catch(e){} var b=document.getElementById('ucAnunBanner'); if(b) b.remove(); };
-  window.ucPintarAnuncioBanner=ucPintarAnuncioBanner;
-  /* re-pintar cuando el estudiante vea su portada */
-  if(typeof renderWelcome==='function'){
-    var _rw=renderWelcome;
-    window.renderWelcome=function(){ var r=_rw.apply(this,arguments); setTimeout(ucPintarAnuncioBanner,40); return r; };
-  }
-  if(typeof renderCover==='function'){
-    var _rc=renderCover;
-    window.renderCover=function(){ var r=_rc.apply(this,arguments); setTimeout(ucPintarAnuncioBanner,40); return r; };
-  }
-
-  /* =========================================================
-     3 · NOTAS DEL ESTUDIANTE POR MÓDULO (localStorage)
-     ========================================================= */
-  function notasKey(course,n){
-    var uid=(typeof SESSION!=='undefined'&&SESSION&&SESSION.id)||'local';
-    return 'porci::'+uid+'::notas_'+course+'_m'+n;
-  }
-  window.ucNotasGuardar=function(course,n){
-    var el=document.getElementById('ucNotasArea'); if(!el) return;
-    try{ localStorage.setItem(notasKey(course,n), el.value); }catch(e){}
-    var s=document.getElementById('ucNotasEstado'); if(s){ s.textContent='guardado ✓'; setTimeout(function(){ s.textContent=''; },1500); }
-  };
-  function ucNotasBloque(course,n){
-    var val=''; try{ val=localStorage.getItem(notasKey(course,n))||''; }catch(e){}
-    return '<div class="pe-notas"><b>📝 Mis notas de este módulo</b> <span id="ucNotasEstado" style="color:var(--muted,#9a968f);font-size:12px"></span>'+
-      '<textarea id="ucNotasArea" placeholder="Apunta aquí lo que quieras recordar…" '+
-      'oninput="clearTimeout(window.__ucNT);window.__ucNT=setTimeout(function(){ucNotasGuardar(\''+course+'\','+n+')},600)">'+E(val)+'</textarea>'+
-      '<div style="margin-top:6px"><button class="pe-b ghost" style="padding:6px 12px" onclick="ucNotasGuardar(\''+course+'\','+n+')">Guardar</button></div></div>';
-  }
-  function ucInyectarNotas(sel, course, curFn){
-    var host=document.querySelector(sel); if(!host) return;
-    if(host.querySelector('.pe-notas')) return;
-    var n = curFn(); if(!(n>=1)) return;
-    host.insertAdjacentHTML('beforeend', ucNotasBloque(course, n));
-  }
-  if(typeof mount==='function'){
-    var _m2=window.mount || mount;
-    window.mount=function(idm){
-      var r=_m2.apply(this,arguments);
-      try{ if(idm>=1) setTimeout(function(){ ucInyectarNotas('#main .module', 'porcicultura', function(){ return idm; }); }, 30); }catch(e){}
-      return r;
-    };
-  }
-  if(typeof window.nxPinta==='function'){
-    var _np2=window.nxPinta;
-    window.nxPinta=function(){
-      var r=_np2.apply(this,arguments);
-      try{ setTimeout(function(){ ucInyectarNotas('#nxMain .nx-wrap', 'nutricion', function(){ return (typeof NXCUR!=='undefined')?NXCUR:0; }); }, 30); }catch(e){}
-      return r;
-    };
-  }
-
-  /* =========================================================
-     4 · PÁGINA PÚBLICA DE INFORMACIÓN  (#/info)
-     ========================================================= */
-  window.ucAbrirInfo=function(){
-    var o=ov('ucInfo'); document.body.style.overflow='hidden';
-    o.innerHTML='<div class="pe-card" style="position:relative;max-width:720px"><button class="pe-x" onclick="peCerrar(\'ucInfo\')">×</button>'+
-      '<div class="pe-info-sec"><h3>Sobre el instructor</h3>'+
-      '<p>Formación práctica en porcicultura y nutrición animal aplicada a la realidad dominicana: clima tropical, '+
-      'insumos locales y precios en RD$. El objetivo es que termines <b>haciendo</b>: manejar la granja, formular el alimento, '+
-      'llevar los registros y saber si estás ganando dinero.</p></div>'+
-      '<div class="pe-info-sec"><h3>Preguntas frecuentes</h3><div class="pe-faq">'+
-        faqItem('¿Cómo pago?','Por transferencia a una de las cuentas que aparecen al crear tu cuenta. Envías el comprobante por WhatsApp o correo y el instructor activa tu acceso.')+
-        faqItem('¿Cuánto tardo en tener acceso?','En cuanto se confirma la transferencia. Normalmente el mismo día.')+
-        faqItem('¿El curso caduca?','No. El acceso es de por vida y puedes repasar cuando quieras.')+
-        faqItem('¿Desde el teléfono?','Sí. Funciona en celular, tablet y computadora, y tu avance se guarda en tu cuenta.')+
-        faqItem('¿Recibo certificado?','Sí, al aprobar todos los módulos. Lleva un código de verificación.')+
-        faqItem('¿Y el curso de Formulación?','Se adquiere aparte. Una vez dentro, en «Mis cursos» ves cómo obtenerlo.')+
-      '</div></div>'+
-      '<div class="pe-info-sec"><h3>Lo que dicen</h3>'+
-        tst('«Por fin entendí los números de mi granja. La calculadora de rentabilidad sola ya valió el curso.»','Productor, Bonao')+
-        tst('«Las tablas están adaptadas a lo que uno consigue aquí, no a fórmulas de otro país.»','Técnico agropecuario, Cibao')+
-        tst('«El modo lección hace que sea fácil ir poco a poco después del trabajo.»','Estudiante, San Cristóbal')+
-      '</div>'+
-      '<div class="pe-row"><button class="pe-b" onclick="peCerrar(\'ucInfo\')">Volver a iniciar sesión</button></div>'+
-      '<p style="color:var(--muted,#9a968f);font-size:11px;margin-top:14px">Los testimonios son ilustrativos. Actualízalos con reseñas reales cuando las tengas.</p>'+
-      '</div>';
-  };
-  function faqItem(q,a){ return '<details><summary>'+E(q)+'</summary><p>'+E(a)+'</p></details>'; }
-  function tst(t,w){ return '<div class="pe-tst">'+E(t)+'<br><span>— '+E(w)+'</span></div>'; }
-  /* enlace en la pantalla de login */
-  (function ponerEnlace(i){
-    var card=document.querySelector('#screenLogin .login-card');
-    if(card && !document.getElementById('ucInfoLink')){
-      var p=document.createElement('div'); p.id='ucInfoLink'; p.style.cssText='margin-top:10px;font-size:12.5px';
-      p.innerHTML='<a href="javascript:void 0" onclick="ucAbrirInfo()" style="color:var(--muted,#9a968f)">Información del curso, precios y preguntas frecuentes →</a>';
-      card.appendChild(p);
-      return;
-    }
-    if(i<40) setTimeout(function(){ ponerEnlace(i+1); }, 150);
-  })(0);
-  if(typeof router==='function'){
-    var _rt=router;
-    window.router=function(){ if((location.hash||'')==='#/info'){ ucAbrirInfo(); location.hash='#/login'; return; } return _rt.apply(this,arguments); };
-  }
-
-  /* =========================================================
-     5 · SUBIR MATERIALES  (Supabase Storage, arrastrar y soltar)
-     bucket público "materiales"
-     ========================================================= */
-  window.ucMaterialesHTML=function(course){
-    return '<div class="adm-card" style="margin-top:14px"><h4>📎 Materiales de '+E(course==='nutricion'?'Formulación':'Porcicultura')+'</h4>'+
-      '<p class="adm-note" style="margin-top:0">Sube PDF, hojas de cálculo o imágenes. Se guardan en Supabase Storage (bucket <code>materiales</code>) '+
-      'y obtienes un enlace para compartir.</p>'+
-      '<div class="pe-drop" id="ucDrop" onclick="document.getElementById(\'ucFile\').click()">Arrastra un archivo aquí o haz clic para elegirlo</div>'+
-      '<input type="file" id="ucFile" hidden onchange="ucSubirMaterial(this.files[0],\''+course+'\')">'+
-      '<div id="ucMatList" style="margin-top:12px"></div></div>';
-  };
-  window.ucInitDrop=function(course){
-    var d=document.getElementById('ucDrop'); if(!d || d.__wired) return; d.__wired=1;
-    ['dragenter','dragover'].forEach(function(ev){ d.addEventListener(ev,function(e){ e.preventDefault(); d.classList.add('hot'); }); });
-    ['dragleave','drop'].forEach(function(ev){ d.addEventListener(ev,function(e){ e.preventDefault(); d.classList.remove('hot'); }); });
-    d.addEventListener('drop',function(e){ var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) ucSubirMaterial(f,course); });
-    ucListarMateriales(course);
-  };
-  window.ucSubirMaterial=async function(file,course){
-    if(!file) return;
-    if(!window.SB || !window.SB.storage){ T('Sin conexión a Storage','⛔'); return; }
-    if(file.size>25*1024*1024){ T('El archivo pasa de 25 MB','⚠️'); return; }
-    var path=course+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]+/g,'_');
-    T('Subiendo '+file.name+'…','⏳');
-    try{
-      var up=await window.SB.storage.from('materiales').upload(path,file,{upsert:false});
-      if(up.error){
-        var m=up.error.message||'';
-        T(/bucket/i.test(m)?'Falta crear el bucket "materiales" en Supabase (te dejé el paso en progress-course.sql)':'No se pudo subir: '+m,'⛔');
-        return;
-      }
-      T('Subido ✓','✅');
-      ucListarMateriales(course);
-    }catch(e){ T('Error al subir','⛔'); }
-  };
-  window.ucListarMateriales=async function(course){
-    var box=document.getElementById('ucMatList'); if(!box) return;
-    if(!window.SB || !window.SB.storage){ box.innerHTML=''; return; }
-    try{
-      var r=await window.SB.storage.from('materiales').list(course,{limit:100,sortBy:{column:'created_at',order:'desc'}});
-      if(r.error){ box.innerHTML='<span style="color:var(--muted,#9a968f);font-size:12px">Crea el bucket «materiales» para empezar.</span>'; return; }
-      var files=(r.data||[]).filter(function(f){ return f.name && f.id!==null; });
-      if(!files.length){ box.innerHTML='<span style="color:var(--muted,#9a968f);font-size:12px">Todavía no hay materiales.</span>'; return; }
-      box.innerHTML=files.map(function(f){
-        var pub=window.SB.storage.from('materiales').getPublicUrl(course+'/'+f.name).data.publicUrl;
-        return '<div class="pe-mat"><span style="flex:1">'+E(f.name.replace(/^\d+_/,''))+'</span>'+
-          '<a href="'+A(pub)+'" target="_blank" rel="noopener">abrir</a>'+
-          '<button class="adm-add" style="padding:4px 9px;font-size:12px" onclick="ucCopiar(\''+A(pub)+'\')">copiar enlace</button>'+
-          '<button class="adm-add" style="padding:4px 9px;font-size:12px" onclick="ucBorrarMaterial(\''+course+'\',\''+A(f.name)+'\')">borrar</button></div>';
-      }).join('');
-    }catch(e){ box.innerHTML=''; }
-  };
-  window.ucBorrarMaterial=async function(course,name){
-    if(!confirm('¿Borrar '+name+'?')) return;
-    try{ await window.SB.storage.from('materiales').remove([course+'/'+name]); ucListarMateriales(course); T('Borrado','🗑'); }catch(e){ T('No se pudo borrar','⛔'); }
-  };
-  window.ucCopiar=function(t){ try{ navigator.clipboard.writeText(t); T('Enlace copiado','📋'); }catch(e){} };
-
-  /* =========================================================
-     6 · MONITOREO DE ERRORES DEL CLIENTE -> error_log
-     ========================================================= */
-  var errEnviados=0, ultimoErr=0;
-  async function logError(msg){
-    if(!window.SB || errEnviados>15) return;
-    var now=Date.now(); if(now-ultimoErr<3000) return; ultimoErr=now; errEnviados++;
-    try{
-      await window.SB.from('error_log').insert({
-        user_id:(typeof SESSION!=='undefined'&&SESSION&&SESSION.id)||null,
-        role:(typeof SESSION!=='undefined'&&SESSION&&SESSION.role)||null,
-        msg:String(msg).slice(0,500), url:location.href.slice(0,300),
-        ua:(navigator.userAgent||'').slice(0,200)
-      });
-    }catch(e){}
-  }
-  window.addEventListener('error', function(e){ logError((e && (e.message||e.error&&e.error.message)) || 'error'); });
-  window.addEventListener('unhandledrejection', function(e){ logError('promise: '+((e && e.reason && (e.reason.message||e.reason)) || 'rejection')); });
-  window.ucLogError=logError;
-
-  /* traer anuncios junto con el resto de settings */
-  if(typeof window._pullCertSettings==='function'){
-    var _pcs2=window._pullCertSettings;
-    window._pullCertSettings=function(){ var r=_pcs2.apply(this,arguments); try{ ucCargarAnunciosNube(); }catch(e){} return r; };
-  }
-  /* nada interno llama a _pullCertSettings, así que además se trae por temporizador */
-  setTimeout(function(){ try{ ucCargarAnunciosNube(); }catch(e){} }, 2400);
-  setTimeout(function(){ try{ ucCargarAnunciosNube(); }catch(e){} }, 6500);
-
 })();
 
 </script>
+
+
+
+
 
 
 
