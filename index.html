@@ -11688,46 +11688,62 @@ window.exRepasar=function(curso, mod, sec){
 @media(min-width:1440px){ .nx-b.nx-objg{max-width:1340px} }
 @media(min-width:1700px){ .nx-b.nx-objg{max-width:1440px} }
 
-/* ===== foto dentro del contenido, al final de la lámina ===== */
-.nx-secpic{margin:24px 0 0;border:1px solid var(--border);border-radius:15px;overflow:hidden;
-  background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.nx-secpic img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;
-  max-height:clamp(190px,34vh,380px)}
-.nx-secpic figcaption{padding:12px 16px 14px;font-size:13.5px;line-height:1.55;color:var(--text-2)}
+/* ===== foto de fondo de cada lámina ===== */
+/* El pseudo-elemento va en position:absolute a propósito: la lámina
+   es un contenedor flex en modo lección, y un ::before normal se
+   convertiría en un elemento flex más y rompería el centrado. */
+/* isolation:isolate es obligatorio: sin contexto de apilamiento propio,
+   el z-index:-1 manda la foto detrás del fondo opaco de #nxMain y no se ve. */
+.nx-b.nx-fondo{position:relative;isolation:isolate}
+.nx-b.nx-fondo::before{content:'';position:absolute;z-index:-1;
+  inset:-26px -38px;border-radius:26px;pointer-events:none;
+  background-image:var(--fondo);background-size:cover;background-position:center;
+  opacity:.30;
+  -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.98) 0%,rgba(0,0,0,.45) 52%,rgba(0,0,0,0) 92%);
+  mask-image:linear-gradient(180deg,rgba(0,0,0,.98) 0%,rgba(0,0,0,.45) 52%,rgba(0,0,0,0) 92%)}
+/* en oscuro una foto clara se come el contraste del texto */
+html[data-theme="dark"] .nx-b.nx-fondo::before{opacity:.17}
+@media(prefers-reduced-motion:no-preference){
+  .nx-b.nx-fondo::before{transition:opacity .5s ease}
+}
 
-/* ===== modo lección: se ve una lámina a la vez, así que puede ser más ancha ===== */
-.nx-ov.nx-leccion .nx-b{max-width:1080px}
-@media(min-width:1440px){ .nx-ov.nx-leccion .nx-b{max-width:1200px} }
-@media(min-width:1700px){ .nx-ov.nx-leccion .nx-b{max-width:1320px} }
-/* la barra de avance acompaña el ancho nuevo del contenido.
-   Nada de forzarle alto mínimo al contenedor: al desbordar la
-   pantalla, la barra (que es pegajosa) se montaba encima de los
-   botones de módulo y de las notas. */
-.nx-ov.nx-leccion .nx-lnav{max-width:1320px;background:var(--bg);border-top:1px solid var(--border);
-  padding-top:15px;margin-top:18px}
-/* Los botones de módulo (.nx-navb) no son una sección, así que en modo
-   lección salían en TODAS las láminas y chocaban con la barra pegajosa.
-   Solo tienen sentido al final del módulo. */
+/* ===== aprovechar la pantalla, también en modo enfoque ===== */
+.nx-ov.nx-leccion .nx-b{max-width:1180px}
+.nx-ov.enfoque .nx-wrap{max-width:min(1720px,95vw)}
+.nx-ov.enfoque .nx-b{max-width:1180px}
+.nx-ov.enfoque.nx-leccion .nx-b{max-width:1280px}
+.nx-ov.nx-leccion .nx-lnav{max-width:1480px;background:var(--bg);
+  border-top:1px solid var(--border);padding-top:15px;margin-top:18px}
+@media(min-width:1440px){
+  .nx-ov.nx-leccion .nx-b{max-width:1320px}
+  .nx-ov.enfoque .nx-b{max-width:1320px}
+  .nx-ov.enfoque.nx-leccion .nx-b{max-width:1440px}
+  .nx-b.nx-objg{max-width:1420px}
+}
+@media(min-width:1700px){
+  .nx-ov.nx-leccion .nx-b{max-width:1460px}
+  .nx-ov.enfoque .nx-b{max-width:1460px}
+  .nx-ov.enfoque.nx-leccion .nx-b{max-width:1580px}
+  .nx-b.nx-objg{max-width:1560px}
+}
+/* el texto corrido no se estira sin límite: pasada cierta anchura
+   la línea se vuelve incómoda de leer. Las tablas y cuadrículas sí
+   ocupan todo. */
+.nx-b>p,.nx-b>.nx-al,.nx-b>.nx-nota{max-width:104ch}
+
 .nx-ov.nx-leccion .nx-wrap{padding-bottom:26px}
-/* Una lámina corta (una alerta, un par de párrafos) dejaba media
-   pantalla en blanco debajo. Se le da un alto mínimo y se centra su
-   contenido, que es como se comporta una presentación. */
 .nx-ov.nx-leccion .nx-wrap>section.nx-b{min-height:min(48vh,420px);
   display:flex;flex-direction:column;justify-content:center}
-/* la de objetivos va en dos columnas: no se le toca la rejilla */
 .nx-ov.nx-leccion .nx-wrap>section.nx-b.nx-objg{display:grid;justify-content:stretch}
 @media(max-height:680px){ .nx-ov.nx-leccion .nx-wrap>section.nx-b{min-height:0} }
 .nx-ov.nx-leccion .nx-navb{display:none}
 .nx-ov.nx-leccion.nx-ultima .nx-navb{display:flex}
-/* el modo enfoque sigue estrechando a propósito: manda él */
-.nx-ov.enfoque.nx-leccion .nx-b{max-width:820px}
-.nx-ov.enfoque.nx-leccion .nx-b.nx-objg{max-width:900px}
+
+/* pantallas chicas: todo a lo ancho, sin topes */
 @media(max-width:1079px){
-  .nx-ov.nx-leccion .nx-b,.nx-b.nx-objg{max-width:none}
+  .nx-ov.nx-leccion .nx-b,.nx-ov.enfoque .nx-b,.nx-b.nx-objg{max-width:none}
+  .nx-b.nx-fondo::before{inset:-18px -22px;border-radius:20px}
 }
-/* En pantalla angosta la botonera flotante baja a la esquina inferior
-   derecha, que es justo donde está "Continuar". En modo lección se
-   sube por encima de la barra de avance. */
 @media(max-width:820px){
   .nx-ov.nx-leccion .nx-ctl{bottom:88px}
 }
@@ -11828,55 +11844,46 @@ function nxObjetivosConFoto(){
   sec.classList.add('nx-objg');
 }
 
+
 /* ------------------------------------------------------------
-   Segunda foto, ya dentro del contenido. Va al FINAL de la lámina
-   que se indica, que es donde quedaba el hueco.
-   `i` es la posición de la sección en pantalla (0 = objetivos).
-   Solo se ponen donde el módulo es de leer: los que traen la
-   curva, el simulador o la calculadora ya llenan la lámina solos.
+   Cada lámina lleva una foto de fondo, muy bajada y difuminada
+   hacia abajo, para que el texto siga leyéndose. Las fotos van
+   rotando dentro del módulo para que no se repita siempre la misma.
    ------------------------------------------------------------ */
-var NXFOTO2 = {
-  1: {i:1, f:'images/nutri-s01-numeros.jpg',
-      c:'Formular es decidir con números. Sin cuentas, uno está adivinando.'},
-  2: {i:3, f:'images/nutri-s02-recibo-maiz.jpg',
-      c:'Recibir el maíz es el momento de revisar: si viene húmedo o partido, el problema ya entró.'},
-  3: {i:1, f:'images/nutri-s03-cerdo-retrato.jpg',
-      c:'El mismo animal, otra semana, otra necesidad.'},
-  4: {i:1, f:'images/nutri-s04-soya.jpg',
-      c:'Maíz y soya. Con esos dos y una buena premezcla se arma casi cualquier fórmula del país.'},
-  5: {i:1, f:'images/nutri-s05-lechones-granjero.jpg',
-      c:'El destete es un golpe. Lo que coman esas dos semanas decide el lote completo.'},
-  7: {i:1, f:'images/nutri-s07-silos.jpg',
-      c:'Recepción y almacenamiento: si el ingrediente entra mal, la fórmula ya salió mal.'},
-  8: {i:1, f:'images/nutri-s08-costo-numeros.jpg',
-      c:'El número que importa no es el precio del saco, sino el costo por kilo de cerdo.'},
-  9: {i:1, f:'images/nutri-s09-sorgo.jpg',
-      c:'El sorgo entra cuando el maíz sube. Aporta parecido, pero no igual: hay que ajustar.'}
+var NXFONDOS = {
+  1:  ['nutri-m01-alimento-peletizado','nutri-s01-numeros','nutri-b-textura-grano'],
+  2:  ['nutri-m02-maiz-grano','nutri-s02-recibo-maiz','nutri-b-grano-secando'],
+  3:  ['nutri-m03-cerdos-crecimiento','nutri-s03-cerdo-retrato','nutri-b-lechones-paja'],
+  4:  ['nutri-m04-pesando-batch','nutri-s04-soya','nutri-b-textura-grano'],
+  5:  ['nutri-m05-lechones-destete','nutri-s05-lechones-granjero','nutri-b-lechones-paja'],
+  6:  ['nutri-m06-nave-engorde','nutri-b-cerdos-comedero','nutri-m03-cerdos-crecimiento'],
+  7:  ['nutri-m07-molino','nutri-s07-silos','nutri-b-granjero-molino'],
+  8:  ['nutri-m08-mercado-granos','nutri-s08-costo-numeros','nutri-b-grano-secando'],
+  9:  ['nutri-m09-granos-variados','nutri-s09-sorgo','nutri-b-textura-grano'],
+  10: ['nutri-m10-corrales-comedero','nutri-b-cerdos-comedero','nutri-s01-numeros']
 };
 
-function nxFotoContenido(){
+function nxFondos(){
   var wrap = document.querySelector('#nxMain .nx-wrap');
   if(!wrap) return;
   var m = (typeof NXCUR !== 'undefined') ? NXCUR : 0;
-  var d = NXFOTO2[m];
-  if(!d) return;
+  var lista = NXFONDOS[m];
+  if(!lista || !lista.length) return;
   var secs = wrap.querySelectorAll('section.nx-b');
-  var sec = secs[d.i];
-  if(!sec) return;
-  if(sec.querySelector('.nx-secpic')) return;
-  /* si el contenido del módulo cambiara, esa lámina puede dejar de ser
-     la de leer: sin título, no se le pone foto */
-  if(!sec.querySelector('h3')) return;
-
-  var fig = document.createElement('figure');
-  fig.className = 'nx-secpic';
-  var img = document.createElement('img');
-  img.src = d.f; img.loading = 'lazy'; img.alt = '';
-  img.onerror = function(){ if(fig.parentNode) fig.parentNode.removeChild(fig); };
-  var cap = document.createElement('figcaption');
-  cap.textContent = d.c;
-  fig.appendChild(img); fig.appendChild(cap);
-  sec.appendChild(fig);
+  [].forEach.call(secs, function(sec, i){
+    if(sec.dataset.nxFondo) return;
+    /* +1 para que la primera lámina no repita la misma foto que ya
+       están usando la portada del módulo y su tarjeta */
+    var f = 'images/' + lista[(i + 1) % lista.length] + '.jpg';
+    var img = new Image();
+    img.onload = function(){
+      sec.style.setProperty('--fondo', 'url("' + f + '")');
+      sec.classList.add('nx-fondo');
+    };
+    img.onerror = function(){ /* sin foto, la lámina se queda lisa */ };
+    img.src = f;
+    sec.dataset.nxFondo = '1';
+  });
 }
 
 /* marca el modo lección para que el CSS pueda ensanchar y
@@ -11889,7 +11896,7 @@ function nxMarcarLeccion(){
 function nxArreglarLamina(){
   nxPonerFoto();
   nxObjetivosConFoto();
-  nxFotoContenido();
+  nxFondos();
   nxMarcarLeccion();
 }
 
@@ -11947,6 +11954,9 @@ if(typeof window.nxMostrarSeccion === 'function'){
 try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 
 </script>
+
+
+
 
 
 
