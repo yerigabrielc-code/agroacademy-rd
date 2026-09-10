@@ -11341,6 +11341,16 @@ function exIndice(curso, mod){
       if(m){
         let n=1;   /* el primer bloque en pantalla es el de objetivos */
         secs=m.sec.map(function(s){
+          /* Solo cuentan las entradas que de verdad pintan una sección.
+             No todas lo hacen: 'fuentes' ya no se pinta, y 'cierre' (que
+             contenido-extra.js agrega al final del módulo 10) tampoco.
+             Contarlas corría el número de lámina del botón "Repasar". */
+          var pinta = true;
+          try{
+            var h = (typeof nxSeccion==='function') ? nxSeccion(s, m) : null;
+            if(h !== null) pinta = !!(h && h.indexOf('<section') >= 0);
+          }catch(err){}
+          if(!pinta) return null;
           n++;
           const t=s.t || ({ingredientes:'Biblioteca de materias primas',requerimientos:'Requerimientos por peso y etapa',
             biblioteca:'Las 12 fórmulas',simulador:'Formule usted',infografia:'Los diez pasos, en orden',
@@ -11637,6 +11647,8 @@ window.exRepasar=function(curso, mod, sec){
 
 
 
+
+
 <style>
 
 /* ===== fotos de portada del curso de formulación ===== */
@@ -11881,6 +11893,21 @@ function nxArreglarLamina(){
   nxMarcarLeccion();
 }
 
+/* ------------------------------------------------------------
+   Fuera el bloque "Fuentes de este módulo". Se envuelve nxSeccion
+   para que esa sección no se genere: así no hay que borrarla del
+   DOM después y el modo lección cuenta bien desde el principio.
+   En los diez módulos era la ÚLTIMA sección, así que quitarla no
+   corre de sitio a ninguna otra ni al botón "Repasar".
+   ------------------------------------------------------------ */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSec = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'fuentes') return '';
+    return _nxSec.apply(this, arguments);
+  };
+}
+
 /* se engancha al repintado del módulo, sin tocar el original */
 if(typeof window.nxPinta === 'function'){
   var _nxPintaFoto = window.nxPinta;
@@ -11920,6 +11947,7 @@ if(typeof window.nxMostrarSeccion === 'function'){
 try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 
 </script>
+
 
 
 
