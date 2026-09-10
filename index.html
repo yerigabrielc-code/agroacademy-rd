@@ -12103,6 +12103,53 @@ try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 .nx-rd-err p,.nx-rd-dec p{margin:0;font-size:14.5px;line-height:1.65;color:var(--text-2)}
 .nx-rd-err p b,.nx-rd-dec p b{color:var(--text)}
 
+/* ===== panel Mi produccion ===== */
+.nx-pn{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--panel)}
+.nx-pn-h{padding:16px 20px;border-bottom:1px solid var(--border)}
+.nx-pn-h b{display:block;font-family:var(--display);font-size:17px;font-weight:800;color:var(--text);margin-bottom:5px}
+.nx-pn-h p{margin:0;font-size:13.5px;line-height:1.55;color:var(--text-2)}
+.nx-pn-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--border)}
+.nx-pn-b{background:var(--panel);padding:15px 18px}
+.nx-pn-t{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--amber-d);margin-bottom:11px}
+.nx-pn-i{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:7px 0;border-bottom:1px dashed var(--border)}
+.nx-pn-i:last-child{border-bottom:0}
+.nx-pn-i span{font-size:13px;color:var(--text-2)}
+.nx-pn-i b{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text);white-space:nowrap}
+.nx-pn-i i{width:100%;font-style:normal;font-size:11px;color:var(--muted)}
+
+/* ===== casos ===== */
+.nx-caso2{display:flex;flex-direction:column;gap:9px}
+.nx-caso2-i{border:1px solid var(--border);border-radius:13px;background:var(--panel);overflow:hidden}
+.nx-caso2-i[open]{border-color:var(--green)}
+.nx-caso2-on{border-color:var(--green);box-shadow:0 0 0 2px rgba(47,125,79,.16)}
+.nx-caso2-i>summary{cursor:pointer;padding:14px 18px;font-size:15px;font-weight:600;color:var(--text);
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.nx-caso2-i>summary span{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:#fff;background:var(--green);border-radius:6px;padding:3px 8px}
+.nx-caso2-b{padding:0 18px 16px}
+.nx-caso2-s{margin:0 0 10px;font-size:14.5px;line-height:1.65;color:var(--text-2)}
+.nx-caso2-q{margin:0 0 8px;font-size:14.5px;line-height:1.6;color:var(--text)}
+.nx-caso2-p{margin:0 0 12px;font-size:13.5px;line-height:1.6;color:var(--muted)}
+.nx-caso2-btn{font-family:inherit;font-size:13.5px;font-weight:600;color:#fff;background:var(--green);
+  border:0;border-radius:10px;padding:11px 18px;cursor:pointer}
+.nx-caso2-btn:hover{background:var(--green-d)}
+.nx-caso2-r{margin-top:12px}
+.nx-caso2-r summary{cursor:pointer;font-size:13.5px;color:var(--green);font-weight:600}
+.nx-caso2-r p{margin:9px 0 0;font-size:14px;line-height:1.65;color:var(--text-2)}
+
+/* ===== ejercicios por niveles ===== */
+.nx-ej{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.nx-ej-i{border:1px solid var(--border);border-radius:13px;padding:15px 17px;background:var(--panel)}
+.nx-ej-4{background:rgba(224,165,38,.08);border-color:rgba(224,165,38,.4)}
+.nx-ej-n{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px}
+.nx-ej-4 .nx-ej-n{color:var(--amber-d)}
+.nx-ej-p{margin:0 0 11px;font-size:14.5px;line-height:1.6;color:var(--text)}
+.nx-ej-r summary{cursor:pointer;font-size:13px;color:var(--green);font-weight:600}
+.nx-ej-r p{margin:9px 0 0;font-size:14px;line-height:1.65;color:var(--text-2)}
+
 /* tabla de formulación */
 .nx-fx-top{display:flex;gap:16px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--border)}
 .nx-fx-top label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted);flex:1;min-width:190px}
@@ -13232,7 +13279,283 @@ if(typeof window.nxSeccion === 'function'){
   };
 }
 
+
+/* ============================================================
+   PRÁCTICA · panel, casos dominicanos y ejercicios por niveles
+   ------------------------------------------------------------
+   Todo lee del mismo motor. Los casos no son texto: cargan sus
+   datos en NXGRANJA, así que el estudiante los ve moverse en las
+   calculadoras de todo el curso.
+   ============================================================ */
+
+/* ---------- 1 · MI PRODUCCIÓN ---------- */
+function nxPanel(){
+  var g = NXGRANJA, d = nxDatos();
+  var f = function(et, v, nota){
+    return '<div class="nx-pn-i"><span>' + et + '</span><b>' + v + '</b>' +
+      (nota ? '<i>' + nota + '</i>' : '') + '</div>';
+  };
+  var falta = [];
+  if(g.consumo <= 0) falta.push('el alimento consumido');
+  if(d.costoAlimKg <= 0) falta.push('el precio del alimento');
+  if(d.otrosCostos <= 0) falta.push('los costos que no son alimento');
+  if(g.precioVenta <= 0) falta.push('el precio de venta');
+
+  return '<section class="nx-b nx-full"><h3 class="rv">Mi producción</h3>' +
+  '<div class="nx-pn rv">' +
+    '<div class="nx-pn-h"><b>Los números de su lote</b>' +
+      '<p>Todo esto sale de lo que usted fue metiendo en las calculadoras del curso. Cambie un dato en cualquier módulo y aquí se actualiza.</p></div>' +
+    (falta.length ? '<div class="nx-cx-av">⚠️ Para que el cuadro esté completo, todavía le falta meter <b>' +
+      falta.join('</b>, <b>') + '</b>.</div>' : '') +
+    '<div class="nx-pn-g">' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">El animal</span>' +
+        f('Peso inicial', nxD(g.pesoIni, 1) + ' kg') +
+        f('Peso final', nxD(g.pesoFin, 1) + ' kg') +
+        f('Ganancia', nxD(d.ganancia, 1) + ' kg') +
+        f('Días', nxD(g.dias, 0)) +
+        f('Ganancia diaria', nxD(d.gdpG, 0) + ' g/día') +
+      '</div>' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">El alimento</span>' +
+        f('Consumo por cerdo', nxD(g.consumo, 0) + ' kg', nxD(NXU.deKg(g.consumo, 'qq'), 1) + ' quintales') +
+        f('Conversión (CA)', nxD(d.ca)) +
+        f('Precio del alimento', 'RD$ ' + nxD(d.costoAlimKg) + '/kg') +
+        f('Costo de alimentación', nxRD(d.costoAlim)) +
+        f('Costo por kg ganado', 'RD$ ' + nxD(d.costoAlimPorKg)) +
+      '</div>' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">La plata</span>' +
+        f('Otros costos', nxRD(d.otrosCostos)) +
+        f('Costo total por cerdo', nxRD(d.costoTotal), 'no es el costo por kilo') +
+        f('Costo por kg vivo', 'RD$ ' + nxD(d.costoPorKgVivo), 'este sí se compara con el mercado') +
+        f('Precio de venta', 'RD$ ' + nxD(g.precioVenta) + '/kg') +
+        f('Margen por cerdo', nxRD(d.margen)) +
+      '</div>' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">El lote de ' + nxD(g.cerdos, 0) + '</span>' +
+        f('Alimento del lote', nxD(d.loteAlimKg, 0) + ' kg', nxD(NXU.deKg(d.loteAlimKg, 't'), 2) + ' toneladas') +
+        f('Costo del lote', nxRD(d.loteCosto)) +
+        f('Cerdos a vender', nxD(d.lotePorVender, 1)) +
+        f('Margen del lote', nxRD(d.loteMargen)) +
+        f('El alimento pesa', nxD(d.pesoAlimPct, 0) + ' % del costo') +
+      '</div>' +
+    '</div>' +
+    '<div class="nx-cx-s"><b>¿Cómo se lee este cuadro?</b><p>' +
+      'De izquierda a derecha va la cadena completa: <b>lo que come el animal → lo que le cuesta → lo que le queda</b>. ' +
+      'Si el margen del lote le sale negativo, suba por la fila hasta encontrar dónde se rompe: casi siempre es la conversión o el precio del alimento. ' +
+      'Y recuerde que el <b>costo por cerdo</b> (' + nxRD(d.costoTotal) + ') y el <b>costo por kilo</b> (RD$ ' + nxD(d.costoPorKgVivo) + ') son cosas distintas: el que se compara con lo que le pagan es el segundo.' +
+    '</p></div>' +
+  '</div></section>';
+}
+
+/* ---------- 2 · CASOS DOMINICANOS ----------
+   Cada caso carga sus datos en el motor. No son ejemplos de papel:
+   el estudiante los ve moverse en las calculadoras. */
+var NXCASO = [
+{ id:'c1', t:'Productor con 20 cerdos de engorde',
+  s:'Tiene 20 cerdos que entraron a 25 kg y salieron a 100 kg en 120 días. Compró alimento comercial y no llevó cuenta del consumo, pero sabe que gastó 78 sacos de 45.36 kg en todo el lote.',
+  pregunta:'¿Cuál fue su conversión y cuánto le costó alimentar cada cerdo?',
+  datos:{cerdos:20, pesoIni:25, pesoFin:100, dias:120, consumo:177, precioAlim:26},
+  pista:'78 sacos × 45.36 kg = 3,538 kg para 20 cerdos, o sea unos 177 kg por cerdo.',
+  cierre:'Con 177 kg y 75 kg de ganancia, la CA sale en 2.36 — buena. El problema es que no la sabía: la calculó después. Sin registro no hay gestión.' },
+
+{ id:'c2', t:'Productor que fabrica su propio alimento',
+  s:'Fabrica lotes de 500 kg con la fórmula de engorde. Muele donde un tercero y mezcla con su propia mezcladora pequeña.',
+  pregunta:'¿Cuánto le cuesta el kilo de alimento fabricado, con todo sumado?',
+  datos:{lote:500, formula:'engorde1'},
+  pista:'Use la calculadora de formulación del módulo 04 para el costo de ingredientes, y súmele molienda, energía, su tiempo y un 2 % de mermas.',
+  cierre:'El costo de ingredientes no es el costo del alimento. La diferencia entre los dos números es lo que decide si fabricar le conviene.' },
+
+{ id:'c3', t:'Productor que compra alimento comercial',
+  s:'Le ofrecen alimento de engorde a RD$ 1,250 el saco de 45.36 kg. Su vecino fabrica y dice que le sale a RD$ 24 el kilo.',
+  pregunta:'¿Cuál de los dos es más barato por kilo?',
+  datos:{precioAlim:27.56},
+  pista:'1,250 ÷ 45.36 = RD$ 27.56 por kg. Ahora sí se pueden comparar.',
+  cierre:'RD$ 27.56 contra RD$ 24.00: el vecino ahorra RD$ 3.56 por kilo. En 195 kg por cerdo son RD$ 694 por animal — si su cuenta de RD$ 24 incluye molienda, tiempo y mermas.' },
+
+{ id:'c4', t:'Sube el precio del maíz',
+  s:'El maíz sube de RD$ 22 a RD$ 28 el kilo. Su fórmula de engorde lleva casi 80 % de maíz.',
+  pregunta:'¿Cuánto le sube el costo del alimento y cuánto le cuesta eso en el lote?',
+  datos:{formula:'engorde1', cerdos:20, consumo:195},
+  pista:'Cambie el precio del maíz en la calculadora de formulación del módulo 04 y mire cómo se mueve el costo por kg. Después vaya al panel.',
+  cierre:'Con 80 % de inclusión, cada peso que sube el maíz le sube unos 80 centavos el kilo de alimento. Ahí es cuando toca sacar la fórmula alternativa.' },
+
+{ id:'c5', t:'La conversión empeoró y no sabe por qué',
+  s:'El lote pasado dio CA de 2.60. Este dio 3.05, con la misma fórmula, el mismo proveedor y la misma genética.',
+  pregunta:'¿Cuánto dinero se fue en esa diferencia y por dónde empezar a buscar?',
+  datos:{pesoIni:25, pesoFin:100, consumo:229, cerdos:20},
+  pista:'229 kg de alimento para los mismos 75 kg de ganancia. Compare contra los 195 kg del lote bueno.',
+  cierre:'Son 34 kg de alimento de más por cerdo. Antes de tocar la fórmula, revise comederos, agua y sanidad: en la mayoría de los casos la CA se pierde ahí, no en la dieta.' },
+
+{ id:'c6', t:'Lote muy disparejo de pesos',
+  s:'De 20 cerdos, 6 llegaron a 105 kg, 8 a 92 kg y 6 apenas a 74 kg, todos el mismo día.',
+  pregunta:'¿Qué le está diciendo esa variación y qué hace con el promedio?',
+  datos:{pesoIni:25, pesoFin:91, dias:120, cerdos:20, consumo:190},
+  pista:'El promedio es 91 kg, pero ningún cerdo pesa 91. El promedio esconde el problema.',
+  cierre:'Un lote disparejo casi siempre es espacio de comedero, agua o competencia, no fórmula. Y le cuesta doble: los pequeños se quedan comiendo más días.' },
+
+{ id:'c7', t:'Alimento que se dañó en el almacén',
+  s:'Compró materia prima para tres meses aprovechando un buen precio. Al segundo mes el alimento del fondo huele a rancio y hay grumos.',
+  pregunta:'¿Cuánto perdió y cómo se evita?',
+  datos:{lote:1000},
+  pista:'Calcule el costo del lote con la calculadora de formulación y estime qué porción se perdió.',
+  cierre:'En el calor de aquí la grasa se pone rancia y las vitaminas se degradan. La regla es simple: <b>un lote que no se consuma en 30 días es un lote en riesgo</b>. El descuento por volumen se lo come el deterioro.' },
+
+{ id:'c8', t:'Comprado contra fabricado, la cuenta completa',
+  s:'Fabricar le sale a RD$ 23.65 el kilo en ingredientes. El comercial cuesta RD$ 27.56 el kilo. Parece claro… hasta que suma lo demás.',
+  pregunta:'¿Cuál conviene de verdad?',
+  datos:{precioAlim:25.92, cerdos:20, consumo:195},
+  pista:'Súmele a lo suyo molienda, energía, mano de obra y 2 % de mermas: RD$ 25.92 el kilo.',
+  cierre:'La diferencia real es RD$ 1.64 por kilo, no RD$ 3.91. En 195 kg por cerdo son RD$ 320. ¿Le paga eso el trabajo de moler y mezclar cada semana? Esa es la pregunta, y la respuesta depende de su escala.' },
+
+{ id:'c9', t:'Cuál es mi costo real por cerdo',
+  s:'Compró el lechón al destete, gastó en sanidad, paga a un ayudante, tiene luz y agua, y perdió 1 de cada 20 animales.',
+  pregunta:'¿Cuánto le costó de verdad cada cerdo que vendió?',
+  datos:{lechon:2500, sanidad:300, mano:450, energia:150, transporte:100, otros:50, mortalidad:5, cerdos:20},
+  pista:'Los que se murieron también costaron. Su gasto se reparte entre los que sí llegaron a la venta.',
+  cierre:'Con 5 % de mortalidad, el costo de los 20 se reparte entre 19. Ignorar eso le hace creer que gana más de lo que gana.' },
+
+{ id:'c10', t:'A qué precio mínimo puedo vender',
+  s:'Ya tiene su costo total por cerdo. El comprador le ofrece un precio por kilo en pie.',
+  pregunta:'¿A partir de qué precio empieza a ganar?',
+  datos:{precioVenta:85, pesoFin:100},
+  pista:'Divida el costo total por cerdo entre el peso de venta. Ese es su piso.',
+  cierre:'Ese número es su piso, no su meta. Y no incluye la nave, el equipo ni los préstamos: es margen sobre costos variables. Debajo de ahí, cada cerdo que venda le cuesta dinero.' }
+];
+
+function nxCargarCaso(id){
+  var c = NXCASO.find(function(x){ return x.id === id; });
+  if(!c) return;
+  for(var k in c.datos){
+    if(k === 'formula') NXGRANJA.formula = c.datos[k];
+    else NXGRANJA[k] = c.datos[k];
+  }
+  nxGuardarGranja();
+  nxRecalcular();
+  var el = document.getElementById('caso-' + id);
+  if(el) el.classList.add('nx-caso2-on');
+  if(typeof toast === 'function') toast('Datos del caso cargados. Ábralos en cualquier calculadora del curso.', '📋');
+}
+
+function nxCasosRD(){
+  return '<section class="nx-b nx-full"><h3 class="rv">Diez situaciones que usted va a reconocer</h3>' +
+  '<p class="nx-cap rv">Cada caso carga sus datos en las calculadoras del curso. Pulse «Cargar» y después ábralo en el módulo que quiera: los números se mueven con usted.</p>' +
+  '<div class="nx-caso2 rv">' + NXCASO.map(function(c, i){
+    return '<details class="nx-caso2-i" id="caso-' + c.id + '">' +
+      '<summary><span>Caso ' + (i + 1) + '</span>' + nxEsc(c.t) + '</summary>' +
+      '<div class="nx-caso2-b">' +
+        '<p class="nx-caso2-s">' + c.s + '</p>' +
+        '<p class="nx-caso2-q"><b>La pregunta:</b> ' + c.pregunta + '</p>' +
+        '<p class="nx-caso2-p"><b>Pista:</b> ' + c.pista + '</p>' +
+        '<button class="nx-caso2-btn" onclick="nxCargarCaso(\'' + c.id + '\')">Cargar estos datos en mis calculadoras →</button>' +
+        '<details class="nx-caso2-r"><summary>Ver la lectura del caso</summary><p>' + c.cierre + '</p></details>' +
+      '</div>' +
+    '</details>';
+  }).join('') + '</div></section>';
+}
+
+/* ---------- 3 · EJERCICIOS POR NIVELES ---------- */
+var NXEJ = {
+1:[['Un saco pesa 45.36 kg y cuesta RD$ 1,000. ¿Cuánto es el kilo?','RD$ 1,000 ÷ 45.36 = <b>RD$ 22.05 por kg</b>.'],
+   ['Le cotizan a RD$ 21,500 la tonelada. ¿Cuánto es el kilo y cuánto el quintal?','21,500 ÷ 1,000 = <b>RD$ 21.50 el kg</b>. Por quintal: 21.50 × 45.36 = <b>RD$ 975</b>.'],
+   ['Tiene tres cotizaciones: RD$ 1,000 el saco de 45.36 kg, RD$ 920 el de 40 kg y RD$ 21,500 la tonelada. ¿Cuál conviene?','A = 22.05 · B = 23.00 · C = 21.50 el kg. Conviene <b>C</b>, y el saco «más barato» (B) es el más caro por kilo.'],
+   ['El proveedor C es el más barato por kilo, pero está a 90 km y el flete cuesta RD$ 3,500 por tonelada. ¿Sigue conviniendo?','C con flete: 21,500 + 3,500 = 25,000 ÷ 1,000 = <b>RD$ 25.00 el kg</b>. Ya no conviene: <b>A a RD$ 22.05 puesto en finca es mejor</b>. Siempre compare precio puesto en su granja.']],
+2:[['Un lote de maíz viene con 18 % de humedad en vez de 14 %. En 1,000 kg, ¿cuánta agua de más compró?','Alrededor de <b>46 kg</b> de agua a precio de maíz.'],
+   ['Si el maíz está a RD$ 22 el kilo, ¿cuánto pagó por esa agua?','46 × 22 = <b>RD$ 1,012</b> en un solo lote de una tonelada.'],
+   ['Compra 12 toneladas al año con esa humedad. ¿Cuánto pierde en el año?','46 kg × 12 = 552 kg de agua × RD$ 22 = <b>RD$ 12,144 al año</b>, más el riesgo de deterioro.'],
+   ['El proveedor con maíz seco le cobra RD$ 1.20 más por kilo. ¿Le conviene?','El maíz húmedo le cuesta RD$ 1.01 por kg en agua (22 × 4.6 %), más deterioro y riesgo de micotoxinas. La diferencia es casi la misma: <b>conviene el seco</b> por el riesgo que le quita de encima.']],
+3:[['Un cerdo pasa de 25 a 100 kg en 120 días. ¿Cuál es su ganancia diaria?','(100 − 25) ÷ 120 = <b>0.625 kg/día</b>, o sea 625 g/día.'],
+   ['Otro lote hace lo mismo en 135 días. ¿Cuánto baja la ganancia diaria?','75 ÷ 135 = <b>0.556 kg/día</b> (556 g). Baja 69 g por día.'],
+   ['Esos 15 días de más, ¿qué le cuestan si el cerdo come 2.2 kg diarios a RD$ 24?','15 × 2.2 × 24 = <b>RD$ 792 por cerdo</b> solo de alimento de mantenimiento, sin contar el corral ocupado.'],
+   ['Tiene 20 cerdos. ¿Le conviene invertir RD$ 12,000 en ventilación si con eso recupera esos 15 días?','20 × 792 = <b>RD$ 15,840 por lote</b>. La inversión se paga en el primer lote y sigue rindiendo. Sí conviene — verificando primero que el retraso sea por calor y no por otra cosa.']],
+4:[['Su fórmula lleva 79.59 % de maíz. Para 100 kg, ¿cuánto maíz pesa?','<b>79.59 kg</b>.'],
+   ['¿Y para un lote de 500 kg?','500 × 0.7959 = <b>397.95 kg</b>.'],
+   ['La premezcla va al 0.30 %. En un lote de 1,000 kg, ¿cuánto es y cómo la echa?','<b>3.00 kg</b>. No va directa: se prediluye con 10 a 20 kg de maíz molido antes de entrar al lote.'],
+   ['Fabrica lotes de 200 kg. La premezcla serían 600 g. ¿Puede pesarlos con la balanza de plataforma de 100 kg?','No: esa balanza no tiene la precisión. Necesita <b>balanza de precisión</b> para los micro. Si no la tiene, conviene fabricar lotes más grandes o comprar esa parte premezclada.']],
+5:[['Un cerdo consume unos 5 kg de preiniciador y 195 kg en total. ¿Qué porcentaje de los kilos es?','5 ÷ 195 = <b>2.6 %</b> de los kilos.'],
+   ['El preiniciador cuesta RD$ 80 el kilo y el promedio del resto RD$ 24. ¿Qué porcentaje del dinero es?','5 × 80 = RD$ 400 de RD$ 5,160 totales = <b>7.8 %</b> del dinero. Tres veces su peso en kilos.'],
+   ['Consigue un preiniciador RD$ 15 más barato por kilo. ¿Cuánto ahorra por cerdo?','5 × 15 = <b>RD$ 75 por cerdo</b>.'],
+   ['Ese preiniciador más barato hace que el lechón salga del destete con 1 kg menos. ¿Le conviene?','Ese kilo se arrastra hasta el final: son unos 3 a 4 días más de engorde. A 2.2 kg/día × RD$ 24 son <b>RD$ 160 a 210</b>. <b>No conviene</b>: ahorró 75 y gastó el doble.']],
+6:[['Un cerdo come 195 kg y gana 75 kg. ¿Cuál es su CA?','195 ÷ 75 = <b>2.60</b>.'],
+   ['Otro come 229 kg para la misma ganancia. ¿Cuál es su CA?','229 ÷ 75 = <b>3.05</b>.'],
+   ['Con alimento a RD$ 24 el kilo, ¿cuánto cuesta esa diferencia en un lote de 20?','(229 − 195) × 24 × 20 = <b>RD$ 16,320</b> en un solo lote.'],
+   ['Le ofrecen una fórmula RD$ 1.50 más barata por kilo, pero le sube la CA de 2.60 a 2.75. ¿Conviene?','Ahorra 195 × 1.50 = RD$ 292. Pero come 11 kg más × RD$ 22.50 = RD$ 248… y además tarda más días. <b>Casi no ahorra nada y asume riesgo</b>: no conviene por RD$ 44.']],
+7:[['Su mezcladora tarda 8 minutos en homogeneizar. ¿Qué pasa si mezcla 3 minutos?','La premezcla y los aminoácidos no se distribuyen: unos animales reciben el doble y otros nada. <b>La fórmula deja de existir</b>.'],
+   ['¿Y si mezcla 25 minutos?','También daña: las partículas se separan por tamaño y densidad. Más tiempo <b>no</b> es mejor mezclado.'],
+   ['Va a echar 20 kg de aceite en un lote de 1,000 kg. ¿En qué momento?','Al <b>final</b>, en chorro fino, sobre la mezcla en movimiento. Al principio apelmaza todo y arruina la homogeneidad.'],
+   ['Muele donde un tercero que también muele alimento de aves. ¿Qué riesgo tiene y qué hace?','<b>Contaminación cruzada</b> con aditivos que no van en cerdos. Pida limpieza de tolva antes, lleve sus propios sacos rotulados, y si el riesgo es alto, busque otro molino.']],
+8:[['Un lote de 1,000 kg cuesta RD$ 23,650 en ingredientes. ¿Cuánto es el kilo?','<b>RD$ 23.65 por kg</b>.'],
+   ['Súmele molienda RD$ 800, energía RD$ 400, mano de obra RD$ 600 y 2 % de mermas. ¿Cuál es el costo real?','23,650 + 1,800 + 473 = RD$ 25,923 ÷ 1,000 = <b>RD$ 25.92 por kg</b>.'],
+   ['El comercial cuesta RD$ 1,250 el saco de 45.36 kg. ¿Cuál sale mejor y por cuánto?','Comercial: 1,250 ÷ 45.36 = RD$ 27.56. Fabricado: RD$ 25.92. Ahorra <b>RD$ 1.64 por kg</b>.'],
+   ['En 195 kg por cerdo y 20 cerdos, ¿ese ahorro le paga 4 horas semanales de trabajo?','195 × 1.64 × 20 = <b>RD$ 6,396 por lote</b> (unos 4 meses). Son unos RD$ 1,600 al mes por ~16 horas: menos de RD$ 100 la hora. <b>Depende de qué más pueda hacer con ese tiempo.</b>']],
+9:[['La fórmula A cuesta RD$ 23.65/kg y la B RD$ 22.10/kg. ¿Cuál es la diferencia por quintal?','1.55 × 45.36 = <b>RD$ 70 por quintal</b>.'],
+   ['¿Y en 195 kg por cerdo?','195 × 1.55 = <b>RD$ 302 por cerdo</b>.'],
+   ['La B tiene 3.5 % menos lisina digestible. ¿Qué espera que pase?','El animal recibe menos del aminoácido que limita el crecimiento: <b>crece menos o come más</b>. La CA sube.'],
+   ['Si la CA sube de 2.60 a 2.72 con la fórmula B, ¿sigue conviniendo?','Come 9 kg más × 22.10 = RD$ 199 de más, contra RD$ 302 de ahorro. Quedan <b>RD$ 103</b>… y tarda más días. <b>El margen es tan fino que no compensa el riesgo</b> sin validación profesional.']],
+10:[['Su cerdo costó RD$ 8,502 en total y pesa 100 kg. ¿Cuál es el costo por kilo vivo?','8,502 ÷ 100 = <b>RD$ 85.02 por kg</b>.'],
+    ['Le pagan RD$ 85 el kilo. ¿Gana o pierde?','Ingreso 8,500 contra costo 8,502: <b>pierde RD$ 2 por cerdo</b>. Está exactamente en el límite.'],
+    ['¿A qué precio empieza a ganar RD$ 500 por cerdo?','(8,502 + 500) ÷ 100 = <b>RD$ 90.02 por kg</b>.'],
+    ['No puede subir el precio. ¿Bajar la CA de 2.75 a 2.55 le da esos RD$ 500?','Ahorra 15 kg de alimento × RD$ 24 = <b>RD$ 360</b>. No alcanza solo con eso: hay que bajar CA <b>y</b> revisar los otros costos. Pero es el camino más rápido que usted controla.']]
+};
+
+function nxEjercicios(mod){
+  var e = NXEJ[mod];
+  if(!e) return '';
+  var niv = ['Nivel 1 · cálculo directo', 'Nivel 2 · varios datos',
+             'Nivel 3 · problema de granja', 'Nivel 4 · decisión'];
+  return '<section class="nx-b nx-full"><h3 class="rv">Ejercicios de este módulo</h3>' +
+  '<p class="nx-cap rv">Van de menos a más. El cuarto no tiene una sola respuesta correcta: hay que <b>decidir y justificar</b>.</p>' +
+  '<div class="nx-ej rv">' + e.map(function(x, i){
+    return '<div class="nx-ej-i nx-ej-' + (i + 1) + '">' +
+      '<span class="nx-ej-n">' + niv[i] + '</span>' +
+      '<p class="nx-ej-p">' + x[0] + '</p>' +
+      '<details class="nx-ej-r"><summary>Ver cómo se resuelve</summary><p>' + x[1] + '</p></details>' +
+    '</div>';
+  }).join('') + '</div></section>';
+}
+
+/* ---------- 4 · colocar ---------- */
+(function nxColocarPractica(){
+  if(typeof NXMOD === 'undefined') return;
+  /* ejercicios: al final de cada módulo, después de la calculadora */
+  NXMOD.forEach(function(m){
+    if(!NXEJ[m.n]) return;
+    if(m.sec.some(function(s){ return s.k === 'ejer'; })) return;
+    m.sec.push({k:'ejer', n:m.n, t:'Ejercicios de este módulo'});
+  });
+  /* casos y panel: al cierre del curso */
+  var m10 = NXMOD[9];
+  if(m10 && !m10.sec.some(function(s){ return s.k === 'casosrd'; })){
+    m10.sec.push({k:'casosrd', t:'Diez situaciones que usted va a reconocer'});
+  }
+  if(m10 && !m10.sec.some(function(s){ return s.k === 'panel'; })){
+    m10.sec.push({k:'panel', t:'Mi producción'});
+  }
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecPr = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'ejer')    return nxEjercicios(s.n);
+    if(s && s.k === 'casosrd') return nxCasosRD();
+    if(s && s.k === 'panel')   return nxPanel();
+    return _nxSecPr.apply(this, arguments);
+  };
+}
+
+/* el panel se repinta con cualquier cambio de dato */
+if(typeof nxAlCambiar === 'function'){
+  nxAlCambiar(function(){
+    var vieja = document.querySelector('#nxMain .nx-pn');
+    if(!vieja) return;
+    var sec = vieja.closest('section.nx-b');
+    if(!sec) return;
+    var d = document.createElement('div');
+    d.innerHTML = nxPanel();
+    var nueva = d.querySelector('section.nx-b');
+    if(nueva && sec.parentNode) sec.parentNode.replaceChild(nueva, sec);
+  });
+}
+
 </script>
+
 
 
 </body>
