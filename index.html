@@ -12022,5 +12022,951 @@ try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 
 
 
+<style>
+
+/* ===== calculadoras ===== */
+.nx-cx{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:6px 0}
+.nx-cx-h{padding:18px 20px 14px;border-bottom:1px solid var(--border)}
+.nx-cx-h b{display:block;font-family:var(--display);font-size:17px;font-weight:800;color:var(--text);margin-bottom:5px}
+.nx-cx-h p{margin:0;font-size:14px;line-height:1.55;color:var(--text-2)}
+.nx-cx-f{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--bg);
+  border-bottom:1px solid var(--border)}
+.nx-cx-f span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--mono)}
+.nx-cx-f code{font-family:var(--mono);font-size:13.5px;color:var(--text);background:none}
+.nx-cx-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:18px 20px}
+.nx-cx-c{display:flex;flex-direction:column;gap:5px}
+.nx-cx-p{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--amber-d)}
+.nx-cx-e{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.35}
+.nx-cx-w{display:flex;align-items:center;gap:8px}
+.nx-cx-w input{flex:1;min-width:0;font-family:var(--mono);font-size:16px;color:var(--text);
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.nx-cx-w input:focus{outline:none;border-color:var(--green)}
+.nx-cx-w i{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap;min-width:52px}
+.nx-cx-a{font-size:12px;color:var(--muted);line-height:1.45}
+.nx-cx-out{border-top:1px solid var(--border)}
+.nx-cx-av{margin:0;padding:13px 20px;background:rgba(224,165,38,.13);color:var(--amber-d);
+  font-size:13.5px;line-height:1.55;border-bottom:1px solid var(--border)}
+.nx-cx-av b{color:var(--text)}
+.nx-cx-r{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:18px 20px;background:rgba(47,125,79,.10)}
+.nx-cx-rk{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  width:100%}
+.nx-cx-r b{font-family:var(--mono);font-size:clamp(30px,4vw,42px);font-weight:700;color:var(--green);line-height:1}
+.nx-cx-ru{font-size:13.5px;color:var(--text-2)}
+.nx-cx-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--border)}
+.nx-cx-g>div{background:var(--panel);padding:14px 16px}
+.nx-cx-g b{display:block;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text);line-height:1.2}
+.nx-cx-g span{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.35}
+.nx-cx-d{border-top:1px solid var(--border);padding:0 20px}
+.nx-cx-d summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--text);padding:14px 0}
+.nx-cx-d ol{margin:0 0 16px;padding-left:22px}
+.nx-cx-d li{font-size:14px;line-height:1.7;color:var(--text-2);margin-bottom:9px}
+.nx-cx-d li b{color:var(--text)}
+.nx-cx-s{padding:16px 20px;border-top:1px solid var(--border)}
+.nx-cx-s b{display:block;font-size:13.5px;color:var(--text);margin-bottom:6px}
+.nx-cx-s p{margin:0;font-size:14.5px;line-height:1.65;color:var(--text-2)}
+.nx-cx-s p b{display:inline;font-size:inherit;margin:0}
+.nx-cx-n{padding:13px 20px;border-top:1px solid var(--border);font-size:13px;line-height:1.6;color:var(--muted)}
+.nx-cx-n b{color:var(--text-2)}
+.nx-cx-v{padding:15px 20px;border-top:1px solid var(--border)}
+.nx-cx-v b{display:block;font-size:13.5px;color:var(--text);margin-bottom:8px}
+.nx-cx-v ul{margin:0;padding-left:19px}
+.nx-cx-v li{font-size:13.5px;line-height:1.6;color:var(--text-2);margin-bottom:5px}
+/* tabla de formulación */
+.nx-fx-top{display:flex;gap:16px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--border)}
+.nx-fx-top label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted);flex:1;min-width:190px}
+.nx-fx-top select,.nx-fx-top input{font-family:inherit;font-size:14px;color:var(--text);background:var(--bg);
+  border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.nx-fx-lotes{display:flex;gap:7px;flex-wrap:wrap;padding:13px 20px;border-bottom:1px solid var(--border)}
+.nx-fx-l{font-family:var(--mono);font-size:12.5px;color:var(--text-2);background:var(--bg);
+  border:1px solid var(--border);border-radius:9px;padding:8px 13px;cursor:pointer}
+.nx-fx-l:hover{border-color:var(--green)}
+.nx-fx-l.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.nx-fx-i{width:82px;font-family:var(--mono);font-size:13.5px;color:var(--text);text-align:right;
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+.nx-fx-i:focus{outline:none;border-color:var(--green)}
+.nx-fx-av{padding:11px 20px;font-size:13px;color:var(--text-2);border-bottom:1px solid var(--border)}
+.nx-fx-av button{font-family:inherit;font-size:12.5px;color:var(--green);background:none;border:0;
+  text-decoration:underline;cursor:pointer;padding:0 0 0 6px}
+@media(max-width:640px){
+  .nx-cx-in{grid-template-columns:1fr;padding:16px}
+  .nx-cx-r,.nx-cx-h,.nx-cx-s,.nx-cx-v,.nx-cx-n{padding-left:16px;padding-right:16px}
+}
+
+</style>
+<script>
+/* ============================================================
+   MOTOR DE CÁLCULO · CURSO DE FORMULACIÓN
+   ------------------------------------------------------------
+   Un solo lugar donde viven los datos de la granja del estudiante
+   y un solo lugar donde se hacen las cuentas. Las calculadoras no
+   calculan: le preguntan a este motor. Así, cambiar el precio del
+   maíz en el módulo 02 mueve el margen en el módulo 10.
+
+   Los precios NO se guardan aquí: ya viven en NXCFG.precios, que
+   el curso venía usando. No se duplica el dato.
+   ============================================================ */
+
+/* ---------- unidades ----------
+   Todo se calcula en kg. Las demás unidades son solo para mostrar.
+   1 quintal = 100 libras = 45.359237 kg  ·  1 tonelada = 1,000 kg  */
+var NXU = {
+  kgPorLb: 0.45359237,
+  kgPorQq: 45.359237,
+  kgPorT: 1000,
+  aKg: function(v, u){
+    v = parseFloat(v) || 0;
+    if(u === 'lb') return v * NXU.kgPorLb;
+    if(u === 'qq') return v * NXU.kgPorQq;
+    if(u === 't')  return v * NXU.kgPorT;
+    return v;
+  },
+  deKg: function(kg, u){
+    kg = parseFloat(kg) || 0;
+    if(u === 'lb') return kg / NXU.kgPorLb;
+    if(u === 'qq') return kg / NXU.kgPorQq;
+    if(u === 't')  return kg / NXU.kgPorT;
+    return kg;
+  },
+  nombre: { kg:'kg', lb:'lb', qq:'quintales', t:'toneladas' }
+};
+
+/* ---------- los datos de SU granja ----------
+   Todo esto es editable y nada de esto es un precio real de mercado:
+   son valores de ejemplo para que el estudiante los sustituya. */
+var NXGRANJA_DEF = {
+  formula:    'engorde1',   /* fórmula activa de la biblioteca */
+  lote:       1000,         /* kg del batch que se fabrica */
+  pesoIni:    25,           /* kg */
+  pesoFin:    100,          /* kg */
+  dias:       120,
+  consumo:    195,          /* kg de alimento consumidos en total */
+  cerdos:     20,           /* tamaño del lote de animales */
+  precioAlim: null,         /* RD$/kg. null = se toma de la fórmula */
+  lechon:     0,            /* RD$ por lechón al destete */
+  sanidad:    0,            /* RD$ vitaminas, vacunas, desparasitante */
+  mano:       0,            /* RD$ mano de obra por cerdo */
+  energia:    0,            /* RD$ energía y agua por cerdo */
+  transporte: 0,            /* RD$ transporte por cerdo */
+  otros:      0,            /* RD$ otros variables por cerdo */
+  mortalidad: 0,            /* % del lote */
+  precioVenta: 0,           /* RD$ por kg vivo */
+  fx:         null,         /* la fórmula del estudiante, si tocó algún % */
+  formulaB:   'engorde2'    /* la alternativa que compara en sustitución */
+};
+
+var NXGRANJA = {};
+(function(){
+  for(var k in NXGRANJA_DEF) NXGRANJA[k] = NXGRANJA_DEF[k];
+  try{
+    var g = JSON.parse(localStorage.getItem('nx_granja') || '{}');
+    for(var j in g) if(NXGRANJA_DEF.hasOwnProperty(j)) NXGRANJA[j] = g[j];
+  }catch(e){}
+})();
+
+function nxGuardarGranja(){
+  try{ localStorage.setItem('nx_granja', JSON.stringify(NXGRANJA)); }catch(e){}
+}
+
+/* pone un dato y avisa a todo lo que esté en pantalla */
+function nxSet(campo, valor){
+  if(!NXGRANJA_DEF.hasOwnProperty(campo)) return;
+  NXGRANJA[campo] = (campo === 'formula') ? valor : (parseFloat(valor) || 0);
+  nxGuardarGranja();
+  nxRecalcular();
+}
+
+/* todo lo que se puede sacar de esos datos, en un solo sitio */
+function nxDatos(){
+  var g = NXGRANJA;
+  var d = {};
+
+  d.ganancia = g.pesoFin - g.pesoIni;                       /* kg */
+  d.gdp      = g.dias > 0 ? d.ganancia / g.dias : 0;        /* kg/día */
+  d.gdpG     = d.gdp * 1000;                                /* g/día */
+  d.ca       = d.ganancia > 0 ? g.consumo / d.ganancia : 0; /* kg alim / kg ganancia */
+
+  /* costo del alimento: de la fórmula activa, salvo que lo fijen a mano */
+  var F = (typeof NXFORM !== 'undefined') ? NXFORM.find(function(x){ return x.id === g.formula; }) : null;
+  d.formula      = F || null;
+  d.costoFormula = (F && typeof nxPerfil === 'function') ? nxPerfil(F.f).costoKg : 0;
+  d.costoAlimKg  = (g.precioAlim != null && g.precioAlim > 0) ? g.precioAlim : d.costoFormula;
+
+  d.costoAlim       = g.consumo * d.costoAlimKg;                              /* RD$ por cerdo */
+  d.costoAlimPorKg  = d.ganancia > 0 ? d.costoAlim / d.ganancia : 0;          /* RD$ por kg ganado */
+
+  d.otrosCostos = g.lechon + g.sanidad + g.mano + g.energia + g.transporte + g.otros;
+  d.costoBase   = d.costoAlim + d.otrosCostos;
+
+  /* la mortalidad reparte el costo de los que se perdieron entre los que llegan */
+  var vivos = 1 - (g.mortalidad / 100);
+  d.costoTotal = vivos > 0 ? d.costoBase / vivos : d.costoBase;               /* RD$ por cerdo vendido */
+  d.recargoMort = d.costoTotal - d.costoBase;
+
+  d.costoPorKgVivo = g.pesoFin > 0 ? d.costoTotal / g.pesoFin : 0;
+  d.pesoAlimPct    = d.costoTotal > 0 ? (d.costoAlim / d.costoTotal) * 100 : 0;
+
+  d.ingreso  = g.precioVenta * g.pesoFin;
+  d.margen   = d.ingreso - d.costoTotal;
+  d.margenPct = d.ingreso > 0 ? (d.margen / d.ingreso) * 100 : 0;
+  d.equilibrio = d.costoPorKgVivo;   /* precio mínimo de venta por kg vivo */
+
+  /* el lote completo */
+  d.lotePorVender = g.cerdos * vivos;
+  d.loteCosto  = d.costoTotal * d.lotePorVender;
+  d.loteMargen = d.margen * d.lotePorVender;
+  d.loteAlimKg = g.consumo * g.cerdos;
+
+  return d;
+}
+
+/* costo de un lote de alimento a partir de una fórmula en % */
+function nxCostoLote(f, kgLote){
+  kgLote = kgLote || 100;
+  var filas = [], total = 0, suma = 0;
+  for(var k in f){
+    var ing = (typeof NXING !== 'undefined') ? NXING[k] : null;
+    if(!ing) continue;
+    var pct = f[k];
+    var kg  = kgLote * pct / 100;
+    var rd  = (typeof nxPrecio === 'function') ? nxPrecio(k) : 0;
+    var cst = kg * rd;
+    suma += pct; total += cst;
+    filas.push({ k:k, nombre:ing.n || k, pct:pct, kg:kg, precio:rd, costo:cst });
+  }
+  filas.forEach(function(r){ r.peso = total > 0 ? (r.costo / total) * 100 : 0; });
+  filas.sort(function(a,b){ return b.costo - a.costo; });
+  return {
+    filas: filas, suma: suma, kgLote: kgLote, total: total,
+    porKg: kgLote > 0 ? total / kgLote : 0,
+    porQq: (kgLote > 0 ? total / kgLote : 0) * NXU.kgPorQq,
+    porT:  (kgLote > 0 ? total / kgLote : 0) * NXU.kgPorT
+  };
+}
+
+/* lo que hay que repintar cuando un dato cambia */
+var NXOYENTES = [];
+function nxAlCambiar(fn){ if(typeof fn === 'function') NXOYENTES.push(fn); }
+function nxRecalcular(){
+  for(var i = 0; i < NXOYENTES.length; i++){
+    try{ NXOYENTES[i](); }catch(e){}
+  }
+}
+
+
+/* ============================================================
+   CALCULADORAS · CURSO DE FORMULACIÓN
+   ------------------------------------------------------------
+   Una sola calculadora y doce configuraciones. Cada calculadora
+   es un objeto de datos: qué se calcula, qué entra, cómo se
+   valida, la cuenta paso a paso, qué significa el resultado y
+   qué debería revisar el productor.
+   Todas leen y escriben en NXGRANJA, así que lo que se cambia en
+   una se ve en las demás.
+   ============================================================ */
+
+var NXCX = {};   /* definiciones, por id */
+
+/* ---------- utilidades de formato ---------- */
+function nxRD(x){ return 'RD$ ' + (typeof nxMiles === 'function' ? nxMiles(x) : Math.round(x)); }
+function nxD(x, d){ return (typeof nxN === 'function') ? nxN(x, d) : (+x).toFixed(d === undefined ? 2 : d); }
+function nxEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ---------- el armazón, igual para todas ---------- */
+function nxCalc(id){
+  var def = NXCX[id];
+  if(!def) return '';
+  return '<div class="nx-cx" id="cx-' + id + '">' +
+    '<div class="nx-cx-h"><b>' + nxEsc(def.titulo) + '</b>' +
+      (def.que ? '<p>' + def.que + '</p>' : '') + '</div>' +
+    (def.formula ? '<div class="nx-cx-f"><span>La fórmula</span><code>' + nxEsc(def.formula) + '</code></div>' : '') +
+    '<div class="nx-cx-in">' + nxCxCampos(def) + '</div>' +
+    '<div class="nx-cx-out" id="cxo-' + id + '"></div>' +
+  '</div>';
+}
+
+function nxCxCampos(def){
+  return (def.campos || []).map(function(c, i){
+    var v = (c.local != null) ? c.local : NXGRANJA[c.k];
+    return '<label class="nx-cx-c">' +
+      '<span class="nx-cx-p">Paso ' + (i + 1) + '</span>' +
+      '<span class="nx-cx-e">' + nxEsc(c.et) + '</span>' +
+      '<span class="nx-cx-w">' +
+        '<input type="number" inputmode="decimal" step="' + (c.paso || 'any') + '" ' +
+          'value="' + (v == null ? '' : v) + '" ' +
+          'oninput="nxCxSet(\'' + def.id + '\',\'' + c.k + '\',this.value)">' +
+        '<i>' + nxEsc(c.u || '') + '</i>' +
+      '</span>' +
+      (c.ayuda ? '<span class="nx-cx-a">' + c.ayuda + '</span>' : '') +
+    '</label>';
+  }).join('');
+}
+
+function nxCxSet(id, campo, valor){
+  if(typeof nxSet === 'function' && NXGRANJA_DEF.hasOwnProperty(campo)) nxSet(campo, valor);
+  else { var d = NXCX[id]; if(d) d.tmp = d.tmp || {}, d.tmp[campo] = parseFloat(valor) || 0; nxCxPinta(id); }
+}
+
+/* ---------- resultado, cuenta y lectura ---------- */
+function nxCxPinta(id){
+  var def = NXCX[id], out = document.getElementById('cxo-' + id);
+  if(!def || !out) return;
+  var g = NXGRANJA, d = nxDatos();
+
+  /* 1 · validar antes de enseñar un número que no significa nada */
+  var avisos = def.valida ? (def.valida(g, d) || []) : [];
+  if(avisos.length){
+    out.innerHTML = avisos.map(function(a){
+      return '<div class="nx-cx-av">⚠️ ' + a + '</div>';
+    }).join('');
+    return;
+  }
+
+  var r = def.calcula(g, d);
+  var pasos = def.pasos ? def.pasos(g, d) : [];
+  var extra = (r.extra || []).map(function(e){
+    return '<div><b>' + e.v + '</b><span>' + nxEsc(e.et) + '</span></div>';
+  }).join('');
+
+  out.innerHTML =
+    '<div class="nx-cx-r"><span class="nx-cx-rk">Resultado</span>' +
+      '<b>' + r.valor + '</b>' +
+      (r.unidad ? '<span class="nx-cx-ru">' + nxEsc(r.unidad) + '</span>' : '') + '</div>' +
+    (extra ? '<div class="nx-cx-g">' + extra + '</div>' : '') +
+    (pasos.length ?
+      '<details class="nx-cx-d" open><summary>¿Cómo se calculó?</summary><ol>' +
+      pasos.map(function(p){ return '<li>' + p + '</li>'; }).join('') +
+      '</ol></details>' : '') +
+    (def.significa ?
+      '<div class="nx-cx-s"><b>¿Qué significa este resultado?</b><p>' + def.significa(g, d, r) + '</p></div>' : '') +
+    (def.rango ? '<div class="nx-cx-n">' + def.rango(g, d, r) + '</div>' : '') +
+    (def.revisa && def.revisa.length ?
+      '<div class="nx-cx-v"><b>¿Qué puede estar afectándolo?</b><ul>' +
+      def.revisa.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul></div>' : '');
+}
+
+/* cuando cambia cualquier dato, se repintan todas las que estén en pantalla */
+if(typeof nxAlCambiar === 'function'){
+  nxAlCambiar(function(){
+    for(var id in NXCX){
+      if(document.getElementById('cxo-' + id)) nxCxPinta(id);
+    }
+  });
+}
+
+/* ============================================================
+   LAS CALCULADORAS
+   ============================================================ */
+
+/* ---- 1 · Conversión alimenticia ---- */
+NXCX.ca = {
+  id:'ca',
+  titulo:'Calculadora de conversión alimenticia (CA)',
+  que:'Cuántos kilos de alimento hicieron falta para que el cerdo ganara <b>un kilo</b> de peso. Es el número que más manda en la rentabilidad de un engorde.',
+  formula:'CA = alimento consumido ÷ (peso final − peso inicial)',
+  campos:[
+    {k:'pesoIni', et:'Peso inicial del cerdo', u:'kg', paso:0.5},
+    {k:'pesoFin', et:'Peso final del cerdo', u:'kg', paso:0.5},
+    {k:'consumo', et:'Alimento consumido en total', u:'kg', paso:1,
+     ayuda:'Todo lo que comió en el período, no lo que comió en un día.'}
+  ],
+  valida:function(g){
+    var a = [];
+    if(g.pesoFin <= g.pesoIni) a.push('El peso final debe ser mayor que el peso inicial.');
+    if(g.consumo <= 0) a.push('El alimento consumido tiene que ser mayor que cero.');
+    if(g.pesoIni < 0 || g.pesoFin < 0) a.push('Los pesos no pueden ser negativos.');
+    return a;
+  },
+  calcula:function(g, d){
+    return { valor: nxD(d.ca), unidad:'kg de alimento por cada kg de ganancia',
+      extra:[
+        {et:'Ganancia de peso', v: nxD(d.ganancia, 1) + ' kg'},
+        {et:'Alimento por cerdo', v: nxD(g.consumo, 0) + ' kg'},
+        {et:'Equivale a', v: nxD(NXU.deKg(g.consumo, 'qq'), 1) + ' qq'}
+      ]};
+  },
+  pasos:function(g, d){
+    return [
+      'Ganancia de peso = ' + nxD(g.pesoFin, 1) + ' kg − ' + nxD(g.pesoIni, 1) + ' kg = <b>' + nxD(d.ganancia, 1) + ' kg</b>',
+      'CA = ' + nxD(g.consumo, 0) + ' kg de alimento ÷ ' + nxD(d.ganancia, 1) + ' kg de ganancia',
+      'CA = <b>' + nxD(d.ca) + '</b> kg de alimento por kg de ganancia'
+    ];
+  },
+  significa:function(g, d){
+    return 'Bajo los datos que usted metió, el cerdo necesitó <b>' + nxD(d.ca) + ' kg de alimento por cada kilo que ganó</b>. ' +
+      'Mientras más bajo ese número, menos alimento le cuesta cada kilo de cerdo.';
+  },
+  rango:function(){
+    return 'La CA depende de la etapa, la genética, el manejo, el clima y la sanidad, así que <b>no hay un número bueno universal</b>. ' +
+      'Como orientación, en engorde completo del destete al mercado suele moverse entre 2.5 y 3.2. ' +
+      'Lo que de verdad sirve es comparar <b>su</b> número contra <b>su</b> número del lote anterior, medido igual.';
+  },
+  revisa:[
+    'Desperdicio en el comedero: alimento que cae al piso también se cuenta y no engorda.',
+    'Calidad del alimento: molienda, mezclado y frescura.',
+    'Agua: si falta agua, baja el consumo y se dispara la CA.',
+    'Sanidad: parásitos y diarreas se pagan en conversión.',
+    'Calor: en clima caliente el cerdo come menos y crece más lento.',
+    'Cómo pesó: si el pesaje no fue igual al inicio y al final, el número no compara.'
+  ]
+};
+
+/* ---- 2 · Ganancia diaria de peso ---- */
+NXCX.gdp = {
+  id:'gdp',
+  titulo:'Calculadora de ganancia diaria de peso (GDP)',
+  que:'Cuánto peso gana el cerdo cada día. Le dice si el lote va al ritmo que usted planificó.',
+  formula:'GDP = (peso final − peso inicial) ÷ días',
+  campos:[
+    {k:'pesoIni', et:'Peso inicial', u:'kg', paso:0.5},
+    {k:'pesoFin', et:'Peso final', u:'kg', paso:0.5},
+    {k:'dias',    et:'Días que pasaron', u:'días', paso:1}
+  ],
+  valida:function(g){
+    var a = [];
+    if(g.pesoFin <= g.pesoIni) a.push('El peso final debe ser mayor que el peso inicial.');
+    if(g.dias <= 0) a.push('Los días tienen que ser mayores que cero.');
+    return a;
+  },
+  calcula:function(g, d){
+    return { valor: nxD(d.gdp, 3), unidad:'kg por día',
+      extra:[
+        {et:'En gramos', v: nxD(d.gdpG, 0) + ' g/día'},
+        {et:'Ganancia total', v: nxD(d.ganancia, 1) + ' kg'},
+        {et:'Días', v: nxD(g.dias, 0)}
+      ]};
+  },
+  pasos:function(g, d){
+    return [
+      'Ganancia = ' + nxD(g.pesoFin, 1) + ' − ' + nxD(g.pesoIni, 1) + ' = <b>' + nxD(d.ganancia, 1) + ' kg</b>',
+      'GDP = ' + nxD(d.ganancia, 1) + ' kg ÷ ' + nxD(g.dias, 0) + ' días',
+      'GDP = <b>' + nxD(d.gdp, 3) + ' kg/día</b>, o sea <b>' + nxD(d.gdpG, 0) + ' gramos por día</b>'
+    ];
+  },
+  significa:function(g, d){
+    return 'Su cerdo está ganando <b>' + nxD(d.gdpG, 0) + ' gramos al día</b> en promedio durante todo el período. ' +
+      'Si esa cifra baja y el alimento es el mismo, algo está frenando al animal antes que la dieta.';
+  },
+  rango:function(){
+    return 'Es un promedio de todo el período: al principio el cerdo gana menos y al final gana más. ' +
+      'Compárelo con el suyo de lotes anteriores, no con el de otra granja que tiene otra genética y otro clima.';
+  },
+  revisa:[
+    'Espacio en el comedero y en el corral.',
+    'Agua disponible y limpia.',
+    'Calor: sombra, ventilación y hora de alimentación.',
+    'Sanidad y desparasitación.',
+    'Si la dieta corresponde al peso que tiene el animal hoy.'
+  ]
+};
+
+/* ---- 3 · Costo de alimentar un cerdo ---- */
+NXCX.costocerdo = {
+  id:'costocerdo',
+  titulo:'¿Cuánto me cuesta alimentar un cerdo?',
+  que:'Junta el alimento que se come el cerdo con lo que cuesta ese alimento, y le dice cuánto pone usted en comida por cada animal y por cada kilo que gana.',
+  formula:'Costo de alimentación = alimento consumido × precio del alimento por kg',
+  campos:[
+    {k:'pesoIni',    et:'Peso inicial', u:'kg', paso:0.5},
+    {k:'pesoFin',    et:'Peso final', u:'kg', paso:0.5},
+    {k:'consumo',    et:'Alimento consumido', u:'kg', paso:1},
+    {k:'precioAlim', et:'Precio del alimento', u:'RD$/kg', paso:0.01,
+     ayuda:'Déjelo en 0 y se usa el costo de la fórmula activa. <b>Precio de ejemplo: ponga el suyo.</b>'}
+  ],
+  valida:function(g, d){
+    var a = [];
+    if(g.pesoFin <= g.pesoIni) a.push('El peso final debe ser mayor que el peso inicial.');
+    if(g.consumo <= 0) a.push('El alimento consumido tiene que ser mayor que cero.');
+    if(d.costoAlimKg <= 0) a.push('Falta el precio del alimento. Póngalo aquí o cargue precios en la fórmula.');
+    return a;
+  },
+  calcula:function(g, d){
+    return { valor: nxRD(d.costoAlim), unidad:'de alimento por cerdo',
+      extra:[
+        {et:'Costo por kg ganado', v: nxRD(d.costoAlimPorKg)},
+        {et:'CA del período', v: nxD(d.ca)},
+        {et:'Precio usado', v: 'RD$ ' + nxD(d.costoAlimKg) + '/kg'},
+        {et:'Lote de ' + nxD(g.cerdos, 0) + ' cerdos', v: nxRD(d.costoAlim * g.cerdos)}
+      ]};
+  },
+  pasos:function(g, d){
+    return [
+      'Precio del alimento = <b>RD$ ' + nxD(d.costoAlimKg) + ' por kg</b>' +
+        (g.precioAlim > 0 ? ' (el que usted puso)' : ' (calculado de la fórmula «' + (d.formula ? d.formula.nombre : '—') + '»)'),
+      'Costo de alimentación = ' + nxD(g.consumo, 0) + ' kg × RD$ ' + nxD(d.costoAlimKg) + ' = <b>' + nxRD(d.costoAlim) + '</b>',
+      'Ganancia = ' + nxD(d.ganancia, 1) + ' kg → costo por kilo ganado = ' + nxRD(d.costoAlim) + ' ÷ ' + nxD(d.ganancia, 1) + ' = <b>RD$ ' + nxD(d.costoAlimPorKg) + '</b>'
+    ];
+  },
+  significa:function(g, d){
+    return 'Poner ese cerdo de ' + nxD(g.pesoIni, 0) + ' a ' + nxD(g.pesoFin, 0) + ' kg le cuesta <b>' + nxRD(d.costoAlim) + ' solo en comida</b>. ' +
+      'Cada kilo que gana el animal le sale a <b>RD$ ' + nxD(d.costoAlimPorKg) + '</b>. Ojo: esto es solo el alimento, todavía falta todo lo demás.';
+  },
+  revisa:[
+    'El precio del alimento: si compra por saco o por quintal, páselo a RD$ por kg antes de comparar.',
+    'El consumo: si no lo mide, está adivinando la mitad de la cuenta.',
+    'El desperdicio: lo que cae al piso lo pagó usted igual.'
+  ]
+};
+
+/* ---- 4 · Costo total del cerdo ---- */
+NXCX.costototal = {
+  id:'costototal',
+  titulo:'Costo total por cerdo y costo por kilo vivo',
+  que:'El alimento no es todo. Aquí se suma lo demás y sale el número que de verdad se compara con el precio de venta.',
+  formula:'Costo por kg vivo = costo total acumulado ÷ peso final',
+  campos:[
+    {k:'lechon',     et:'Lechón al destete', u:'RD$', paso:1, ayuda:'<b>Valor de ejemplo: ponga el suyo.</b>'},
+    {k:'sanidad',    et:'Vitaminas, vacunas, desparasitante', u:'RD$', paso:1},
+    {k:'mano',       et:'Mano de obra por cerdo', u:'RD$', paso:1},
+    {k:'energia',    et:'Energía y agua por cerdo', u:'RD$', paso:1},
+    {k:'transporte', et:'Transporte por cerdo', u:'RD$', paso:1},
+    {k:'otros',      et:'Otros gastos variables', u:'RD$', paso:1},
+    {k:'mortalidad', et:'Mortalidad del lote', u:'%', paso:0.1,
+     ayuda:'Los que se pierden también costaron: su gasto se reparte entre los que sí llegan a la venta.'}
+  ],
+  valida:function(g, d){
+    var a = [];
+    if(g.pesoFin <= 0) a.push('Falta el peso final del cerdo.');
+    if(d.costoAlim <= 0) a.push('Falta el costo de alimentación: llene primero la calculadora de alimento.');
+    if(g.mortalidad < 0 || g.mortalidad >= 100) a.push('La mortalidad debe estar entre 0 y 99 %.');
+    return a;
+  },
+  calcula:function(g, d){
+    return { valor: nxRD(d.costoTotal), unidad:'costo total por cerdo vendido',
+      extra:[
+        {et:'Costo por kg vivo', v: 'RD$ ' + nxD(d.costoPorKgVivo)},
+        {et:'El alimento es el', v: nxD(d.pesoAlimPct, 0) + ' % del total'},
+        {et:'Recargo por mortalidad', v: nxRD(d.recargoMort)},
+        {et:'Lote de ' + nxD(g.cerdos, 0), v: nxRD(d.loteCosto)}
+      ]};
+  },
+  pasos:function(g, d){
+    return [
+      'Alimento = <b>' + nxRD(d.costoAlim) + '</b> · Todo lo demás = <b>' + nxRD(d.otrosCostos) + '</b>',
+      'Suma = ' + nxRD(d.costoBase) + (g.mortalidad > 0 ?
+        '<br>Con ' + nxD(g.mortalidad, 1) + ' % de mortalidad, ese gasto se reparte entre los que llegan: ' +
+        nxRD(d.costoBase) + ' ÷ ' + nxD(1 - g.mortalidad / 100, 3) + ' = <b>' + nxRD(d.costoTotal) + '</b>' : ''),
+      'Costo por kg vivo = ' + nxRD(d.costoTotal) + ' ÷ ' + nxD(g.pesoFin, 0) + ' kg = <b>RD$ ' + nxD(d.costoPorKgVivo) + ' por kg</b>'
+    ];
+  },
+  significa:function(g, d){
+    return 'Ese cerdo le costó <b>' + nxRD(d.costoTotal) + '</b> en total, y cada kilo vivo le sale a <b>RD$ ' + nxD(d.costoPorKgVivo) + '</b>. ' +
+      'Son dos números distintos y no se pueden confundir: <b>el costo por animal no es el costo por kilo</b>. ' +
+      'El que se compara con el precio del mercado es el de por kilo.';
+  },
+  revisa:[
+    'Que no esté metiendo dos veces el mismo gasto (transporte del alimento ya puede estar en el precio del alimento).',
+    'La mano de obra: aunque sea usted mismo, su tiempo cuesta.',
+    'Gastos fijos como la nave o el equipo no entran aquí; esto es costo variable por animal.'
+  ]
+};
+
+/* ---- 5 · Costo por kg de carne y el peso de la CA ---- */
+NXCX.kgcarne = {
+  id:'kgcarne',
+  titulo:'¿Cuánto me cuesta producir un kilo de carne?',
+  que:'Aquí se ve, en dinero, por qué la conversión alimenticia importa tanto. La misma granja con distinta CA gana o pierde miles de pesos en el mismo lote.',
+  formula:'Costo de alimento por kg de ganancia = CA × precio del alimento por kg',
+  campos:[
+    {k:'pesoIni',    et:'Peso inicial', u:'kg', paso:0.5},
+    {k:'pesoFin',    et:'Peso final', u:'kg', paso:0.5},
+    {k:'precioAlim', et:'Precio del alimento', u:'RD$/kg', paso:0.01,
+     ayuda:'Déjelo en 0 y se usa el costo de la fórmula activa.'},
+    {k:'cerdos',     et:'Cerdos del lote', u:'cerdos', paso:1}
+  ],
+  valida:function(g, d){
+    var a = [];
+    if(g.pesoFin <= g.pesoIni) a.push('El peso final debe ser mayor que el peso inicial.');
+    if(d.costoAlimKg <= 0) a.push('Falta el precio del alimento.');
+    return a;
+  },
+  calcula:function(g, d){
+    return { valor:'RD$ ' + nxD(d.ca * d.costoAlimKg), unidad:'de alimento por cada kg de carne producida',
+      extra:[
+        {et:'Su CA', v: nxD(d.ca)},
+        {et:'Precio alimento', v:'RD$ ' + nxD(d.costoAlimKg) + '/kg'},
+        {et:'Ganancia por cerdo', v: nxD(d.ganancia, 1) + ' kg'}
+      ]};
+  },
+  pasos:function(g, d){
+    var gan = d.ganancia, p = d.costoAlimKg, n = g.cerdos || 1;
+    var fila = function(ca){
+      var kg = ca * gan, rd = kg * p;
+      return '<tr><td>' + nxD(ca) + '</td><td class="nx-num">' + nxD(kg, 0) + ' kg</td>' +
+        '<td class="nx-num">' + nxRD(rd) + '</td><td class="nx-num">' + nxRD(rd * n) + '</td></tr>';
+    };
+    var base = d.ca;
+    return [
+      'Costo de alimento por kg de carne = CA × precio = ' + nxD(base) + ' × RD$ ' + nxD(p) + ' = <b>RD$ ' + nxD(base * p) + '</b>',
+      'Y así se mueve el bolsillo si la CA cambia y todo lo demás sigue igual:' +
+      '<div class="nx-tw"><table class="nx-t"><thead><tr><th>CA</th><th>Alimento por cerdo</th><th>RD$ por cerdo</th><th>RD$ el lote de ' + nxD(n, 0) + '</th></tr></thead><tbody>' +
+      fila(2.5) + fila(2.8) + fila(3.1) + '</tbody></table></div>',
+      'Entre una CA de 2.5 y una de 3.1, en un lote de ' + nxD(n, 0) + ' cerdos, la diferencia es <b>' +
+      nxRD((3.1 - 2.5) * gan * p * n) + '</b>. El mismo alimento, el mismo tiempo, otra plata.'
+    ];
+  },
+  significa:function(g, d){
+    return 'Cada kilo de carne que produce le cuesta <b>RD$ ' + nxD(d.ca * d.costoAlimKg) + ' solo en alimento</b>. ' +
+      'Bajar la conversión una décima no es un detalle técnico: es dinero que se queda en la granja.';
+  },
+  revisa:[
+    'Antes de cambiar la fórmula, revise desperdicio, agua y sanidad: suelen mover más la CA que la dieta.',
+    'Una fórmula más barata que empeora la CA sale más cara al final.'
+  ]
+};
+
+/* ---- 6 · Punto de equilibrio ---- */
+NXCX.equilibrio = {
+  id:'equilibrio',
+  titulo:'¿A qué precio mínimo debo vender?',
+  que:'El punto de equilibrio es el precio por kilo al que usted no gana ni pierde. Por debajo de ahí, está trabajando gratis.',
+  formula:'Precio de equilibrio = costo total por cerdo ÷ peso de venta',
+  campos:[
+    {k:'pesoFin',     et:'Peso de venta', u:'kg', paso:0.5},
+    {k:'precioVenta', et:'Precio de venta que le ofrecen', u:'RD$/kg vivo', paso:0.5,
+     ayuda:'<b>Precio de ejemplo: ponga el que le están pagando a usted.</b>'},
+    {k:'cerdos',      et:'Cerdos del lote', u:'cerdos', paso:1}
+  ],
+  valida:function(g, d){
+    var a = [];
+    if(g.pesoFin <= 0) a.push('Falta el peso de venta.');
+    if(d.costoTotal <= 0) a.push('Falta el costo total: llene primero la calculadora de costo total por cerdo.');
+    return a;
+  },
+  calcula:function(g, d){
+    return { valor:'RD$ ' + nxD(d.equilibrio), unidad:'por kg vivo — su precio mínimo',
+      extra:[
+        {et:'Margen por cerdo', v: nxRD(d.margen)},
+        {et:'Margen del lote', v: nxRD(d.loteMargen)},
+        {et:'Margen sobre ingreso', v: nxD(d.margenPct, 1) + ' %'},
+        {et:'Ingreso por cerdo', v: nxRD(d.ingreso)}
+      ]};
+  },
+  pasos:function(g, d){
+    return [
+      'Costo total por cerdo = <b>' + nxRD(d.costoTotal) + '</b>',
+      'Precio de equilibrio = ' + nxRD(d.costoTotal) + ' ÷ ' + nxD(g.pesoFin, 0) + ' kg = <b>RD$ ' + nxD(d.equilibrio) + ' por kg vivo</b>',
+      'Le ofrecen RD$ ' + nxD(g.precioVenta) + ' por kg → ingreso = ' + nxRD(d.ingreso) +
+        ' → margen = ' + nxRD(d.ingreso) + ' − ' + nxRD(d.costoTotal) + ' = <b>' + nxRD(d.margen) + ' por cerdo</b>'
+    ];
+  },
+  significa:function(g, d){
+    var s = 'Su precio mínimo es <b>RD$ ' + nxD(d.equilibrio) + ' por kilo vivo</b>. ';
+    if(g.precioVenta <= 0) return s + 'Ponga el precio que le ofrecen para ver si le conviene.';
+    if(d.margen > 0) return s + 'A RD$ ' + nxD(g.precioVenta) + ' le quedan <b>' + nxRD(d.margen) + ' por cerdo</b>, o ' + nxRD(d.loteMargen) + ' en el lote.';
+    if(Math.abs(d.margen) < 1) return s + 'A ese precio está justo en el límite: ni gana ni pierde.';
+    return s + 'A RD$ ' + nxD(g.precioVenta) + ' está <b>perdiendo ' + nxRD(-d.margen) + ' por cerdo</b>. Con ese precio, ese lote no cubre lo que costó.';
+  },
+  revisa:[
+    'Este margen no descuenta la nave, el equipo ni los préstamos: es margen sobre costos variables.',
+    'Si vende por unidad y no por peso, pase el precio a RD$ por kg antes de comparar.'
+  ]
+};
+
+/* ---- 7 · Conversor de unidades ---- */
+NXCX.unidades = {
+  id:'unidades',
+  titulo:'Conversor: kg · libras · quintales · toneladas',
+  que:'Para que nunca mezcle unidades sin darse cuenta. Los cálculos técnicos del curso van en kg; esto es para entenderse con el proveedor.',
+  formula:'1 quintal = 100 lb = 45.359237 kg  ·  1 tonelada = 1,000 kg',
+  campos:[
+    {k:'lote', et:'Cantidad en kilogramos', u:'kg', paso:1,
+     ayuda:'Escriba en kg y abajo lo ve en las demás unidades.'}
+  ],
+  valida:function(g){
+    return g.lote < 0 ? ['La cantidad no puede ser negativa.'] : [];
+  },
+  calcula:function(g){
+    return { valor: nxD(NXU.deKg(g.lote, 'qq'), 2), unidad:'quintales',
+      extra:[
+        {et:'Kilogramos', v: nxD(g.lote, 1) + ' kg'},
+        {et:'Libras', v: nxD(NXU.deKg(g.lote, 'lb'), 1) + ' lb'},
+        {et:'Toneladas', v: nxD(NXU.deKg(g.lote, 't'), 3) + ' t'},
+        {et:'Sacos de 100 lb', v: nxD(NXU.deKg(g.lote, 'qq'), 2)}
+      ]};
+  },
+  pasos:function(g){
+    return [
+      nxD(g.lote, 1) + ' kg ÷ 0.45359237 = <b>' + nxD(NXU.deKg(g.lote, 'lb'), 1) + ' libras</b>',
+      nxD(g.lote, 1) + ' kg ÷ 45.359237 = <b>' + nxD(NXU.deKg(g.lote, 'qq'), 2) + ' quintales</b>',
+      nxD(g.lote, 1) + ' kg ÷ 1,000 = <b>' + nxD(NXU.deKg(g.lote, 't'), 3) + ' toneladas</b>'
+    ];
+  },
+  significa:function(g){
+    return 'El saco de 100 libras que le venden es <b>45.36 kg</b>, no 45 ni 50. ' +
+      'Si un proveedor le da el precio por quintal y otro por kg, páselos a la misma unidad antes de decidir: es el error de compra más común.';
+  },
+  revisa:[
+    'Un saco de 40 kg no es un quintal. Pregunte siempre el peso real del saco.',
+    'Si le cotizan por tonelada, divida entre 1,000 para tener el RD$/kg.'
+  ]
+};
+
+
+/* ============================================================
+   CALCULADORAS DE TABLA · formulación, costo y sustitución
+   ------------------------------------------------------------
+   La formulación por porcentajes y el costo de la fórmula son la
+   MISMA tabla: si ya se escribió el porcentaje y el precio, sacar
+   los kg y el costo es la misma cuenta. Se hace una sola vez.
+   ============================================================ */
+
+/* la fórmula que el estudiante está trabajando: la de la biblioteca
+   o la suya, si tocó algún porcentaje */
+function nxFx(){
+  var g = NXGRANJA;
+  if(g.fx && Object.keys(g.fx).length) return g.fx;
+  var F = (typeof NXFORM !== 'undefined') ? NXFORM.find(function(x){ return x.id === g.formula; }) : null;
+  return F ? JSON.parse(JSON.stringify(F.f)) : {};
+}
+function nxFxSet(k, pct){
+  var f = nxFx();
+  f[k] = Math.max(0, parseFloat(pct) || 0);
+  NXGRANJA.fx = f;
+  nxGuardarGranja();
+  nxRecalcular();
+}
+function nxFxReset(){
+  NXGRANJA.fx = null;
+  nxGuardarGranja();
+  nxRecalcular();
+}
+function nxFxFormula(id){
+  NXGRANJA.formula = id;
+  NXGRANJA.fx = null;
+  nxGuardarGranja();
+  nxRecalcular();
+}
+function nxFxLote(v){
+  NXGRANJA.lote = Math.max(1, parseFloat(v) || 100);
+  nxGuardarGranja();
+  nxRecalcular();
+}
+function nxFxPrecio(k, v){
+  NXCFG.precios = NXCFG.precios || {};
+  NXCFG.precios[k] = Math.max(0, parseFloat(v) || 0);
+  if(typeof nxGuardarCfg === 'function') nxGuardarCfg();
+  nxRecalcular();
+}
+
+var NXLOTES = [100, 250, 500, 1000, 2000, 5000];
+
+/* ---- 8 · Formulación por porcentajes + costo del lote ---- */
+function nxTablaForm(){
+  var g = NXGRANJA, f = nxFx();
+  var r = nxCostoLote(f, g.lote);
+  var propia = !!(g.fx && Object.keys(g.fx).length);
+
+  var opciones = (typeof NXFORM !== 'undefined' ? NXFORM : []).map(function(F){
+    return '<option value="' + F.id + '"' + (F.id === g.formula ? ' selected' : '') + '>' + nxEsc(F.nombre) + '</option>';
+  }).join('');
+
+  var lotes = NXLOTES.map(function(L){
+    return '<button class="nx-fx-l' + (g.lote === L ? ' on' : '') + '" onclick="nxFxLote(' + L + ')">' +
+      (typeof nxMiles === 'function' ? nxMiles(L) : L) + ' kg</button>';
+  }).join('');
+
+  var filas = r.filas.map(function(x){
+    return '<tr>' +
+      '<td>' + nxEsc(x.nombre) + '</td>' +
+      '<td class="nx-num"><input class="nx-fx-i" type="number" step="0.01" value="' + nxD(x.pct) + '" ' +
+        'oninput="nxFxSet(\'' + x.k + '\',this.value)"></td>' +
+      '<td class="nx-num nx-hi">' + nxD(x.kg, 2) + '</td>' +
+      '<td class="nx-num"><input class="nx-fx-i" type="number" step="0.01" value="' + nxD(x.precio) + '" ' +
+        'oninput="nxFxPrecio(\'' + x.k + '\',this.value)"></td>' +
+      '<td class="nx-num">' + nxRD(x.costo) + '</td>' +
+      '<td class="nx-num nx-mut">' + nxD(x.peso, 1) + ' %</td>' +
+    '</tr>';
+  }).join('');
+
+  var aviso = '';
+  var dif = r.suma - 100;
+  if(Math.abs(dif) > 0.01){
+    aviso = '<div class="nx-cx-av">⚠️ Los porcentajes suman <b>' + nxD(r.suma) + ' %</b>. ' +
+      'La fórmula debe sumar 100 %. ' + (dif > 0 ? 'Le sobra ' + nxD(dif) + ' %.' : 'Le falta ' + nxD(-dif) + ' %.') +
+      ' Los kg de abajo están calculados igual, pero el lote no le va a cuadrar en la balanza.</div>';
+  }
+  var sinPrecio = r.filas.filter(function(x){ return !x.precio; });
+  if(sinPrecio.length){
+    aviso += '<div class="nx-cx-av">⚠️ Sin precio: <b>' + sinPrecio.map(function(x){ return nxEsc(x.nombre); }).join(', ') +
+      '</b>. El costo total va a salir más bajo de lo real.</div>';
+  }
+
+  return '<div class="nx-cx" id="cx-form">' +
+    '<div class="nx-cx-h"><b>Formulación por porcentajes y costo del lote</b>' +
+      '<p>Escoja la fórmula, diga de cuántos kilos es el lote y el sistema le dice <b>cuántos kg pesar de cada ingrediente</b> y <b>cuánto le cuesta</b>. Los porcentajes y los precios son editables: son suyos.</p></div>' +
+    '<div class="nx-fx-top">' +
+      '<label>Fórmula <select onchange="nxFxFormula(this.value)">' + opciones + '</select></label>' +
+      '<label>Lote personalizado <input type="number" step="1" value="' + g.lote + '" oninput="nxFxLote(this.value)"> kg</label>' +
+    '</div>' +
+    '<div class="nx-fx-lotes">' + lotes + '</div>' +
+    (propia ? '<div class="nx-fx-av">Está trabajando una versión suya de la fórmula. <button onclick="nxFxReset()">Volver a la original</button></div>' : '') +
+    aviso +
+    '<div class="nx-tw"><table class="nx-t">' +
+      '<thead><tr><th>Ingrediente</th><th>% inclusión</th><th>kg del lote</th><th>RD$/kg</th><th>Costo</th><th>% del costo</th></tr></thead>' +
+      '<tbody>' + filas + '</tbody>' +
+      '<tfoot><tr><td><b>Total</b></td><td class="nx-num"><b>' + nxD(r.suma) + ' %</b></td>' +
+      '<td class="nx-num"><b>' + nxD(r.kgLote, 1) + ' kg</b></td><td></td>' +
+      '<td class="nx-num"><b>' + nxRD(r.total) + '</b></td><td></td></tr></tfoot>' +
+    '</table></div>' +
+    '<div class="nx-cx-g">' +
+      '<div><b>RD$ ' + nxD(r.porKg) + '</b><span>por kg de alimento</span></div>' +
+      '<div><b>' + nxRD(r.porQq) + '</b><span>por quintal (45.36 kg)</span></div>' +
+      '<div><b>' + nxRD(r.porT) + '</b><span>por tonelada</span></div>' +
+      '<div><b>' + nxRD(r.total) + '</b><span>el lote de ' + nxD(r.kgLote, 0) + ' kg</span></div>' +
+    '</div>' +
+    '<div class="nx-cx-s"><b>¿Qué significa este resultado?</b><p>' +
+      'Fabricar ' + nxD(r.kgLote, 0) + ' kg de esta fórmula le cuesta <b>' + nxRD(r.total) + '</b>, o sea <b>RD$ ' + nxD(r.porKg) + ' el kilo</b>. ' +
+      'Ese es el número que tiene que comparar contra el saco comercial — <b>pasando los dos a RD$ por kg</b>, no saco contra saco. ' +
+      'Y no incluye molienda, energía, su tiempo ni las mermas: eso va aparte.' +
+    '</p></div>' +
+    '<div class="nx-cx-v"><b>¿Qué revisar?</b><ul>' +
+      '<li>La columna «% del costo» le dice dónde está su dinero. Casi siempre son dos o tres ingredientes.</li>' +
+      '<li>Bajar el ingrediente más caro no siempre es lo más barato: puede subirle la conversión.</li>' +
+      '<li>Los precios son <b>de ejemplo</b> hasta que usted ponga los suyos. Actualícelos cada vez que compre.</li>' +
+    '</ul></div>' +
+  '</div>';
+}
+
+/* ---- 9 · Sustitución: fórmula A contra fórmula B ---- */
+function nxSustCmp(){
+  var g = NXGRANJA;
+  var A = (typeof NXFORM !== 'undefined') ? NXFORM.find(function(x){ return x.id === g.formula; }) : null;
+  var B = (typeof NXFORM !== 'undefined') ? NXFORM.find(function(x){ return x.id === (g.formulaB || 'engorde2'); }) : null;
+  if(!A || !B) return '';
+
+  var pA = nxPerfil(A.f), pB = nxPerfil(B.f);
+  var d = nxDatos();
+  var dif = pA.costoKg - pB.costoKg;              /* + = B es más barata */
+  var porCerdo = dif * g.consumo;
+  var porLote  = porCerdo * g.cerdos;
+
+  var op = function(sel, fn){
+    return NXFORM.map(function(F){
+      return '<option value="' + F.id + '"' + (F.id === sel ? ' selected' : '') + '>' + nxEsc(F.nombre) + '</option>';
+    }).join('');
+  };
+
+  var lin = function(et, a, b, dec, uni){
+    var mejor = '';
+    return '<tr><td>' + et + '</td><td class="nx-num">' + nxD(a, dec) + (uni || '') + '</td>' +
+      '<td class="nx-num">' + nxD(b, dec) + (uni || '') + '</td>' +
+      '<td class="nx-num nx-mut">' + (b - a >= 0 ? '+' : '') + nxD(b - a, dec) + '</td></tr>';
+  };
+
+  /* aviso nutricional: más barata no es mejor si no cumple */
+  var alerta = '';
+  var caeLys = (pA.sLys - pB.sLys) / (pA.sLys || 1) * 100;
+  var caeEm  = (pA.em - pB.em) / (pA.em || 1) * 100;
+  if(dif > 0 && (caeLys > 3 || caeEm > 2)){
+    alerta = '<div class="nx-cx-av">⚠️ La fórmula B sale más barata, <b>pero aporta menos</b>: ' +
+      (caeLys > 3 ? 'la lisina digestible baja ' + nxD(caeLys, 1) + ' %. ' : '') +
+      (caeEm  > 2 ? 'la energía baja ' + nxD(caeEm, 1) + ' %. ' : '') +
+      'Si el animal come lo mismo y recibe menos, va a crecer menos y la conversión va a subir. ' +
+      '<b>Menor costo por kilo de alimento no significa mejor fórmula.</b></div>';
+  }
+
+  return '<div class="nx-cx" id="cx-sust">' +
+    '<div class="nx-cx-h"><b>Sustituir: fórmula A contra fórmula B</b>' +
+      '<p>Cuando un ingrediente sube de precio o no se consigue, la pregunta no es cuál cuesta menos el kilo, sino <b>cuál le sale mejor al final</b>. Aquí se ven las dos cosas.</p></div>' +
+    '<div class="nx-fx-top">' +
+      '<label>Fórmula A (la que usa hoy) <select onchange="nxFxFormula(this.value)">' + op(g.formula) + '</select></label>' +
+      '<label>Fórmula B (la alternativa) <select onchange="NXGRANJA.formulaB=this.value;nxGuardarGranja();nxRecalcular()">' + op(g.formulaB || 'engorde2') + '</select></label>' +
+    '</div>' + alerta +
+    '<div class="nx-tw"><table class="nx-t">' +
+      '<thead><tr><th>&nbsp;</th><th>' + nxEsc(A.nombre) + '</th><th>' + nxEsc(B.nombre) + '</th><th>Diferencia</th></tr></thead><tbody>' +
+      lin('Costo por kg (RD$)', pA.costoKg, pB.costoKg, 2) +
+      lin('Costo por quintal (RD$)', pA.costoKg * NXU.kgPorQq, pB.costoKg * NXU.kgPorQq, 0) +
+      lin('Costo por tonelada (RD$)', pA.costoKg * 1000, pB.costoKg * 1000, 0) +
+      lin('Energía (kcal EM/kg)', pA.em, pB.em, 0) +
+      lin('Lisina digestible (%)', pA.sLys, pB.sLys, 3) +
+      lin('Proteína cruda (%)', pA.pc, pB.pc, 2) +
+      lin('Calcio (%)', pA.ca, pB.ca, 3) +
+      lin('Fósforo digestible (%)', pA.pd, pB.pd, 3) +
+    '</tbody></table></div>' +
+    '<div class="nx-cx-g">' +
+      '<div><b>RD$ ' + nxD(Math.abs(dif)) + '</b><span>diferencia por kg de alimento</span></div>' +
+      '<div><b>' + nxRD(Math.abs(dif) * NXU.kgPorQq) + '</b><span>por quintal</span></div>' +
+      '<div><b>' + nxRD(Math.abs(porCerdo)) + '</b><span>por cerdo (' + nxD(g.consumo, 0) + ' kg)</span></div>' +
+      '<div><b>' + nxRD(Math.abs(porLote)) + '</b><span>en su lote de ' + nxD(g.cerdos, 0) + '</span></div>' +
+    '</div>' +
+    '<div class="nx-cx-s"><b>¿Qué significa este resultado?</b><p>' +
+      (Math.abs(dif) < 0.01 ?
+        'Las dos fórmulas cuestan prácticamente lo mismo. Decida por disponibilidad y por calidad, no por precio.' :
+        'La fórmula <b>' + nxEsc(dif > 0 ? B.nombre : A.nombre) + '</b> le sale <b>RD$ ' + nxD(Math.abs(dif)) + ' más barata por kg</b>, ' +
+        'que en su lote de ' + nxD(g.cerdos, 0) + ' cerdos son <b>' + nxRD(Math.abs(porLote)) + '</b>. ' +
+        'Antes de cambiarse, mire la tabla de arriba: si la más barata aporta menos energía o menos lisina, ese ahorro se le va a ir en conversión.') +
+    '</p></div>' +
+    '<div class="nx-cx-n">Las dos son fórmulas de referencia calculadas con la matriz de ingredientes del curso. ' +
+      'Un cambio grande de ingrediente <b>debe validarlo un profesional</b> y, si hay sospecha de calidad, con análisis de laboratorio.</div>' +
+  '</div>';
+}
+
+
+/* ============================================================
+   CABLEADO · dónde vive cada calculadora dentro del curso
+   ------------------------------------------------------------
+   Se agregan secciones nuevas a NXMOD y se le enseña a nxSeccion
+   a pintarlas. Como exIndice cuenta preguntándole a nxSeccion qué
+   pinta de verdad, el botón "Repasar" y el conteo de láminas se
+   ajustan solos.
+   ============================================================ */
+
+var NXDONDE = [
+  {m:1,  id:'unidades',   t:'Convertir kg, libras, quintales y toneladas'},
+  {m:3,  id:'gdp',        t:'Calcule la ganancia diaria de su lote'},
+  {m:4,  id:'form',       t:'Arme el lote: porcentajes, kilos y costo'},
+  {m:6,  id:'ca',         t:'Calcule su conversión alimenticia'},
+  {m:8,  id:'costocerdo', t:'¿Cuánto le cuesta alimentar un cerdo?'},
+  {m:8,  id:'costototal', t:'Costo total por cerdo y costo por kilo vivo'},
+  {m:9,  id:'sust',       t:'Compare dos fórmulas antes de cambiarse'},
+  {m:10, id:'kgcarne',    t:'Lo que le cuesta un kilo de carne'},
+  {m:10, id:'equilibrio', t:'Su precio mínimo de venta'}
+];
+
+(function nxColocarCalculadoras(){
+  if(typeof NXMOD === 'undefined' || !NXMOD.length) return;
+  NXDONDE.forEach(function(x){
+    var mod = NXMOD[x.m - 1];
+    if(!mod || !mod.sec) return;
+    var ya = mod.sec.some(function(s){ return s.k === 'calc' && s.id === x.id; });
+    if(ya) return;
+    mod.sec.push({k:'calc', id:x.id, t:x.t});
+  });
+})();
+
+/* nxSeccion aprende a pintar el tipo 'calc' */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecCalc = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'calc'){
+      var cuerpo = (s.id === 'form') ? nxTablaForm()
+                 : (s.id === 'sust') ? nxSustCmp()
+                 : nxCalc(s.id);
+      if(!cuerpo) return '';
+      var ac = (mod && mod.ac) ? mod.ac : 'var(--green)';
+      return '<section class="nx-b nx-full"><h3 class="rv" style="color:' + ac + '">' +
+             nxEsc(s.t || '') + '</h3><div class="rv">' + cuerpo + '</div></section>';
+    }
+    return _nxSecCalc.apply(this, arguments);
+  };
+}
+
+/* al pintar el módulo, se llenan los resultados de las que estén dentro */
+function nxCxMontar(){
+  for(var id in NXCX){
+    if(document.getElementById('cxo-' + id)) nxCxPinta(id);
+  }
+}
+if(typeof window.nxPinta === 'function'){
+  var _nxPintaCx = window.nxPinta;
+  window.nxPinta = function(){
+    var r = _nxPintaCx.apply(this, arguments);
+    try{ setTimeout(nxCxMontar, 20); }catch(e){}
+    return r;
+  };
+}
+try{ setTimeout(nxCxMontar, 500); }catch(e){}
+
+</script>
 </body>
 </html>
