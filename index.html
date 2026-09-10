@@ -11688,6 +11688,47 @@ window.exRepasar=function(curso, mod, sec){
 @media(min-width:1440px){ .nx-b.nx-objg{max-width:1340px} }
 @media(min-width:1700px){ .nx-b.nx-objg{max-width:1440px} }
 
+/* ===== portada del curso: foto grande a sangre ===== */
+.nx-port{position:relative;isolation:isolate;overflow:hidden;
+  min-height:calc(100vh - 2px);display:flex;align-items:center;
+  background:#141210 var(--foto) center/cover no-repeat}
+/* el velo es un elemento aparte y no un pseudo, para poder poner dos
+   degradados encima de la foto sin pelear con el apilamiento */
+.nx-port-velo{position:absolute;inset:0;z-index:0;
+  background:
+    linear-gradient(102deg, rgba(16,14,12,.95) 0%, rgba(16,14,12,.88) 38%,
+                            rgba(16,14,12,.58) 66%, rgba(16,14,12,.34) 100%),
+    linear-gradient(180deg, rgba(16,14,12,.55) 0%, rgba(16,14,12,0) 28%,
+                            rgba(16,14,12,0) 70%, rgba(16,14,12,.6) 100%)}
+.nx-port .nx-cover{position:relative;z-index:1;margin:0;
+  max-width:min(1240px,92vw);
+  padding:clamp(28px,3.6vw,60px) clamp(24px,5vw,74px)}
+/* 20ch y no 15: con menos, el título se parte en cinco líneas y
+   empuja el botón fuera de la pantalla */
+.nx-port .nx-cover h1{color:#fff;font-size:clamp(30px,4.1vw,54px);line-height:1.05;
+  text-shadow:0 2px 30px rgba(0,0,0,.45);max-width:20ch;margin-bottom:14px}
+.nx-port .nx-cover-kpis{margin-bottom:20px}
+.nx-port .nx-simcta{margin-bottom:22px}
+.nx-port .nx-cover-k{color:var(--amber);border-color:rgba(224,165,38,.5);
+  background:rgba(224,165,38,.12)}
+.nx-port .nx-cover-s{color:rgba(255,255,255,.88);font-size:clamp(15.5px,1.35vw,19px);max-width:56ch;margin-bottom:24px}
+.nx-port .nx-cover-kpis div{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.20);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:none}
+.nx-port .nx-cover-kpis b{color:#fff}
+.nx-port .nx-cover-kpis span{color:rgba(255,255,255,.72)}
+.nx-port .nx-simcta{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.20);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.nx-port .nx-simcta b{color:#fff}
+.nx-port .nx-simcta p{color:rgba(255,255,255,.85)}
+.nx-port .nx-empieza{font-size:16.5px;padding:16px 32px;
+  box-shadow:0 10px 34px rgba(0,0,0,.4)}
+@media(max-width:820px){
+  /* de lado no queda espacio: el velo se vuelve vertical */
+  .nx-port-velo{background:linear-gradient(178deg, rgba(16,14,12,.72) 0%, rgba(16,14,12,.9) 42%, rgba(16,14,12,.97) 100%)}
+  .nx-port{min-height:auto;padding:0}
+  .nx-port .nx-cover h1{max-width:none}
+}
+
 /* ===== foto de fondo de cada lámina ===== */
 /* El pseudo-elemento va en position:absolute a propósito: la lámina
    es un contenedor flex en modo lección, y un ::before normal se
@@ -11935,6 +11976,20 @@ if(typeof window.nxToggleLeccion === 'function'){
   };
 }
 
+/* ------------------------------------------------------------
+   Portada del curso: la foto va a sangre, de borde a borde, con el
+   texto encima. Se envuelve nxPortada en vez de tocarla.
+   ------------------------------------------------------------ */
+if(typeof window.nxPortada === 'function'){
+  var _nxPortada = window.nxPortada;
+  window.nxPortada = function(){
+    var h = _nxPortada.apply(this, arguments);
+    return '<div class="nx-port" style="--foto:url(&quot;images/nutri-portada.jpg&quot;)">' +
+             '<div class="nx-port-velo"></div>' + h +
+           '</div>';
+  };
+}
+
 /* marca la última lámina: ahí sí toca mostrar los botones de módulo */
 if(typeof window.nxMostrarSeccion === 'function'){
   var _nxMS = window.nxMostrarSeccion;
@@ -11954,6 +12009,8 @@ if(typeof window.nxMostrarSeccion === 'function'){
 try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 
 </script>
+
+
 
 
 
