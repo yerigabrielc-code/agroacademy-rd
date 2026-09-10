@@ -10507,66 +10507,7 @@ window.nxIrEval=function(id){
       'Si a alguien no le aparece su avance, que inicie sesión una vez desde el dispositivo donde estudió: al entrar, su progreso local se respalda a la nube.</p>';
     var tabla='<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th title="Orden de llegada">#</th><th>Estudiante</th><th>Sección</th><th>Progreso</th><th>Aprobados</th><th>Promedio</th><th></th></tr></thead><tbody>'+
       rows+'</tbody></table></div>';
-    return nota+ucBotonesCSV()+tabla+(C.id==='porcicultura'?ucRescatePanel(alum):'');
-  };
-
-  /* ---- recuperar avance que quedó guardado en ESTE equipo (localStorage) y no en la nube ---- */
-  function ucScanLocalProgress(){
-    var out={}, re=/^porci::(.+)::exam_m(\d+)$/;
-    for(var i=0;i<localStorage.length;i++){
-      var k=localStorage.key(i), m=re.exec(k); if(!m) continue;
-      var id=m[1]; if(id==='local') continue;
-      var rec=null; try{ rec=JSON.parse(localStorage.getItem(k)); }catch(e){}
-      if(!rec) continue;
-      if(!out[id]) out[id]={n:0,passed:0,last:0};
-      out[id].n++; if(rec.passed) out[id].passed++; if(rec.date&&rec.date>out[id].last) out[id].last=rec.date;
-    }
-    return out;
-  }
-  function ucRescatePanel(alum){
-    var scan=ucScanLocalProgress();
-    var ids=Object.keys(scan);
-    var known={}; alum.forEach(function(s){ known[s.id]=s.name; });
-    var huerfanos=ids.filter(function(id){ return !known[id]; });
-    var opts=alum.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name)+'</option>'; }).join('');
-    var body='';
-    if(!huerfanos.length){
-      body='<p class="adm-note" style="margin:0">No hay avance suelto en este equipo por asignar. '+
-        'Si a un estudiante no le aparece su progreso, la copia está en el navegador donde estudió: que inicie sesión ahí una vez.</p>';
-    }else{
-      body='<p class="adm-note" style="margin:0 0 10px">Se encontró avance en este equipo que <b>no corresponde a ningún estudiante actual</b>. '+
-        'Si es de alguien de la lista, asígnelo y súbalo a la nube.</p>'+
-        '<table class="adm-table"><thead><tr><th>Origen (id local)</th><th>Módulos</th><th>Aprob.</th><th>Últ. actividad</th><th>Asignar a</th></tr></thead><tbody>'+
-        huerfanos.map(function(id){
-          var d=scan[id];
-          return '<tr><td><code>'+esc(id.slice(0,18))+(id.length>18?'…':'')+'</code></td><td>'+d.n+'</td><td>'+d.passed+'</td>'+
-            '<td>'+(d.last?new Date(d.last).toLocaleDateString('es-DO',{day:'2-digit',month:'short'}):'—')+'</td>'+
-            '<td><select id="ucres_'+esc(id)+'" style="max-width:180px"><option value="">— elegir —</option>'+opts+'</select> '+
-            '<button class="adm-add" style="padding:5px 10px;font-size:12px" onclick="ucAsignarProgreso(\''+esc(id).replace(/'/g,"\\'")+'\')">Subir</button></td></tr>';
-        }).join('')+'</tbody></table>';
-    }
-    return '<details class="adm-card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">🔧 Recuperar avance guardado en este equipo'+
-      (huerfanos.length?' ('+huerfanos.length+')':'')+'</summary><div style="margin-top:12px">'+body+'</div></details>';
-  }
-  window.ucAsignarProgreso=async function(localId){
-    var sel=document.getElementById('ucres_'+localId);
-    var uid=sel && sel.value;
-    if(!uid){ if(typeof toast==='function')toast('Elija a qué estudiante corresponde','✍️'); return; }
-    if(!window.SB){ if(typeof toast==='function')toast('Sin conexión a la nube','⛔'); return; }
-    var subir=[];
-    for(var m=1;m<=12;m++){
-      var rec=null; try{ rec=JSON.parse(localStorage.getItem('porci::'+localId+'::exam_m'+m)); }catch(e){}
-      if(!rec) continue;
-      subir.push({user_id:uid,module:m,passed:!!rec.passed,best:rec.best||0,last_score:rec.last||0,attempts:rec.attempts||0,updated_at:new Date(rec.date||Date.now()).toISOString()});
-    }
-    if(!subir.length){ if(typeof toast==='function')toast('No había módulos que subir','ℹ️'); return; }
-    try{
-      var r=await SB.from('progress').upsert(subir,{onConflict:'user_id,module'});
-      if(r.error){ if(typeof toast==='function')toast('No se pudo subir: '+r.error.message,'⛔'); return; }
-      if(typeof pullProgress==='function') await pullProgress(uid);
-      if(typeof toast==='function')toast(subir.length+' módulo(s) subidos y asignados','✅');
-      if(typeof admTab==='function') admTab('progress');
-    }catch(e){ if(typeof toast==='function')toast('Error: '+e.message,'⛔'); }
+    return nota+ucBotonesCSV()+tabla;
   };
 
   /* -- Estudiantes -- (KPIs y lista, filtrados por inscripción al curso) */
