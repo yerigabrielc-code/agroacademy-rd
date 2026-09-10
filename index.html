@@ -12071,6 +12071,38 @@ try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 .nx-cx-v b{display:block;font-size:13.5px;color:var(--text);margin-bottom:8px}
 .nx-cx-v ul{margin:0;padding-left:19px}
 .nx-cx-v li{font-size:13.5px;line-height:1.6;color:var(--text-2);margin-bottom:5px}
+/* ===== bloque aplicado a República Dominicana ===== */
+.nx-rd{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--panel)}
+.nx-rd-h{padding:16px 20px 14px;background:rgba(224,165,38,.10);border-bottom:1px solid var(--border)}
+.nx-rd-h span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--amber-d);margin-bottom:5px}
+.nx-rd-h b{font-family:var(--display);font-size:18px;font-weight:800;color:var(--text);line-height:1.2}
+.nx-rd-g{display:grid;grid-template-columns:1fr;gap:1px;background:var(--border)}
+@media(min-width:900px){ .nx-rd-g{grid-template-columns:1fr 1fr} }
+.nx-rd-c{background:var(--panel);padding:15px 20px}
+.nx-rd-c>span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+.nx-rd-c p{margin:0;font-size:14.5px;line-height:1.65;color:var(--text-2)}
+.nx-rd-c p b{color:var(--text)}
+.nx-rd-x{background:rgba(47,125,79,.07)}
+.nx-rd-x>span{color:var(--green)}
+.nx-rd-a{background:rgba(47,125,79,.04)}
+.nx-rd-e{padding:16px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.nx-rd-e>span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px}
+.nx-rd-e p{margin:0 0 10px;font-size:14.5px;line-height:1.65;color:var(--text-2)}
+.nx-rd-cie{margin-top:10px !important;color:var(--text) !important}
+.nx-rd-pe{font-size:12.5px !important;color:var(--muted) !important;margin:10px 0 0 !important}
+.nx-rd-err,.nx-rd-dec{padding:15px 20px;border-top:1px solid var(--border)}
+.nx-rd-err{background:rgba(198,64,46,.07)}
+.nx-rd-err>span{color:var(--crit)}
+.nx-rd-dec{background:rgba(47,125,79,.10)}
+.nx-rd-dec>span{color:var(--green)}
+.nx-rd-err>span,.nx-rd-dec>span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;margin-bottom:6px}
+.nx-rd-err p,.nx-rd-dec p{margin:0;font-size:14.5px;line-height:1.65;color:var(--text-2)}
+.nx-rd-err p b,.nx-rd-dec p b{color:var(--text)}
+
 /* tabla de formulación */
 .nx-fx-top{display:flex;gap:16px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--border)}
 .nx-fx-top label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted);flex:1;min-width:190px}
@@ -12967,6 +12999,241 @@ if(typeof window.nxPinta === 'function'){
 }
 try{ setTimeout(nxCxMontar, 500); }catch(e){}
 
+
+/* ============================================================
+   CONTENIDO APLICADO A REPÚBLICA DOMINICANA
+   ------------------------------------------------------------
+   Cada bloque sigue la misma ruta: qué es → por qué le importa →
+   ejemplo con números → ejercicio → cómo se usa en una granja de
+   aquí → error común → qué decidir con el resultado.
+
+   Ningún precio de estos es un precio de mercado: son valores de
+   ejemplo, marcados como tales, para que el productor ponga los
+   suyos. Tampoco se afirma disponibilidad ni proveedores.
+   ============================================================ */
+
+/* ---------- 1 · quitar lo que estaba dicho dos veces ----------
+   La auditoría de similitud encontró cuatro pares que decían lo
+   mismo con otras palabras. Se quita el segundo de cada par (el
+   que vino de contenido-extra.js) y el espacio se usa abajo para
+   contenido aplicado, que era el trato: menos repetición, más
+   profundidad. */
+var NXFUERA = [
+  {m:6,  t:'Aquí es donde se gana o se pierde la plata'},
+  {m:8,  t:'El número que decide si su granja sirve'},
+  {m:8,  t:'Comercial contra fabricado: compare completo'},
+  {m:10, t:'El cerdo le pone la nota a su formulación'}
+];
+
+(function nxQuitarRepetido(){
+  if(typeof NXMOD === 'undefined') return;
+  NXFUERA.forEach(function(x){
+    var mod = NXMOD[x.m - 1];
+    if(!mod || !mod.sec) return;
+    var i = mod.sec.findIndex(function(s){ return s.t === x.t; });
+    if(i >= 0) mod.sec.splice(i, 1);
+  });
+})();
+
+/* ---------- 2 · el bloque aplicado ---------- */
+function nxBloqueRD(s){
+  var fila = function(f){
+    return '<tr><td>' + f[0] + '</td><td class="nx-num">' + f[1] + '</td></tr>';
+  };
+  var ej = s.ejemplo;
+  return '<section class="nx-b nx-full"><div class="nx-rd rv">' +
+    '<div class="nx-rd-h"><span>Aplicado a República Dominicana</span><b>' + nxEsc(s.t) + '</b></div>' +
+    '<div class="nx-rd-g">' +
+      '<div class="nx-rd-c"><span>Qué es</span><p>' + s.concepto + '</p></div>' +
+      '<div class="nx-rd-c"><span>Por qué le importa a usted</span><p>' + s.importa + '</p></div>' +
+    '</div>' +
+    (ej ? '<div class="nx-rd-e"><span>Ejemplo con números</span>' +
+      (ej.t ? '<p>' + ej.t + '</p>' : '') +
+      (ej.filas ? '<div class="nx-tw"><table class="nx-t"><tbody>' + ej.filas.map(fila).join('') + '</tbody></table></div>' : '') +
+      (ej.cierre ? '<p class="nx-rd-cie">' + ej.cierre + '</p>' : '') +
+      '<p class="nx-rd-pe">Valores de ejemplo. <b>Sustitúyalos por los suyos</b> — el curso no le pone precio a su mercado.</p>' +
+    '</div>' : '') +
+    '<div class="nx-rd-g">' +
+      '<div class="nx-rd-c nx-rd-x"><span>Hágalo usted</span><p>' + s.ejercicio + '</p></div>' +
+      '<div class="nx-rd-c nx-rd-a"><span>En una granja de aquí</span><p>' + s.aplicacion + '</p></div>' +
+    '</div>' +
+    '<div class="nx-rd-err"><span>El error que más se ve</span><p>' + s.error + '</p></div>' +
+    '<div class="nx-rd-dec"><span>Qué hacer con esto</span><p>' + s.decision + '</p></div>' +
+  '</div></section>';
+}
+
+/* ---------- 3 · los bloques, módulo por módulo ---------- */
+var NXRD = [
+{ m:1, t:'Lo primero: saber qué está comprando de verdad',
+  concepto:'En el país el alimento y las materias primas se venden de varias maneras: por saco, por quintal, por libra y a granel por tonelada. <b>Un quintal son 100 libras, o sea 45.36 kg</b>. Un saco no siempre es un quintal: hay sacos de 40 kg, de 45.36 kg y de 50 kg, y todos se llaman «saco».',
+  importa:'Si un proveedor le da el precio por saco y otro por quintal, usted <b>no está comparando nada</b> hasta que los dos estén en la misma unidad. Es el error de compra más común y el más caro, porque se repite en cada compra del año.',
+  ejemplo:{ t:'Tres ofertas del mismo maíz, tal como se las darían:',
+    filas:[['Proveedor A — saco de 45.36 kg','RD$ 1,000 el saco'],
+           ['Proveedor B — saco de 40 kg','RD$ 920 el saco'],
+           ['Proveedor C — a granel','RD$ 21,500 la tonelada']],
+    cierre:'Pasados todos a RD$ por kg: A = 1,000 ÷ 45.36 = <b>RD$ 22.05</b> · B = 920 ÷ 40 = <b>RD$ 23.00</b> · C = 21,500 ÷ 1,000 = <b>RD$ 21.50</b>. El saco «más barato» (B) es el más caro por kilo.' },
+  ejercicio:'Tome las dos últimas facturas suyas de cualquier materia prima. Anote el peso real del saco —pregúntelo, no lo suponga— y divida el precio entre ese peso. Use el <b>conversor de este módulo</b>. Compare los dos RD$/kg.',
+  aplicacion:'Antes de llamar al proveedor, tenga una libreta con una sola columna: <b>RD$ por kilo</b>. Todo lo que le coticen, páselo ahí. Si le hablan de quintales, divida entre 45.36. Si le hablan de toneladas, divida entre 1,000.',
+  error:'Comparar «saco contra saco». Dos sacos con el mismo precio pueden tener 5 kg de diferencia, y sobre 100 sacos al mes eso es media tonelada que usted pagó y no recibió.',
+  decision:'Compre por <b>precio por kilo puesto en su granja</b> — con el flete incluido, no en el almacén del vendedor. Si el proveedor barato le queda lejos, sume el transporte antes de decidir.' },
+
+{ m:2, t:'Recibir un lote: lo que se revisa antes de pagar',
+  concepto:'La calidad de una materia prima se decide en la recepción, no en la mezcladora. Humedad, granos partidos, olor, temperatura del lote y presencia de moho son cosas que usted puede revisar con las manos y la nariz.',
+  importa:'Un maíz con humedad alta pesa más y alimenta menos: usted paga agua al precio del maíz. Y encima se le calienta en el almacén y se le echa a perder, con riesgo de micotoxinas.',
+  ejemplo:{ t:'Un lote de 1,000 kg de maíz a RD$ 22 el kilo (precio de ejemplo):',
+    filas:[['Humedad correcta (14 %)','1,000 kg útiles'],
+           ['Humedad alta (18 %)','unos 46 kg son agua de más'],
+           ['Lo que pagó por esa agua','RD$ 1,012'],
+           ['Y además','ese lote se deteriora más rápido']],
+    cierre:'No es que el maíz húmedo «rinda menos»: es que usted compró 46 kg de agua a precio de maíz, y encima compró un problema de almacenamiento.' },
+  ejercicio:'En su próxima compra: pese un saco completo en su balanza antes de descargarlo y compare con lo que dice la factura. Muerda un grano — si se aplasta en vez de partirse seco, ese lote trae humedad.',
+  aplicacion:'Guarde <b>una muestra de cada lote</b> en una funda cerrada y rotulada con fecha y proveedor, hasta que el lote se termine. Si aparece un problema en los animales, esa muestra es lo único que le va a decir si venía del alimento.',
+  error:'Recibir sin pesar y sin mirar, porque «ese proveedor siempre ha sido bueno». La calidad de una materia prima cambia de cosecha en cosecha y de camión en camión.',
+  decision:'Lote con moho visible, olor a fermentado o calentamiento: <b>se rechaza</b>, no se mezcla «con cuidado». Y si hay sospecha de micotoxinas, eso <b>no se diagnostica a ojo</b>: requiere análisis de laboratorio.' },
+
+{ m:3, t:'¿Cuántas dietas puede manejar de verdad su granja?',
+  concepto:'Los libros hablan de seis o siete fases. En la práctica, cada fase que usted agrega es una fórmula más que fabricar, un saco más que rotular, un espacio más de almacén y una oportunidad más de equivocarse.',
+  importa:'Más fases ajustan mejor el requerimiento y ahorran proteína cara. Pero solo si usted puede <b>fabricarlas y manejarlas sin error</b>. Una fase de más mal manejada cuesta más que una de menos bien hecha.',
+  ejemplo:{ t:'La misma explotación, dos escalas:',
+    filas:[['Granja de 20 cerdos de engorde','2 o 3 dietas'],
+           ['Granja de 100 a 300 cerdos','4 dietas'],
+           ['Operación con molino propio y personal','5 a 7 dietas']],
+    cierre:'Con 20 cerdos, siete dietas significa fabricar lotes tan pequeños que el mezclado sale desigual y el alimento se le pone viejo antes de consumirse.' },
+  ejercicio:'Cuente cuántos animales tiene hoy en cada rango de peso. Si algún rango tiene menos animales de los que consumen un lote de alimento en 30 días, esa fase le sobra: júntela con la vecina.',
+  aplicacion:'La regla práctica aquí: <b>un lote de alimento debería consumirse en menos de 30 días</b>. En el calor de aquí, la grasa de la fórmula se pone rancia y las vitaminas se degradan; un lote guardado tres meses ya no es la fórmula que usted calculó.',
+  error:'Copiar el programa de fases de una integración grande en una granja de 30 cerdos. Lo que allá es precisión, aquí es alimento viejo y mezclas desiguales.',
+  decision:'Escoja el número de fases por <b>cuánto alimento consume su granja en un mes</b>, no por lo que dice la tabla. Es mejor tener tres dietas frescas y bien mezcladas que siete rancias.' },
+
+{ m:4, t:'De la fórmula al lote: cuánto pesar de cada cosa',
+  concepto:'Una fórmula es una lista de porcentajes. Un lote es una lista de kilos. Pasar de una a otra es una regla de tres, pero es donde se pierde la fórmula si se hace de memoria.',
+  importa:'El porcentaje no se pesa: se pesan kilos. Si su fórmula dice 79.59 % de maíz y usted va a hacer 500 kg, tiene que pesar 397.95 kg de maíz — no «como cuatro sacos».',
+  ejemplo:{ t:'La misma fórmula, tres tamaños de lote:',
+    filas:[['Maíz 79.59 % en 100 kg','79.59 kg'],
+           ['Maíz 79.59 % en 500 kg','397.95 kg'],
+           ['Maíz 79.59 % en 1,000 kg','795.90 kg'],
+           ['Premezcla 0.30 % en 1,000 kg','3.00 kg']],
+    cierre:'Fíjese en la premezcla: 3 kg en un lote de 1,000. Eso no se echa «a ojo», y menos directo a la mezcladora — hay que prediluirla.' },
+  ejercicio:'Use la <b>calculadora de este módulo</b>: escoja una fórmula, ponga el tamaño de lote que usted fabrica de verdad y anote los kilos de cada ingrediente en un papel. Ese papel es su orden de pesaje.',
+  aplicacion:'Imprima la lista de kilos y péguela en la pared del área de mezclado, con una casilla al lado de cada ingrediente para marcar según se va pesando. En una granja donde pesa más de una persona, esa hoja es lo que evita que se eche dos veces lo mismo o ninguna.',
+  error:'Convertir kilos a «sacos» mentalmente. Si su saco de soya es de 45.36 kg y el de maíz de 50 kg, contar sacos le va a descuadrar la fórmula en cada lote.',
+  decision:'Pese siempre, anote lo pesado <b>real</b> y no lo planificado. Si un día se pasó 3 kg de maíz, escríbalo: cuando quiera entender por qué ese lote rindió distinto, ese número es la respuesta.' },
+
+{ m:5, t:'¿Vale la pena fabricar el preiniciador?',
+  concepto:'El preiniciador es la dieta más cara y la más difícil de fabricar bien: lleva lácteos, ingredientes muy digestibles y micro que se distribuyen mal en mezcladoras pequeñas.',
+  importa:'Es también la dieta que menos kilos consume: el lechón come poco en esas semanas. Así que un preiniciador comercial caro representa <b>pocos kilos</b> en el costo total del cerdo, pero decide cómo arranca el lote.',
+  ejemplo:{ t:'Cuánto pesa cada dieta en el total de alimento de un cerdo:',
+    filas:[['Preiniciador','unos 5 kg por cerdo'],
+           ['Inicio y destete','unos 25 kg'],
+           ['Crecimiento y engorde','unos 165 kg'],
+           ['El preiniciador es','cerca del 3 % de los kilos']],
+    cierre:'Ahorrar un 20 % en un ingrediente que es el 3 % de los kilos mueve poco. Equivocarse en él y perder días de crecimiento mueve mucho más.' },
+  ejercicio:'Sume los kilos de alimento que consumió su último lote en cada etapa. Calcule qué porcentaje del total fue preiniciador. Después calcule qué porcentaje del <b>dinero</b> fue. Los dos números no se parecen.',
+  aplicacion:'Muchas granjas pequeñas de aquí compran el preiniciador comercial y fabrican de crecimiento en adelante. No es rendirse: es poner el esfuerzo donde están los kilos y la plata.',
+  error:'Fabricar preiniciador en una mezcladora pequeña sin prediluir los micro. El lechón que recibe el doble de un aditivo y el que no recibe nada están los dos mal.',
+  decision:'Decida por <b>escala y equipo</b>, no por precio del saco. Si no puede garantizar mezclado uniforme de micro, compre esa dieta hecha y fabrique las de volumen.' },
+
+{ m:6, t:'Dónde se va el alimento en su granja',
+  concepto:'De cada 100 kg de alimento que entra a una granja de ciclo completo, alrededor de 70 se los comen los animales de crecimiento y engorde. No porque coman peor, sino porque son muchos y comen mucho tiempo.',
+  importa:'Significa que una mejora pequeña en las dietas de engorde vale más, en pesos, que una mejora grande en las dietas de lechón. Ahí es donde hay que poner la atención y el control.',
+  ejemplo:{ t:'Lote de 20 cerdos, del destete al mercado (ejemplo):',
+    filas:[['Alimento total del lote','unos 3,900 kg'],
+           ['De eso, crecimiento y engorde','unos 3,300 kg'],
+           ['Si baja RD$ 1 el kilo en engorde','ahorra RD$ 3,300'],
+           ['Si baja RD$ 1 el kilo en preinicio','ahorra RD$ 100']],
+    cierre:'El mismo peso ahorrado por kilo, treinta y tres veces más plata. Por eso el engorde es donde se pelea el costo.' },
+  ejercicio:'Con la <b>calculadora de conversión</b> de este módulo, calcule su CA de engorde. Después multiplique la diferencia entre su CA y la del lote anterior por los kilos de ganancia del lote: eso es lo que ganó o perdió sin cambiar de fórmula.',
+  aplicacion:'Si solo va a medir una cosa en su granja, mida el <b>consumo de engorde</b>. Pese el alimento que entra al corral y los animales al inicio y al final. Con esos tres datos ya tiene CA, y con CA ya tiene costo por kilo.',
+  error:'Perseguir el ahorro en la dieta de lechón, que es la más cara por kilo pero la que menos kilos representa, y no mirar el engorde, que es donde está el volumen.',
+  decision:'Ponga su control —pesaje, registro, revisión de comederos— en crecimiento y engorde primero. Cuando eso esté medido, entonces afine las dietas de arranque.' },
+
+{ m:7, t:'Fabricar con lo que hay: tres escalas reales',
+  concepto:'Fabricar alimento no exige una planta industrial. Exige <b>orden de carga, tiempo de mezclado y predilución de los micro</b>. Eso se puede cumplir con equipo pequeño si se sabe cómo.',
+  importa:'La mayoría de las granjas de aquí están entre «molino prestado» y «mezcladora horizontal pequeña». Copiar el procedimiento de una planta grande no funciona; adaptarlo, sí.',
+  ejemplo:{ t:'La misma fórmula, tres maneras de hacerla:',
+    filas:[['Molino de terceros + mezclado manual','lotes de 100 – 200 kg'],
+           ['Molino propio + mezcladora pequeña','lotes de 500 kg'],
+           ['Molino y mezcladora de granja','lotes de 1,000 kg o más'],
+           ['Lo que NO cambia con la escala','predilución de micro y tiempo de mezclado']],
+    cierre:'En mezclado manual sobre piso limpio se puede lograr una fórmula decente si se hace por capas y se voltea el número de veces necesario. Lo que no se puede es echar la premezcla directa sobre la pila.' },
+  ejercicio:'Haga una prueba de uniformidad casera: en un lote ya mezclado, tome cinco puñados de cinco puntos distintos del lote. Si a simple vista uno tiene más partículas de un color que otro, su mezclado no está terminado.',
+  aplicacion:'Si muele donde un tercero, lleve <b>sus propios sacos rotulados</b> y pida que le limpien la tolva antes. La contaminación cruzada con alimento de otra especie —sobre todo con aditivos de aves— es un riesgo real cuando el molino es compartido.',
+  error:'Echar la grasa o el aceite al principio. Apelmaza la mezcla y a partir de ahí ya no se distribuye nada. Va al final, en chorro fino, sobre la mezcla en movimiento.',
+  decision:'Fije su tiempo de mezclado <b>por prueba, no por reloj heredado</b>. Y escriba el procedimiento en una hoja pegada en la pared, para que salga igual lo haga quien lo haga.' },
+
+{ m:8, t:'Comprar comercial o fabricar: la cuenta completa',
+  concepto:'Comparar alimento comercial contra alimento fabricado no es comparar el precio del saco contra el costo de los ingredientes. A lo suyo hay que sumarle todo lo que pone usted y no aparece en la factura.',
+  importa:'Muchas granjas creen que están ahorrando 15 % fabricando y en realidad ahorran 4 %, porque no se cuentan la molienda, la energía, las mermas, su propio tiempo y la plata parada en inventario.',
+  ejemplo:{ t:'Un lote de 1,000 kg fabricado (valores de ejemplo):',
+    filas:[['Ingredientes','RD$ 23,650'],
+           ['Molienda','RD$ 800'],
+           ['Energía y desgaste','RD$ 400'],
+           ['Mano de obra','RD$ 600'],
+           ['Mermas (2 %)','RD$ 473'],
+           ['Costo real del lote','RD$ 25,923'],
+           ['Costo real por kg','RD$ 25.92']],
+    cierre:'Ese RD$ 25.92 es el número que se compara contra el comercial — pasando el comercial también a RD$ por kg, claro.' },
+  ejercicio:'Use la <b>calculadora de formulación</b> para sacar su costo de ingredientes por kg. Súmele a mano molienda, energía, mano de obra y un 2 % de mermas. Compare ese total contra el precio por kg del alimento comercial que usa hoy.',
+  aplicacion:'Cuente también la <b>plata parada</b>: si compra materias primas para tres meses, ese dinero está inmovilizado en su almacén y no está trabajando. En una granja pequeña eso pesa más que la diferencia de precio.',
+  error:'Cobrarse cero por su propio tiempo. Si usted pasa cuatro horas moliendo y mezclando cada semana, ese tiempo tiene un valor — aunque no salga de su bolsillo, no está haciendo otra cosa.',
+  decision:'Fabrique si la diferencia real, con todo sumado, es suficiente para pagarle el trabajo y el riesgo. Si la diferencia es de un 3 o 4 %, quizá le convenga más comprar hecho y usar ese tiempo en el manejo del hato.' },
+
+{ m:9, t:'Cuando sube el maíz: qué mirar antes de cambiar',
+  concepto:'Sustituir un ingrediente no es cambiar un saco por otro más barato. Es cambiar un paquete de nutrientes por otro parecido y ajustar el resto de la fórmula para que el animal siga recibiendo lo mismo.',
+  importa:'Un ingrediente alternativo puede costar menos por kilo y salirle más caro por kilo de cerdo, porque aporta menos energía y el animal necesita comer más para crecer igual.',
+  ejemplo:{ t:'Dos fórmulas comparadas por lo que aportan, no por lo que cuestan:',
+    filas:[['Fórmula A — costo','RD$ 23.65 / kg'],
+           ['Fórmula B — costo','RD$ 22.10 / kg'],
+           ['Diferencia aparente','RD$ 1.55 / kg a favor de B'],
+           ['Pero B aporta menos energía','el animal come más para crecer igual'],
+           ['Si la CA sube de 2.60 a 2.75','se come el ahorro y algo más']],
+    cierre:'Por eso la calculadora de sustitución de este módulo le enseña las dos columnas: el costo <b>y</b> lo que aporta. Menor costo por kilo de alimento no significa mejor fórmula.' },
+  ejercicio:'Con la <b>calculadora de sustitución</b>, compare la fórmula que usa hoy contra una alternativa. Mire la fila de energía y la de lisina digestible. Si la más barata baja más de un 3 % en lisina, anote esa fórmula como «hay que ajustarla», no como «lista para usar».',
+  aplicacion:'Aquí la disponibilidad se mueve con la temporada y con el precio internacional. Tenga <b>siempre dos fórmulas calculadas</b> —la de cuando el maíz está normal y la de cuando está caro— para no tener que improvisar el día que suba.',
+  error:'Cambiar el ingrediente y dejar el resto de la fórmula igual. Si baja la energía y no compensa, el cerdo come más, la conversión sube y el ahorro desaparece.',
+  decision:'Un cambio grande de ingrediente <b>debe validarlo un profesional</b>, y si hay duda de calidad, con análisis bromatológico. Lo que usted sí puede hacer solo es la cuenta económica y detectar cuándo el ahorro es sospechoso.' },
+
+{ m:10, t:'Los cinco números que debe anotar en cada lote',
+  concepto:'Todo lo que hace este curso —formular, fabricar, costear— no sirve de nada si al final del lote usted no sabe qué pasó. Y para saberlo no hacen falta veinte registros: hacen falta cinco números.',
+  importa:'Con esos cinco números usted saca su conversión, su ganancia diaria, su costo por kilo y su margen. Sin ellos, cualquier decisión sobre la fórmula es adivinanza.',
+  ejemplo:{ t:'Lo que se anota, por lote:',
+    filas:[['1 · Peso inicial del lote','kg'],
+           ['2 · Peso final del lote','kg'],
+           ['3 · Días transcurridos','días'],
+           ['4 · Alimento consumido total','kg'],
+           ['5 · Animales que entraron y que salieron','cabezas']],
+    cierre:'De ahí salen solos: ganancia, GDP, CA, costo de alimentación, costo por kilo y mortalidad. Cinco datos, seis indicadores.' },
+  ejercicio:'Abra una libreta hoy. Ponga una página por lote con esas cinco líneas. Cuando cierre el lote, meta los números en las <b>calculadoras de este curso</b> y anote los resultados en la misma página.',
+  aplicacion:'No hace falta computadora. Una libreta y una balanza son suficientes. Lo importante es que <b>mida siempre igual</b>: si un lote lo pesó en ayuno y el otro después de comer, esos dos números no se pueden comparar entre sí.',
+  error:'Anotar el alimento «planificado» en vez del entregado. Lo que hay que anotar es lo que salió del almacén hacia ese corral, incluyendo lo que se desperdició.',
+  decision:'Compare cada lote <b>contra su lote anterior</b>, no contra el número de otra granja. Su granja tiene su genética, su clima y su manejo. La única referencia que le sirve de verdad es usted mismo hace tres meses.' }
+];
+
+/* ---------- 4 · colocarlos ---------- */
+(function nxColocarRD(){
+  if(typeof NXMOD === 'undefined') return;
+  NXRD.forEach(function(b){
+    var mod = NXMOD[b.m - 1];
+    if(!mod || !mod.sec) return;
+    if(mod.sec.some(function(s){ return s.k === 'rd' && s.t === b.t; })) return;
+    var s = {}; for(var k in b) s[k] = b[k];
+    s.k = 'rd';
+    /* va antes de las calculadoras, que son el ejercicio */
+    var i = mod.sec.findIndex(function(x){ return x.k === 'calc'; });
+    if(i < 0) mod.sec.push(s); else mod.sec.splice(i, 0, s);
+  });
+})();
+
+/* nxSeccion aprende a pintar el tipo 'rd' */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecRD = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'rd') return nxBloqueRD(s);
+    return _nxSecRD.apply(this, arguments);
+  };
+}
+
 </script>
+
+
 </body>
 </html>
