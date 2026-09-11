@@ -13912,7 +13912,9 @@ if(typeof window.nxSeccion === 'function'){
 .rp-t-no{fill:var(--crit,#C6402E);opacity:.85}
 
 /* ===== pantalla final y confeti ===== */
-#agConfeti{position:fixed;inset:0;z-index:90;pointer-events:none}
+/* la capa del curso esta en z-index 9200: por debajo de eso el confeti
+   y la pista existen pero no se ven */
+#agConfeti{position:fixed;inset:0;z-index:9650;pointer-events:none}
 .ag-fin{border-radius:20px;padding:clamp(24px,3.5vw,40px);text-align:center;
   border:1px solid var(--border);background:var(--panel)}
 .ag-fin-ok{background:linear-gradient(160deg,color-mix(in srgb,var(--green) 16%,var(--panel)),var(--panel) 60%);
@@ -13971,6 +13973,26 @@ if(typeof window.nxSeccion === 'function'){
 .rp-d-ram{stroke:var(--border);stroke-width:2}
 .rp-d-ct{fill:var(--text);font-family:var(--display);font-size:15px;font-weight:700}
 .rp-d-cs{fill:var(--text-2);font-family:var(--body);font-size:12.5px}
+
+/* ===== pista de teclado ===== */
+#agPista{position:fixed;left:50%;bottom:22px;transform:translate(-50%,18px);z-index:9580;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;
+  max-width:min(620px,calc(100vw - 28px));padding:13px 18px;
+  background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  box-shadow:0 16px 40px rgba(0,0,0,.24);opacity:0;pointer-events:none;
+  transition:opacity .26s ease,transform .26s ease}
+#agPista.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#agPista b{font-family:var(--display);font-size:14.5px;font-weight:700;color:var(--text)}
+#agPista span{font-size:13px;color:var(--text-2);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+#agPista kbd,.nxat-l kbd{font-family:var(--mono);font-size:11.5px;color:var(--text);
+  background:var(--bg);border:1px solid var(--border);border-bottom-width:2px;
+  border-radius:6px;padding:2px 7px;line-height:1.5}
+#agPista button{margin-left:auto;font-family:var(--body);font-size:13px;font-weight:600;
+  color:var(--text);background:var(--bg);border:1px solid var(--border);
+  border-radius:9px;padding:7px 14px;cursor:pointer}
+#agPista button:hover{border-color:var(--green)}
+@media(max-width:560px){ #agPista{bottom:96px} #agPista button{margin-left:0;width:100%} }
+@media(prefers-reduced-motion:reduce){ #agPista{transition:none} }
 
 </style>
 <script>
@@ -16952,7 +16974,7 @@ function agFinal(cfg){
     }).join('') + '</div>' +
     '<div class="ag-fin-acc">' +
       (cfg.cert ? '<button class="btn btn-primary" onclick="' + cfg.cert + '">🎓 Generar mi certificado</button>' : '') +
-      '<button class="btn btn-ghost" onclick="agConfeti()">🎉 Otra vez</button>' +
+      '<button class="btn btn-ghost" onclick="agOtraVez()">🎉 Otra vez</button>' +
     '</div>' +
     (cfg.pie ? '<p class="ag-fin-pie">' + cfg.pie + '</p>' : '') +
   '</div></section>';
@@ -17000,7 +17022,7 @@ function agIrAlFinal(raiz){
   var secs = [].slice.call(wrap.querySelectorAll(sel));
   var i = -1;
   for(var k = 0; k < secs.length; k++){
-    if(secs[k].querySelector('.ag-fin')){ i = k; break; }
+    if(secs[k].querySelector('.ag-fin') || secs[k].querySelector('.finale')){ i = k; break; }
   }
   if(i < 0) return;
 
@@ -17084,14 +17106,24 @@ if(typeof window.nxExamen === 'function'){
   };
 }
 
-/* curso 1 · porcicultura: renderModule devuelve el HTML del módulo */
-if(typeof window.renderModule === 'function'){
-  var _renderModule = window.renderModule;
-  window.renderModule = function(id){
-    var h = _renderModule.apply(this, arguments);
-    if(id !== 12 || !h) return h;
-    if(h.indexOf('ag-fin') >= 0) return h;
-    return h + agFinal(agCfg('porcicultura'));
+/* Curso 1 · porcicultura: NO se le añade nada. Ya tenía su propia
+   pantalla de cierre (.finale, módulo 12), con el certificado y el
+   estado de vista previa para el instructor. Duplicarla era un error:
+   aquí solo se le suma el confeti que le faltaba. */
+if(typeof window.mount === 'function'){
+  var _mountFin = window.mount;
+  window.mount = function(id){
+    var r = _mountFin.apply(this, arguments);
+    if(id === 12){
+      setTimeout(function(){
+        var f = document.querySelector('#main .finale');
+        if(!f) return;
+        var listo = (typeof passedCount === 'function' ? passedCount() : 0) >= 12 ||
+                    (typeof PREVIEW !== 'undefined' && PREVIEW) || AGFORZAR.porcicultura;
+        if(listo && !f.dataset.festejado){ f.dataset.festejado = '1'; agConfeti(); }
+      }, 420);
+    }
+    return r;
   };
 }
 
@@ -17256,7 +17288,372 @@ if(typeof window.nxSeccion === 'function'){
   };
 }
 
+
+/* ============================================================
+   NAVEGACIÓN CON EL TECLADO
+   ------------------------------------------------------------
+   El curso 2 ya la tenía completa. Aquí se le da la misma al
+   curso 3 —que no tenía ninguna— y se le completa al curso 1,
+   que solo atendía las flechas.
+
+   Regla común a los tres: el teclado NO se toca mientras el
+   estudiante está escribiendo en una casilla, ni cuando el foco
+   está sobre un botón (la barra espaciadora lo pulsaría).
+   ============================================================ */
+
+function agEscribiendo(e){
+  var t = e.target;
+  if(!t) return false;
+  var n = (t.tagName || '').toLowerCase();
+  return n === 'input' || n === 'textarea' || n === 'select' || !!t.isContentEditable;
+}
+function agEnBoton(e){
+  var t = e.target;
+  if(!t || !t.closest) return false;
+  return !!t.closest('button, a, [role="button"], summary');
+}
+/* la barra espaciadora avanza, pero solo si no va a pulsar nada */
+function agEsAvance(e){
+  return e.key === 'ArrowRight' || e.key === 'PageDown' ||
+         ((e.key === ' ' || e.key === 'Spacebar') && !agEnBoton(e));
+}
+function agEsAtras(e){
+  return e.key === 'ArrowLeft' || e.key === 'PageUp' ||
+         (e.key === ' ' && e.shiftKey && !agEnBoton(e));
+}
+
+/* ============================================================
+   CURSO 3 · REPRODUCCIÓN
+   ============================================================ */
+function rpTecla(e){
+  /* la ayuda se cierra primero, esté donde esté */
+  var ayuda = document.getElementById('rpAtOv');
+  if(ayuda){ if(e.key === 'Escape' || e.key === '?'){ e.preventDefault(); ayuda.remove(); } return; }
+
+  var ov = document.getElementById('rpOv');
+  if(!ov || ov.style.display === 'none') return;
+
+  /* si hay un modal encima, solo se atiende Escape */
+  var encima = document.getElementById('rpPago') || document.getElementById('nxPagoOv') ||
+               document.getElementById('csOv') || document.querySelector('.cq-ov');
+  if(encima){
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      if(document.getElementById('rpPago')) document.getElementById('rpPago').remove();
+      else if(document.getElementById('nxPagoOv') && typeof nxCerrarPago === 'function') nxCerrarPago();
+      else if(document.getElementById('csOv') && typeof cerrarCursos === 'function') cerrarCursos();
+    }
+    return;
+  }
+
+  if(agEscribiendo(e)) return;
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+
+  var hayBarra = !!document.querySelector('#rpOv .nx-lnav');
+
+  if(agEsAtras(e)){
+    e.preventDefault();
+    if(RPLECCION && hayBarra) rpPagina(-1);
+    else if(RPCUR > 0) rpIr(RPCUR - 1);
+    return;
+  }
+  if(agEsAvance(e)){
+    e.preventDefault();
+    if(RPLECCION && hayBarra) rpPagina(1);
+    else if(RPCUR < RPMOD.length) rpIr(RPCUR + 1);
+    return;
+  }
+
+  var k = e.key;
+  if(k === 'Home'){ e.preventDefault(); if(RPLECCION && hayBarra) rpMostrarSeccion(0); else rpIr(0); return; }
+  if(k === 'End'){
+    e.preventDefault();
+    if(RPLECCION && hayBarra){
+      var n = document.querySelectorAll('#rpMain .nx-wrap section.nx-b').length;
+      rpMostrarSeccion(n - 1);
+    } else { var m = document.getElementById('rpMain'); if(m) m.scrollTop = m.scrollHeight; }
+    return;
+  }
+  if(k === 'Escape'){ e.preventDefault(); if(typeof rpCerrar === 'function') rpCerrar(); return; }
+  if(k === 'l' || k === 'L'){ e.preventDefault(); if(typeof rpToggleLeccion === 'function') rpToggleLeccion(); return; }
+  if(k === 'f' || k === 'F'){ e.preventDefault(); if(typeof rpToggleEnfoque === 'function') rpToggleEnfoque(); return; }
+  if(k === '?'){ e.preventDefault(); rpAtajos(); return; }
+  if(/^[0-9]$/.test(k)){
+    var d = (k === '0') ? 10 : parseInt(k, 10);
+    if(d >= 1 && d <= RPMOD.length){ e.preventDefault(); rpIr(d); }
+  }
+}
+document.addEventListener('keydown', rpTecla);
+
+window.rpAtajos = function(){
+  var ov = document.getElementById('rpAtOv');
+  if(ov){ ov.remove(); return; }
+  ov = document.createElement('div'); ov.id = 'rpAtOv'; ov.className = 'nxat-ov';
+  ov.onclick = function(e){ if(e.target === ov) ov.remove(); };
+  var filas = [
+    ['→ · Av Pág · Espacio', 'Avanzar a la siguiente sección'],
+    ['← · Re Pág', 'Volver a la anterior'],
+    ['1 … 9 · 0', 'Ir directo a un módulo (0 es el décimo)'],
+    ['Inicio · Fin', 'Primera o última sección del módulo'],
+    ['L', 'Modo lección: una sección a la vez'],
+    ['F', 'Modo enfoque'],
+    ['Esc', 'Salir del curso'],
+    ['?', 'Mostrar u ocultar esta ayuda']
+  ];
+  ov.innerHTML = '<div class="nxat-w"><button class="nxat-x" onclick="document.getElementById(\'rpAtOv\').remove()">✕</button>' +
+    '<h3>Atajos de teclado</h3>' +
+    '<div class="nxat-l">' + filas.map(function(f){
+      return '<div><kbd>' + f[0].split(' · ').join('</kbd> <kbd>') + '</kbd><span>' + f[1] + '</span></div>'; }).join('') + '</div>' +
+    '<p class="nxat-n">No funcionan mientras escribe en una casilla ni con el cursor sobre un botón, para no interrumpirlo mientras responde.</p></div>';
+  document.body.appendChild(ov);
+};
+
+/* el botón del teclado en los controles del curso 3 */
+if(typeof window.rpControles === 'function'){
+  var _rpControles = window.rpControles;
+  window.rpControles = function(){
+    var h = _rpControles.apply(this, arguments);
+    if(h.indexOf('rpAtajos()') >= 0) return h;
+    return h.replace(/<\/div>\s*$/, '<button class="nx-cb2" onclick="rpAtajos()" title="Atajos de teclado">⌨</button></div>');
+  };
+}
+
+/* ============================================================
+   CURSO 1 · PORCICULTURA
+   Ya atendía → y ←. Se le añaden Espacio, Av/Re Pág, Inicio,
+   Fin y los números, SIN tocar el manejador original: este solo
+   responde a las teclas que aquel ignora.
+   ============================================================ */
+document.addEventListener('keydown', function(e){
+  /* solo si el curso 1 está en pantalla y ninguno de los otros dos encima */
+  if(document.getElementById('rpOv') || document.getElementById('nxOv')) return;
+  if(document.getElementById('rpAtOv') || document.getElementById('nxAtOv')) return;
+  if(document.body.getAttribute('data-screen') !== 'curso') return;
+  if(typeof current === 'undefined' || current < 0) return;
+  if(agEscribiendo(e)) return;
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+
+  var enLeccion = (typeof LESSON !== 'undefined' && LESSON) &&
+                  (typeof LS !== 'undefined' && LS && LS.blocks) && current >= 1;
+  var k = e.key;
+
+  /* las flechas ya las atiende el manejador original: aquí no se repiten */
+  if(k === 'PageDown' || ((k === ' ' || k === 'Spacebar') && !e.shiftKey && !agEnBoton(e))){
+    e.preventDefault();
+    if(enLeccion) lessonNext(); else if(current < 12) goto(current + 1);
+    return;
+  }
+  if(k === 'PageUp' || (k === ' ' && e.shiftKey && !agEnBoton(e))){
+    e.preventDefault();
+    if(enLeccion) lessonPrev(); else if(current > 0) goto(current - 1);
+    return;
+  }
+  if(k === 'Home'){ e.preventDefault(); if(enLeccion) showSection(0); else goto(0); return; }
+  if(k === 'End'){
+    e.preventDefault();
+    if(enLeccion) showSection(LS.blocks.length - 1);
+    else scrollTo(0, document.body.scrollHeight);
+    return;
+  }
+});
+
+/* ============================================================
+   CURSO 2 · FORMULACIÓN
+   Ya tenía flechas, Av/Re Pág, números, Inicio, L, F y ?. Le
+   faltaban la barra espaciadora y Fin, que son las dos que más
+   se usan al ir pasando diapositivas.
+   ============================================================ */
+document.addEventListener('keydown', function(e){
+  var ov = document.getElementById('nxOv');
+  if(!ov || ov.style.display === 'none') return;
+  if(document.getElementById('nxAtOv') || document.getElementById('rpAtOv')) return;
+  if(document.getElementById('nxPagoOv') || document.getElementById('csOv')) return;
+  if(agEscribiendo(e)) return;
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+
+  var hayBarra = !!document.querySelector('#nxOv .nx-lnav');
+  var k = e.key;
+
+  if((k === ' ' || k === 'Spacebar') && !agEnBoton(e)){
+    e.preventDefault();
+    var atras = e.shiftKey;
+    if(typeof NXLECCION !== 'undefined' && NXLECCION && hayBarra) nxPagina(atras ? -1 : 1);
+    else if(atras){ if(NXCUR > 0) nxIr(NXCUR - 1); }
+    else if(NXCUR < NXMOD.length) nxIr(NXCUR + 1);
+    return;
+  }
+  if(k === 'End'){
+    e.preventDefault();
+    if(typeof NXLECCION !== 'undefined' && NXLECCION && hayBarra){
+      var n = document.querySelectorAll('#nxMain .nx-wrap section.nx-b').length;
+      nxMostrarSeccion(n - 1);
+    } else { var m = document.getElementById('nxMain'); if(m) m.scrollTop = m.scrollHeight; }
+  }
+});
+
+/* ============================================================
+   LA PISTA: si nadie le dice que existe, el teclado no sirve.
+   Se enseña una vez por curso, la primera vez que lo abre.
+   ============================================================ */
+function agPistaTeclado(curso, raiz){
+  var clave = 'ag_pista_teclado_' + curso;
+  try{ if(localStorage.getItem(clave) === '1') return; }catch(e){}
+  var cont = document.querySelector(raiz);
+  if(!cont || document.getElementById('agPista')) return;
+  /* se marca como vista ANTES de pintarla: si algo interrumpe después,
+     la pista no vuelve a aparecer en cada apertura del curso */
+  try{ localStorage.setItem(clave, '1'); }catch(e){}
+  var d = document.createElement('div');
+  d.id = 'agPista';
+  d.innerHTML = '<b>Puede avanzar con el teclado</b>' +
+    '<span><kbd>→</kbd> o <kbd>espacio</kbd> para seguir · <kbd>←</kbd> para volver · <kbd>?</kbd> para ver todos</span>' +
+    '<button onclick="agCerrarPista()" aria-label="Entendido">Entendido</button>';
+  document.body.appendChild(d);
+  requestAnimationFrame(function(){ d.classList.add('on'); });
+  setTimeout(function(){ if(document.getElementById('agPista')) agCerrarPista(); }, 11000);
+}
+window.agCerrarPista = function(){
+  var d = document.getElementById('agPista');
+  if(!d) return;
+  d.classList.remove('on');
+  setTimeout(function(){ if(d.parentNode) d.remove(); }, 260);
+};
+['openReproduccion', 'openNutricion'].forEach(function(fn){
+  if(typeof window[fn] !== 'function') return;
+  var curso = fn === 'openReproduccion' ? 'reproduccion' : 'nutricion';
+  var raiz = fn === 'openReproduccion' ? '#rpOv' : '#nxOv';
+  var _f = window[fn];
+  window[fn] = function(){
+    var r = _f.apply(this, arguments);
+    setTimeout(function(){ agPistaTeclado(curso, raiz); }, 900);
+    return r;
+  };
+});
+if(typeof window.mount === 'function'){
+  var _mountPista = window.mount;
+  window.mount = function(id){
+    var r = _mountPista.apply(this, arguments);
+    if(id >= 1) setTimeout(function(){ agPistaTeclado('porcicultura', '#main'); }, 900);
+    return r;
+  };
+}
+
+
+/* ============================================================
+   LOS BOTONES DE LA PANTALLA FINAL, FUNCIONANDO DE VERDAD
+   ------------------------------------------------------------
+   Lo que estaba roto:
+
+   · «Generar mi certificado» en reproducción llamaba a abrirCert()
+     y certInner(), y abrirCert NO EXISTE en esta aplicación. El
+     generador de verdad es certInner() + openPrint(), que es lo que
+     usa el curso 2. Así que caía siempre en el aviso de consuelo
+     «el certificado se genera desde su perfil» y no pasaba nada.
+
+   · En formulación se llamaba nxCertificado() sin argumentos, y esa
+     función espera (nombre, aprobados).
+
+   · «Otra vez» sí lanzaba el confeti, pero el lienzo estaba por
+     debajo de la capa del curso: se dibujaba donde nadie lo veía.
+     Eso ya está corregido en la hoja de estilos.
+   ============================================================ */
+
+/* la plantilla del certificado de reproducción */
+var RPCERT = {
+  course: 'Reproducción porcina: celo, inseminación y manejo de marranas',
+  seal: 'Nivel Avanzado',
+  accent: '#7A4FC0',
+  total: 10,
+  dur: '10 módulos'
+};
+
+window.rpCertificado = function(nombre, aprob){
+  if(typeof certInner !== 'function' || typeof openPrint !== 'function'){
+    if(typeof toast === 'function') toast('El generador de certificados no está disponible', '⚠️');
+    return;
+  }
+  var total = (typeof RPMOD !== 'undefined') ? RPMOD.length : 10;
+  var n = (aprob != null) ? aprob : rpProgreso();
+
+  /* al instructor se le deja verlo aunque no haya hecho el curso: es la
+     única forma de revisar qué recibe el estudiante */
+  var esAdmin = (typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN') ||
+                (typeof PREVIEW !== 'undefined' && PREVIEW);
+  if(n < total){
+    if(!esAdmin){
+      if(typeof toast === 'function') toast('Complete los ' + total + ' módulos para su certificado', '🔒');
+      return;
+    }
+    if(!confirm('Todavía no están aprobados los ' + total + ' módulos (' + n + '/' + total + ').\n' +
+                '¿Generar el certificado igual, para ver cómo queda?')) return;
+  }
+
+  var nm = nombre;
+  if(!nm){
+    var cs = (typeof curStudent === 'function') ? curStudent() : null;
+    nm = (cs && cs.name && cs.name !== 'Vista de estudiante') ? cs.name
+       : ((typeof SESSION !== 'undefined' && SESSION && SESSION.name && SESSION.role !== 'ADMIN') ? SESSION.name
+       : ((window.prompt('Nombre del participante:', '') || '').trim() || 'Participante'));
+  }
+
+  var guardar = CERTCFG;
+  CERTCFG = Object.assign({}, DEFCERT, (typeof NXCERT !== 'undefined' ? NXCERT : {}), RPCERT, {
+    signName: guardar.signName, signName2: guardar.signName2,
+    place: guardar.place, org: guardar.org
+  });
+  try{
+    var code = 'AGRO-REP-' + Date.now().toString(36).toUpperCase().slice(-7);
+    openPrint('Certificado - Reproduccion', RPCERT.accent, certInner(nm, total, code), {landscape:true});
+  } finally { CERTCFG = guardar; }
+};
+
+/* ---------- la llamada correcta desde cada pantalla final ---------- */
+window.agCert = function(curso){
+  var yo = (typeof SESSION !== 'undefined' && SESSION) ? SESSION : null;
+  var nombre = (yo && yo.role !== 'ADMIN' && yo.name) ? yo.name : null;
+  try{
+    if(curso === 'reproduccion') return rpCertificado(nombre, null);
+    if(curso === 'nutricion'){
+      if(typeof nxCertificado !== 'function'){
+        if(typeof toast === 'function') toast('El generador de certificados no está disponible', '⚠️');
+        return;
+      }
+      var n = (typeof nxProgreso === 'function') ? nxProgreso() : 0;
+      var t = (typeof NXMOD !== 'undefined') ? NXMOD.length : 10;
+      /* nxCertificado ya pregunta si faltan módulos; si el instructor está
+         en vista previa se le pasa el total para que no lo interrogue */
+      var esAdmin = (yo && yo.role === 'ADMIN') || (typeof PREVIEW !== 'undefined' && PREVIEW);
+      return nxCertificado(nombre || (esAdmin ? 'Nombre del Participante' : null), (esAdmin && n < t) ? t : n);
+    }
+    if(typeof printCert === 'function') return printCert();
+    if(typeof toast === 'function') toast('El generador de certificados no está disponible', '⚠️');
+  }catch(err){
+    if(typeof toast === 'function') toast('No se pudo abrir el certificado: ' + err.message, '⚠️');
+  }
+};
+
+/* que la pantalla final use agCert y no las llamadas viejas */
+if(typeof window.agCfg === 'function'){
+  var _agCfg = window.agCfg;
+  window.agCfg = function(curso){
+    var c = _agCfg.apply(this, arguments);
+    c.cert = "agCert('" + c.id + "')";
+    return c;
+  };
+}
+
+/* ---------- el confeti tiene que poder repetirse ---------- */
+window.agOtraVez = function(){
+  var v = document.getElementById('agConfeti');
+  if(v && v.parentNode) v.remove();   /* si quedó uno a medias, se reinicia */
+  agConfeti();
+};
+
 </script>
+
+
+
+
 
 
 
