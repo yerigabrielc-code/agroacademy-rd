@@ -13833,5 +13833,910 @@ if(typeof window.nxSeccion === 'function'){
 
 
 
+<style>
+
+/* ===== curso 3: solo lo que no existe ya en el curso 2 ===== */
+.nx-pay{position:fixed;inset:0;z-index:60;background:rgba(16,14,12,.72);
+  display:flex;align-items:center;justify-content:center;padding:22px;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.nx-pay-c{background:var(--panel);border:1px solid var(--border);border-radius:18px;
+  max-width:480px;width:100%;padding:26px 28px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.nx-pay-h span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--amber-d);margin-bottom:6px}
+.nx-pay-h b{display:block;font-family:var(--display);font-size:20px;font-weight:800;
+  color:var(--text);line-height:1.2;margin-bottom:14px}
+.nx-pay p{margin:0 0 14px;font-size:14.5px;line-height:1.6;color:var(--text-2)}
+.nx-pay-p{display:flex;align-items:baseline;gap:10px;padding:14px 0;border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);margin-bottom:14px}
+.nx-pay-p b{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--green)}
+.nx-pay-p span{font-size:13px;color:var(--muted)}
+.nx-pay-n{font-size:13px !important;color:var(--muted) !important}
+
+</style>
+<script>
+/* ============================================================
+   CURSO 3 · REPRODUCCIÓN PORCINA — contenido
+   ------------------------------------------------------------
+   Misma estructura de datos que el curso 2, así que se pinta con
+   nxSeccion y hereda tipografía y tamaños.
+
+   Regla de oro: ninguna cifra reproductiva inventada. Lo que
+   aparece va marcado como valor de referencia, o como dato que
+   el productor debe medir en su propia granja. Lo que decide un
+   veterinario se dice que lo decide un veterinario.
+   ============================================================ */
+
+var RPMOD = [
+
+/* ============================= 01 ============================= */
+{n:1, num:'01', ac:'#7A2E6E', t:'Cómo funciona por dentro una marrana',
+ sub:'Fisiología reproductiva · lo que explica cada decisión de manejo',
+ obj:['Explicar qué hormona manda en cada momento del ciclo y qué se ve por fuera.',
+      'Entender por qué la ovulación no ocurre al principio del celo.',
+      'Relacionar cada etapa fisiológica con una decisión concreta de granja.'],
+ sec:[
+ {k:'prosa', t:'Por qué este módulo no se salta', p:[
+  'Casi todo lo que sale mal en la reproducción de una granja se explica por algo que está pasando por dentro del animal y que nadie vio. La marrana que «no entra en celo», la que «repite», la que «quedó vacía»: en la mayoría de los casos el cuerpo hizo lo que tenía que hacer y lo que falló fue la <b>lectura</b> que hicimos de él.',
+  'Por eso este curso empieza por dentro. No es una clase de anatomía para memorizar nombres: es entender <b>qué manda cada cosa</b>, para que cuando usted esté frente al corral sepa qué está mirando y por qué.']},
+
+ {k:'concepts', t:'Las cuatro estructuras que deciden todo', items:[
+  ['Ovarios', 'Producen los óvulos y, sobre todo, <b>las hormonas que gobiernan el ciclo</b>. En la cerda no madura un óvulo por celo sino un grupo — por eso nacen camadas y no un lechón. En el ovario conviven folículos que crecen y cuerpos lúteos que frenan.'],
+  ['Oviductos', 'El tubo donde ocurre la fecundación. El espermatozoide tiene que estar <b>esperando ahí arriba</b> cuando bajen los óvulos; no se encuentran a mitad de camino. Toda la discusión sobre el momento del servicio sale de este hecho.'],
+  ['Útero (los cuernos uterinos)', 'Dos cuernos largos donde los embriones se reparten y se implantan. Su tamaño explica por qué una camada puede crecer o quedarse corta, y por qué los primeros días después del servicio son tan delicados.'],
+  ['Cérvix', 'La puerta. Tiene pliegues en forma de tornillo donde <b>encaja</b> el catéter de inseminación. No es un tubo recto: por eso la técnica importa y por eso una mala inserción termina en reflujo.']]},
+
+ {k:'prosa', t:'Las hormonas, en lenguaje de granja', p:[
+  'Cuatro hormonas explican prácticamente todo lo que usted va a observar. No hace falta saber química: hace falta saber <b>quién manda cuándo</b>.',
+  '<b>FSH</b> hace crecer los folículos en el ovario. Mientras crecen, esos folículos producen <b>estrógeno</b>, y el estrógeno es el que provoca todo lo que usted ve por fuera: la vulva que se hincha y enrojece, la inquietud, la vocalización, y finalmente el reflejo de inmovilidad. Cuando el estrógeno llega a su punto más alto, dispara un pico de <b>LH</b>, y es la LH la que <b>ordena la ovulación</b>.',
+  'Después de ovular, cada folículo vacío se convierte en un cuerpo lúteo que produce <b>progesterona</b>. La progesterona es la hormona de la calma: mantiene la gestación y, mientras esté alta, <b>bloquea la aparición de un nuevo celo</b>. Si no hubo gestación, esos cuerpos lúteos se deshacen, la progesterona cae, y el ciclo vuelve a empezar.',
+  'Ahí está la lógica completa: <b>el celo lo produce el estrógeno, la ovulación la ordena la LH, y la progesterona decide si hay o no hay otro celo.</b>']},
+
+ {k:'alerta', tipo:'tip', ico:'🔑', t:'La consecuencia práctica de todo lo anterior',
+  p:'Usted <b>no ve la ovulación</b>. Nunca. Lo que ve son los signos del estrógeno, que ocurren <b>antes</b>. Entre que la marrana empieza a aceptar la monta y el momento en que suelta los óvulos pasa un tiempo, y ese tiempo es la razón por la que no se insemina en el instante en que se detecta el celo. Todo el módulo 04 de este curso vive de esta frase.'},
+
+ {k:'tabla', t:'Las cuatro fases del ciclo, y qué se ve en cada una',
+  cap:'Los nombres son los técnicos; la columna de la derecha es lo que usted va a ver parado frente al corral.',
+  head:['Fase', 'Qué pasa por dentro', 'Qué se ve por fuera', 'Qué se hace'],
+  rows:[
+   ['Proestro', 'Crecen los folículos, sube el estrógeno', 'Vulva que empieza a hincharse y enrojecer, inquietud, monta a otras pero <b>no se deja montar</b>', 'Marcar la marrana. Todavía no se sirve'],
+   ['Estro (el celo)', 'Estrógeno en su punto alto, luego el pico de LH y la ovulación', '<b>Reflejo de inmovilidad</b>: se queda quieta al presionarle el lomo. Orejas rígidas, mirada fija', 'Aquí se decide y se ejecuta el servicio'],
+   ['Metaestro', 'Se forman los cuerpos lúteos, empieza a subir la progesterona', 'Los signos se apagan, ya no acepta la monta, la vulva vuelve a su tamaño', 'No servir. Registrar lo que pasó'],
+   ['Diestro', 'Progesterona alta y sostenida', 'Nada: la marrana está tranquila', 'Si está gestante, sigue así. Si no, volverá al proestro']]},
+
+ {k:'alerta', tipo:'warn', ico:'⚠️', t:'Montar a otras no es estar en celo',
+  p:'Es el error de lectura más común y el más caro. Una marrana en <b>proestro</b> monta a sus compañeras y se ve muy activa, pero todavía no acepta ser montada. Servirla ahí es servirla demasiado temprano. El signo que manda no es que ella monte: es que <b>se deje montar y se quede quieta</b>.'},
+
+ {k:'prosa', t:'De la fecundación a la implantación', p:[
+  'Cuando los óvulos bajan por el oviducto y se encuentran con espermatozoides ya esperando, ocurre la fecundación. Los embriones resultantes bajan al útero y <b>no se pegan de inmediato</b>: pasan varios días sueltos, moviéndose y repartiéndose entre los dos cuernos uterinos. Esa repartición importa, porque un embrión que queda amontonado con otros tiene menos espacio y menos irrigación.',
+  'Recién después de ese período los embriones <b>se implantan</b> en la pared del útero. Y aquí está el dato de manejo: <b>hasta que no se implantan, todo lo que estrese a la marrana los puede perder</b>. Peleas por reagrupamiento, un día muy caliente, una mudanza brusca, un susto. La marrana no aborta ni sangra: simplemente, semanas después, aparece una camada más chica de lo que debía, o repite el celo sin explicación aparente.']},
+
+ {k:'alerta', tipo:'crit', ico:'🌡️', t:'Por qué en República Dominicana esto pesa más',
+  p:'El calor y la humedad de aquí actúan justo donde el proceso es más frágil. El estrés térmico <b>apaga los signos de celo</b> (se detecta menos), <b>afecta la supervivencia de los embriones</b> en esos primeros días, y <b>alarga el intervalo entre el destete y el celo</b>. Son los tres pilares de este curso, y los tres se tocan por el mismo lado. En los módulos 03, 06 y 09 se trabaja qué hacer al respecto.'},
+
+ {k:'prosa', t:'La gestación y el regreso al ciclo', p:[
+  'Si la implantación ocurre, los cuerpos lúteos se mantienen, la progesterona sigue alta y no vuelve a haber celo. La gestación avanza, y cerca del final las hormonas cambian otra vez para preparar el parto y la producción de leche.',
+  'Durante la lactancia, el estímulo del amamantamiento mantiene frenado el ciclo: la marrana lactando <b>normalmente no entra en celo</b>. Cuando usted desteta, quita ese freno — y ahí arranca el conteo del <b>intervalo destete-celo</b>, que es uno de los números que más dice sobre cómo está manejada una granja. El módulo 09 se dedica completo a eso.']},
+
+ {k:'concepts', t:'Cinco frases que resumen el módulo', items:[
+  ['El celo lo produce el estrógeno', 'Todo lo que usted ve —vulva, inquietud, inmovilidad— viene de los folículos que están creciendo.'],
+  ['La ovulación no se ve', 'Ocurre después del inicio del celo, y usted la deduce, no la observa.'],
+  ['La progesterona decide si hay otro celo', 'Mientras esté alta, no hay celo. Por eso una marrana gestante no repite.'],
+  ['Los primeros días deciden la camada', 'Antes de la implantación, el estrés cuesta embriones que usted nunca va a ver.'],
+  ['Destetar es quitar el freno', 'Ahí empieza a correr el reloj que usted va a medir en el módulo 09.']]},
+
+ {k:'alerta', tipo:'tip', ico:'🩺', t:'Hasta aquí llega usted, desde aquí llega el veterinario',
+  p:'Entender la fisiología le permite <b>observar mejor y registrar mejor</b>. No le permite diagnosticar enfermedades ni indicar hormonas. Cualquier tratamiento hormonal, cualquier sospecha de infección y cualquier problema reproductivo que se repita en el lote <b>se consulta con un veterinario</b>, y se consulta con los registros en la mano — que es justamente lo que usted va a montar en el módulo siguiente.'}
+]},
+
+/* ============================= 02 ============================= */
+{n:2, num:'02', ac:'#2E5A55', t:'El calendario y la ficha de su granja',
+ sub:'Lo que hay que anotar, cuándo y por qué · sin esto no hay nada que calcular',
+ obj:['Montar una ficha de cubrición con los campos mínimos que sirven.',
+      'Saber en qué momento exacto se anota cada dato.',
+      'Calcular la fecha probable de parto de cualquier servicio.'],
+ sec:[
+ {k:'prosa', t:'El cuaderno vale más que el equipo', p:[
+  'Una granja con una libreta bien llevada y sin ecógrafo toma mejores decisiones que una granja con ecógrafo y sin registros. No es una frase bonita: es que <b>sin fechas no hay diagnóstico posible</b>. Si usted no sabe cuándo sirvió, no puede saber si la marrana repitió a los 21 días o a los 30 — y esas dos cosas significan problemas completamente distintos.',
+  'Todo lo que este curso calcula después —conversión de servicios, intervalo destete-celo, días no productivos, tasa de parto— sale de cinco o seis fechas apuntadas a tiempo. Este módulo es el que hace posible a los otros nueve.']},
+
+ {k:'tabla', t:'La ficha de cubrición: qué lleva y cuándo se llena',
+  cap:'Una fila por servicio. Si su granja tiene 10 marranas, esto cabe en una libreta; si tiene 200, es la misma tabla en digital.',
+  head:['Campo', 'Cuándo se anota', 'Para qué sirve después'],
+  rows:[
+   ['ID de la marrana', 'Al entrar a producción', 'Todo. Sin identificación individual no hay historial'],
+   ['Número de parto', 'Se actualiza en cada parto', 'Primerizas y multíparas no se manejan igual'],
+   ['Fecha de destete', 'El día del destete', 'Arranca el reloj del intervalo destete-celo'],
+   ['Fecha y <b>hora</b> de detección del celo', 'En el momento de detectarlo', 'Decide cuándo se sirve. La hora no es un lujo'],
+   ['Fecha y hora de cada servicio', 'En el momento', 'Servicios por gestación, y la fecha probable de parto'],
+   ['Dosis e identificación del semen', 'En el momento', 'Si falla un lote de dosis, usted sabe a quién afectó'],
+   ['Diagnóstico de gestación', 'Cuando se hace', 'Separa «no quedó» de «se perdió»'],
+   ['Fecha real de parto', 'El día del parto', 'Cierra el ciclo y valida la fecha estimada'],
+   ['Nacidos totales, vivos, muertos, momificados', 'En el parto', 'Dicen si el problema fue de fecundación o de gestación'],
+   ['Destetados', 'Al destete', 'El número que al final paga'],
+   ['Motivo de descarte', 'Al sacar la marrana', 'Tasa de descarte y por qué se va el hato']]},
+
+ {k:'alerta', tipo:'warn', ico:'🕐', t:'La hora no es un capricho',
+  p:'Anotar «celo el martes» no sirve para decidir el servicio. Entre las 7 de la mañana y las 5 de la tarde del mismo martes hay diez horas de diferencia, y esas diez horas caen justo en el rango donde se decide si el espermatozoide llega a tiempo o llega tarde. <b>Fecha y hora, siempre.</b>'},
+
+ {k:'prosa', t:'Bandas o servicio continuo', p:[
+  'Hay dos maneras de organizar los servicios. En <b>servicio continuo</b>, usted sirve a la marrana que entre en celo, el día que entre. Es lo más simple y lo que hacen casi todas las granjas pequeñas de aquí.',
+  'En <b>manejo por bandas</b>, se agrupan destetes para que los celos —y después los partos— caigan juntos. Eso concentra el trabajo, permite usar mejor las parideras y hace más fácil comparar lotes entre sí. A cambio, exige más planificación y más animales.',
+  'No hay una respuesta universal: depende de cuántas marranas tenga y de cuántas parideras. Lo que sí aplica a las dos formas es que <b>cada servicio se anota igual</b>.']},
+
+ {k:'pasos', t:'Cómo montar la ficha esta semana', items:[
+  ['Haga la lista de sus marranas', 'Una fila por animal, con su identificación y su número de parto. Si no están identificadas, ese es el primer trabajo: sin ID no hay historial.'],
+  ['Abra una hoja por servicio', 'No una hoja por marrana: una fila por cada vez que se sirve. Una marrana puede tener varios servicios en un mismo celo o en celos distintos.'],
+  ['Anote en el momento, no al final del día', 'Lo que se anota «después» se anota mal. Lleve la libreta al galpón.'],
+  ['Calcule la fecha probable de parto ahí mismo', 'Use la calculadora de este módulo y escríbala en la ficha. Así sabe con semanas de anticipación cuándo va a necesitar la paridera.'],
+  ['Revise la ficha una vez por semana', 'Busque servicios sin diagnóstico, celos sin servicio y partos sin registrar. Media hora semanal le ahorra el trimestre.']]},
+
+ {k:'alerta', tipo:'crit', ico:'✏️', t:'Los tres errores de registro que arruinan los números',
+  p:'<b>Uno:</b> anotar la fecha de servicio pero no la del celo — así nunca se puede evaluar si el momento fue el correcto. <b>Dos:</b> registrar solo los servicios que salieron bien, que es como medir la puntería contando solo los aciertos. <b>Tres:</b> cambiar de criterio a mitad de camino (un mes se anota el primer servicio y otro mes el último). Un registro inconsistente es peor que no tener registro, porque da confianza falsa.'}
+]},
+
+/* ============================= 03 ============================= */
+{n:3, num:'03', ac:'#8A3324', t:'Detectar el celo',
+ sub:'El módulo que decide el resto · rutina, signos y los celos que se pierden',
+ obj:['Distinguir signos fuertes, débiles y engañosos.',
+      'Ejecutar una rutina de detección repetible en 5 a 10 minutos.',
+      'Reconocer cuándo el problema es del animal y cuándo de la observación.'],
+ sec:[
+ {k:'prosa', t:'Un celo perdido es un ciclo perdido', p:[
+  'Cuando a una marrana no se le detecta el celo, no se pierde un día: se pierden <b>los días que faltan hasta el próximo ciclo</b>, más lo que costó mantenerla durante ese tiempo sin producir nada. Y el daño es invisible: en la libreta no aparece nada, porque no pasó nada.',
+  'Por eso la detección no es «pasar a ver». Es un procedimiento, con hora, con método y con alguien responsable. Una granja que detecta bien con equipo modesto rinde más que una que detecta mal con instalaciones nuevas.']},
+
+ {k:'concepts', t:'Los signos, ordenados por lo que valen', items:[
+  ['Reflejo de inmovilidad — el que manda', 'Se le hace presión firme en el lomo o se le monta a horcajadas y <b>la marrana se queda quieta</b>, con las patas firmes. A menudo pone las orejas rígidas y la mirada fija. Este es el signo que autoriza a servir; los demás acompañan.'],
+  ['Vulva hinchada y enrojecida', 'Aparece <b>antes</b> del celo y a veces ya está bajando cuando llega el momento bueno. Sirve para saber a quién vigilar, no para decidir el servicio.'],
+  ['Secreción', 'Puede estar o no estar. Una secreción clara y pegajosa acompaña el celo; una secreción con mal olor o con pus <b>no es celo, es un problema</b> y se consulta.'],
+  ['Inquietud y vocalización', 'Come menos, camina más, gruñe distinto. Buen aviso, mal criterio: muchas cosas inquietan a una marrana.'],
+  ['Monta a otras', 'Signo de proestro, no de celo. Indica que <b>se está acercando</b>. Vuelva a revisarla.'],
+  ['Respuesta al verraco', 'Frente al macho, la marrana en celo se orienta hacia él, se queda firme y acepta. Es el mejor amplificador de todos los signos anteriores.']]},
+
+ {k:'alerta', tipo:'tip', ico:'🐗', t:'El verraco no es opcional',
+  p:'La presencia del macho —su olor, su sonido, el contacto— hace que los signos se expresen mucho más claramente. Una marrana que en el corral parecía dudosa, frente al verraco define. Si su granja no tiene verraco, ese es el primer hueco a tapar en la detección: sin él, usted está leyendo señales a medio volumen.'},
+
+ {k:'pasos', t:'La rutina: revisar un lote en 5 a 10 minutos', items:[
+  ['Primero mire sin tocar', 'Camine el pasillo y observe quién está inquieta, quién monta, quién tiene la vulva cambiada. Marque mentalmente las candidatas. Treinta segundos por corral.'],
+  ['Traiga el verraco o lleve las marranas a él', 'Contacto real, no solo verlo de lejos. Déle tiempo: la respuesta no es instantánea.'],
+  ['Aplique presión en el lomo, una por una', 'Firme y sostenida, sobre las candidatas. Si tiene ayuda, una persona al frente y otra atrás.'],
+  ['Marque y anote en el momento', 'Con crayón o cinta, y en la libreta: identificación, fecha y <b>hora</b>. No confíe en la memoria hasta la noche.'],
+  ['Repita el mismo procedimiento en el segundo pase del día', 'Misma persona si es posible. La consistencia es la que hace comparables los datos.']]},
+
+ {k:'alerta', tipo:'warn', ico:'🕗', t:'Una sola revisión al día no alcanza',
+  p:'Con una sola pasada diaria, una marrana que empieza el celo justo después de que usted revisó no va a ser detectada hasta 24 horas más tarde — y para entonces el mejor momento del servicio puede haber pasado. <b>Dos revisiones separadas, mañana y tarde, es la práctica estándar.</b> Cuántas exactamente y a qué hora depende de su granja y de su gente; lo que no se negocia es que sean más de una y siempre a la misma hora.'},
+
+ {k:'tabla', t:'Diez errores que hacen que una granja pierda celos',
+  cap:'No son teóricos: son los que aparecen cuando uno revisa por qué una granja tiene muchos días no productivos.',
+  head:['El error', 'Lo que provoca'],
+  rows:[
+   ['Revisar una sola vez al día', 'Celos que empiezan y terminan entre una revisión y la siguiente'],
+   ['Revisar a la hora de dar comida', 'La marrana está pendiente del comedero, no del verraco. Los signos se apagan'],
+   ['Confiar solo en la vulva', 'La vulva cambia antes; cuando usted la ve perfecta, puede estar tarde'],
+   ['Confundir monta con celo', 'Servicios demasiado tempranos'],
+   ['No usar verraco', 'Signos a medio volumen y celos dudosos que se descartan'],
+   ['Cambiar de persona cada semana', 'Cada quien detecta distinto; los datos dejan de ser comparables'],
+   ['Apurar la revisión', 'El reflejo de inmovilidad necesita unos segundos, no un empujón al pasar'],
+   ['Revisar en las horas de más calor', 'El animal está buscando sombra, no macho'],
+   ['No anotar la hora', 'Imposible decidir bien el momento del servicio'],
+   ['No revisar a las que ya se sirvieron', 'Repeticiones que se descubren dos meses tarde']]},
+
+ {k:'alerta', tipo:'crit', ico:'🌡️', t:'El calor le apaga los signos',
+  p:'En los meses calientes la expresión del celo se hace más corta y más discreta. La misma marrana que en enero se planta firme, en agosto apenas responde. Eso no significa que no esté en celo: significa que <b>hay que revisar más temprano, más tarde y con más cuidado</b>. La franja fresca del día —temprano en la mañana y al caer la tarde— es cuando mejor se expresa. Si su granja detecta menos celos justo en la temporada caliente, revise primero el horario de observación antes de sospechar del hato.'},
+
+ {k:'prosa', t:'Cuando el problema no es la marrana', p:[
+  'Antes de concluir que un lote «no está entrando en celo», hay que descartar que el problema sea de detección. Son dos cosas distintas y se corrigen de maneras opuestas.',
+  'Una pista práctica: si las marranas que <b>sí</b> se detectan quedan gestantes con normalidad, pero hay muchas que «no aparecen», el problema huele a detección. Si las que se detectan también fallan, el problema es otro y probablemente hay que llamar al veterinario. En el módulo 08 se trabaja ese árbol completo.']}
+]}
+];
+
+
+/* ============================================================
+   CURSO 3 · REPRODUCCIÓN PORCINA — armazón
+   ------------------------------------------------------------
+   Reutiliza el renderizador y las clases del curso 2: nxSeccion
+   ya es genérico para los tipos de contenido y solo depende de
+   mod.ac. Así la tipografía y los tamaños son EXACTAMENTE los
+   mismos que en los otros dos cursos, y no se duplica CSS.
+   Lo que sí es propio: navegación, avance, examen y candado.
+   ============================================================ */
+
+var RPCUR = 0, RPPAG = 0;
+var RPLECCION = false, RPENFOQUE = false;
+try{ RPLECCION = localStorage.getItem('rp_leccion') === '1'; }catch(e){}
+
+var RPPASS = 80, RPGATE = true;
+try{
+  var _c = JSON.parse(localStorage.getItem('rp_cfg') || '{}');
+  if(_c.passing != null) RPPASS = +_c.passing;
+  if(_c.gating  != null) RPGATE = !!_c.gating;
+}catch(e){}
+function rpGuardarCfg(){ try{ localStorage.setItem('rp_cfg', JSON.stringify({passing:RPPASS, gating:RPGATE})); }catch(e){} }
+function rpSetPass(v){ RPPASS = Math.max(1, Math.min(100, +v || 80)); rpGuardarCfg(); }
+function rpSetGate(v){ RPGATE = !!v; rpGuardarCfg(); }
+
+/* ---------- quién soy y qué puedo ver ---------- */
+function rpYo(){
+  if(typeof STU !== 'undefined' && STU) return STU;
+  if(typeof SESSION !== 'undefined' && SESSION && SESSION.id) return SESSION.id;
+  return 'local';
+}
+function rpEsInstructor(){
+  return (typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN') ||
+         (typeof PREVIEW !== 'undefined' && PREVIEW);
+}
+
+var RPACCESO = {};
+try{ RPACCESO = JSON.parse(localStorage.getItem('rp_acceso') || '{}'); }catch(e){}
+function rpGuardarAcceso(){ try{ localStorage.setItem('rp_acceso', JSON.stringify(RPACCESO)); }catch(e){} }
+function rpTieneAcceso(){
+  if(rpEsInstructor()) return true;
+  return !!RPACCESO[rpYo()];
+}
+
+var RPPUB = false;   /* no se publica hasta que el curso esté completo */
+try{ var _p = localStorage.getItem('rp_pub'); if(_p !== null) RPPUB = _p === '1'; }catch(e){}
+
+/* ---------- avance ---------- */
+function rpK(n){ return 'rp::' + rpYo() + '::exam_m' + n; }
+function rpRec(n){ try{ return JSON.parse(localStorage.getItem(rpK(n))); }catch(e){ return null; } }
+function rpAprob(n){
+  if(typeof cloudRec === 'function'){
+    var c = cloudRec(rpYo(), n, 'reproduccion');
+    if(c) return !!c.passed;
+  }
+  var r = rpRec(n); return !!(r && r.passed);
+}
+function rpProgreso(){ var c = 0; for(var i = 1; i <= RPMOD.length; i++) if(rpAprob(i)) c++; return c; }
+function rpDesbloq(id){
+  if(rpEsInstructor()) return true;
+  if(!RPGATE) return true;
+  return id <= 1 || rpAprob(id - 1);
+}
+function rpGuardarNota(n, nota, pasa){
+  var r = rpRec(n) || {best:0, attempts:0, passed:false};
+  r.attempts = (r.attempts || 0) + 1;
+  r.last = nota;
+  r.best = Math.max(r.best || 0, nota);
+  r.passed = r.passed || pasa;
+  r.date = Date.now();
+  try{ localStorage.setItem(rpK(n), JSON.stringify(r)); }catch(e){}
+  if(typeof pushProgress === 'function'){
+    try{ pushProgress(rpYo(), n, r, 'reproduccion'); }catch(e){}
+  }
+  return r;
+}
+
+/* ---------- pintar ---------- */
+function rpPortada(){
+  var p = rpProgreso();
+  return '<div class="nx-port" style="--foto:url(&quot;images/rp-portada.jpg&quot;)">' +
+    '<div class="nx-port-velo"></div>' +
+    '<div class="nx-cover"><span class="nx-cover-k">Curso complementario avanzado</span>' +
+    '<h1>Reproducción porcina: celo, inseminación y manejo de marranas</h1>' +
+    '<p class="nx-cover-s">De la detección del celo al parto: manejo reproductivo práctico para granjas porcinas en República Dominicana</p>' +
+    '<div class="nx-cover-kpis">' +
+      '<div><b>' + RPMOD.length + '</b><span>módulos</span></div>' +
+      '<div><b>11</b><span>calculadoras</span></div>' +
+      '<div><b>15</b><span>casos reales</span></div>' +
+      '<div><b>' + p + '/' + RPMOD.length + '</b><span>su avance</span></div>' +
+    '</div>' +
+    '<div class="nx-simcta"><b>Lo que va a poder hacer al terminar</b>' +
+    '<p>Detectar el celo sin perder ninguno, decidir el momento del servicio, inseminar bien, diagnosticar por qué una marrana falla, y saber cuánto le cuesta cada día que una marrana no está ni gestante ni lactando.</p></div>' +
+    '<button class="btn btn-primary nx-empieza" onclick="rpIr(1)">' + (p ? 'Continuar el curso' : 'Empezar por el módulo 01') + ' →</button>' +
+    '</div></div>';
+}
+
+function rpPinta(){
+  var c = document.getElementById('rpMain'); if(!c) return;
+  if(RPCUR === 0){ c.innerHTML = rpPortada(); return; }
+  var m = RPMOD[RPCUR - 1]; if(!m) return;
+  var h = '<div class="nx-hero" style="--ac:' + m.ac + '"><span class="nx-hero-k">Módulo ' + m.num + '</span>' +
+    '<h2>' + esc(m.t) + '</h2><p>' + esc(m.sub) + '</p></div>' +
+    '<div class="nx-wrap"><section class="nx-b"><div class="nx-obj rv" style="border-color:' + m.ac + '">' +
+    '<b>Al terminar este módulo usted podrá</b><ul>' +
+    m.obj.map(function(o){ return '<li>' + esc(o) + '</li>'; }).join('') + '</ul></div></section>';
+  h += m.sec.map(function(s){ return nxSeccion(s, m); }).join('');
+  h += rpExamen(m.n);
+  h += '<div class="nx-navb">' +
+    (RPCUR > 1 ? '<button class="btn btn-ghost" onclick="rpIr(' + (RPCUR - 1) + ')">← ' + esc(RPMOD[RPCUR - 2].t) + '</button>' : '<span></span>') +
+    (RPCUR < RPMOD.length ? '<button class="btn btn-primary" onclick="rpIr(' + (RPCUR + 1) + ')">' + esc(RPMOD[RPCUR].t) + ' →</button>'
+      : (rpProgreso() >= RPMOD.length ? '<button class="btn btn-primary" onclick="rpCertificado()">🎓 Generar mi certificado</button>'
+         : '<span class="nx-fin">Le faltan ' + (RPMOD.length - rpProgreso()) + ' módulos para el certificado</span>')) +
+    '</div></div>';
+  c.innerHTML = h;
+  if(window.Anim && Anim.reveal) try{ Anim.reveal(c); }catch(e){}
+  else c.querySelectorAll('.rv').forEach(function(x){ x.classList.add('in'); });
+  if(RPLECCION) setTimeout(rpIniciarLeccion, 60);
+}
+
+function rpNav(){
+  var n = document.getElementById('rpNav'); if(!n) return;
+  var p = rpProgreso();
+  n.innerHTML = '<div class="nx-pg"><span>PROGRESO</span><b>' + Math.round(p / RPMOD.length * 100) + '%</b>' +
+    '<div class="nx-pgb"><i style="width:' + (p / RPMOD.length * 100) + '%"></i></div></div>' +
+    '<button class="nx-nl' + (RPCUR === 0 ? ' on' : '') + '" onclick="rpIr(0)"><span class="nx-nn">◆</span> Portada</button>' +
+    RPMOD.map(function(m){
+      var ap = rpAprob(m.n), lock = !rpDesbloq(m.n);
+      return '<button class="nx-nl' + (RPCUR === m.n ? ' on' : '') + (lock ? ' lock' : '') + '" onclick="rpIr(' + m.n + ')">' +
+        '<span class="nx-nn" style="' + (RPCUR === m.n ? 'background:' + m.ac + ';color:#fff' : '') + '">' +
+        (ap ? '✓' : lock ? '🔒' : m.num) + '</span> ' + esc(m.t) + '</button>';
+    }).join('');
+}
+
+function rpIr(id){
+  if(!rpDesbloq(id)){
+    if(typeof toast === 'function') toast('Apruebe el módulo ' + (id - 1) + ' para desbloquear este', '🔒');
+    return;
+  }
+  RPCUR = id; rpPinta(); rpNav();
+  try{ localStorage.setItem('rp_pos', String(id)); }catch(e){}
+  var m = document.getElementById('rpMain'); if(m) m.scrollTop = 0;
+}
+
+/* ---------- modo lección (una lámina a la vez) ---------- */
+function rpIniciarLeccion(){
+  var wrap = document.querySelector('#rpMain .nx-wrap'); if(!wrap) return;
+  var o = document.getElementById('rpOv'); if(o) o.classList.add('leccion', 'nx-leccion');
+  var secs = [].slice.call(wrap.querySelectorAll('section.nx-b'));
+  if(secs.length < 2){ if(o) o.classList.remove('leccion', 'nx-leccion'); return; }
+  RPPAG = 0;
+  var barra = document.createElement('div');
+  barra.className = 'nx-lnav';
+  barra.innerHTML = '<button class="nx-lb" onclick="rpPagina(-1)">← Anterior</button>' +
+    '<div class="nx-lp"><span id="rpLc"></span><div class="nx-lpb"><i id="rpLi"></i></div></div>' +
+    '<button class="nx-lb on" onclick="rpPagina(1)">Continuar →</button>';
+  wrap.appendChild(barra);
+  rpMostrarSeccion(0);
+}
+function rpMostrarSeccion(i){
+  var wrap = document.querySelector('#rpMain .nx-wrap'); if(!wrap) return;
+  var secs = [].slice.call(wrap.querySelectorAll('section.nx-b'));
+  RPPAG = Math.max(0, Math.min(secs.length - 1, i));
+  secs.forEach(function(s, n){ s.style.display = (n === RPPAG) ? '' : 'none'; });
+  var hero = document.querySelector('#rpMain .nx-hero'); if(hero) hero.style.display = (RPPAG === 0) ? '' : 'none';
+  var c = document.getElementById('rpLc'); if(c) c.textContent = 'Sección ' + (RPPAG + 1) + ' de ' + secs.length;
+  var b = document.getElementById('rpLi'); if(b) b.style.width = ((RPPAG + 1) / secs.length * 100) + '%';
+  var m = document.getElementById('rpMain'); if(m) m.scrollTop = 0;
+  try{ Anim.reveal(secs[RPPAG]); }catch(e){ secs[RPPAG].querySelectorAll('.rv').forEach(function(x){ x.classList.add('in'); }); }
+}
+function rpPagina(d){
+  var wrap = document.querySelector('#rpMain .nx-wrap'); if(!wrap) return;
+  var n = wrap.querySelectorAll('section.nx-b').length;
+  if(RPPAG + d < 0) return;
+  if(RPPAG + d >= n){ if(RPCUR < RPMOD.length) rpIr(RPCUR + 1); return; }
+  rpMostrarSeccion(RPPAG + d);
+}
+function rpToggleLeccion(){
+  RPLECCION = !RPLECCION;
+  try{ localStorage.setItem('rp_leccion', RPLECCION ? '1' : '0'); }catch(e){}
+  if(typeof toast === 'function') toast(RPLECCION ? 'Modo lección: una sección a la vez' : 'Modo corrido: toda la página', '📖');
+  rpPinta();
+}
+function rpToggleEnfoque(){
+  RPENFOQUE = !RPENFOQUE;
+  var o = document.getElementById('rpOv'); if(o) o.classList.toggle('enfoque', RPENFOQUE);
+  if(typeof toast === 'function') toast(RPENFOQUE ? 'Modo enfoque activado' : 'Modo enfoque desactivado', '🎯');
+}
+function rpPantallaCompleta(){
+  try{ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }catch(e){}
+}
+
+/* ---------- abrir y cerrar ---------- */
+function rpControles(){
+  return '<div class="nx-ctl">' +
+    '<button class="nx-cb2" onclick="rpToggleLeccion()" title="Modo lección: una sección a la vez">📖</button>' +
+    '<button class="nx-cb2" onclick="rpToggleEnfoque()" title="Modo enfoque: menos distracciones">🎯</button>' +
+    '<button class="nx-cb2" onclick="rpPantallaCompleta()" title="Pantalla completa">⛶</button>' +
+    '<button class="nx-cb2" onclick="nxTema()" title="Cambiar tema">🌙</button>' +
+    '</div>';
+}
+
+window.openReproduccion = function(){
+  if(!rpTieneAcceso()){ rpAbrirPago(); return; }
+  if(!RPPUB && !rpEsInstructor()){
+    if(typeof toast === 'function') toast('Este curso todavía no está publicado', '🔒');
+    return;
+  }
+  var ov = document.getElementById('rpOv');
+  if(!ov){
+    ov = document.createElement('div'); ov.id = 'rpOv'; ov.className = 'nx-ov';
+    ov.innerHTML = '<aside class="nx-side"><div class="nx-side-h"><div class="nx-logo">🐖</div>' +
+      '<div><b>Reproducción porcina</b><span>Curso avanzado</span></div></div>' +
+      '<nav class="nx-nav" id="rpNav"></nav>' +
+      '<div class="nx-side-f">' +
+        '<button class="btn btn-ghost" onclick="rpCerrar()">← Volver a mis cursos</button>' +
+      '</div></aside>' +
+      '<main class="nx-main" id="rpMain"></main>' + rpControles();
+    document.body.appendChild(ov);
+  }
+  ov.classList.toggle('enfoque', RPENFOQUE);
+  document.body.style.overflow = 'hidden';
+  var pos = 0;
+  try{ pos = parseInt(localStorage.getItem('rp_pos') || '0', 10) || 0; }catch(e){}
+  RPCUR = rpDesbloq(pos) ? pos : 0;
+  rpPinta(); rpNav();
+};
+window.rpCerrar = function(){
+  var o = document.getElementById('rpOv'); if(o) o.remove();
+  document.body.style.overflow = '';
+};
+
+/* ---------- candado de pago ---------- */
+function rpAbrirPago(){
+  var o = document.getElementById('rpPago');
+  if(o){ o.remove(); }
+  o = document.createElement('div'); o.id = 'rpPago'; o.className = 'nx-pay';
+  o.innerHTML = '<div class="nx-pay-c">' +
+    '<div class="nx-pay-h"><span>Curso complementario</span>' +
+    '<b>Reproducción porcina: celo, inseminación y manejo de marranas</b></div>' +
+    '<p>Este curso se adquiere por separado. Incluye los ' + RPMOD.length + ' módulos, las 11 calculadoras, ' +
+    'los 15 casos y el certificado.</p>' +
+    '<div class="nx-pay-p"><b>US$ 41</b><span>o su equivalente en pesos</span></div>' +
+    '<p class="nx-pay-n">Escriba al instructor para activarlo en su cuenta. Una vez activado, entra desde «Mis cursos».</p>' +
+    '<button class="btn btn-primary" onclick="document.getElementById(\'rpPago\').remove()">Entendido</button>' +
+    '</div>';
+  o.addEventListener('click', function(e){ if(e.target === o) o.remove(); });
+  document.body.appendChild(o);
+}
+
+/* ---------- examen ----------
+   Mismas clases que el curso 2 (.nx-q / .nx-opt / .nx-fb / data-c)
+   para que el sistema de exámenes ciegos lo envuelva sin cambios. */
+function rpExamen(id){
+  var qs = (typeof RPQUIZ !== 'undefined' && RPQUIZ[id]) || [];
+  if(!qs.length) return '';
+  var r = rpRec(id);
+  var h = '<section class="nx-b"><h3 class="rv">Evaluación del módulo</h3>' +
+    '<div class="nx-ex" id="rpex-' + id + '"><div class="nx-ex-h rv">' +
+    '<span>Nota mínima: <b>' + RPPASS + ' %</b> · ' + qs.length + ' preguntas</span>' +
+    (r ? '<span class="nx-ex-best' + (r.passed ? ' pass' : '') + '">Mejor: ' + r.best + ' %' +
+         (r.passed ? ' · APROBADO ✓' : '') + '</span>' : '') + '</div>';
+  h += qs.map(function(q, i){
+    var ci = q[1].findIndex(function(o){ return o[1] === true; });
+    return '<div class="nx-q rv" data-c="' + ci + '"><p><b>' + (i + 1) + '.</b> ' + esc(q[0]) + '</p><div class="nx-opts">' +
+      q[1].map(function(o){ return '<button class="nx-opt" onclick="nxSel(this)">' + esc(o[0]) + '</button>'; }).join('') +
+      '</div><div class="nx-fb">' + esc(q[2]) + '</div></div>';
+  }).join('');
+  h += '<div class="nx-ex-a rv"><button class="btn btn-primary" onclick="rpEnviar(' + id + ')">Enviar respuestas</button>' +
+    '<button class="btn btn-ghost" onclick="rpReset(' + id + ')">Reiniciar</button></div>' +
+    '<div class="nx-ex-r" id="rpexr-' + id + '"></div></div></section>';
+  return h;
+}
+
+function rpEnviar(id){
+  var ex = document.getElementById('rpex-' + id); if(!ex) return;
+  var qs = [].slice.call(ex.querySelectorAll('.nx-q'));
+  if(!qs.every(function(q){ return q.querySelector('.nx-opt.sel'); })){
+    if(typeof toast === 'function') toast('Responda todas las preguntas', '✍️');
+    return;
+  }
+  var ok = 0;
+  qs.forEach(function(q){
+    var ci = +q.dataset.c, ops = [].slice.call(q.querySelectorAll('.nx-opt'));
+    var sel = ops.findIndex(function(o){ return o.classList.contains('sel'); });
+    ops.forEach(function(o, j){ if(j === ci) o.classList.add('ok'); if(j === sel && j !== ci) o.classList.add('bad'); });
+    if(sel === ci) ok++;
+    q.classList.add('rev');
+  });
+  ex.classList.add('cal');
+  var nota = Math.round(ok / qs.length * 100), pasa = nota >= RPPASS;
+  rpGuardarNota(id, nota, pasa);
+  var res = document.getElementById('rpexr-' + id);
+  res.className = 'nx-ex-r ' + (pasa ? 'pass' : 'fail');
+  res.innerHTML = '<b>' + nota + ' %</b><span>' + ok + ' de ' + qs.length + ' correctas · ' +
+    (pasa ? 'Aprobado. Módulo siguiente desbloqueado.' : 'No aprobado. Repase y vuelva a intentarlo.') + '</span>';
+  if(pasa){ if(typeof toast === 'function') toast('Módulo ' + id + ' aprobado', '🎓'); rpNav(); }
+}
+
+function rpReset(id){
+  var ex = document.getElementById('rpex-' + id); if(!ex) return;
+  ex.classList.remove('cal');
+  [].forEach.call(ex.querySelectorAll('.nx-opt'), function(o){ o.classList.remove('sel', 'ok', 'bad', 'ex-neutra'); });
+  [].forEach.call(ex.querySelectorAll('.nx-q'), function(q){ q.classList.remove('rev'); });
+  [].forEach.call(ex.querySelectorAll('.nx-fb'), function(f){ f.innerHTML = ''; f.className = 'nx-fb'; });
+  var r = document.getElementById('rpexr-' + id); if(r){ r.className = 'nx-ex-r'; r.innerHTML = ''; }
+  var v = ex.querySelector('.ex-res'); if(v) v.remove();
+}
+
+/* ---------- certificado ----------
+   Mismo formato que los otros dos cursos, otro color para distinguirlo. */
+function rpCertificado(){
+  if(rpProgreso() < RPMOD.length){
+    if(typeof toast === 'function') toast('Complete los ' + RPMOD.length + ' módulos para su certificado', '🔒');
+    return;
+  }
+  if(typeof certInner === 'function' && typeof abrirCert === 'function'){
+    try{
+      if(typeof CERTCFG !== 'undefined'){ CERTCFG.total = RPMOD.length; CERTCFG.dur = '24 horas'; }
+      abrirCert('reproduccion');
+      return;
+    }catch(e){}
+  }
+  if(typeof toast === 'function') toast('El certificado se genera desde su perfil', '🎓');
+}
+
+
+/* ============================================================
+   CURSO 3 · exámenes, calculadoras y registro en el panel
+   ============================================================ */
+
+/* ---------------- exámenes ---------------- */
+var RPQUIZ = {
+1:[
+ ['¿Qué hormona provoca los signos que usted VE en una marrana en celo?',
+  [['La progesterona',false],['El estrógeno',true],['La LH',false],['La FSH',false]],
+  'Los folículos que crecen producen estrógeno, y el estrógeno es el que hincha la vulva y produce la inquietud y el reflejo de inmovilidad.'],
+ ['La ovulación la ordena…',
+  [['El pico de LH',true],['La caída de progesterona',false],['La FSH',false],['El contacto con el verraco',false]],
+  'El estrógeno alto dispara el pico de LH, y la LH es la que ordena soltar los óvulos.'],
+ ['Una marrana monta a sus compañeras pero no se deja montar. ¿Qué hace?',
+  [['La sirve de inmediato',false],['La marca y la vuelve a revisar: está en proestro',true],['La descarta del lote',false],['La separa por agresiva',false]],
+  'Montar a otras es proestro. El signo que autoriza el servicio es que ella se deje montar y se quede quieta.'],
+ ['¿Por qué no se insemina en el instante exacto en que se detecta el celo?',
+  [['Porque hay que esperar a que coma',false],['Porque la ovulación ocurre después del inicio del celo',true],['Porque el semen necesita reposar',false],['Porque el catéter se coloca mejor más tarde',false]],
+  'El espermatozoide tiene que estar esperando arriba cuando bajen los óvulos. Por eso el momento se calcula desde el inicio del celo.'],
+ ['Mientras la progesterona esté alta, la marrana…',
+  [['Entra en celo cada 21 días igual',false],['No vuelve a entrar en celo',true],['Ovula dos veces',false],['Pierde la gestación',false]],
+  'La progesterona bloquea la aparición de un nuevo celo. Por eso una marrana gestante no repite.'],
+ ['Los embriones se implantan…',
+  [['El mismo día de la fecundación',false],['Varios días después, tras repartirse en los cuernos uterinos',true],['Solo si la marrana es multípara',false],['Después del primer mes y medio',false]],
+  'Pasan días sueltos repartiéndose antes de implantarse. Ese período es el más delicado.'],
+ ['Un reagrupamiento con peleas a los pocos días del servicio puede…',
+  [['No tener ningún efecto',false],['Provocar pérdida de embriones que nadie ve',true],['Adelantar el parto',false],['Aumentar la camada',false]],
+  'Antes de la implantación, el estrés cuesta embriones. No hay sangrado ni aborto visible: aparece después como camada chica o repetición.'],
+ ['¿Por qué el calor de RD afecta tres cosas a la vez en reproducción?',
+  [['Porque daña el semen en el tanque',false],['Porque apaga los signos de celo, afecta la supervivencia embrionaria y alarga el destete-celo',true],['Porque reduce el tamaño del útero',false],['Porque adelanta la pubertad',false]],
+  'Son los tres pilares del curso y el calor los toca por el mismo lado.'],
+ ['La marrana lactando normalmente no entra en celo porque…',
+  [['Está débil',false],['El estímulo del amamantamiento mantiene frenado el ciclo',true],['Tiene el útero ocupado',false],['No hay verraco cerca',false]],
+  'Al destetar se quita ese freno, y ahí empieza a correr el intervalo destete-celo.'],
+ ['Una secreción vulvar con pus y mal olor…',
+  [['Es signo normal de celo fuerte',false],['No es celo: es un problema que se consulta con el veterinario',true],['Indica que hay que servir de inmediato',false],['Significa que ya ovuló',false]],
+  'La secreción de celo es clara. Con pus o mal olor se registra y se consulta; no se sirve.']
+],
+2:[
+ ['¿Por qué anotar la HORA de detección del celo y no solo la fecha?',
+  [['Para saber quién trabajó ese día',false],['Porque entre la mañana y la tarde hay diferencia suficiente para cambiar el momento del servicio',true],['Por exigencia sanitaria',false],['Para calcular la edad de la marrana',false]],
+  'Diez horas de diferencia caen justo en el rango donde se decide si el espermatozoide llega a tiempo.'],
+ ['Sin fecha de servicio registrada, usted NO puede saber…',
+  [['El peso de la marrana',false],['Si repitió a los 21 o a los 30 días',true],['La raza',false],['El número de tetas',false]],
+  'Y esas dos repeticiones significan problemas completamente distintos: una es fallo de fecundación y la otra sugiere pérdida embrionaria.'],
+ ['La ficha de cubrición se organiza…',
+  [['Una fila por marrana',false],['Una fila por cada servicio',true],['Una fila por mes',false],['Una fila por parto',false]],
+  'Una marrana puede tener varios servicios, en el mismo celo o en celos distintos. La unidad es el servicio.'],
+ ['Registrar solo los servicios que salieron bien es…',
+  [['Buena práctica para no desanimarse',false],['Como medir la puntería contando solo los aciertos',true],['Lo que recomienda el manual',false],['Necesario para el certificado',false]],
+  'Un registro incompleto da confianza falsa. Se anotan todos.'],
+ ['El manejo por bandas sirve sobre todo para…',
+  [['Ahorrar alimento',false],['Concentrar destetes, celos y partos para organizar el trabajo y las parideras',true],['Aumentar el tamaño de la camada',false],['Evitar el uso de verraco',false]],
+  'A cambio exige más planificación y más animales. No es mejor ni peor: depende del tamaño.'],
+ ['¿Cuándo se calcula la fecha probable de parto?',
+  [['Cuando la marrana se ve gorda',false],['En el momento del servicio, y se anota en la ficha',true],['Un mes antes del parto',false],['Nunca: se espera y ya',false]],
+  'Anotarla en el momento le da semanas de anticipación para preparar la paridera.'],
+ ['Un registro donde un mes se anota el primer servicio y otro mes el último…',
+  [['Da igual, el promedio compensa',false],['Es peor que no tener registro, porque los datos no son comparables',true],['Es el método recomendado',false],['Solo afecta a granjas grandes',false]],
+  'La consistencia del criterio es lo que hace comparables los números entre lotes.'],
+ ['El motivo de descarte se registra para…',
+  [['Cumplir con el comprador',false],['Saber por qué se va el hato y calcular la tasa de descarte',true],['Justificar el gasto de alimento',false],['Nada, es opcional',false]],
+  'Sin motivo registrado, la tasa de descarte es un número sin lectura.'],
+ ['Una granja de 10 marranas, ¿necesita sistema digital?',
+  [['Sí, obligatoriamente',false],['No: una libreta bien llevada le sirve, lo importante es la consistencia',true],['Solo si tiene verraco',false],['Solo si vende a frigorífico',false]],
+  'Lo que decide no es el soporte, es que se anote en el momento y siempre igual.'],
+ ['La revisión semanal de la ficha sirve para encontrar…',
+  [['Errores de suma',false],['Servicios sin diagnóstico, celos sin servicio y partos sin registrar',true],['Marranas enfermas',false],['El precio del alimento',false]],
+  'Media hora por semana evita descubrir los huecos al cierre del trimestre.']
+],
+3:[
+ ['El signo que autoriza a servir es…',
+  [['La vulva hinchada',false],['El reflejo de inmovilidad',true],['Que monte a otras',false],['La vocalización',false]],
+  'Los demás signos acompañan y avisan; el que decide es que se quede quieta al presionarle el lomo.'],
+ ['Una marrana con la vulva perfecta y muy enrojecida…',
+  [['Está en el mejor momento para servir',false],['Puede estar en proestro o incluso ya pasando: hay que confirmar con inmovilidad',true],['Está gestante',false],['Tiene una infección',false]],
+  'La vulva cambia antes del celo. Cuando se ve perfecta puede ser temprano o tarde.'],
+ ['¿Por qué no conviene revisar celos a la hora de dar comida?',
+  [['Porque ensucia el comedero',false],['Porque la marrana está pendiente del alimento y los signos se apagan',true],['Porque el verraco no come',false],['Porque es más difícil marcar',false]],
+  'La detección necesita la atención del animal puesta en el macho, no en el comedero.'],
+ ['Una sola revisión al día produce…',
+  [['Ahorro de tiempo sin costo',false],['Celos que empiezan y terminan sin ser detectados',true],['Mejor expresión del celo',false],['Menos repeticiones',false]],
+  'Un celo que arranca justo después de su pasada no se detecta hasta 24 horas más tarde.'],
+ ['El verraco en la detección sirve para…',
+  [['Cubrir a las marranas',false],['Hacer que los signos se expresen mucho más claramente',true],['Calmar el lote',false],['Reemplazar la inseminación',false]],
+  'Su olor, sonido y contacto amplifican la respuesta. Sin él usted lee señales a medio volumen.'],
+ ['En los meses más calientes usted debería…',
+  [['Revisar a mediodía, que hay más luz',false],['Revisar en las horas frescas y con más cuidado, porque el celo se expresa más corto',true],['Dejar de revisar hasta que baje el calor',false],['Servir a todas por si acaso',false]],
+  'El calor acorta y apaga la expresión. Temprano en la mañana y al caer la tarde es cuando mejor se ve.'],
+ ['Si las marranas que SÍ se detectan quedan gestantes con normalidad, pero muchas «no aparecen»…',
+  [['El hato tiene un problema sanitario',false],['El problema huele a detección, no al animal',true],['Hay que cambiar el semen',false],['Hay que descartar el lote',false]],
+  'Son dos problemas distintos y se corrigen al revés. Primero se descarta el de detección.'],
+ ['Cambiar de persona responsable de la detección cada semana…',
+  [['Es buena práctica para que todos aprendan',false],['Hace que los datos dejen de ser comparables, porque cada quien detecta distinto',true],['No tiene efecto',false],['Mejora la tasa de parto',false]],
+  'La consistencia del observador es parte de la calidad del dato.'],
+ ['No revisar a las marranas ya servidas provoca…',
+  [['Ahorro de trabajo sin consecuencia',false],['Repeticiones que se descubren dos meses tarde',true],['Más partos',false],['Menos días no productivos',false]],
+  'Una repetición no detectada a tiempo son semanas de una marrana vacía comiendo.'],
+ ['Usted encuentra un celo dudoso: signos débiles, no se planta firme. ¿Qué hace?',
+  [['La sirve igual, por si acaso',false],['La marca, la lleva al verraco y la vuelve a revisar en unas horas',true],['La descarta del programa',false],['Espera al próximo ciclo sin anotar nada',false]],
+  'Confirmar con verraco y re-revisar cuesta minutos; servir a destiempo cuesta un ciclo.']
+]
+};
+
+/* ---------------- calculadoras ----------------
+   Mismo componente visual que el curso 2 (clases .nx-cx*) pero con
+   su propio estado, para no mezclar los datos de los dos cursos. */
+var RPGRANJA_DEF = {
+  servicio:'', destete:'', celo:'',
+  marranas:20, serviciosPorMarrana:2, dosisPorServicio:1, diasServicio:7, margen:10,
+  servidas:0, gestantes:0, paridas:0, repitieron:0
+};
+var RPGRANJA = {};
+(function(){
+  for(var k in RPGRANJA_DEF) RPGRANJA[k] = RPGRANJA_DEF[k];
+  try{
+    var g = JSON.parse(localStorage.getItem('rp_granja') || '{}');
+    for(var j in g) if(RPGRANJA_DEF.hasOwnProperty(j)) RPGRANJA[j] = g[j];
+  }catch(e){}
+})();
+function rpGuardarGranja(){ try{ localStorage.setItem('rp_granja', JSON.stringify(RPGRANJA)); }catch(e){} }
+function rpSet(campo, valor){
+  if(!RPGRANJA_DEF.hasOwnProperty(campo)) return;
+  RPGRANJA[campo] = (typeof RPGRANJA_DEF[campo] === 'string') ? valor : (parseFloat(valor) || 0);
+  rpGuardarGranja();
+  for(var id in RPCX){ if(document.getElementById('rpcxo-' + id)) rpCxPinta(id); }
+}
+
+var RPCX = {};
+
+function rpCalc(id){
+  var def = RPCX[id]; if(!def) return '';
+  var campos = (def.campos || []).map(function(c, i){
+    var v = RPGRANJA[c.k];
+    return '<label class="nx-cx-c"><span class="nx-cx-p">Paso ' + (i + 1) + '</span>' +
+      '<span class="nx-cx-e">' + esc(c.et) + '</span><span class="nx-cx-w">' +
+      '<input type="' + (c.tipo || 'number') + '" ' + (c.tipo === 'date' ? '' : 'inputmode="decimal" step="' + (c.paso || 'any') + '" ') +
+      'value="' + (v == null ? '' : v) + '" oninput="rpSet(\'' + c.k + '\',this.value)">' +
+      '<i>' + esc(c.u || '') + '</i></span>' +
+      (c.ayuda ? '<span class="nx-cx-a">' + c.ayuda + '</span>' : '') + '</label>';
+  }).join('');
+  return '<div class="nx-cx" id="rpcx-' + id + '">' +
+    '<div class="nx-cx-h"><b>' + esc(def.titulo) + '</b>' + (def.que ? '<p>' + def.que + '</p>' : '') + '</div>' +
+    (def.formula ? '<div class="nx-cx-f"><span>La fórmula</span><code>' + esc(def.formula) + '</code></div>' : '') +
+    '<div class="nx-cx-in">' + campos + '</div>' +
+    '<div class="nx-cx-out" id="rpcxo-' + id + '"></div></div>';
+}
+
+function rpCxPinta(id){
+  var def = RPCX[id], out = document.getElementById('rpcxo-' + id);
+  if(!def || !out) return;
+  var g = RPGRANJA;
+  var avisos = def.valida ? (def.valida(g) || []) : [];
+  if(avisos.length){
+    out.innerHTML = avisos.map(function(a){ return '<div class="nx-cx-av">⚠️ ' + a + '</div>'; }).join('');
+    return;
+  }
+  var r = def.calcula(g);
+  var extra = (r.extra || []).map(function(e){
+    return '<div><b>' + e.v + '</b><span>' + esc(e.et) + '</span></div>';
+  }).join('');
+  var pasos = def.pasos ? def.pasos(g, r) : [];
+  out.innerHTML =
+    '<div class="nx-cx-r"><span class="nx-cx-rk">Resultado</span><b>' + r.valor + '</b>' +
+    (r.unidad ? '<span class="nx-cx-ru">' + esc(r.unidad) + '</span>' : '') + '</div>' +
+    (extra ? '<div class="nx-cx-g">' + extra + '</div>' : '') +
+    (pasos.length ? '<details class="nx-cx-d" open><summary>¿Cómo se calculó?</summary><ol>' +
+      pasos.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ol></details>' : '') +
+    (def.significa ? '<div class="nx-cx-s"><b>¿Qué significa este resultado?</b><p>' + def.significa(g, r) + '</p></div>' : '') +
+    (def.nota ? '<div class="nx-cx-n">' + def.nota + '</div>' : '') +
+    (def.revisa ? '<div class="nx-cx-v"><b>¿Qué revisar?</b><ul>' +
+      def.revisa.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul></div>' : '');
+}
+
+/* --- 1 · fecha probable de parto --- */
+RPCX.parto = {
+  id:'parto',
+  titulo:'Calculadora de fecha probable de parto',
+  que:'Le dice alrededor de qué día va a parir esa marrana, para que la paridera esté lista y no la esté buscando a última hora.',
+  formula:'Fecha de parto ≈ fecha de servicio + 114 días (3 meses, 3 semanas y 3 días)',
+  campos:[{k:'servicio', et:'Fecha del servicio', u:'', tipo:'date'}],
+  valida:function(g){ return g.servicio ? [] : ['Escoja la fecha del servicio.']; },
+  calcula:function(g){
+    var d = new Date(g.servicio + 'T12:00:00');
+    if(isNaN(d)) return {valor:'—', unidad:'fecha no válida'};
+    var f = function(dias){
+      var x = new Date(d.getTime() + dias * 86400000);
+      return x.toLocaleDateString('es-DO', {day:'2-digit', month:'long', year:'numeric'});
+    };
+    return { valor:f(114), unidad:'fecha estimada de parto',
+      extra:[{et:'Ventana probable (112 a 116 días)', v:f(112) + ' → ' + f(116)},
+             {et:'Preparar la paridera', v:f(107)},
+             {et:'Revisar gestación por retorno', v:f(21)}]};
+  },
+  pasos:function(g, r){
+    return ['Servicio: <b>' + new Date(g.servicio + 'T12:00:00').toLocaleDateString('es-DO', {day:'2-digit', month:'long', year:'numeric'}) + '</b>',
+            'Se le suman <b>114 días</b>, que es la regla de «3 meses, 3 semanas y 3 días»',
+            'Fecha estimada: <b>' + r.valor + '</b>'];
+  },
+  significa:function(){
+    return 'Es una <b>fecha estimada, no una garantía</b>. La gestación tiene variabilidad biológica y los partos caen normalmente dentro de una ventana de varios días. Úsela para <b>planificar</b> —cuándo trasladar a maternidad, cuándo tener la paridera limpia y lista— no para preocuparse si el parto no cae el día exacto.';
+  },
+  nota:'La duración de la gestación puede variar según genética, número de parto, tamaño de camada y condiciones de manejo. Si un parto se sale mucho de la ventana, anótelo y consúltelo.',
+  revisa:['Que la fecha de servicio anotada sea la del servicio, no la de detección del celo.',
+          'Si sirvió dos veces en el mismo celo, use la que su granja tome como criterio — pero use siempre el mismo.',
+          'Marque en un calendario visible la semana de parto, no solo el día.']
+};
+
+/* colocar la calculadora dentro de su módulo */
+(function rpColocarCalc(){
+  if(typeof RPMOD === 'undefined') return;
+  var m2 = RPMOD[1];
+  if(m2 && !m2.sec.some(function(s){ return s.k === 'rpcalc' && s.id === 'parto'; })){
+    m2.sec.push({k:'rpcalc', id:'parto', t:'Calcule la fecha de parto de su próxima marrana'});
+  }
+})();
+
+/* nxSeccion aprende a pintar las calculadoras del curso 3 */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecRP = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'rpcalc'){
+      var cuerpo = rpCalc(s.id);
+      if(!cuerpo) return '';
+      return '<section class="nx-b nx-full"><h3 class="rv" style="color:' + (mod && mod.ac ? mod.ac : 'var(--green)') + '">' +
+        esc(s.t || '') + '</h3><div class="rv">' + cuerpo + '</div></section>';
+    }
+    return _nxSecRP.apply(this, arguments);
+  };
+}
+
+/* al pintar un módulo del curso 3, llenar los resultados */
+(function(){
+  if(typeof window.rpPinta !== 'function') return;
+  var _rp = window.rpPinta;
+  window.rpPinta = function(){
+    var r = _rp.apply(this, arguments);
+    try{ setTimeout(function(){ for(var id in RPCX){ if(document.getElementById('rpcxo-' + id)) rpCxPinta(id); } }, 20); }catch(e){}
+    return r;
+  };
+})();
+
+/* ---------------- registro en el panel de gestión ---------------- */
+(function rpRegistrar(){
+  if(typeof window.COURSES === 'undefined') return;
+  if(window.COURSES.reproduccion) return;
+  window.COURSES.reproduccion = {
+    id:'reproduccion', icon:'🐖', label:'Reproducción',
+    name:'Reproducción porcina: celo, inseminación y manejo de marranas',
+    hasFormulas:false, sellsSeparately:true,
+    modules: function(){
+      return (typeof RPMOD !== 'undefined') ? RPMOD.map(function(m){
+        return {n:m.n, num:m.num, title:m.t, ac:m.ac};
+      }) : [];
+    },
+    get n(){ return (typeof RPMOD !== 'undefined') ? RPMOD.length : 0; },
+    rec: function(uid, n){
+      if(typeof cloudRec === 'function'){ var c = cloudRec(uid, n, 'reproduccion'); if(c) return c; }
+      try{ return JSON.parse(localStorage.getItem('rp::' + uid + '::exam_m' + n)); }catch(e){ return null; }
+    },
+    passed: function(uid, n){ var r = this.rec(uid, n); return !!(r && r.passed); },
+    count: function(uid){
+      var c = 0, ms = this.modules();
+      for(var i = 0; i < ms.length; i++) if(this.passed(uid, ms[i].n)) c++;
+      return c;
+    },
+    quiz: function(n){ return (typeof RPQUIZ !== 'undefined' && RPQUIZ[n]) || []; },
+    get cfg(){ return {passing:(typeof RPPASS !== 'undefined' ? RPPASS : 80),
+                       gating:(typeof RPGATE !== 'undefined' ? !!RPGATE : true)}; },
+    setCfg: function(p){
+      if(p.passing != null && typeof rpSetPass === 'function') rpSetPass(p.passing);
+      if(p.gating  != null && typeof rpSetGate === 'function') rpSetGate(p.gating);
+    },
+    published: function(){ return (typeof RPPUB !== 'undefined') ? !!RPPUB : false; },
+    enrolled: function(s){
+      return s && s.status !== 'borrado' && (typeof RPACCESO !== 'undefined') && !!RPACCESO[s.id];
+    },
+    certLabel:'violeta · ' + ((typeof RPMOD !== 'undefined') ? RPMOD.length : 0) + '/' + ((typeof RPMOD !== 'undefined') ? RPMOD.length : 0)
+  };
+})();
+
+/* ---------------- exámenes ciegos para el curso 3 ----------------
+   El bloque de exámenes ciegos se carga ANTES que este curso, así
+   que no puede envolver rpExamen/rpEnviar. Se engancha aquí usando
+   los mismos ayudantes, con sus firmas reales: exDesarmar recibe
+   HTML en texto y devuelve HTML, y exTapar devuelve los fallos. */
+if(typeof exDesarmar === 'function' && typeof window.rpExamen === 'function'){
+  var _rpEx = window.rpExamen;
+  window.rpExamen = function(id){
+    var h = _rpEx.apply(this, arguments);
+    if(!h) return h;
+    return exDesarmar(h, 'reproduccion', id, '.nx-q', 'data-c', '.nx-fb');
+  };
+}
+if(typeof exArmar === 'function' && typeof window.rpEnviar === 'function'){
+  var _rpEnv = window.rpEnviar;
+  window.rpEnviar = function(id){
+    var ex = document.getElementById('rpex-' + id);
+    if(!ex) return _rpEnv.apply(this, arguments);
+    var qs = [].slice.call(ex.querySelectorAll('.nx-q'));
+    if(!qs.every(function(q){ return q.querySelector('.nx-opt.sel'); })){
+      if(typeof toast === 'function') toast('Responda todas las preguntas', '✍️');
+      return;
+    }
+    /* la clave vuelve solo durante la llamada que califica */
+    exArmar(ex, 'reproduccion', id, '.nx-q', 'data-c', '.nx-fb');
+    var r = _rpEnv.apply(this, arguments);
+    var fallos = exTapar(ex, 'reproduccion', id, '.nx-q', 'data-c', '.nx-opt', '.nx-fb', 'ok', 'bad');
+    var rec = (typeof rpRec === 'function' && rpRec(id)) || {};
+    if(typeof exResumen === 'function'){
+      exResumen(ex, 'reproduccion', id, fallos, qs.length,
+        rec.last != null ? rec.last : 0, (rec.last || 0) >= RPPASS, rec.attempts || 1);
+    }
+    return r;
+  };
+}
+
+/* el índice de repaso: exIndice no conoce este curso, así que se
+   le enseña a leer RPMOD igual que lee NXMOD */
+if(typeof window.exIndice === 'function'){
+  var _exIdx = window.exIndice;
+  window.exIndice = function(curso, mod){
+    if(curso !== 'reproduccion') return _exIdx.apply(this, arguments);
+    var k = 'reproduccion|' + mod;
+    if(typeof EXIDX !== 'undefined' && EXIDX[k]) return EXIDX[k];
+    var secs = [];
+    try{
+      var m = RPMOD[mod - 1];
+      if(m){
+        var n = 1;   /* la lámina 1 es la de objetivos */
+        secs = m.sec.map(function(s){
+          var pinta = true;
+          try{ var h = nxSeccion(s, m); pinta = !!(h && h.indexOf('<section') >= 0); }catch(e){}
+          if(!pinta) return null;
+          n++;
+          var t = s.t || null;
+          if(!t || (typeof EXNOSIRVE !== 'undefined' && EXNOSIRVE.test(t))) return null;
+          var txt = (typeof exPlano === 'function') ? exPlano([t, s.p, s.items, s.rows, s.cap]) : t;
+          return {n:n, t:t, w:exNorm(txt)};
+        }).filter(Boolean);
+        secs.totalDom = n + 1;   /* + el examen */
+      }
+    }catch(e){ secs = []; }
+    if(typeof EXIDX !== 'undefined') EXIDX[k] = secs;
+    return secs;
+  };
+}
+
+/* y que el botón "Repasar" sepa abrir este curso */
+if(typeof window.exRepasar === 'function'){
+  var _exRep = window.exRepasar;
+  window.exRepasar = function(curso, mod, sec){
+    if(curso !== 'reproduccion') return _exRep.apply(this, arguments);
+    if(!document.getElementById('rpOv')) openReproduccion();
+    var yaEstoy = (typeof RPCUR !== 'undefined' && RPCUR === mod && document.querySelector('#rpMain .nx-b'));
+    if(!yaEstoy) rpIr(mod);
+    if(sec > 0 && typeof exPaginar === 'function'){
+      if(RPLECCION) exPaginar(function(i){ rpMostrarSeccion(i); },
+        function(){ return document.querySelectorAll('#rpMain .nx-b'); }, sec);
+      else if(typeof exLlevar === 'function')
+        exLlevar(function(){ return document.querySelectorAll('#rpMain .nx-b'); }, sec);
+    }
+  };
+}
+
+/* el nombre del módulo en el resumen del examen: exModNombre solo
+   conoce los dos primeros cursos, y sin esto el curso 3 mostraba
+   el nombre del módulo del curso 1 */
+if(typeof window.exModNombre === 'function'){
+  var _exNom = window.exModNombre;
+  window.exModNombre = function(curso, mod){
+    if(curso === 'reproduccion'){
+      try{ var m = RPMOD[mod - 1]; return m ? m.t : ('Módulo ' + mod); }catch(e){ return 'Módulo ' + mod; }
+    }
+    return _exNom.apply(this, arguments);
+  };
+}
+
+</script>
+
+
 </body>
 </html>
