@@ -15967,7 +15967,51 @@ if(typeof window.nxSeccion === 'function'){
   };
 }
 
+/* ============================================================
+   FOTOS DE FONDO · mismo sistema que el curso 2
+   ============================================================ */
+var RPFONDOS = ['rp-b-camada', 'rp-b-paridera', 'rp-b-lechon', 'rp-b-lactancia'];
+var RPFOTOOK = {};
+
+function rpFondos(){
+  var wrap = document.querySelector('#rpMain .nx-wrap');
+  if(!wrap) return;
+  var secs = wrap.querySelectorAll('section.nx-b');
+  [].forEach.call(secs, function(sec, i){
+    if(sec.dataset.rpFondo) return;
+    sec.dataset.rpFondo = '1';
+    var f = 'images/' + RPFONDOS[(i + RPCUR) % RPFONDOS.length] + '.jpg';
+    if(RPFOTOOK[f]){ sec.style.setProperty('--fondo', 'url("' + f + '")'); sec.classList.add('nx-fondo'); return; }
+    var img = new Image();
+    img.onload = function(){
+      RPFOTOOK[f] = true;
+      sec.style.setProperty('--fondo', 'url("' + f + '")');
+      sec.classList.add('nx-fondo');
+    };
+    img.onerror = function(){ /* sin foto, la lámina se queda lisa */ };
+    img.src = f;
+  });
+}
+
+/* marcar el modo lección para que herede el ancho y el centrado del curso 2 */
+function rpMarcarLeccion(){
+  var o = document.getElementById('rpOv');
+  if(o) o.classList.toggle('nx-leccion', !!RPLECCION);
+}
+
+(function(){
+  if(typeof window.rpPinta !== 'function') return;
+  var _rp = window.rpPinta;
+  window.rpPinta = function(){
+    var r = _rp.apply(this, arguments);
+    try{ setTimeout(function(){ rpFondos(); rpMarcarLeccion(); }, 12); }catch(e){}
+    try{ setTimeout(function(){ rpFondos(); rpMarcarLeccion(); }, 140); }catch(e){}
+    return r;
+  };
+})();
+
 </script>
+
 
 
 
