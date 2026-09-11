@@ -11786,7 +11786,7 @@ html[data-theme="dark"] .nx-b.nx-fondo::before{opacity:.17}
   .nx-b.nx-fondo::before{inset:-18px -22px;border-radius:20px}
 }
 @media(max-width:820px){
-  .nx-ov.nx-leccion .nx-ctl{bottom:88px}
+  .nx-ov.nx-leccion .nx-ctl{bottom:108px}
 }
 
 </style>
@@ -12009,6 +12009,7 @@ if(typeof window.nxMostrarSeccion === 'function'){
 try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 
 </script>
+
 
 
 
@@ -16010,7 +16011,154 @@ function rpMarcarLeccion(){
   };
 })();
 
+
+/* ============================================================
+   CURSO 3 · ejercicios por niveles
+   Nivel 1 directo · 2 varios datos · 3 problema de granja ·
+   4 decisión (sin respuesta única: hay que justificar).
+   Usa el mismo componente y las mismas clases del curso 2.
+   ============================================================ */
+
+var RPEJ = {
+1:[
+ ['¿Qué hormona hace crecer los folículos en el ovario?',
+  '<b>La FSH.</b> Y mientras esos folículos crecen, producen el estrógeno que le da a usted todos los signos visibles.'],
+ ['Ordene lo que pasa: pico de LH · estrógeno alto · ovulación · folículos que crecen.',
+  'Folículos que crecen → estrógeno alto → pico de LH → ovulación. Ese orden es toda la lógica del momento del servicio.'],
+ ['Una marrana lleva tres semanas servida y no ha vuelto a mostrar celo. ¿Qué hormona está mandando y qué le dice eso?',
+  'Manda la <b>progesterona</b>, producida por los cuerpos lúteos. Mientras esté alta no hay celo. Es una señal favorable, pero <b>no es un diagnóstico de gestación</b>: pudo haber repetido sin que se detectara.'],
+ ['Va a reagrupar marranas y tiene dos opciones: hacerlo a los dos días del servicio o a los veinte. ¿Cuál escoge y por qué?',
+  'No hay una respuesta única, pero el razonamiento sí: los embriones son más vulnerables <b>antes de implantarse</b>. Reagrupar muy pronto —antes de que pase ese período— o bastante después es preferible a hacerlo en el medio. Justifique con qué días caen en su sistema y consúltelo con su técnico.']
+],
+2:[
+ ['Sirvió el 10 de enero. ¿Alrededor de qué fecha va a parir?',
+  'Sume <b>114 días</b>: alrededor del 4 de mayo. Use la calculadora del módulo. Y recuerde que es una ventana, no un día exacto.'],
+ ['Detectó celo el martes a las 7:00 a. m. y sirvió ese mismo día. En la ficha, ¿qué tres datos mínimos anota?',
+  '<b>Fecha y hora de detección, fecha y hora del servicio, e identificación de la dosis.</b> Sin la hora de detección no puede evaluar después si el momento fue el correcto.'],
+ ['Tiene 14 marranas y una sola paridera libre en las próximas tres semanas. ¿Cómo usa la ficha para no quedarse corto?',
+  'Calcule la fecha probable de parto de <b>todas</b> las servidas y ordénelas. Así ve con semanas de anticipación cuántas van a coincidir y puede adelantar el destete o conseguir espacio. Ese es el valor de anotar la fecha el día del servicio.'],
+ ['Su granja de 18 marranas no lleva ningún registro. Puede empezar por bandas o por servicio continuo. ¿Qué escoge?',
+  'Con 18 marranas, <b>servicio continuo</b> suele ser lo razonable: las bandas exigen más animales y más planificación. Pero lo que decide de verdad es cuántas parideras tiene y cuánta gente. Justifique con esos dos números, no con la teoría.']
+],
+3:[
+ ['¿Cuál es el único signo que autoriza a servir?',
+  'El <b>reflejo de inmovilidad</b>: se queda quieta y firme al presionarle el lomo, preferiblemente con el verraco presente.'],
+ ['Revisa una vez al día, a las 6 de la tarde, junto con la comida. Nombre dos errores.',
+  '<b>Uno:</b> una sola revisión deja escapar celos que empiezan y terminan entre pasadas. <b>Dos:</b> a la hora de comer la marrana está pendiente del comedero y los signos se apagan.'],
+ ['En agosto detecta la mitad de celos que en enero, con el mismo hato y la misma gente. ¿Qué revisa primero?',
+  'El <b>horario de observación</b>, no el hato. El calor acorta y apaga la expresión del celo. Mueva las revisiones a las horas frescas antes de sospechar un problema sanitario.'],
+ ['Solo tiene tiempo para una mejora este mes: comprar un verraco detector, o pasar de una a dos revisiones diarias. ¿Cuál?',
+  'Las dos cosas suben la detección y no hay respuesta universal. Argumente con su situación: si ya tiene macho, la segunda revisión suele rendir más y no cuesta dinero; si no tiene macho, está leyendo señales a medio volumen. Lo que no vale es dejar las dos para después.']
+],
+4:[
+ ['¿Desde qué momento se cuenta para decidir el servicio?',
+  'Desde el <b>inicio del celo</b>, no desde que usted lo detectó. Si revisa poco, ese inicio le queda en una ventana amplia.'],
+ ['Revisa a las 7 a. m. y a las 5 p. m. Encuentra una marrana en celo en la revisión de la tarde. ¿Qué sabe y qué no sabe?',
+  'Sabe que el celo empezó <b>entre las 7 a. m. y las 5 p. m.</b> No sabe en qué momento de esas diez horas. Decida ubicándola en el medio de esa ventana y aplique el protocolo de su granja.'],
+ ['Una primeriza y una multípara entran en celo el mismo día a la misma hora. ¿Las maneja igual?',
+  'No necesariamente: las primerizas suelen tener celos <b>más cortos</b>, así que el margen es más estrecho. Si su granja las maneja igual y las repeticiones se concentran en primerizas, ahí tiene la explicación.'],
+ ['Detecta celo a las 5 p. m. de un viernes y el equipo no trabaja el sábado. ¿Qué hace?',
+  'No hay respuesta cómoda, y esa es la lección: esto se resuelve <b>antes</b>, organizando la cobertura de fines de semana o ajustando el calendario de destetes. Justifique su decisión y, sobre todo, anote el caso: si se repite, el problema es de planificación, no de esa marrana.']
+],
+5:[
+ ['Va a servir 20 marranas, con 2 servicios cada una y 1 dosis por servicio. ¿Cuántas dosis pide con 10 % de margen?',
+  '20 × 2 × 1 = 40, más 10 % = <b>44 dosis</b>. Use la calculadora del módulo.'],
+ ['Las dosis llegaron a las 8 a. m. y entraron al conservador a las 2 p. m. ¿Qué anota y qué hace?',
+  'Anote <b>la hora de llegada, la temperatura de recepción y el lote</b>. Lo que se dañó por temperatura no se recupera; lo único que le queda es saber a qué marranas se usó ese lote por si después aparecen repeticiones.'],
+ ['Tres de los últimos ocho servicios tuvieron reflujo visible, y los tres los hizo la misma persona. ¿Qué concluye?',
+  'Es <b>técnica</b>, no producto. El patrón señala a quién ejecuta. Se corrige entrenando: estimulación previa, posición del catéter y ritmo de administración.'],
+ ['Le ofrecen dosis más baratas de un proveedor nuevo que no le da la hoja de conservación. ¿Compra?',
+  'Argumente. Sin saber temperatura de conservación y plazo de uso, usted no puede manejar esas dosis correctamente, y el ahorro por dosis es pequeño comparado con un ciclo perdido. Si decide probar, hágalo con un grupo pequeño y <b>con el lote bien registrado</b>.']
+],
+6:[
+ ['¿En qué momento de la gestación son más vulnerables los embriones?',
+  '<b>Antes de implantarse</b>, mientras andan sueltos repartiéndose en los cuernos uterinos.'],
+ ['Una marrana quedó gestante pero parió una camada notablemente chica. Nombre dos causas posibles de manejo.',
+  '<b>Estrés en los días vulnerables</b> —reagrupamiento, peleas, traslados— y <b>calor</b>. Las dos hacen perder embriones sin dejar ninguna señal en el momento.'],
+ ['Sus camadas de los servicios de julio y agosto salen más chicas todos los años. ¿Qué hace este año?',
+  'Trate el calor como un factor de manejo: sombra real sobre gestación, movimiento de aire, agua fresca y abundante, y mover el manejo pesado a las horas frescas. Y <b>anótelo</b>, para comparar el año que viene con este.'],
+ ['Tiene que reagrupar por espacio y solo puede hacerlo en la semana siguiente al servicio. ¿Qué decide?',
+  'No hay salida perfecta. Opciones: agrupar lo antes posible tras el servicio, agruparlas por tamaño para reducir peleas, dar espacio y comederos suficientes, o buscar espacio alternativo. Escoja y justifique — y anote qué hizo para poder evaluarlo en el parto.']
+],
+7:[
+ ['¿Cuál es el método de diagnóstico que no cuesta nada?',
+  'El <b>retorno al celo</b>: revisar celos a las marranas ya servidas en la fecha del siguiente ciclo.'],
+ ['Una marrana servida no repitió. ¿Puede darla por gestante?',
+  'No con seguridad. «No repitió» es un dato <b>débil</b>: puede estar gestante, o puede haber repetido sin que nadie lo viera. Confirme.'],
+ ['Tiene 45 marranas y no tiene ecógrafo. ¿Cómo monta un diagnóstico razonable?',
+  'Retorno al celo como rutina —revisión diaria a las servidas en la fecha esperada— más <b>ecografía contratada por visita</b> para confirmar en bloque. No hace falta comprar equipo.'],
+ ['Le ofrecen un ecógrafo de segunda mano a buen precio, pero nadie en la granja sabe usarlo. ¿Lo compra?',
+  'Argumente. Un equipo sin operador entrenado da falsos positivos y falsos negativos, y los dos cuestan. Si lo compra, el costo real incluye la <b>capacitación y la práctica</b>. Si no puede asumir eso ahora, el servicio contratado resuelve mejor.']
+],
+8:[
+ ['Una marrana repite en la fecha esperada del siguiente ciclo. ¿Qué sugiere?',
+  'Que <b>no hubo fecundación</b>. Se mira momento del servicio, manejo de la dosis y técnica.'],
+ ['Otra repite bastante más tarde de lo esperado. ¿En qué se diferencia del caso anterior?',
+  'Sugiere que <b>sí hubo fecundación y se perdió</b>. Se mira estrés, calor, manejo en los días vulnerables y posible causa sanitaria. Son problemas distintos con soluciones distintas.'],
+ ['De 30 servidas, 12 repitieron, casi todas en la misma quincena. ¿Por dónde empieza?',
+  'Por lo que <b>tienen en común</b>: el lote de semen de esa quincena, quién inseminó, qué temperatura hizo, y si cambió algo del manejo. Doce a la vez no es mala suerte.'],
+ ['Aparecen tres abortos en dos semanas. Un vecino le recomienda un antibiótico que a él le funcionó. ¿Qué hace?',
+  '<b>No medica.</b> Tres abortos en dos semanas es una urgencia sanitaria que se investiga profesionalmente. Lo que a usted le toca es registrar y conservar todo —fechas, tiempo de gestación, número de fetos, qué comieron, qué pasó esos días— y llamar al veterinario con esos datos.']
+],
+9:[
+ ['Destetó el 2 de marzo y detectó celo el 7. ¿Cuál es el intervalo?',
+  '<b>5 días.</b> Y son 5 días no productivos de esa marrana.'],
+ ['De 12 destetadas, 10 volvieron pronto y 2 tardaron mucho. ¿Qué le dice el promedio?',
+  'Poco. El promedio <b>esconde</b> a las dos que se salieron, que son justamente el problema. Mire la distribución, no solo la media.'],
+ ['En un año, una marrana estuvo 228 días gestante y 48 lactando. ¿Cuántos días no productivos tuvo?',
+  '365 − 228 − 48 = <b>89 días</b>. Con un costo diario de RD$ 120 y un hato de 20, eso son RD$ 213.600 al año. Use las dos calculadoras del módulo.'],
+ ['Puede acortar la lactancia para subir camadas por año, o trabajar en bajar el intervalo. ¿Qué prioriza?',
+  'Argumente. Acortar la lactancia sube el número aritméticamente, pero tiene consecuencias en el lechón y en la marrana, y <b>es una decisión técnica que debe validar su veterinario</b>. Bajar el intervalo depende de condición corporal, agua, calor y estímulo — cosas que usted controla sin efectos secundarios.']
+],
+10:[
+ ['De 25 servidas, 20 quedaron gestantes. ¿Cuál es la tasa de concepción?',
+  '20 ÷ 25 × 100 = <b>80,0 %</b>.'],
+ ['De esas 25 servidas, 18 parieron. ¿Cuál es la tasa de parto y qué dice la distancia con la anterior?',
+  '18 ÷ 25 = <b>72,0 %</b>. La diferencia de 8 puntos con la concepción es lo que se perdió <b>después</b> de confirmar: pérdidas durante la gestación.'],
+ ['Su hato de 20 marranas tuvo 9 entradas y 8 salidas en el año, casi todas por no quedar gestantes. ¿Qué está pasando?',
+  'Tasa de reemplazo del 45 %. Si se van por fallas reproductivas, usted está <b>pagando primerizas para tapar un problema de manejo</b>. La solución está en los módulos 03, 04 y 08, no en comprar más animales.'],
+ ['Tiene RD$ 25.000 para invertir este trimestre. Puede comprar un verraco detector, pagar ecografías, o contratar ayuda para revisar celos dos veces al día. ¿Qué escoge?',
+  'No hay respuesta correcta sin sus números. El camino para decidirlo sí: calcule sus días no productivos, póngales precio con la calculadora del módulo 09, y estime cuántos días recortaría cada opción. Después compare contra los RD$ 25.000. <b>Esa comparación es la respuesta</b>, y es distinta en cada granja.']
+]
+};
+
+function rpEjercicios(mod){
+  var e = RPEJ[mod];
+  if(!e) return '';
+  var niv = ['Nivel 1 · cálculo directo', 'Nivel 2 · varios datos',
+             'Nivel 3 · problema de granja', 'Nivel 4 · decisión'];
+  return '<section class="nx-b nx-full"><h3 class="rv">Ejercicios de este módulo</h3>' +
+  '<p class="nx-cap rv">Van de menos a más. El cuarto no tiene una sola respuesta correcta: hay que <b>decidir y justificar</b> con los datos de su granja.</p>' +
+  '<div class="nx-ej rv">' + e.map(function(x, i){
+    return '<div class="nx-ej-i nx-ej-' + (i + 1) + '">' +
+      '<span class="nx-ej-n">' + niv[i] + '</span>' +
+      '<p class="nx-ej-p">' + x[0] + '</p>' +
+      '<details class="nx-ej-r"><summary>Ver cómo se resuelve</summary><p>' + x[1] + '</p></details>' +
+    '</div>';
+  }).join('') + '</div></section>';
+}
+
+(function rpColocarEj(){
+  if(typeof RPMOD === 'undefined') return;
+  RPMOD.forEach(function(m){
+    if(!RPEJ[m.n]) return;
+    if(m.sec.some(function(s){ return s.k === 'rpejer'; })) return;
+    /* van al final, después de los casos y antes del examen */
+    m.sec.push({k:'rpejer', n:m.n, t:'Ejercicios de este módulo'});
+  });
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecEj = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'rpejer') return rpEjercicios(s.n);
+    return _nxSecEj.apply(this, arguments);
+  };
+}
+
 </script>
+
+
 
 
 
