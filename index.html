@@ -13858,6 +13858,41 @@ if(typeof window.nxSeccion === 'function'){
 .cs-c.cs-c3::before{background:linear-gradient(90deg,#5B3FA8,#8E5FD4)}
 .cs-c.cs-c3:hover{border-color:#7A4FC0}
 
+/* ===== figuras dentro del contenido ===== */
+.rp-fig{margin:0;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--panel)}
+.rp-fig img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;
+  max-height:clamp(190px,38vh,430px)}
+.rp-fig figcaption{padding:14px 18px 16px}
+.rp-fig figcaption b{display:block;font-family:var(--display);font-size:16px;font-weight:700;
+  color:var(--text);line-height:1.3;margin-bottom:5px}
+.rp-fig figcaption span{display:block;font-size:14px;line-height:1.6;color:var(--text-2)}
+
+/* ===== esquema del aparato reproductor ===== */
+.rp-esq{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:18px 16px 4px}
+.rp-esq svg{display:block;width:100%;height:auto;color:var(--text-2)}
+.rp-cuerno{stroke:color-mix(in srgb,#C77DA8 70%,var(--panel))}
+.rp-ovi{stroke:color-mix(in srgb,#C77DA8 45%,var(--panel))}
+.rp-utero,.rp-vagina{fill:color-mix(in srgb,#C77DA8 32%,var(--panel));stroke:#A85C8A}
+.rp-cervix{fill:color-mix(in srgb,#8E5FD4 30%,var(--panel));stroke:#7A4FC0}
+.rp-plieg{stroke:#7A4FC0;opacity:.75}
+.rp-vulva{fill:color-mix(in srgb,#C77DA8 48%,var(--panel));stroke:#A85C8A}
+.rp-ovario{fill:color-mix(in srgb,#E0A526 34%,var(--panel));stroke:#B5811A}
+.rp-fol{fill:#E0A526}
+.rp-rot line{stroke:var(--border);stroke-width:1.5}
+.rp-rot text{fill:var(--text);font-family:var(--body);font-size:15px;font-weight:600}
+.rp-rot .rp-sub{fill:var(--muted);font-size:12.5px;font-weight:400}
+.rp-esq-pie{margin:12px 2px 14px;font-size:13.5px;line-height:1.6;color:var(--text-2)}
+.rp-esq-pie b{color:var(--text)}
+
+/* ===== fechas en dia / mes / ano ===== */
+.rp-fecha-g{display:grid;grid-template-columns:1fr 1.6fr 1.1fr;gap:7px}
+.rp-fecha-g input,.rp-fecha-g select{min-width:0;font-family:var(--mono);font-size:15px;color:var(--text);
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 9px}
+.rp-fecha-g select{font-family:var(--body);font-size:14px}
+.rp-fecha-g input:focus,.rp-fecha-g select:focus{outline:none;border-color:var(--green)}
+@media(max-width:420px){ .rp-fecha-g{grid-template-columns:1fr 1fr;gap:6px}
+  .rp-fecha-g select{grid-column:1 / -1;order:-1} }
+
 </style>
 <script>
 /* ============================================================
@@ -15433,7 +15468,7 @@ rpTasa('concepcion', {
           'Que estén contadas TODAS las servidas, no solo las que salieron bien.']
 });
 
-rpTasa('parto', {
+rpTasa('tasaparto', {
   titulo:'Tasa de parto', que:'De las servidas, qué proporción llegó efectivamente a parir. Es más exigente que la de concepción, porque incluye las pérdidas durante la gestación.',
   formula:'Tasa de parto = paridas ÷ servidas × 100',
   a:'servidas', b:'paridas', etA:'Marranas servidas', etB:'Marranas que parieron',
@@ -15519,7 +15554,7 @@ RPCX.servicios = {
   };
   poner(9,  'intervalo',  'Calcule el intervalo destete-celo de su marrana');
   poner(10, 'concepcion', 'Su tasa de concepción');
-  poner(10, 'parto',      'Su tasa de parto');
+  poner(10, 'tasaparto',  'Su tasa de parto');
   poner(10, 'repeticion', 'Su tasa de repetición');
   poner(10, 'servicios',  'Sus servicios por gestación');
 })();
@@ -16250,7 +16285,399 @@ if(typeof window.nxPublicar === 'function'){
   };
 }
 
+
+/* ============================================================
+   CURSO 3 · figuras dentro del contenido
+   ------------------------------------------------------------
+   Fotos con pie que enseñan algo, no de adorno. Y un esquema del
+   aparato reproductor dibujado en SVG: una foto de anatomía real
+   no ayuda al productor, un dibujo con las cuatro estructuras
+   rotuladas sí.
+   ============================================================ */
+
+function rpFoto(s){
+  return '<section class="nx-b nx-full"><figure class="rp-fig rv">' +
+    '<img src="images/' + s.f + '.jpg" alt="" loading="lazy" ' +
+    'onerror="this.closest(\'.rp-fig\').remove()">' +
+    '<figcaption><b>' + esc(s.t || '') + '</b>' + (s.p ? '<span>' + s.p + '</span>' : '') + '</figcaption>' +
+  '</figure></section>';
+}
+
+/* ---------- el esquema del aparato reproductor ---------- */
+function rpEsquema(){
+  return '<section class="nx-b nx-full"><h3 class="rv">El aparato reproductor de la marrana, por dentro</h3>' +
+  '<p class="nx-cap rv">No hace falta memorizar nombres. Lo que hay que retener es <b>qué hace cada parte</b>, porque de ahí sale cada decisión de manejo.</p>' +
+  '<div class="rp-esq rv">' +
+  '<svg viewBox="0 0 900 420" role="img" aria-label="Esquema del aparato reproductor de la cerda: ovarios, oviductos, cuernos uterinos, cuerpo del útero, cérvix, vagina y vulva">' +
+    '<defs><marker id="rpFlecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">' +
+      '<path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>' +
+
+    /* cuerno izquierdo */
+    '<path class="rp-cuerno" d="M250,120 C300,60 400,70 450,130 C500,190 560,180 610,140" fill="none" stroke-width="26" stroke-linecap="round"/>' +
+    /* cuerno derecho */
+    '<path class="rp-cuerno" d="M250,300 C300,360 400,350 450,290 C500,230 560,240 610,280" fill="none" stroke-width="26" stroke-linecap="round"/>' +
+    /* cuerpo del útero */
+    '<path class="rp-utero" d="M610,140 C660,180 660,240 610,280 L660,280 C700,240 700,180 660,140 Z" stroke-width="2"/>' +
+    '<rect class="rp-utero" x="655" y="180" width="52" height="60" rx="10" stroke-width="2"/>' +
+    /* cérvix */
+    '<rect class="rp-cervix" x="707" y="188" width="58" height="44" rx="8" stroke-width="2"/>' +
+    '<path class="rp-plieg" d="M718,192 L718,228 M730,192 L730,228 M742,192 L742,228 M754,192 L754,228" stroke-width="3" stroke-linecap="round"/>' +
+    /* vagina y vulva */
+    '<rect class="rp-vagina" x="765" y="196" width="62" height="28" rx="10" stroke-width="2"/>' +
+    '<path class="rp-vulva" d="M827,196 C848,196 856,205 856,210 C856,215 848,224 827,224 Z" stroke-width="2"/>' +
+    /* ovarios */
+    '<ellipse class="rp-ovario" cx="243" cy="118" rx="27" ry="20" stroke-width="2"/>' +
+    '<ellipse class="rp-ovario" cx="243" cy="302" rx="27" ry="20" stroke-width="2"/>' +
+    '<circle class="rp-fol" cx="235" cy="113" r="5"/><circle class="rp-fol" cx="250" cy="122" r="6"/>' +
+    '<circle class="rp-fol" cx="239" cy="126" r="4"/>' +
+    '<circle class="rp-fol" cx="235" cy="297" r="5"/><circle class="rp-fol" cx="250" cy="306" r="6"/>' +
+    '<circle class="rp-fol" cx="239" cy="310" r="4"/>' +
+    /* oviducto: el tramo fino junto al ovario */
+    '<path class="rp-ovi" d="M268,120 C285,110 300,112 312,122" fill="none" stroke-width="7" stroke-linecap="round"/>' +
+    '<path class="rp-ovi" d="M268,300 C285,310 300,308 312,298" fill="none" stroke-width="7" stroke-linecap="round"/>' +
+
+    /* rótulos */
+    '<g class="rp-rot">' +
+      '<line x1="243" y1="92" x2="243" y2="58" marker-end="url(#rpFlecha)"/>' +
+      '<text x="243" y="46" text-anchor="middle">Ovarios</text>' +
+      '<text x="243" y="30" text-anchor="middle" class="rp-sub">aquí maduran varios óvulos</text>' +
+
+      '<line x1="300" y1="330" x2="300" y2="372" marker-end="url(#rpFlecha)"/>' +
+      '<text x="300" y="392" text-anchor="middle">Oviducto</text>' +
+      '<text x="300" y="408" text-anchor="middle" class="rp-sub">aquí ocurre la fecundación</text>' +
+
+      '<line x1="450" y1="104" x2="450" y2="62" marker-end="url(#rpFlecha)"/>' +
+      '<text x="450" y="50" text-anchor="middle">Cuernos uterinos</text>' +
+      '<text x="450" y="34" text-anchor="middle" class="rp-sub">los embriones se reparten y se implantan</text>' +
+
+      '<line x1="680" y1="252" x2="680" y2="330" marker-end="url(#rpFlecha)"/>' +
+      '<text x="672" y="350" text-anchor="middle">Cuerpo del útero</text>' +
+
+      '<line x1="736" y1="186" x2="736" y2="120" marker-end="url(#rpFlecha)"/>' +
+      '<text x="760" y="108" text-anchor="middle">Cérvix</text>' +
+      '<text x="892" y="92" text-anchor="end" class="rp-sub">con pliegues: aquí encaja el catéter</text>' +
+
+      '<line x1="820" y1="230" x2="820" y2="300" marker-end="url(#rpFlecha)"/>' +
+      /* anclados al final: centrados se salian del lienzo y el texto se cortaba */
+      '<text x="892" y="320" text-anchor="end">Vagina y vulva</text>' +
+      '<text x="892" y="336" text-anchor="end" class="rp-sub">lo que cambia en el celo</text>' +
+    '</g>' +
+  '</svg>' +
+  '<p class="rp-esq-pie">Esquema simplificado, no está a escala. Lo importante es el recorrido: <b>el óvulo baja del ovario al oviducto, y el espermatozoide tiene que estar esperándolo ahí arriba</b>. Todo lo que se decide en el módulo 04 sale de ese encuentro.</p>' +
+  '</div></section>';
+}
+
+/* ---------- dónde va cada figura ---------- */
+var RPFIG = [
+  {m:1, i:2, k:'rpesq'},
+  {m:1, i:9, f:'rp-f-asomada', t:'Lo que usted ve por fuera es el resultado de lo de adentro',
+   p:'La vulva cambia, la marrana se pone inquieta y se planta. Nada de eso lo decide usted: lo decide el estrógeno que están produciendo los folículos en ese momento.'},
+  {m:3, i:4, f:'rp-f-hocicos', t:'Contacto valla a valla con el verraco',
+   p:'El olor, el sonido y el contacto del macho hacen que los signos se expresen mucho más claramente. Una marrana dudosa en el corral, frente al verraco define.'},
+  {m:3, i:8, f:'rp-f-reja', t:'Revisar es acercarse, no pasar de largo',
+   p:'El reflejo de inmovilidad necesita unos segundos de presión firme, no un empujón al pasar por el pasillo. Por eso la rutina se hace con tiempo y siempre a la misma hora.'},
+  {m:5, i:5, f:'rp-f-curiosos', t:'Después de inseminar, tranquilidad',
+   p:'Mover, mezclar o asustar a la marrana justo después del servicio hace perder parte de lo que sí entró. El manejo posterior es parte del procedimiento, no un extra.'},
+  {m:6, i:3, f:'rp-f-camada-nave', t:'Lo que se juega en gestación se ve en el parto',
+   p:'Esta camada se decidió meses antes, en los días en que los embriones todavía no se habían implantado. Peleas, calor y traslados en ese período se pagan en número de lechones.'},
+  {m:9, i:2, f:'rp-f-lactancia', t:'Cómo sale de la lactancia decide cuándo vuelve al celo',
+   p:'Una marrana que crió muchos lechones y comió poco sale sin reservas, y eso alarga el intervalo destete-celo. El termómetro de este módulo empieza aquí.'},
+  {m:9, i:6, f:'rp-f-durmiendo', t:'Los días después del destete',
+   p:'Agua fresca, comida disponible y contacto con el verraco. Lo que pase en estos días decide si el celo vuelve pronto o si usted acumula días no productivos.'},
+  {m:10, i:4, f:'rp-f-tetas', t:'La línea de tetas y el tamaño de la camada',
+   p:'Cuente las tetas funcionales de sus marranas y compárelas con el número de nacidos vivos. Si nacen más lechones que tetas útiles, el problema del destete empieza el mismo día del parto.'},
+  {m:10, i:8, f:'rp-f-durmiendo', t:'El registro se cierra aquí',
+   p:'Nacidos totales, vivos, muertos y momificados. Cada uno de esos cuatro números apunta a un momento distinto del ciclo, y de ellos salen todos los indicadores del curso.'}
+];
+
+(function rpColocarFiguras(){
+  if(typeof RPMOD === 'undefined') return;
+  /* de atrás hacia delante para que los índices no se corran */
+  RPFIG.slice().sort(function(a, b){ return b.i - a.i; }).forEach(function(x){
+    var m = RPMOD.find(function(q){ return q.n === x.m; });
+    if(!m) return;
+    var clave = x.k || ('rpfoto:' + x.f + ':' + x.t);
+    if(m.sec.some(function(s){ return s.__fig === clave; })) return;
+    var s = x.k === 'rpesq' ? {k:'rpesq'} : {k:'rpfoto', f:x.f, t:x.t, p:x.p};
+    s.__fig = clave;
+    var pos = Math.min(x.i, m.sec.length);
+    m.sec.splice(pos, 0, s);
+  });
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecFoto = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'rpfoto') return rpFoto(s);
+    if(s && s.k === 'rpesq')  return rpEsquema();
+    return _nxSecFoto.apply(this, arguments);
+  };
+}
+
+/* ============================================================
+   FECHAS EN DÍA / MES / AÑO
+   ------------------------------------------------------------
+   El <input type="date"> muestra el formato del navegador, que en
+   muchos equipos es mm/dd/aaaa y confunde. Se cambia por tres
+   casillas: día, mes y año. Sin ambigüedad y más fácil en celular.
+   Por dentro se sigue guardando aaaa-mm-dd, que es lo que calculan
+   las fórmulas.
+   ============================================================ */
+var RPMESES = ['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function rpPartes(v){
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+  return m ? {a:m[1], m:m[2], d:m[3]} : {a:'', m:'', d:''};
+}
+function rpSetParte(campo, parte, valor){
+  /* se leen las partes YA ESCRITAS, no la fecha guardada: mientras la
+     fecha está incompleta no hay fecha guardada, y releerla de ahí
+     borraba lo que el usuario acababa de escribir */
+  var p = rpPartesVistas(campo);
+  p[parte] = valor;
+  var d = parseInt(p.d, 10), mm = parseInt(p.m, 10), a = parseInt(p.a, 10);
+  if(d >= 1 && d <= 31 && mm >= 1 && mm <= 12 && a >= 1900 && a <= 2200){
+    var f = new Date(a, mm - 1, d);
+    /* si el día no existe en ese mes (31 de febrero), la fecha se corre: se descarta */
+    if(f.getFullYear() === a && f.getMonth() === mm - 1 && f.getDate() === d){
+      RPGRANJA[campo] = a + '-' + ('0' + mm).slice(-2) + '-' + ('0' + d).slice(-2);
+    }else{
+      RPGRANJA[campo] = '';
+    }
+  }else{
+    RPGRANJA[campo] = '';
+  }
+  RPGRANJA['_' + campo] = p;   /* lo escrito, aunque todavía esté incompleto */
+  rpGuardarGranja();
+  for(var i in RPCX){ if(document.getElementById('rpcxo-' + i)) rpCxPinta(i); }
+}
+function rpPartesVistas(campo){
+  var g = RPGRANJA['_' + campo];
+  if(g && (g.d || g.m || g.a)) return g;
+  return rpPartes(RPGRANJA[campo]);
+}
+
+function rpCampoFecha(c){
+  var p = rpPartesVistas(c.k);
+  var meses = RPMESES.map(function(n, i){
+    var v = ('0' + (i + 1)).slice(-2);
+    return '<option value="' + v + '"' + (p.m === v ? ' selected' : '') + '>' + v + ' · ' + n + '</option>';
+  }).join('');
+  return '<label class="nx-cx-c rp-fecha">' +
+    '<span class="nx-cx-p">Paso ' + c.paso1 + '</span>' +
+    '<span class="nx-cx-e">' + esc(c.et) + '</span>' +
+    '<span class="rp-fecha-g">' +
+      '<input type="number" inputmode="numeric" min="1" max="31" placeholder="Día" aria-label="Día" ' +
+        'value="' + p.d + '" oninput="rpSetParte(\'' + c.k + '\',\'d\',this.value)">' +
+      '<select aria-label="Mes" onchange="rpSetParte(\'' + c.k + '\',\'m\',this.value)">' +
+        '<option value=""' + (p.m ? '' : ' selected') + '>Mes</option>' + meses + '</select>' +
+      '<input type="number" inputmode="numeric" min="1900" max="2200" placeholder="Año" aria-label="Año" ' +
+        'value="' + p.a + '" oninput="rpSetParte(\'' + c.k + '\',\'a\',this.value)">' +
+    '</span>' +
+    '<span class="nx-cx-a">Día / mes / año' + (c.ayuda ? ' · ' + c.ayuda : '') + '</span>' +
+  '</label>';
+}
+
+/* rpCalc aprende el tipo 'fecha' */
+if(typeof window.rpCalc === 'function'){
+  var _rpCalcF = window.rpCalc;
+  window.rpCalc = function(id){
+    var def = RPCX[id];
+    if(!def || !(def.campos || []).some(function(c){ return c.tipo === 'date' || c.tipo === 'fecha'; })){
+      return _rpCalcF.apply(this, arguments);
+    }
+    var campos = def.campos.map(function(c, i){
+      if(c.tipo === 'date' || c.tipo === 'fecha'){
+        var cc = {}; for(var k in c) cc[k] = c[k];
+        cc.paso1 = i + 1;
+        return rpCampoFecha(cc);
+      }
+      var v = RPGRANJA[c.k];
+      return '<label class="nx-cx-c"><span class="nx-cx-p">Paso ' + (i + 1) + '</span>' +
+        '<span class="nx-cx-e">' + esc(c.et) + '</span><span class="nx-cx-w">' +
+        '<input type="number" inputmode="decimal" step="' + (c.paso || 'any') + '" ' +
+        'value="' + (v == null ? '' : v) + '" oninput="rpSet(\'' + c.k + '\',this.value)">' +
+        '<i>' + esc(c.u || '') + '</i></span>' +
+        (c.ayuda ? '<span class="nx-cx-a">' + c.ayuda + '</span>' : '') + '</label>';
+    }).join('');
+    return '<div class="nx-cx" id="rpcx-' + id + '">' +
+      '<div class="nx-cx-h"><b>' + esc(def.titulo) + '</b>' + (def.que ? '<p>' + def.que + '</p>' : '') + '</div>' +
+      (def.formula ? '<div class="nx-cx-f"><span>La fórmula</span><code>' + esc(def.formula) + '</code></div>' : '') +
+      '<div class="nx-cx-in">' + campos + '</div>' +
+      '<div class="nx-cx-out" id="rpcxo-' + id + '"></div></div>';
+  };
+}
+
+/* que los campos de fecha del motor acepten la parte guardada */
+(function(){
+  ['servicio', 'destete', 'celo'].forEach(function(k){
+    if(!RPGRANJA_DEF.hasOwnProperty('_' + k)) RPGRANJA_DEF['_' + k] = null;
+  });
+})();
+
+
+/* ============================================================
+   CURSO 3 · gestión de accesos y entrada directa a «Crear cuenta»
+   ============================================================ */
+
+/* ---------- dar y quitar el acceso al curso 3 ---------- */
+window.rpDarAcceso = function(id, v){
+  if(v) RPACCESO[id] = true; else delete RPACCESO[id];
+  rpGuardarAcceso();
+  /* si hay nube, se guarda igual que el de formulación */
+  if(window.SB && typeof SB.from === 'function'){
+    try{
+      SB.from('profiles').update({acceso_reproduccion: !!v}).eq('id', id).then(function(){}, function(){});
+    }catch(e){}
+  }
+  if(typeof toast === 'function') toast(v ? 'Reproducción habilitada' : 'Reproducción bloqueada', v ? '🔓' : '🔒');
+  if(typeof nxAdmin === 'function') try{ nxAdmin(); }catch(e){}
+};
+
+window.rpAccesoTodos = function(v){
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+  if(!alum.length) return;
+  if(!confirm((v ? 'Habilitar' : 'Quitar') + ' el acceso a Reproducción a ' + alum.length + ' estudiante(s)?')) return;
+  alum.forEach(function(a){ if(v) RPACCESO[a.id] = true; else delete RPACCESO[a.id]; });
+  rpGuardarAcceso();
+  if(window.SB && typeof SB.from === 'function'){
+    alum.forEach(function(a){
+      try{ SB.from('profiles').update({acceso_reproduccion: !!v}).eq('id', a.id).then(function(){}, function(){}); }catch(e){}
+    });
+  }
+  if(typeof toast === 'function') toast(v ? 'Habilitado a todos' : 'Quitado a todos', v ? '🔓' : '🔒');
+  if(typeof nxAdmin === 'function') try{ nxAdmin(); }catch(e){}
+};
+
+/* traer los accesos de la nube al arrancar, si hay */
+(function rpTraerAccesos(){
+  setTimeout(function(){
+    if(!window.SB || typeof SB.from !== 'function') return;
+    try{
+      SB.from('profiles').select('id,acceso_reproduccion').then(function(r){
+        if(!r || !r.data) return;
+        r.data.forEach(function(p){ if(p.acceso_reproduccion) RPACCESO[p.id] = true; });
+        rpGuardarAcceso();
+      }, function(){});
+    }catch(e){}
+  }, 2200);
+})();
+
+/* ---------- la columna en la tabla de accesos ----------
+   nxAdmAcceso devuelve HTML; en vez de reescribir la función se le
+   añade la columna trabajando sobre el resultado. Así si usted
+   cambia esa tabla, esto se adapta solo. */
+if(typeof window.nxAdmAcceso === 'function'){
+  var _nxAdmAcceso = window.nxAdmAcceso;
+  window.nxAdmAcceso = function(){
+    var html = _nxAdmAcceso.apply(this, arguments);
+    try{ return rpColumnaAcceso(html); }catch(e){ return html; }
+  };
+}
+
+function rpColumnaAcceso(html){
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  var tabla = d.querySelector('table.nx-t');
+  if(!tabla) return html;
+
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+
+  /* encabezado: antes de la última columna (Avance) */
+  var ths = tabla.querySelectorAll('thead th');
+  if(!ths.length) return html;
+  var th = document.createElement('th');
+  th.innerHTML = '🐖 Reproducción';
+  ths[ths.length - 1].parentNode.insertBefore(th, ths[ths.length - 1]);
+
+  /* una casilla por fila, emparejando por el orden de la lista */
+  var filas = tabla.querySelectorAll('tbody tr');
+  [].forEach.call(filas, function(tr, i){
+    var a = alum[i];
+    if(!a) return;
+    var tds = tr.querySelectorAll('td');
+    if(!tds.length) return;
+    var on = !!RPACCESO[a.id];
+    var td = document.createElement('td');
+    td.innerHTML = '<label class="nxa-sw"><input type="checkbox"' + (on ? ' checked' : '') +
+      ' onchange="rpDarAcceso(\'' + a.id + '\',this.checked)"><span></span>' +
+      '<em>' + (on ? 'Habilitado' : 'Bloqueado') + '</em></label>';
+    tds[tds.length - 1].parentNode.insertBefore(td, tds[tds.length - 1]);
+  });
+
+  /* el resumen de arriba */
+  var res = d.querySelector('.nxa-res');
+  if(res){
+    var conRp = alum.filter(function(a){ return !!RPACCESO[a.id]; }).length;
+    var caja = document.createElement('div');
+    caja.innerHTML = '<b>' + conRp + '</b><span>con el curso de reproducción</span>';
+    res.appendChild(caja);
+  }
+
+  /* la nota y los botones masivos */
+  var notas = d.querySelectorAll('.adm-note');
+  if(notas.length){
+    var n = document.createElement('p');
+    n.className = 'adm-note';
+    n.innerHTML = 'Lo mismo vale para <b>reproducción</b>: se paga aparte y se habilita uno por uno en su columna.';
+    notas[notas.length - 1].parentNode.insertBefore(n, notas[notas.length - 1].nextSibling);
+  }
+  var pie = d.querySelector('div[style*="margin-top:14px"][style*="display:flex"]');
+  if(pie){
+    var b1 = document.createElement('button');
+    b1.className = 'nxa-btn'; b1.style.margin = '0';
+    b1.textContent = 'Habilitar reproducción a todos';
+    b1.setAttribute('onclick', 'rpAccesoTodos(true)');
+    var b2 = document.createElement('button');
+    b2.className = 'nxa-btn'; b2.style.margin = '0';
+    b2.textContent = 'Quitársela a todos';
+    b2.setAttribute('onclick', 'rpAccesoTodos(false)');
+    var span = pie.querySelector('span');
+    if(span){ pie.insertBefore(b1, span); pie.insertBefore(b2, span); }
+    else { pie.appendChild(b1); pie.appendChild(b2); }
+  }
+  return d.innerHTML;
+}
+
+/* ============================================================
+   ENTRADA DIRECTA A «CREAR CUENTA» POR URL
+   ------------------------------------------------------------
+   La app ya abría el formulario de registro con #/crear, #/registro
+   y ?crear=1. Se agregan los nombres que pidió la landing, para que
+   el enlace se pueda escribir de la forma más natural:
+       ?modo=registro   ?registro=1   ?signup=1   ?crear=1
+   Sin ningún parámetro, todo sigue exactamente igual: inicia en
+   «Iniciar sesión».
+   ============================================================ */
+(function rpEntradaRegistro(){
+  var pide = function(){
+    var q = (location.search || '') + '&' + (location.hash || '');
+    return /[?&]modo=registro/i.test(q) ||
+           /[?&]registro=1/i.test(q) ||
+           /[?&]signup=1/i.test(q) ||
+           /[?&]crear=1/i.test(q) ||
+           /#\/(crear|registro)/i.test(location.hash || '');
+  };
+  var abrir = function(){
+    if(!pide()) return;
+    /* solo si no hay sesión iniciada: a quien ya entró no se le cambia nada */
+    if(typeof SESSION !== 'undefined' && SESSION && SESSION.id) return;
+    if(typeof window.toggleRegister === 'function'){
+      try{ window.toggleRegister(true); }catch(e){}
+    }
+  };
+  /* al cargar, y otra vez cuando el login ya está pintado */
+  try{ setTimeout(abrir, 300); }catch(e){}
+  try{ setTimeout(abrir, 1200); }catch(e){}
+  addEventListener('hashchange', function(){ setTimeout(abrir, 60); });
+})();
+
 </script>
+
+
+
+
 
 
 
