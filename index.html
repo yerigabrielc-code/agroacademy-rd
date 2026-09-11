@@ -14735,7 +14735,793 @@ if(typeof window.exModNombre === 'function'){
   };
 }
 
+
+/* ============================================================
+   CURSO 3 · módulos 04 a 07
+   Se agregan a RPMOD para no tener un solo archivo gigante.
+   ============================================================ */
+
+RPMOD.push(
+
+/* ============================= 04 ============================= */
+{n:4, num:'04', ac:'#1F5F8B', t:'Cuándo servir: el criterio, no la hora',
+ sub:'Decidir el momento con cabeza · árbol de decisión y celos difíciles',
+ obj:['Explicar por qué el momento se cuenta desde el inicio del celo y no desde la detección.',
+      'Aplicar un árbol de decisión a celos detectados en distintos horarios.',
+      'Resolver un celo dudoso o de inicio desconocido sin perder el ciclo.'],
+ sec:[
+ {k:'prosa', t:'La pregunta está mal hecha', p:[
+  'Casi todo el mundo pregunta «¿a las cuántas horas se insemina?». Y esa pregunta no tiene una sola respuesta, porque depende de algo que la pregunta no menciona: <b>cuándo empezó el celo</b>, que no es lo mismo que cuándo usted lo vio.',
+  'Si usted revisa una vez al día, un celo que arrancó a las 8 de la noche lo va a detectar a las 7 de la mañana: para usted es «recién detectado», pero el animal lleva once horas. Servirlo como si acabara de empezar es servirlo tarde.',
+  'Por eso este módulo no le va a dar un número para memorizar. Le va a dar el <b>criterio</b>, que es lo único que funciona en granjas distintas con rutinas distintas.']},
+
+ {k:'concepts', t:'Las tres cosas que hay que tener en la cabeza', items:[
+  ['El espermatozoide tiene que llegar antes', 'Necesita tiempo dentro del aparato reproductor para estar listo y esperando cuando bajen los óvulos. Por eso <b>se sirve antes de la ovulación</b>, no después.'],
+  ['El óvulo dura poco', 'Una vez que ovula, la ventana en la que puede ser fecundado es corta. Llegar tarde es tan malo como no llegar.'],
+  ['La ovulación ocurre en la segunda mitad del celo', 'No al principio. De ahí sale toda la lógica: el objetivo es <b>tener espermatozoides esperando en el momento en que ella ovula</b>.']]},
+
+ {k:'alerta', tipo:'warn', ico:'📏', t:'Por qué no hay un número universal',
+  p:'La duración del celo no es igual en todas las marranas ni en todas las granjas: varía con la genética, con el número de parto, con el clima y con el manejo. Las <b>primerizas suelen tener celos más cortos</b> que las multíparas, lo que cambia el momento óptimo. Por eso los protocolos comerciales difieren entre sí y todos pueden estar bien: cada uno está calibrado para un sistema. <b>El protocolo concreto de su granja lo define su veterinario o su técnico</b> con los datos de su hato. Lo que este módulo le da es el razonamiento para entenderlo y aplicarlo.'},
+
+ {k:'pasos', t:'El árbol de decisión: detecté celo, ¿y ahora?', items:[
+  ['¿Confirmó con reflejo de inmovilidad y con verraco presente?', 'Si no, no es un celo confirmado. Confirme primero: servir sobre un signo dudoso es tirar una dosis.'],
+  ['¿Sabe cuándo EMPEZÓ, o solo cuándo lo vio?', 'Si revisa dos veces al día, el inicio está en algún punto entre la revisión anterior y esta. Si revisa una vez, la incertidumbre es de hasta 24 horas.'],
+  ['Ubique el celo en su ventana, no en un reloj', 'Con la incertidumbre que usted tenga, decida si está al principio, a la mitad o al final. Ese es el dato que manda.'],
+  ['Aplique el protocolo de SU granja', 'El que le definió su técnico, con el número de servicios que su granja usa. Lo importante es que sea siempre el mismo criterio.'],
+  ['Vuelva a revisarla al día siguiente', 'Si sigue en celo, puede corresponder otro servicio según su protocolo. Si ya no acepta, el celo terminó.'],
+  ['Anote todo', 'Hora de detección, hora de cada servicio, y si seguía o no en celo al día siguiente. Sin eso no puede evaluar después si el momento fue el correcto.']]},
+
+ {k:'tabla', t:'Cuatro situaciones que se repiten en toda granja',
+  cap:'Lo que cambia no es la hora del reloj: es cuánta incertidumbre tiene usted sobre el inicio.',
+  head:['Situación', 'Lo que hay que pensar', 'Qué hacer'],
+  rows:[
+   ['Celo detectado en la revisión de la mañana, ayer en la tarde no estaba', 'El inicio está en una ventana acotada. Es el caso más cómodo', 'Aplicar el protocolo contando desde el punto medio de esa ventana'],
+   ['Celo detectado en la tarde', 'El inicio pudo ser en la mañana o durante el día', 'Mismo criterio, pero reorganice el día siguiente para no llegar tarde'],
+   ['Celo detectado con una sola revisión diaria', 'Puede llevar hasta 24 horas en celo', 'Considérelo más avanzado de lo que parece. Y suba a dos revisiones'],
+   ['Celo dudoso: se planta a medias', 'Puede ser proestro, o final de celo, o calor apagando los signos', 'No servir todavía. Verraco, marcar, y volver en pocas horas']]},
+
+ {k:'alerta', tipo:'crit', ico:'🚩', t:'El celo que desaparece',
+  p:'Usted detecta celo, decide servir más tarde, y cuando vuelve la marrana ya no acepta. Dos lecturas posibles: <b>el celo era más avanzado de lo que usted creía</b> —y llegó tarde—, o <b>eran signos débiles que no llegaron a celo</b>. Las dos se corrigen igual: revisando más veces al día. Anote el caso: si se repite en varias marranas, el problema es de rutina de observación, no de las marranas.'},
+
+ {k:'prosa', t:'Primerizas y multíparas no se manejan igual', p:[
+  'La primeriza suele tener un celo más corto y a veces menos evidente. Eso significa dos cosas prácticas: <b>se le detecta con más facilidad si se le presta más atención</b>, y el margen para decidir el servicio es más estrecho.',
+  'En granjas donde primerizas y multíparas se manejan exactamente igual, casi siempre son las primerizas las que acumulan las repeticiones. Si sus números muestran eso, no busque enfermedad: revise primero si les está aplicando el mismo criterio de momento a dos grupos que no se comportan igual.']}
+]},
+
+/* ============================= 05 ============================= */
+{n:5, num:'05', ac:'#6B4E9E', t:'Inseminar bien: donde se pierde la gestación',
+ sub:'Calidad de ejecución · manejo del semen · lo que falla y no se ve',
+ obj:['Identificar el punto crítico de cada paso de la inseminación.',
+      'Manejar las dosis desde la recepción hasta el momento del servicio.',
+      'Calcular cuántas dosis necesita su granja para un período.'],
+ sec:[
+ {k:'alerta', tipo:'tip', ico:'📎', t:'Este módulo no repite el procedimiento básico',
+  p:'El procedimiento paso a paso de la inseminación artificial, con fotos, <b>ya está en el curso de Porcicultura Aplicada</b>. Aquí no se vuelve a explicar qué es un catéter ni cómo se sujeta la marrana. Lo que se trabaja aquí es lo otro: <b>por qué una inseminación técnicamente «hecha» termina sin gestación</b>, y qué del manejo del semen lo explica.'},
+
+ {k:'prosa', t:'La inseminación no falla: falla la ejecución', p:[
+  'Cuando una granja tiene inseminaciones que no prenden, casi nunca es porque «la IA no funciona». Es porque en algún punto de la cadena se perdió algo: la dosis se calentó, el catéter no encajó, entró suciedad, se hizo con prisa, o la marrana se sirvió a destiempo.',
+  'Y el problema tiene una característica incómoda: <b>ninguno de esos fallos se ve en el momento</b>. Todo parece haber salido bien. El resultado aparece tres semanas después, cuando la marrana repite, y para entonces nadie recuerda qué pasó ese día. Por eso la ficha del módulo 02 incluye la identificación de la dosis y quién inseminó.']},
+
+ {k:'tabla', t:'Los puntos críticos, paso por paso',
+  cap:'La columna del medio es lo que se pierde cuando ese paso se hace mal.',
+  head:['Paso', 'Qué se pierde si falla', 'Señal de que está fallando'],
+  rows:[
+   ['Recepción de las dosis', 'Todo. Una dosis que llegó mal ya no se recupera', 'Temperatura fuera de rango a la llegada, empaque dañado'],
+   ['Conservación', 'Viabilidad de los espermatozoides', 'Dosis guardadas junto a la comida o a temperatura ambiente'],
+   ['Sacar la dosis en el momento', 'Viabilidad, por cambios bruscos de temperatura', 'Dosis fuera del conservador «esperando» mucho rato'],
+   ['Higiene de la zona', 'Se introduce contaminación al útero', 'Descargas anormales días después'],
+   ['Estimulación previa', 'La marrana no colabora y hay más reflujo', 'Marrana inquieta, catéter que no encaja'],
+   ['Inserción del catéter', 'La dosis no llega donde debe', 'Resistencia anormal, entra demasiado fácil'],
+   ['Ritmo de administración', 'Reflujo: la dosis se devuelve', 'Se ve salir líquido durante o después'],
+   ['Manejo posterior', 'Se pierde parte de lo que sí entró', 'Mover o estresar a la marrana inmediatamente después'],
+   ['Registro', 'La capacidad de saber qué pasó', 'Repeticiones sin explicación posible']]},
+
+ {k:'alerta', tipo:'crit', ico:'💧', t:'El reflujo: cuánto es normal y cuándo preocuparse',
+  p:'Que salga algo de líquido no es automáticamente un fracaso; que salga <b>la mayor parte</b> sí es un problema. Las causas más comunes son prisa al administrar, mala posición del catéter, falta de estimulación y una marrana que no está firme. Si el reflujo aparece <b>siempre con la misma persona</b>, el problema es de técnica y se corrige entrenando, no cambiando de proveedor de semen.'},
+
+ {k:'concepts', t:'Qué hay dentro de una dosis', items:[
+  ['Espermatozoides', 'El número por dosis <b>no es universal</b>: depende del sistema, del tipo de dosis y del protocolo del proveedor. Lo que le corresponde a usted es saber cuál compra y ser consistente.'],
+  ['Diluyente', 'El medio que los mantiene vivos y les da el volumen. Su duración útil depende del tipo de diluyente — otro dato que da el proveedor, no el curso.'],
+  ['Volumen', 'El total de la dosis. Sirve para reconocer si una dosis viene incompleta.'],
+  ['Motilidad y viabilidad', 'Qué proporción se mueve bien. Se evalúa con microscopio: <b>es una comprobación de laboratorio</b>, no algo que se juzgue a ojo.']]},
+
+ {k:'alerta', tipo:'warn', ico:'🌡️', t:'La cadena de frío en clima caliente',
+  p:'El semen porcino refrigerado tiene un rango de conservación estrecho, y tanto pasarse de frío como de calor lo daña. En RD el riesgo grande es el calor: dosis en el carro, en el pasillo, o en un conservador que se abre veinte veces al día. <b>La temperatura exacta, el tiempo máximo de almacenamiento y el manejo del transporte los indica el proveedor del semen</b> — y esa hoja de indicaciones se pega en la pared al lado del conservador, no se guarda en una gaveta.'},
+
+ {k:'pasos', t:'Rutina de recepción y conservación', items:[
+  ['Revise al recibir', 'Temperatura de llegada, integridad del empaque, fecha de colecta y de vencimiento. Si algo no cuadra, se documenta antes de aceptar el lote.'],
+  ['Registre el lote', 'Identificación de las dosis y a qué marranas se van a usar. Si después falla algo, eso es lo que le permite saber el alcance.'],
+  ['Guarde en el conservador y déjelo tranquilo', 'Abrir y cerrar constantemente hace fluctuar la temperatura. Menos aperturas, mejor.'],
+  ['Saque solo lo que va a usar en el momento', 'No saque «todas las del día» al empezar la jornada.'],
+  ['Manipule con suavidad', 'Sin agitar, sin golpes, sin cambios bruscos de temperatura.'],
+  ['Use dentro del plazo que indica el proveedor', 'Y anote en la ficha la identificación de la dosis usada en cada servicio.']]},
+
+ {k:'alerta', tipo:'tip', ico:'🩺', t:'Lo que decide el veterinario',
+  p:'Las cantidades, los tiempos, el número de servicios por celo y cualquier uso de hormonas <b>los define el veterinario o el técnico responsable de su granja</b>, con sus animales y su sistema. Este curso le enseña a ejecutar bien y a detectar cuándo algo va mal; no le indica dosificaciones ni tratamientos.'}
+]},
+
+/* ============================= 06 ============================= */
+{n:6, num:'06', ac:'#2E7D5B', t:'Gestación: lo que decide cuántos lechones nacen',
+ sub:'Los días que definen la camada · calor, estrés y manejo',
+ obj:['Identificar los períodos de la gestación donde el manejo pesa más.',
+      'Reconocer qué prácticas de la granja están costando embriones.',
+      'Adaptar el manejo a los meses de más calor en RD.'],
+ sec:[
+ {k:'prosa', t:'La camada se decide antes de que se note', p:[
+  'Una marrana puede quedar gestante y aun así parir menos lechones de los que podía. Eso no se ve, no se avisa y no deja rastro: simplemente la camada sale más chica.',
+  'La razón es que entre la fecundación y el momento en que los embriones quedan bien instalados hay un período en que son especialmente vulnerables. Lo que pase en la granja durante esos días —una pelea, un traslado, un golpe de calor— se paga en número de lechones.',
+  'Por eso este módulo no habla de alimentar: habla de <b>no molestar</b>. La dieta de gestación se trabaja en el curso de Formulación.']},
+
+ {k:'alerta', tipo:'tip', ico:'📎', t:'La alimentación de la gestante está en el curso 2',
+  p:'Cuánta proteína, cuánta energía y qué fórmula corresponde a una cerda gestante se desarrolla completo en <b>Formulación y Fabricación de Alimentos Balanceados</b>, que trae la fórmula de gestación calculada y la de lactancia. Aquí solo se trata el <b>efecto reproductivo</b>: condición corporal y manejo.'},
+
+ {k:'concepts', t:'Los cuatro enemigos de una camada grande', items:[
+  ['Reagrupar y pelear', 'Mezclar marranas recién servidas provoca peleas y estrés justo en los días peores. Si tiene que agrupar, <b>hágalo lo más pronto posible después del servicio o bastante después</b>, no en el medio.'],
+  ['Calor', 'El estrés térmico afecta la supervivencia embrionaria. Es el factor más difícil de controlar aquí y el que más pesa en los meses calientes.'],
+  ['Falta de agua', 'El agua es el primer limitante de todo. Una marrana que no bebe lo suficiente come menos y se estresa más.'],
+  ['Manejo brusco', 'Traslados innecesarios, golpes, gritos, perros. Cada susto en ese período tiene un precio que aparece en el parto.']]},
+
+ {k:'alerta', tipo:'crit', ico:'🌡️', t:'Los meses calientes: qué vigilar',
+  p:'Si sus camadas salen más chicas justo en los servicios hechos en la temporada caliente, <b>eso no es casualidad y no es genética</b>. Lo que se puede hacer con los medios de una granja de aquí: sombra de verdad sobre el área de gestación, ventilación o movimiento de aire, agua fresca y abundante, mojado en las horas críticas si su sistema lo permite, y <b>mover el manejo pesado a las horas frescas</b>. Qué medidas concretas convienen a su instalación es algo que conviene evaluar con su técnico.'},
+
+ {k:'prosa', t:'Condición corporal: ni flaca ni gorda', p:[
+  'Una marrana que llega al servicio muy flaca tiene menos reservas para sostener la gestación y sale peor de la lactancia siguiente. Una que llega muy gorda tiene partos más difíciles y come menos durante la lactancia, lo que la deja peor todavía.',
+  'La condición corporal se evalúa mirando y tocando —columna, costillas, caderas— y se maneja con el plan de alimentación. Lo importante desde el lado reproductivo es que <b>la condición al servicio condiciona todo el ciclo siguiente</b>, incluido el intervalo destete-celo del módulo 09.']},
+
+ {k:'tabla', t:'Qué hacer y qué no, según el momento',
+  cap:'Referencia práctica de manejo. Los días exactos de cada período los confirma su veterinario según su sistema.',
+  head:['Momento', 'Qué conviene', 'Qué evitar'],
+  rows:[
+   ['Los días siguientes al servicio', 'Tranquilidad, agua, sombra', 'Reagrupar, trasladar, vacunar sin necesidad'],
+   ['Período de implantación', 'Ambiente estable, mínima intervención', 'Peleas, estrés térmico, cambios bruscos de dieta'],
+   ['Gestación media', 'Controlar condición corporal, observar', 'Engordarla de más'],
+   ['Últimas semanas', 'Preparar traslado a maternidad sin prisas', 'Movimientos bruscos y traslados de último momento']]}
+]},
+
+/* ============================= 07 ============================= */
+{n:7, num:'07', ac:'#A9631B', t:'Diagnóstico de gestación',
+ sub:'Saber pronto quién está cargada · qué método le conviene a su granja',
+ obj:['Comparar los métodos de diagnóstico por costo, precisión y momento.',
+      'Usar el retorno al celo como primer diagnóstico, sin equipo.',
+      'Decidir qué método corresponde al tamaño y presupuesto de su granja.'],
+ sec:[
+ {k:'prosa', t:'Cada día de retraso cuesta', p:[
+  'Una marrana que no quedó gestante y nadie lo notó sigue comiendo, sigue ocupando corral y no está produciendo nada. Si usted lo descubre a los 21 días, pierde un ciclo corto. Si lo descubre cuando debía parir, perdió casi cuatro meses.',
+  'El diagnóstico de gestación no es un lujo de granja grande: es la herramienta que convierte una pérdida larga en una corta. Y el primer método no cuesta nada.']},
+
+ {k:'concepts', t:'El retorno al celo: el diagnóstico de los que no tienen equipo', items:[
+  ['Qué es', 'Revisar celos a las marranas ya servidas, en la fecha en que les tocaría volver si no quedaron. Si repite, no quedó.'],
+  ['Qué necesita', 'Nada más que la rutina de detección del módulo 03 y la ficha del módulo 02. Cero inversión.'],
+  ['Qué le dice', 'Un «no» bastante confiable. Un «no repitió» es más débil: puede estar gestante, o puede haber tenido un celo que usted no detectó.'],
+  ['El error clásico', 'Dejar de revisar a las marranas después de servirlas. Es la razón número uno por la que las granjas descubren vacías a destiempo.']]},
+
+ {k:'tabla', t:'Los métodos, comparados',
+  cap:'Referencia orientativa. La precisión real depende del equipo, del operador y del momento en que se aplique.',
+  head:['Método', 'Costo', 'Cuándo se aplica', 'Qué tan seguro es', 'Equipo'],
+  rows:[
+   ['Retorno al celo', 'Cero', 'En la fecha del siguiente ciclo', 'Bueno para descartar; débil para confirmar', 'Ninguno, pero exige rutina'],
+   ['Observación y comportamiento', 'Cero', 'A lo largo de la gestación', 'Orientativo, nunca concluyente', 'Ninguno'],
+   ['Ecografía', 'Inversión en equipo o servicio', 'A partir del momento que indique el fabricante', 'Alto, en manos entrenadas', 'Ecógrafo y operador con práctica'],
+   ['Combinación de retorno + ecografía', 'Media', 'Retorno primero, ecografía para confirmar', 'La mejor relación para una granja mediana', 'Ecógrafo o servicio contratado']]},
+
+ {k:'alerta', tipo:'warn', ico:'🔍', t:'Un diagnóstico negativo no dice por qué',
+  p:'Saber que una marrana no está gestante es el principio, no el final. La pregunta que sigue —<b>¿no quedó, o quedó y la perdió?</b>— se responde con la fecha del retorno y con el registro, no con el ecógrafo. Eso es exactamente lo que se trabaja en el módulo siguiente.'},
+
+ {k:'pasos', t:'Qué hacer según el tamaño de su granja', items:[
+  ['Hasta unas 10–15 marranas', 'Retorno al celo bien hecho. Revisión de celos a las servidas, en la fecha que toca, y anotado. Con eso ya está muy por encima del promedio.'],
+  ['De 20 a 60 marranas', 'Retorno al celo como rutina, más ecografía contratada por visita para confirmar en bloque. No hace falta comprar equipo.'],
+  ['Más de 60 marranas', 'Ecógrafo propio empieza a justificarse, siempre que haya alguien que lo use con regularidad. Un equipo sin operador entrenado no diagnostica nada.'],
+  ['En cualquier tamaño', 'Lo que no se negocia es <b>anotar el resultado en la ficha</b>. Un diagnóstico que no se registra no sirve para calcular nada después.']]},
+
+ {k:'alerta', tipo:'tip', ico:'🩺', t:'La ecografía la interpreta quien sabe',
+  p:'Un ecógrafo en manos sin entrenamiento da falsos positivos y falsos negativos, y las dos cosas cuestan dinero. Si va a incorporarlo, incorpore también la capacitación. Y cualquier hallazgo anormal —líquido, contenido que no corresponde— <b>se consulta con el veterinario</b>, no se interpreta por cuenta propia.'}
+]}
+
+);
+
+/* ---------------- exámenes de los módulos 04 a 07 ---------------- */
+Object.assign(RPQUIZ, {
+4:[
+ ['¿Desde cuándo se cuenta el momento del servicio?',
+  [['Desde que usted detectó el celo',false],['Desde que empezó el celo, que no es lo mismo',true],['Desde el destete',false],['Desde que se hincha la vulva',false]],
+  'Si revisa una vez al día, el animal puede llevar muchas horas en celo cuando usted lo ve.'],
+ ['¿Por qué se sirve ANTES de la ovulación?',
+  [['Para que la marrana se calme',false],['Porque el espermatozoide necesita tiempo para estar listo y esperando',true],['Porque después ya no acepta',false],['Por costumbre',false]],
+  'El objetivo es tener espermatozoides esperando cuando bajen los óvulos.'],
+ ['Las primerizas, comparadas con las multíparas, suelen tener…',
+  [['Celos más largos',false],['Celos más cortos y a veces menos evidentes',true],['Celos idénticos',false],['Dos celos por ciclo',false]],
+  'Por eso el margen para decidir el servicio es más estrecho y acumulan repeticiones si se manejan igual.'],
+ ['Usted revisa una sola vez al día y encuentra una marrana en celo. Debería considerarla…',
+  [['Recién empezando',false],['Más avanzada de lo que parece',true],['Fuera de celo',false],['Con problema hormonal',false]],
+  'La incertidumbre sobre el inicio es de hasta 24 horas. Y conviene subir a dos revisiones.'],
+ ['Un celo dudoso, donde se planta a medias, se resuelve…',
+  [['Sirviendo igual',false],['Con verraco, marcando y volviendo en pocas horas',true],['Descartando la marrana',false],['Esperando al próximo ciclo',false]],
+  'Servir sobre un signo dudoso es tirar una dosis; confirmar cuesta minutos.'],
+ ['Si varias marranas «desaparecen» del celo entre una revisión y otra, el problema es…',
+  [['Del semen',false],['De la rutina de observación',true],['Del alimento',false],['Genético',false]],
+  'Cuando el patrón se repite en varias, es de rutina, no de los animales.'],
+ ['¿Por qué los protocolos comerciales de momento de servicio difieren entre sí?',
+  [['Porque unos están mal',false],['Porque cada uno está calibrado para un sistema, una genética y un manejo',true],['Porque cambian cada año',false],['Porque dependen del precio del semen',false]],
+  'Por eso el protocolo concreto de su granja lo define su veterinario o su técnico.'],
+ ['Lo primero que hay que confirmar antes de servir es…',
+  [['Que coma bien',false],['El reflejo de inmovilidad, con verraco presente',true],['Que la vulva esté roja',false],['Que no esté sucia',false]],
+  'Es el signo que autoriza; los demás avisan.'],
+ ['Después de servir, volver a revisarla al día siguiente sirve para…',
+  [['Nada, ya está servida',false],['Saber si sigue en celo y si corresponde otro servicio según su protocolo',true],['Medir el peso',false],['Confirmar la gestación',false]],
+  'Y para anotar si el celo continuó, dato que después permite evaluar el momento.'],
+ ['Un celo detectado en la tarde obliga sobre todo a…',
+  [['Servir de inmediato siempre',false],['Reorganizar el día siguiente para no llegar tarde',true],['Esperar al otro ciclo',false],['Cambiar de verraco',false]],
+  'El criterio es el mismo; lo que cambia es la logística de su jornada.']
+],
+5:[
+ ['Cuando una granja tiene muchas inseminaciones que no prenden, la causa más probable es…',
+  [['Que la IA no funciona',false],['Que algo de la cadena de ejecución o del manejo del semen está fallando',true],['Que las marranas son viejas',false],['El clima, siempre',false]],
+  'Y el problema es que ninguno de esos fallos se ve en el momento.'],
+ ['Si el reflujo aparece siempre con la misma persona, lo que hay que hacer es…',
+  [['Cambiar de proveedor de semen',false],['Entrenar la técnica de esa persona',true],['Cambiar de catéter de marca',false],['Aumentar la dosis',false]],
+  'El patrón señala técnica, no producto.'],
+ ['Las dosis se deben sacar del conservador…',
+  [['Todas al empezar la jornada',false],['Solo las que se van a usar en el momento',true],['La noche anterior',false],['Cuando haga calor',false]],
+  'Los cambios bruscos de temperatura y la espera fuera dañan la viabilidad.'],
+ ['El número de espermatozoides por dosis…',
+  [['Es siempre el mismo en todo el mundo',false],['Depende del sistema, del tipo de dosis y del proveedor',true],['Lo decide el productor',false],['No importa',false]],
+  'A usted le corresponde saber cuál compra y ser consistente.'],
+ ['La motilidad y la viabilidad del semen se evalúan…',
+  [['A simple vista',false],['Con microscopio: es una comprobación de laboratorio',true],['Por el color',false],['Por el olor',false]],
+  'No es algo que se juzgue a ojo en el galpón.'],
+ ['La temperatura y el tiempo máximo de conservación del semen los indica…',
+  [['Este curso',false],['El proveedor del semen, y esa hoja se pega junto al conservador',true],['El fabricante del catéter',false],['La costumbre de la zona',false]],
+  'Varían según el tipo de diluyente y el sistema.'],
+ ['Registrar la identificación de la dosis usada en cada servicio sirve para…',
+  [['Cumplir un requisito',false],['Saber el alcance si después falla un lote',true],['Calcular el costo',false],['Nada en particular',false]],
+  'Sin eso, una falla de lote es imposible de rastrear.'],
+ ['Mover o estresar a la marrana inmediatamente después de inseminar…',
+  [['No tiene efecto',false],['Puede hacer perder parte de lo que sí entró',true],['Ayuda a que suba la dosis',false],['Mejora la gestación',false]],
+  'El manejo posterior es parte del procedimiento, no un extra.'],
+ ['Una dosis que llegó con la temperatura fuera de rango…',
+  [['Se recupera enfriándola bien',false],['Ya no se recupera: se documenta antes de aceptar el lote',true],['Se usa primero',false],['Se guarda para el final',false]],
+  'Lo que se dañó en el transporte no se arregla en la granja.'],
+ ['El número de servicios por celo y cualquier uso de hormonas los define…',
+  [['El productor según le parezca',false],['El veterinario o técnico responsable de la granja',true],['El vendedor de semen',false],['Este curso',false]],
+  'Este curso enseña a ejecutar bien y a detectar cuándo algo va mal; no indica dosificaciones.']
+],
+6:[
+ ['Una marrana puede quedar gestante y aun así parir menos lechones porque…',
+  [['Es primeriza siempre',false],['Se perdieron embriones en los días vulnerables y nadie lo vio',true],['Comió poco el último mes',false],['El verraco era malo',false]],
+  'No hay aviso ni rastro: simplemente la camada sale más chica.'],
+ ['Reagrupar marranas recién servidas…',
+  [['Es indiferente',false],['Provoca peleas y estrés justo en el peor momento',true],['Mejora el ánimo del lote',false],['Aumenta la camada',false]],
+  'Si hay que agrupar, conviene hacerlo muy pronto tras el servicio o bastante después.'],
+ ['Si las camadas salen más chicas en los servicios de la temporada caliente…',
+  [['Es casualidad',false],['El estrés térmico está afectando la supervivencia embrionaria',true],['Es problema genético',false],['Es falta de verraco',false]],
+  'Y se trabaja con sombra, aire, agua fresca y manejo en horas frescas.'],
+ ['La dieta de la cerda gestante se desarrolla…',
+  [['En este módulo',false],['En el curso de Formulación y Fabricación de Alimentos',true],['En el curso de Porcicultura',false],['En ningún curso',false]],
+  'Aquí solo se trata el efecto reproductivo: condición corporal y manejo.'],
+ ['Una marrana que llega al servicio muy gorda…',
+  [['Pare más lechones',false],['Tiene partos más difíciles y come menos en lactancia',true],['No tiene inconveniente',false],['Entra en celo antes',false]],
+  'Y eso la deja peor para el ciclo siguiente.'],
+ ['El primer limitante del consumo y del bienestar es…',
+  [['La proteína',false],['El agua',true],['La energía',false],['La fibra',false]],
+  'Una marrana que no bebe lo suficiente come menos y se estresa más.'],
+ ['En las últimas semanas de gestación conviene…',
+  [['Trasladar a maternidad a último momento',false],['Preparar el traslado sin prisas',true],['Aumentar los movimientos',false],['Reagrupar',false]],
+  'Los traslados de último momento son estrés evitable.'],
+ ['Este módulo habla sobre todo de…',
+  [['Cómo alimentar',false],['Cómo no molestar',true],['Cómo medicar',false],['Cómo seleccionar',false]],
+  'La alimentación está en el curso 2; aquí pesa el manejo.'],
+ ['La condición corporal al servicio…',
+  [['Solo afecta a ese parto',false],['Condiciona todo el ciclo siguiente, incluido el intervalo destete-celo',true],['No influye',false],['Solo importa en primerizas',false]],
+  'Por eso se maneja antes, no después.'],
+ ['Qué medidas concretas contra el calor convienen a su instalación…',
+  [['Son iguales para toda granja',false],['Conviene evaluarlas con su técnico según su sistema',true],['Las define el comprador',false],['No existen',false]],
+  'Sombra, aire, agua y horario son los ejes; el cómo depende de cada granja.']
+],
+7:[
+ ['Descubrir a los 21 días que una marrana no quedó, en vez de descubrirlo al final…',
+  [['Da lo mismo',false],['Convierte una pérdida larga en una corta',true],['Solo importa en granjas grandes',false],['Perjudica a la marrana',false]],
+  'Sigue comiendo y ocupando corral sin producir nada.'],
+ ['El primer método de diagnóstico, y el que no cuesta nada, es…',
+  [['La ecografía',false],['El retorno al celo',true],['La palpación',false],['El análisis de sangre',false]],
+  'Solo necesita la rutina de detección y la ficha.'],
+ ['Un «no repitió» significa…',
+  [['Que está gestante con seguridad',false],['Algo más débil: puede estar gestante, o puede haber repetido sin que lo detectaran',true],['Que hubo aborto',false],['Que hay que servirla otra vez',false]],
+  'Descartar es más confiable que confirmar con este método.'],
+ ['El error número uno que hace descubrir vacías a destiempo es…',
+  [['No usar ecógrafo',false],['Dejar de revisar celos a las marranas ya servidas',true],['Servir dos veces',false],['Anotar demasiado',false]],
+  'La revisión post-servicio es parte de la rutina, no un extra.'],
+ ['En una granja de 20 a 60 marranas, lo razonable es…',
+  [['Comprar ecógrafo de inmediato',false],['Retorno al celo como rutina y ecografía contratada por visita',true],['No diagnosticar',false],['Diagnosticar solo primerizas',false]],
+  'No hace falta comprar equipo para tener diagnóstico.'],
+ ['Un ecógrafo en manos sin entrenamiento…',
+  [['Funciona igual',false],['Da falsos positivos y falsos negativos, y ambos cuestan',true],['Solo falla en primerizas',false],['No tiene riesgo',false]],
+  'Si se incorpora el equipo, se incorpora también la capacitación.'],
+ ['Un diagnóstico negativo le dice que no está gestante, pero NO le dice…',
+  [['La fecha',false],['Si no quedó o si quedó y la perdió',true],['La identificación',false],['El peso',false]],
+  'Esa pregunta se responde con la fecha del retorno y el registro.'],
+ ['Un diagnóstico que no se registra…',
+  [['Sirve igual',false],['No sirve para calcular nada después',true],['Es mejor que registrarlo mal',false],['Solo afecta al veterinario',false]],
+  'Todo el módulo de indicadores depende de que esté anotado.'],
+ ['Un hallazgo anormal en la ecografía…',
+  [['Se interpreta por cuenta propia',false],['Se consulta con el veterinario',true],['Se ignora',false],['Se trata con antibiótico',false]],
+  'La interpretación clínica no es tarea del productor.'],
+ ['La mejor relación costo-resultado para una granja mediana suele ser…',
+  [['Solo observación',false],['Retorno al celo primero, ecografía para confirmar',true],['Solo ecografía',false],['No diagnosticar',false]],
+  'Combinar lo gratuito con lo preciso en el momento en que cada uno sirve.']
+]
+});
+
+/* ---------------- calculadora de dosis de semen ---------------- */
+RPCX.dosis = {
+  id:'dosis',
+  titulo:'¿Cuántas dosis de semen necesito?',
+  que:'Para que no le falten en medio de una semana de servicios ni le sobren venciéndose en el conservador.',
+  formula:'Dosis = marranas × servicios por marrana × dosis por servicio × (1 + margen)',
+  campos:[
+    {k:'marranas', et:'Marranas a servir en el período', u:'marranas', paso:1},
+    {k:'serviciosPorMarrana', et:'Servicios por marrana', u:'servicios', paso:1,
+     ayuda:'Según el protocolo de su granja. Sea consistente.'},
+    {k:'dosisPorServicio', et:'Dosis por servicio', u:'dosis', paso:1},
+    {k:'diasServicio', et:'Días que dura el período', u:'días', paso:1},
+    {k:'margen', et:'Margen de seguridad', u:'%', paso:1,
+     ayuda:'Para repeticiones, dosis desechadas y celos que aparecen de más.'}
+  ],
+  valida:function(g){
+    var a = [];
+    if(g.marranas <= 0) a.push('Las marranas tienen que ser más de cero.');
+    if(g.serviciosPorMarrana <= 0) a.push('Indique cuántos servicios por marrana usa su granja.');
+    if(g.dosisPorServicio <= 0) a.push('Indique cuántas dosis usa por servicio.');
+    if(g.margen < 0) a.push('El margen no puede ser negativo.');
+    return a;
+  },
+  calcula:function(g){
+    var base = g.marranas * g.serviciosPorMarrana * g.dosisPorServicio;
+    var total = Math.ceil(base * (1 + g.margen / 100));
+    var porDia = g.diasServicio > 0 ? (total / g.diasServicio) : 0;
+    return { valor: String(total), unidad:'dosis para el período',
+      extra:[{et:'Sin margen', v: String(Math.ceil(base)) + ' dosis'},
+             {et:'El margen aporta', v: String(total - Math.ceil(base)) + ' dosis'},
+             {et:'Promedio por día', v: porDia.toFixed(1)},
+             {et:'Dosis por marrana', v: String(g.serviciosPorMarrana * g.dosisPorServicio)}]};
+  },
+  pasos:function(g, r){
+    var base = g.marranas * g.serviciosPorMarrana * g.dosisPorServicio;
+    return ['Servicios totales = ' + g.marranas + ' marranas × ' + g.serviciosPorMarrana + ' servicios = <b>' + (g.marranas * g.serviciosPorMarrana) + '</b>',
+            'Dosis sin margen = ' + (g.marranas * g.serviciosPorMarrana) + ' × ' + g.dosisPorServicio + ' = <b>' + Math.ceil(base) + '</b>',
+            'Con ' + g.margen + ' % de margen = <b>' + r.valor + ' dosis</b>'];
+  },
+  significa:function(g, r){
+    return 'Para servir ' + g.marranas + ' marranas en ' + g.diasServicio + ' días necesita <b>' + r.valor + ' dosis</b>. ' +
+      'El margen no es desperdicio: cubre las que repiten, las que se desechan por manejo y los celos que aparecen fuera de lo previsto. ' +
+      '<b>Pedir justo es quedarse corto</b>, y una marrana en celo sin dosis disponible es un ciclo perdido.';
+  },
+  nota:'Cuántos servicios por celo y cuántas dosis por servicio corresponden a su granja lo define su veterinario o técnico según su sistema. Aquí solo se hace la cuenta con los números que usted ponga.',
+  revisa:['Que el plazo de uso de las dosis cubra el período: pedir para tres semanas no sirve si vencen en una.',
+          'Si su margen histórico se queda corto todos los meses, súbalo — o revise por qué repiten tanto.',
+          'Coordine el pedido con la capacidad de su conservador.']
+};
+
+(function rpColocarCalc2(){
+  if(typeof RPMOD === 'undefined') return;
+  var m5 = RPMOD.find(function(m){ return m.n === 5; });
+  if(m5 && !m5.sec.some(function(s){ return s.k === 'rpcalc' && s.id === 'dosis'; })){
+    m5.sec.push({k:'rpcalc', id:'dosis', t:'Calcule las dosis que necesita su granja'});
+  }
+})();
+
+
+/* ============================================================
+   CURSO 3 · módulos 08 a 10 — los de más valor
+   ============================================================ */
+
+RPMOD.push(
+
+/* ============================= 08 ============================= */
+{n:8, num:'08', ac:'#8E2C2C', t:'Cuando algo falla',
+ sub:'Cuatro árboles de diagnóstico · y dónde termina usted y empieza el veterinario',
+ obj:['Recorrer en orden las causas posibles de cada problema reproductivo.',
+      'Separar un problema real del animal de un problema de observación.',
+      'Saber con qué datos llamar al veterinario para que la consulta sirva.'],
+ sec:[
+ {k:'prosa', t:'Antes de buscar la causa, descarte la más común', p:[
+  'Cuando algo falla en la reproducción, la reacción normal es sospechar del semen, del alimento o de una enfermedad. Y en muchísimos casos la causa es más simple y más incómoda: <b>no se detectó bien, o no se anotó bien</b>.',
+  'Por eso todos los árboles de este módulo empiezan igual: descartando el problema de observación y de registro. No porque el productor sea descuidado, sino porque es lo más barato de revisar y lo que más veces resulta ser.']},
+
+ {k:'pasos', t:'Árbol 1 · «La marrana no entra en celo»', items:[
+  ['¿Está usted seguro de que no entró?', 'Revise cuántas veces al día se observa, a qué hora, y si hay verraco. Un celo no detectado y un celo que no existió se ven igual en la libreta.'],
+  ['¿Cuánto hace que se destetó?', 'Si es poco, puede ser normal. El módulo 09 trabaja qué es esperable y qué no en su granja.'],
+  ['¿Cómo salió de la lactancia?', 'Una marrana que salió muy flaca tarda más. Mire condición corporal, cuánto comió en lactancia y cuántos lechones crió.'],
+  ['¿Hay agua suficiente y fresca?', 'Consumo bajo de agua es consumo bajo de todo, y eso retrasa el retorno al celo.'],
+  ['¿Qué temperatura hizo esas semanas?', 'En temporada caliente el intervalo se alarga y los signos se apagan. Compare con lo que pasó en meses frescos en su propia granja.'],
+  ['¿Tiene contacto con verraco después del destete?', 'El estímulo ayuda a que el celo aparezca y se exprese. Sin macho, usted está esperando a ciegas.'],
+  ['Si todo lo anterior está bien y el problema persiste', '<b>Consulte al veterinario.</b> Puede haber causas que no se resuelven con manejo, y se investigan con historia clínica y exámenes, no a ojo.']]},
+
+ {k:'pasos', t:'Árbol 2 · «Entró en celo pero no quedó gestante»', items:[
+  ['¿El momento del servicio fue el correcto?', 'Revise en la ficha la hora de detección y la del servicio. Si no anotó la hora, este paso no se puede evaluar — y esa es ya una conclusión.'],
+  ['¿Cómo llegó y cómo se manejó la dosis?', 'Temperatura de recepción, conservación, tiempo fuera del conservador, manipulación. Módulo 05.'],
+  ['¿Hubo reflujo?', 'Si la dosis se devolvió, no importa lo demás. Y si el reflujo aparece siempre con la misma persona, es técnica.'],
+  ['¿La higiene fue la correcta?', 'Una contaminación al inseminar puede impedir la gestación sin dar ninguna señal ese día.'],
+  ['¿Qué condición corporal tenía?', 'Muy flaca o muy gorda, las dos cosas juegan en contra.'],
+  ['¿Qué pasó en los días siguientes al servicio?', 'Reagrupamiento, peleas, calor extremo, traslados. Módulo 06.'],
+  ['¿Es un caso aislado o un patrón?', 'Una marrana es una marrana. <b>Varias en el mismo período apuntan a algo común</b>: un lote de dosis, una persona, una semana de calor, un cambio de manejo.'],
+  ['Patrón que no se explica por manejo', '<b>Al veterinario</b>, con las fechas, los lotes de semen y el historial en la mano.']]},
+
+ {k:'tabla', t:'Árbol 3 · «Repite el celo» — lo que dice CUÁNDO repite',
+  cap:'La fecha del retorno es el dato de diagnóstico más barato que existe. Por eso el módulo 02 insiste tanto con el registro.',
+  head:['Cuándo repite', 'Qué sugiere', 'Por dónde empezar a mirar'],
+  rows:[
+   ['En la fecha esperada del siguiente ciclo', 'Lo más probable: <b>no hubo fecundación</b>', 'Momento del servicio, calidad y manejo de la dosis, técnica'],
+   ['Fuera de esa fecha, más tarde', 'Sugiere que <b>hubo fecundación y se perdió</b>', 'Estrés, calor, manejo en los días vulnerables, posible causa sanitaria'],
+   ['No repite pero tampoco pare', 'Puede haber repetido sin que se detectara, o pérdida más tardía', 'Rutina de detección post-servicio y diagnóstico de gestación'],
+   ['Repiten muchas a la vez', 'Algo común a todas', 'Un lote de dosis, una semana, una persona, un cambio de manejo']]},
+
+ {k:'alerta', tipo:'crit', ico:'🩺', t:'Árbol 4 · «Abortó» — aquí usted no diagnostica',
+  p:'Un aborto puede tener causas infecciosas y no infecciosas, y <b>no se distinguen por lo que se ve</b>. Estrés térmico, un golpe, un tóxico en el alimento, una enfermedad: todas pueden dar el mismo cuadro. Lo que a usted le corresponde es <b>registrar y conservar</b>: fecha, tiempo de gestación, número de fetos, aspecto, cuántas marranas afectadas, qué comieron, qué pasó esos días. Y llamar al veterinario. Un aborto aislado se registra y se vigila; <b>varios abortos en un período corto es una urgencia sanitaria</b> y se investiga profesionalmente, con laboratorio si hace falta. Nunca se medica por cuenta propia.'},
+
+ {k:'concepts', t:'Cómo saber si el problema es suyo o del hato', items:[
+  ['Mire la proporción', 'Si las marranas que <b>sí</b> se detectan quedan gestantes con normalidad, pero muchas «no aparecen», el problema es de detección.'],
+  ['Mire el calendario', 'Si los fallos se concentran en unas semanas concretas, busque qué cambió en esas semanas: clima, personal, lote de semen, alimento.'],
+  ['Mire quién lo hizo', 'Si los fallos se concentran en los servicios de una persona, es técnica y se corrige entrenando.'],
+  ['Mire el grupo', 'Si se concentran en primerizas, revise el criterio de momento y de selección antes de sospechar enfermedad.']]},
+
+ {k:'alerta', tipo:'tip', ico:'📋', t:'Cómo llamar al veterinario para que la visita sirva',
+  p:'Llegue con: las fechas de servicio y de retorno de cada caso, el número de parto de cada marrana, los lotes de semen usados, qué días hizo más calor, quién inseminó, y el diagnóstico de gestación si lo hubo. <b>Con esos datos una visita resuelve; sin ellos, la visita es una conversación.</b> Ese es el verdadero valor de la ficha del módulo 02.'}
+]},
+
+/* ============================= 09 ============================= */
+{n:9, num:'09', ac:'#1F6F6B', t:'Destete → celo → servicio',
+ sub:'El intervalo que mide cómo salió la marrana de la lactancia',
+ obj:['Medir el intervalo destete-celo sin equivocarse.',
+      'Identificar qué lo alarga en una granja de clima caliente.',
+      'Calcular los días no productivos y lo que cuestan.'],
+ sec:[
+ {k:'prosa', t:'El termómetro de la lactancia', p:[
+  'El intervalo destete-celo son los días que pasan entre que usted desteta y la marrana vuelve a entrar en celo. Es un número simple y es de los que más dicen, porque resume cómo salió el animal de la lactancia.',
+  'Una marrana que salió bien vuelve pronto. Una que salió agotada tarda, y mientras tarda está comiendo sin producir. Y lo peor: ese retraso se arrastra, porque empuja hacia atrás todo su calendario del año.']},
+
+ {k:'concepts', t:'Qué lo alarga', items:[
+  ['Salir flaca de la lactancia', 'La causa más frecuente. Si comió poco mientras criaba, o crió muchos lechones, sale sin reservas.'],
+  ['Lactancias muy cortas', 'Destetar demasiado pronto puede retrasar el retorno. Cuál es el mínimo razonable en su sistema es una decisión técnica.'],
+  ['Calor', 'En la temporada caliente el intervalo se alarga. Es uno de los efectos más constantes del estrés térmico.'],
+  ['Falta de agua o de comida tras el destete', 'Los días posteriores al destete son clave: hay que estimular el consumo.'],
+  ['Primer parto', 'Las de primer parto suelen tardar más, porque además de criar todavía estaban creciendo.'],
+  ['Sin contacto con verraco', 'El estímulo del macho después del destete ayuda a que el celo aparezca y se exprese.']]},
+
+ {k:'alerta', tipo:'warn', ico:'📏', t:'No hay un número bueno universal',
+  p:'Lo que es un intervalo normal depende de la genética, del manejo, del largo de la lactancia y del clima. Por eso <b>este curso no le va a dar una cifra meta</b>: le va a dar la herramienta para medir el suyo y compararlo <b>consigo mismo</b>. Su referencia útil es su propio promedio del trimestre pasado, medido igual. Si quiere una meta comparativa con la industria, pídasela a su técnico con datos de sistemas parecidos al suyo.'},
+
+ {k:'pasos', t:'Cómo medirlo sin equivocarse', items:[
+  ['Anote la fecha de destete de cada marrana', 'El día en que se le quitaron los lechones, no el día en que usted lo apuntó.'],
+  ['Revise celos todos los días después del destete', 'Si solo revisa cada dos días, su medición tiene dos días de error incorporado.'],
+  ['Anote la fecha de detección del celo', 'Y la hora, aunque para este cálculo el día ya sirve.'],
+  ['Reste', 'Fecha de celo menos fecha de destete. Use la calculadora de este módulo.'],
+  ['Saque el promedio del grupo, pero mire también las que se salen', 'El promedio esconde. Si tiene 8 marranas en 5 días y 2 en 25, el promedio no le dice nada útil: las dos que se salieron son el problema.']]},
+
+ {k:'prosa', t:'Días no productivos: donde se acumula la pérdida', p:[
+  'Una marrana en el año está en uno de tres estados: gestante, lactando, o <b>ninguna de las dos</b>. Ese tercer estado son los días no productivos, y es donde se va la plata sin que nadie lo vea, porque no hay ningún evento que lo señale.',
+  'Los días no productivos vienen de tres sitios: intervalos destete-celo largos, repeticiones, y marranas vacías descubiertas tarde. Los tres se atacan con lo que enseñan los módulos 03, 07 y 09 de este curso.',
+  'Y son caros de una manera muy concreta: <b>cada día no productivo cuesta lo que cuesta mantener una marrana un día</b>. Ese número usted lo puede sacar, y la calculadora de este módulo lo traduce a pesos y a lote.']}
+]},
+
+/* ============================= 10 ============================= */
+{n:10, num:'10', ac:'#5B3FA8', t:'Parto, indicadores y dónde está el dinero',
+ sub:'Cerrar el ciclo y convertirlo en gestión',
+ obj:['Preparar el parto con tiempo y registrar la camada completa.',
+      'Calcular e interpretar los indicadores reproductivos de su granja.',
+      'Detectar en qué parte del ciclo está perdiendo dinero.'],
+ sec:[
+ {k:'pasos', t:'Del servicio al parto: qué hacer y cuándo', items:[
+  ['Anote la fecha probable desde el día del servicio', 'Con la calculadora del módulo 02. Así tiene semanas de anticipación, no días.'],
+  ['Prepare la maternidad antes del traslado', 'Limpia, seca, desinfectada y con tiempo de secado. Una paridera preparada a última hora es una paridera sucia.'],
+  ['Traslade sin prisas y sin estrés', 'Con días de margen para que se adapte al corral nuevo. Un traslado de último momento es estrés en el peor momento.'],
+  ['Observe los signos de proximidad', 'Cambios de comportamiento, inquietud, preparación del nido, cambios en la glándula mamaria. Aprenda a leer los de SUS animales.'],
+  ['Acompañe sin intervenir de más', 'La mayoría de los partos no necesitan intervención. Intervenir sin necesidad introduce contaminación y estrés.'],
+  ['Registre la camada completa', 'Nacidos totales, vivos, muertos y momificados. Cada uno de esos números dice algo distinto.']]},
+
+ {k:'alerta', tipo:'tip', ico:'📎', t:'El manejo del lechón está en el curso 1',
+  p:'Qué hacer con el lechón recién nacido —calostro, secado, hierro, igualar camadas, temperatura de la zona— se desarrolla completo en <b>Porcicultura Aplicada a República Dominicana</b>. Este curso termina donde empieza aquel: en el registro del parto.'},
+
+ {k:'concepts', t:'Qué le dice cada número de la camada', items:[
+  ['Nacidos totales', 'Habla de cuántos embriones sobrevivieron. Si baja, mire ovulación, momento del servicio y lo que pasó en los días vulnerables (módulo 06).'],
+  ['Nacidos vivos', 'Totales menos muertos y momificados. Es el número que arranca la lactancia.'],
+  ['Nacidos muertos', 'Si suben, mire la duración del parto, la condición de la marrana y el acompañamiento.'],
+  ['Momificados', 'Indican pérdidas ocurridas en la gestación, no en el parto. Si aparecen varios, <b>se consulta</b>: puede haber causa sanitaria.']]},
+
+ {k:'prosa', t:'Los indicadores: de la libreta a la decisión', p:[
+  'Con las fechas que viene anotando desde el módulo 02, ya puede calcular los números que dicen si la reproducción de su granja funciona. Las calculadoras de abajo los sacan uno por uno, cada una con su lectura y con qué hacer si el resultado no le gusta.',
+  'Una advertencia que vale para todos: <b>compárelos consigo mismo</b>. Su tasa de parto de este trimestre contra la del trimestre pasado, medida igual, le dice mucho más que compararse con el número de una revista de otro país y otro clima.']},
+
+ {k:'alerta', tipo:'crit', ico:'💰', t:'Dónde está el dinero, en una frase',
+  p:'La reproducción no se pierde en el parto: se pierde en los <b>días en que la marrana no está ni gestante ni lactando</b>. Celos no detectados, servicios a destiempo, repeticiones y vacías descubiertas tarde. Los cuatro producen lo mismo —días no productivos— y los cuatro se atacan con lo que usted ya aprendió en este curso. La última calculadora le pone el precio.'}
+]}
+
+);
+
+/* ---------------- exámenes 08 a 10 ---------------- */
+Object.assign(RPQUIZ, {
+8:[
+ ['Todos los árboles de diagnóstico empiezan descartando…',
+  [['Una enfermedad',false],['El problema de observación y de registro',true],['El semen',false],['El alimento',false]],
+  'Es lo más barato de revisar y lo que más veces resulta ser.'],
+ ['Una marrana repite en la fecha esperada del siguiente ciclo. Lo más probable es…',
+  [['Pérdida embrionaria',false],['Que no hubo fecundación',true],['Aborto',false],['Error de registro',false]],
+  'Y se mira primero momento del servicio, manejo de la dosis y técnica.'],
+ ['Una marrana repite bastante más tarde de lo esperado. Eso sugiere…',
+  [['Que no hubo fecundación',false],['Que hubo fecundación y se perdió',true],['Que está gestante',false],['Que el celo fue falso',false]],
+  'Se mira estrés, calor, manejo en los días vulnerables y posible causa sanitaria.'],
+ ['Si el reflujo aparece siempre con la misma persona…',
+  [['Es casualidad',false],['Es técnica, y se corrige entrenando',true],['Es el catéter',false],['Es la marrana',false]],
+  'El patrón señala a la ejecución, no al producto.'],
+ ['Varias marranas fallan en el mismo período. Eso apunta a…',
+  [['Mala suerte',false],['Algo común: un lote de dosis, una semana, una persona, un cambio',true],['Genética',false],['Edad del hato',false]],
+  'Una marrana es una marrana; varias a la vez tienen una causa compartida.'],
+ ['Un aborto se diagnostica…',
+  [['Por lo que se ve',false],['No se diagnostica a ojo: se registra, se conserva y se consulta',true],['Por la fecha',false],['Por el número de fetos',false]],
+  'Causas infecciosas y no infecciosas pueden dar el mismo cuadro.'],
+ ['Varios abortos en un período corto son…',
+  [['Algo esperable',false],['Una urgencia sanitaria que se investiga profesionalmente',true],['Problema de alimentación seguro',false],['Normal en calor',false]],
+  'Y nunca se medica por cuenta propia.'],
+ ['Si los fallos se concentran en primerizas, primero conviene revisar…',
+  [['Enfermedad del hato',false],['El criterio de momento de servicio y de selección',true],['El agua',false],['La raza',false]],
+  'Las primerizas tienen celos más cortos y margen más estrecho.'],
+ ['Para que una visita del veterinario sirva, hay que llegar con…',
+  [['La marrana sola',false],['Fechas, número de parto, lotes de semen, clima, quién inseminó y diagnósticos',true],['El saco de alimento',false],['Solo el problema contado',false]],
+  'Con datos la visita resuelve; sin datos es una conversación.'],
+ ['Si las que SÍ se detectan quedan gestantes pero muchas «no aparecen»…',
+  [['Hay enfermedad',false],['El problema es de detección',true],['El semen está malo',false],['Falta alimento',false]],
+  'Es la prueba más simple para separar un problema de observación de uno real.']
+],
+9:[
+ ['El intervalo destete-celo mide…',
+  [['Cuánto dura la lactancia',false],['Los días entre el destete y el siguiente celo',true],['Los días de gestación',false],['La edad al primer parto',false]],
+  'Y resume cómo salió la marrana de la lactancia.'],
+ ['La causa más frecuente de un intervalo largo es…',
+  [['La raza',false],['Que salió flaca de la lactancia',true],['El verraco',false],['El tamaño del corral',false]],
+  'Si comió poco mientras criaba, o crió muchos lechones, sale sin reservas.'],
+ ['Este curso no da una cifra meta de intervalo porque…',
+  [['No se conoce',false],['Depende de genética, manejo, largo de lactancia y clima',true],['Es secreto',false],['No importa',false]],
+  'Su referencia útil es su propio promedio anterior, medido igual.'],
+ ['Si usted revisa celos cada dos días después del destete, su medición…',
+  [['Es exacta',false],['Tiene dos días de error incorporado',true],['No sirve para nada',false],['Es mejor que diaria',false]],
+  'La precisión del dato depende de la frecuencia de observación.'],
+ ['Un promedio de intervalo puede esconder…',
+  [['Nada',false],['Que unas pocas marranas muy retrasadas son el problema real',true],['El número de partos',false],['La raza',false]],
+  'Mire también las que se salen, no solo el promedio.'],
+ ['Los días no productivos son los días en que la marrana…',
+  [['Está lactando',false],['No está ni gestante ni lactando',true],['Está gestante',false],['Está enferma',false]],
+  'Es donde se va la plata sin que ningún evento lo señale.'],
+ ['Los días no productivos vienen sobre todo de…',
+  [['El parto',false],['Intervalos largos, repeticiones y vacías descubiertas tarde',true],['La lactancia',false],['El destete',false]],
+  'Los tres se atacan con los módulos 03, 07 y 09.'],
+ ['Después del destete, los días siguientes son clave para…',
+  [['Descansar a la marrana',false],['Estimular el consumo de agua y comida',true],['Reducir el alimento',false],['Trasladarla lejos',false]],
+  'El consumo en esos días influye en cuándo vuelve el celo.'],
+ ['Las marranas de primer parto suelen tener intervalos…',
+  [['Más cortos',false],['Más largos, porque además de criar todavía estaban creciendo',true],['Iguales',false],['Impredecibles siempre',false]],
+  'Conviene mirarlas como grupo aparte.'],
+ ['El contacto con verraco después del destete…',
+  [['Es indiferente',false],['Ayuda a que el celo aparezca y se exprese',true],['Retrasa el celo',false],['Solo sirve en primerizas',false]],
+  'Sin macho, usted está esperando a ciegas.']
+],
+10:[
+ ['La fecha probable de parto se anota…',
+  [['Un mes antes',false],['El día del servicio, para tener semanas de anticipación',true],['Cuando se nota la panza',false],['Nunca',false]],
+  'Así la paridera se prepara con tiempo, no a última hora.'],
+ ['Una paridera preparada a última hora es…',
+  [['Suficiente',false],['Una paridera sucia',true],['Mejor, porque está reciente',false],['Indiferente',false]],
+  'Limpieza, desinfección y tiempo de secado necesitan margen.'],
+ ['En la mayoría de los partos…',
+  [['Hay que intervenir siempre',false],['No hace falta intervenir, y hacerlo de más introduce contaminación y estrés',true],['Hay que sedar',false],['Hay que separar los lechones de inmediato',false]],
+  'Acompañar no es intervenir.'],
+ ['Si bajan los nacidos totales, conviene mirar…',
+  [['El parto en sí',false],['Ovulación, momento del servicio y los días vulnerables de la gestación',true],['La temperatura del lechón',false],['El destete',false]],
+  'Los totales hablan de cuántos embriones sobrevivieron.'],
+ ['Los momificados indican pérdidas ocurridas…',
+  [['En el parto',false],['Durante la gestación',true],['En la lactancia',false],['Antes del servicio',false]],
+  'Si aparecen varios, se consulta: puede haber causa sanitaria.'],
+ ['Si suben los nacidos muertos, conviene mirar…',
+  [['La fecha de servicio',false],['La duración del parto, la condición de la marrana y el acompañamiento',true],['El semen',false],['La detección de celo',false]],
+  'Son cosas del momento del parto, no de la concepción.'],
+ ['Los indicadores conviene compararlos…',
+  [['Con revistas internacionales',false],['Consigo mismo: su trimestre contra su trimestre anterior',true],['Con el vecino',false],['Con el promedio mundial',false]],
+  'Otro clima y otro sistema dan otros números.'],
+ ['El manejo del lechón recién nacido se desarrolla en…',
+  [['Este módulo',false],['El curso de Porcicultura Aplicada a RD',true],['El de Formulación',false],['Ningún curso',false]],
+  'Este curso termina en el registro del parto.'],
+ ['La reproducción se pierde sobre todo…',
+  [['En el parto',false],['En los días en que la marrana no está ni gestante ni lactando',true],['En la lactancia',false],['En el destete',false]],
+  'Celos no detectados, servicios a destiempo, repeticiones y vacías tardías.'],
+ ['Para que los indicadores signifiquen algo, hace falta…',
+  [['Un software caro',false],['Que las fechas estén anotadas a tiempo y siempre con el mismo criterio',true],['Un ecógrafo',false],['Más marranas',false]],
+  'Todo el módulo 10 depende del módulo 02.']
+]
+});
+
+/* ---------------- calculadoras de los módulos 09 y 10 ---------------- */
+
+/* intervalo destete-celo */
+RPCX.intervalo = {
+  id:'intervalo',
+  titulo:'Calculadora de intervalo destete-celo',
+  que:'Los días que tardó la marrana en volver al celo después del destete. Es el termómetro de cómo salió de la lactancia.',
+  formula:'Intervalo = fecha de celo − fecha de destete',
+  campos:[{k:'destete', et:'Fecha de destete', u:'', tipo:'date'},
+          {k:'celo', et:'Fecha en que se detectó el celo', u:'', tipo:'date'}],
+  valida:function(g){
+    var a = [];
+    if(!g.destete) a.push('Escoja la fecha de destete.');
+    if(!g.celo) a.push('Escoja la fecha del celo.');
+    if(g.destete && g.celo){
+      var d = (new Date(g.celo + 'T12:00:00') - new Date(g.destete + 'T12:00:00')) / 86400000;
+      if(d < 0) a.push('La fecha de celo no puede ser anterior a la de destete.');
+    }
+    return a;
+  },
+  calcula:function(g){
+    var d = Math.round((new Date(g.celo + 'T12:00:00') - new Date(g.destete + 'T12:00:00')) / 86400000);
+    return { valor: String(d), unidad: d === 1 ? 'día' : 'días',
+      extra:[{et:'Destete', v: new Date(g.destete + 'T12:00:00').toLocaleDateString('es-DO', {day:'2-digit', month:'short'})},
+             {et:'Celo', v: new Date(g.celo + 'T12:00:00').toLocaleDateString('es-DO', {day:'2-digit', month:'short'})},
+             {et:'Son días no productivos', v: String(d)}]};
+  },
+  pasos:function(g, r){
+    return ['Destete: <b>' + new Date(g.destete + 'T12:00:00').toLocaleDateString('es-DO', {day:'2-digit', month:'long'}) + '</b>',
+            'Celo: <b>' + new Date(g.celo + 'T12:00:00').toLocaleDateString('es-DO', {day:'2-digit', month:'long'}) + '</b>',
+            'Diferencia: <b>' + r.valor + ' días</b>, que son días no productivos de esa marrana'];
+  },
+  significa:function(g, r){
+    return 'Esa marrana estuvo <b>' + r.valor + ' días</b> sin estar gestante ni lactando. ' +
+      'Lo importante no es el número aislado sino <b>cómo se compara con el suyo anterior</b> y cuántas marranas se salen del grupo. ' +
+      'Si hace este cálculo con todo un lote, mire el promedio pero mire sobre todo <b>las que tardaron mucho más</b>: ahí está el problema.';
+  },
+  nota:'Lo que es un intervalo normal depende de la genética, del largo de la lactancia, del manejo y del clima. Este curso no fija una meta: su referencia útil es su propio promedio anterior, medido con el mismo criterio.',
+  revisa:['Condición corporal al destete: la causa más frecuente de intervalos largos.',
+          'Consumo de agua y comida en los días posteriores al destete.',
+          'Si fue temporada caliente, compare contra un período fresco de su propia granja.',
+          'Si revisa celos cada dos días, su medición lleva dos días de error.']
+};
+
+/* fábrica de calculadoras de tasa: comparten forma */
+function rpTasa(id, cfg){
+  RPCX[id] = {
+    id:id, titulo:cfg.titulo, que:cfg.que, formula:cfg.formula,
+    campos:[{k:cfg.a, et:cfg.etA, u:cfg.uA || '', paso:1},
+            {k:cfg.b, et:cfg.etB, u:cfg.uB || '', paso:1}],
+    valida:function(g){
+      var a = [];
+      if(g[cfg.a] <= 0) a.push(cfg.errA);
+      if(g[cfg.b] < 0) a.push('No puede ser un número negativo.');
+      if(g[cfg.b] > g[cfg.a] && !cfg.permiteMayor) a.push(cfg.errMayor);
+      return a;
+    },
+    calcula:function(g){
+      var v = cfg.calc(g);
+      return { valor: v.toFixed(1) + ' %', unidad: cfg.unidad,
+        extra:[{et:cfg.etA, v:String(g[cfg.a])},
+               {et:cfg.etB, v:String(g[cfg.b])},
+               {et:'Diferencia', v:String(g[cfg.a] - g[cfg.b])}]};
+    },
+    pasos:function(g){
+      return [cfg.etB + ' ÷ ' + cfg.etA + ' = ' + g[cfg.b] + ' ÷ ' + g[cfg.a],
+              '× 100 = <b>' + cfg.calc(g).toFixed(1) + ' %</b>'];
+    },
+    significa:function(g){ return cfg.lectura(cfg.calc(g), g); },
+    nota:'No hay un valor meta universal: depende de genética, sistema, clima y manejo. Compare este número con el de su propio período anterior, calculado igual.',
+    revisa:cfg.revisa
+  };
+}
+
+rpTasa('concepcion', {
+  titulo:'Tasa de concepción', que:'De las marranas que usted sirvió, qué proporción quedó confirmada gestante.',
+  formula:'Tasa de concepción = gestantes confirmadas ÷ servidas × 100',
+  a:'servidas', b:'gestantes', etA:'Marranas servidas', etB:'Confirmadas gestantes',
+  uA:'marranas', uB:'marranas', errA:'Indique cuántas marranas sirvió.',
+  errMayor:'No puede haber más gestantes que servidas.',
+  calc:function(g){ return g.gestantes / g.servidas * 100; },
+  unidad:'de las servidas quedaron gestantes',
+  lectura:function(v){
+    return 'De cada 100 marranas servidas, <b>' + v.toFixed(0) + ' quedaron gestantes</b>. ' +
+      'Si este número le baja respecto a su propio período anterior, el árbol 2 del módulo 08 es por donde empezar: momento del servicio, manejo de la dosis, técnica e higiene.';
+  },
+  revisa:['Que el diagnóstico se haya hecho con el mismo método y en el mismo momento en los dos períodos que compara.',
+          'Que estén contadas TODAS las servidas, no solo las que salieron bien.']
+});
+
+rpTasa('parto', {
+  titulo:'Tasa de parto', que:'De las servidas, qué proporción llegó efectivamente a parir. Es más exigente que la de concepción, porque incluye las pérdidas durante la gestación.',
+  formula:'Tasa de parto = paridas ÷ servidas × 100',
+  a:'servidas', b:'paridas', etA:'Marranas servidas', etB:'Marranas que parieron',
+  uA:'marranas', uB:'marranas', errA:'Indique cuántas marranas sirvió.',
+  errMayor:'No puede haber más paridas que servidas.',
+  calc:function(g){ return g.paridas / g.servidas * 100; },
+  unidad:'de las servidas llegaron a parir',
+  lectura:function(v, g){
+    return 'De cada 100 servidas, <b>' + v.toFixed(0) + ' parieron</b>. ' +
+      'Si su tasa de concepción es buena y esta no, el problema está <b>después</b> del servicio: pérdidas durante la gestación. ' +
+      'Ahí miran los módulos 06 y 08.';
+  },
+  revisa:['Compare esta tasa con la de concepción: la distancia entre las dos es lo que se perdió en gestación.',
+          'Revise si las pérdidas se concentran en una época del año.']
+});
+
+rpTasa('repeticion', {
+  titulo:'Tasa de repetición', que:'Qué proporción de las servidas volvió a entrar en celo en vez de quedar gestante.',
+  formula:'Tasa de repetición = repitieron ÷ servidas × 100',
+  a:'servidas', b:'repitieron', etA:'Marranas servidas', etB:'Marranas que repitieron',
+  uA:'marranas', uB:'marranas', errA:'Indique cuántas marranas sirvió.',
+  errMayor:'No pueden repetir más de las que se sirvieron.',
+  calc:function(g){ return g.repitieron / g.servidas * 100; },
+  unidad:'de las servidas repitieron el celo',
+  lectura:function(v){
+    return '<b>' + v.toFixed(0) + ' de cada 100</b> servidas repitieron. ' +
+      'Este número por sí solo no dice la causa: lo que la dice es <b>cuándo</b> repitieron. ' +
+      'Vuelva a la tabla del árbol 3 en el módulo 08 y clasifique sus repeticiones por fecha antes de sacar conclusiones.';
+  },
+  revisa:['Separe las que repitieron en la fecha esperada de las que repitieron más tarde: son problemas distintos.',
+          'Mire si se concentran en primerizas, en una persona o en un lote de semen.']
+});
+
+/* servicios por gestación NO es un porcentaje: es un índice.
+   Por eso no usa la fábrica de tasas, que formatea en %. */
+RPCX.servicios = {
+  id:'servicios',
+  titulo:'Servicios por gestación',
+  que:'Cuántos servicios hicieron falta, en promedio, para lograr cada gestación. Cada servicio de más es una dosis, un manejo y días perdidos.',
+  formula:'Servicios por gestación = servicios realizados ÷ gestaciones logradas',
+  campos:[{k:'servidas', et:'Servicios realizados', u:'servicios', paso:1},
+          {k:'gestantes', et:'Gestaciones logradas', u:'gestaciones', paso:1}],
+  valida:function(g){
+    var a=[];
+    if(g.servidas<=0) a.push('Indique cuántos servicios realizó.');
+    if(g.gestantes<=0) a.push('Indique cuántas gestaciones logró.');
+    if(g.gestantes>g.servidas) a.push('No puede haber más gestaciones que servicios.');
+    return a;
+  },
+  calcula:function(g){
+    var idx=g.servidas/g.gestantes;
+    return { valor: idx.toFixed(2), unidad:'servicios por cada gestación lograda',
+      extra:[{et:'Servicios realizados', v:String(g.servidas)},
+             {et:'Gestaciones logradas', v:String(g.gestantes)},
+             {et:'Servicios de más', v:String(g.servidas-g.gestantes)}]};
+  },
+  pasos:function(g){
+    return [g.servidas+' servicios ÷ '+g.gestantes+' gestaciones',
+            '= <b>'+(g.servidas/g.gestantes).toFixed(2)+' servicios por gestación</b>',
+            'Servicios que no dieron gestación: <b>'+(g.servidas-g.gestantes)+'</b>'];
+  },
+  significa:function(g){
+    var idx=g.servidas/g.gestantes;
+    return 'Le hicieron falta <b>'+idx.toFixed(2)+' servicios por cada gestación</b>. '+
+      'Un índice de 1.00 sería que todas prendieron al primer servicio; todo lo que pase de ahí son '+
+      'dosis gastadas y, sobre todo, <b>días no productivos</b>. Si le sube, la causa está en las '+
+      'repeticiones: clasifíquelas por fecha con el árbol 3 del módulo 08.';
+  },
+  nota:'No hay un valor meta universal. Compárelo con su propio período anterior, contado con el mismo criterio de qué cuenta como servicio.',
+  revisa:['Este índice y la tasa de repetición cuentan lo mismo desde dos lados.',
+          'Multiplique los servicios de más por el costo de la dosis: esa es solo una parte del costo. La otra son los días perdidos.',
+          'Defina si un celo servido dos veces cuenta como uno o como dos servicios, y no lo cambie.']
+};
+
+/* colocar las calculadoras */
+(function rpColocarCalc3(){
+  if(typeof RPMOD === 'undefined') return;
+  var poner = function(mod, id, t){
+    var m = RPMOD.find(function(x){ return x.n === mod; });
+    if(m && !m.sec.some(function(s){ return s.k === 'rpcalc' && s.id === id; })){
+      m.sec.push({k:'rpcalc', id:id, t:t});
+    }
+  };
+  poner(9,  'intervalo',  'Calcule el intervalo destete-celo de su marrana');
+  poner(10, 'concepcion', 'Su tasa de concepción');
+  poner(10, 'parto',      'Su tasa de parto');
+  poner(10, 'repeticion', 'Su tasa de repetición');
+  poner(10, 'servicios',  'Sus servicios por gestación');
+})();
+
 </script>
+
+
+
 
 
 </body>
