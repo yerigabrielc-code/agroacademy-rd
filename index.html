@@ -15518,7 +15518,457 @@ RPCX.servicios = {
   poner(10, 'servicios',  'Sus servicios por gestación');
 })();
 
+
+/* ============================================================
+   CURSO 3 · gestión: indicadores, casos y panel
+   ============================================================ */
+
+/* campos nuevos que necesitan las calculadoras de gestión */
+(function(){
+  var nuevos = {
+    diasPeriodo:365, diasGestante:0, diasLactando:0,
+    lactancia:24, intervaloServicio:7,
+    marranasProm:20, entradas:6, salidas:5,
+    costoDia:0
+  };
+  for(var k in nuevos){
+    if(!RPGRANJA_DEF.hasOwnProperty(k)){
+      RPGRANJA_DEF[k] = nuevos[k];
+      if(RPGRANJA[k] == null) RPGRANJA[k] = nuevos[k];
+    }
+  }
+  try{
+    var g = JSON.parse(localStorage.getItem('rp_granja') || '{}');
+    for(var j in g) if(RPGRANJA_DEF.hasOwnProperty(j)) RPGRANJA[j] = g[j];
+  }catch(e){}
+})();
+
+/* --- días no productivos --- */
+RPCX.dnp = {
+  id:'dnp',
+  titulo:'Calculadora de días no productivos (DNP)',
+  que:'Los días en que la marrana <b>no está ni gestante ni lactando</b>. Es donde se va la plata sin que ningún evento lo señale.',
+  formula:'DNP = días del período − días gestante − días lactando',
+  campos:[
+    {k:'diasPeriodo',  et:'Días del período que analiza', u:'días', paso:1, ayuda:'365 si mira el año completo.'},
+    {k:'diasGestante', et:'Días que estuvo gestante', u:'días', paso:1},
+    {k:'diasLactando', et:'Días que estuvo lactando', u:'días', paso:1}
+  ],
+  valida:function(g){
+    var a = [];
+    if(g.diasPeriodo <= 0) a.push('El período tiene que ser mayor que cero.');
+    if(g.diasGestante < 0 || g.diasLactando < 0) a.push('Los días no pueden ser negativos.');
+    if(g.diasGestante + g.diasLactando > g.diasPeriodo)
+      a.push('Los días gestante y lactando no pueden sumar más que el período: revise las cifras.');
+    return a;
+  },
+  calcula:function(g){
+    var dnp = g.diasPeriodo - g.diasGestante - g.diasLactando;
+    var pct = g.diasPeriodo > 0 ? (dnp / g.diasPeriodo * 100) : 0;
+    return { valor: String(dnp), unidad:'días no productivos en el período',
+      extra:[{et:'Días productivos', v: String(g.diasGestante + g.diasLactando)},
+             {et:'Del período, improductivo', v: pct.toFixed(1) + ' %'},
+             {et:'Equivale a', v:(dnp / 30).toFixed(1) + ' meses'}]};
+  },
+  pasos:function(g, r){
+    return [g.diasPeriodo + ' días del período',
+            '− ' + g.diasGestante + ' gestante − ' + g.diasLactando + ' lactando',
+            '= <b>' + r.valor + ' días no productivos</b>'];
+  },
+  significa:function(g, r){
+    return 'Esa marrana pasó <b>' + r.valor + ' días</b> comiendo y ocupando corral sin estar produciendo. ' +
+      'Los DNP salen de tres sitios: <b>intervalos destete-celo largos, repeticiones, y vacías descubiertas tarde</b>. ' +
+      'Los tres se atacan con los módulos 03, 07 y 09 de este curso. La siguiente calculadora le pone precio.';
+  },
+  nota:'Cuántos DNP son aceptables depende del sistema y del largo de lactancia que use. Compare con su propio período anterior.',
+  revisa:['¿Cuántos de esos días son intervalo destete-celo?',
+          '¿Cuántos son repeticiones? Cada repetición son al menos los días de un ciclo.',
+          '¿Cuántos son marranas vacías descubiertas tarde? Esos son los más caros.']
+};
+
+/* --- lo que cuesta un día no productivo --- */
+RPCX.costodnp = {
+  id:'costodnp',
+  titulo:'¿Cuánto me cuesta un día no productivo?',
+  que:'Aquí la reproducción se traduce a pesos. Es el número que justifica todo lo que enseña este curso.',
+  formula:'Costo = días no productivos × costo diario de mantener una marrana × número de marranas',
+  campos:[
+    {k:'diasPeriodo',  et:'Días del período', u:'días', paso:1},
+    {k:'diasGestante', et:'Días gestante', u:'días', paso:1},
+    {k:'diasLactando', et:'Días lactando', u:'días', paso:1},
+    {k:'costoDia',     et:'Costo de mantener una marrana un día', u:'RD$/día', paso:0.5,
+     ayuda:'Alimento, mano de obra, sanidad y lo demás, por día. <b>Valor de ejemplo: ponga el suyo.</b>'},
+    {k:'marranasProm', et:'Marranas del hato', u:'marranas', paso:1}
+  ],
+  valida:function(g){
+    var a = [];
+    if(g.diasPeriodo <= 0) a.push('El período tiene que ser mayor que cero.');
+    if(g.diasGestante + g.diasLactando > g.diasPeriodo) a.push('Los días productivos no pueden superar el período.');
+    if(g.costoDia <= 0) a.push('Ponga cuánto le cuesta mantener una marrana un día. Si no lo sabe, sáquelo del curso de Formulación.');
+    if(g.marranasProm <= 0) a.push('Indique cuántas marranas tiene.');
+    return a;
+  },
+  calcula:function(g){
+    var dnp = g.diasPeriodo - g.diasGestante - g.diasLactando;
+    var porMarrana = dnp * g.costoDia;
+    var total = porMarrana * g.marranasProm;
+    return { valor:'RD$ ' + Math.round(total).toLocaleString('es-DO'), unidad:'que le cuestan los días no productivos del hato',
+      extra:[{et:'DNP por marrana', v: String(dnp) + ' días'},
+             {et:'Por marrana', v:'RD$ ' + Math.round(porMarrana).toLocaleString('es-DO')},
+             {et:'Marranas', v: String(g.marranasProm)},
+             {et:'Si bajara 10 días', v:'ahorra RD$ ' + Math.round(10 * g.costoDia * g.marranasProm).toLocaleString('es-DO')}]};
+  },
+  pasos:function(g){
+    var dnp = g.diasPeriodo - g.diasGestante - g.diasLactando;
+    return ['Días no productivos por marrana: <b>' + dnp + '</b>',
+            'Por marrana: ' + dnp + ' × RD$ ' + g.costoDia + ' = <b>RD$ ' + Math.round(dnp * g.costoDia).toLocaleString('es-DO') + '</b>',
+            'El hato completo: × ' + g.marranasProm + ' marranas = <b>RD$ ' + Math.round(dnp * g.costoDia * g.marranasProm).toLocaleString('es-DO') + '</b>'];
+  },
+  significa:function(g){
+    var dnp = g.diasPeriodo - g.diasGestante - g.diasLactando;
+    return 'Su hato le cuesta <b>RD$ ' + Math.round(dnp * g.costoDia * g.marranasProm).toLocaleString('es-DO') +
+      '</b> en días que no produjeron nada. Eso no aparece en ninguna factura y nadie lo reclama. ' +
+      '<b>Cada 10 días menos de DNP por marrana son RD$ ' + Math.round(10 * g.costoDia * g.marranasProm).toLocaleString('es-DO') +
+      ' que se quedan en la granja</b> — y diez días se recortan detectando mejor el celo y diagnosticando a tiempo, no comprando nada.';
+  },
+  nota:'El costo diario de mantener una marrana lo saca usted de sus propios números. En el curso de Formulación y Fabricación de Alimentos está la parte de alimento, que suele ser la mayor.',
+  revisa:['Si no tiene el costo diario, empiece por el alimento: ya le da una idea del orden de magnitud.',
+          'Compare este número con lo que cuesta mejorar la detección de celo. Casi siempre la mejora es mucho más barata.',
+          'Repita el cálculo cada trimestre: la tendencia dice más que el número suelto.']
+};
+
+/* --- camadas por marrana y año --- */
+RPCX.camadas = {
+  id:'camadas',
+  titulo:'Camadas por marrana y año',
+  que:'Cuántas veces pare una marrana en un año. Resume, en un solo número, todo lo que usted hace en reproducción.',
+  formula:'Camadas/año = 365 ÷ (gestación + lactancia + intervalo destete-servicio)',
+  campos:[
+    {k:'lactancia',         et:'Días de lactancia', u:'días', paso:1},
+    {k:'intervaloServicio', et:'Días del destete al servicio', u:'días', paso:1,
+     ayuda:'Su intervalo destete-celo promedio, más lo que tarde en servir.'}
+  ],
+  valida:function(g){
+    var a = [];
+    if(g.lactancia <= 0) a.push('Indique los días de lactancia de su granja.');
+    if(g.intervaloServicio < 0) a.push('El intervalo no puede ser negativo.');
+    return a;
+  },
+  calcula:function(g){
+    var ciclo = 114 + g.lactancia + g.intervaloServicio;
+    var c = 365 / ciclo;
+    return { valor: c.toFixed(2), unidad:'camadas por marrana y año',
+      extra:[{et:'Ciclo completo', v: String(ciclo) + ' días'},
+             {et:'Gestación', v:'114 días'},
+             {et:'Lactancia', v: String(g.lactancia) + ' días'},
+             {et:'Destete a servicio', v: String(g.intervaloServicio) + ' días'}]};
+  },
+  pasos:function(g){
+    var ciclo = 114 + g.lactancia + g.intervaloServicio;
+    return ['Ciclo = 114 gestación + ' + g.lactancia + ' lactancia + ' + g.intervaloServicio + ' destete-servicio = <b>' + ciclo + ' días</b>',
+            'Camadas por año = 365 ÷ ' + ciclo,
+            '= <b>' + (365 / ciclo).toFixed(2) + ' camadas</b>'];
+  },
+  significa:function(g){
+    var ciclo = 114 + g.lactancia + g.intervaloServicio;
+    var c = 365 / ciclo;
+    var menos = 365 / (ciclo - 5);
+    return 'Con su lactancia y su intervalo actuales, cada marrana da <b>' + c.toFixed(2) + ' camadas al año</b>. ' +
+      'Fíjese en lo sensible que es: <b>recortar 5 días</b> del intervalo destete-servicio lo subiría a <b>' + menos.toFixed(2) + '</b>. ' +
+      'Parece poco, pero multiplicado por su hato y por camada son lechones que hoy no está produciendo.';
+  },
+  nota:'Se usan 114 días de gestación como referencia. La duración real varía; para este cálculo el efecto de esa variación es pequeño comparado con el de la lactancia y el intervalo.',
+  revisa:['El intervalo destete-servicio es la parte que usted más controla: ahí está la palanca.',
+          'Acortar la lactancia también sube el número, pero tiene consecuencias en el lechón y en la marrana: es una decisión técnica, no aritmética.']
+};
+
+/* --- reemplazo y descarte --- */
+RPCX.reemplazo = {
+  id:'reemplazo',
+  titulo:'Tasa de reemplazo y de descarte',
+  que:'Qué proporción del hato se renueva en el período. Un hato que se renueva demasiado rápido nunca llega a su mejor momento productivo.',
+  formula:'Reemplazo = entradas ÷ marranas promedio × 100   ·   Descarte = salidas ÷ marranas promedio × 100',
+  campos:[
+    {k:'marranasProm', et:'Marranas promedio del hato', u:'marranas', paso:1},
+    {k:'entradas',     et:'Primerizas que entraron', u:'marranas', paso:1},
+    {k:'salidas',      et:'Marranas que salieron', u:'marranas', paso:1,
+     ayuda:'Por descarte, muerte o venta. Por eso importa anotar el motivo.'}
+  ],
+  valida:function(g){
+    var a = [];
+    if(g.marranasProm <= 0) a.push('Indique el promedio de marranas del hato.');
+    if(g.entradas < 0 || g.salidas < 0) a.push('No puede haber entradas o salidas negativas.');
+    return a;
+  },
+  calcula:function(g){
+    var re = g.entradas / g.marranasProm * 100;
+    var de = g.salidas / g.marranasProm * 100;
+    return { valor: re.toFixed(1) + ' %', unidad:'de reemplazo en el período',
+      extra:[{et:'Tasa de descarte', v: de.toFixed(1) + ' %'},
+             {et:'Entradas', v: String(g.entradas)},
+             {et:'Salidas', v: String(g.salidas)},
+             {et:'El hato', v:(g.entradas > g.salidas ? 'creció' : g.entradas < g.salidas ? 'se redujo' : 'se mantuvo')}]};
+  },
+  pasos:function(g){
+    return ['Reemplazo = ' + g.entradas + ' ÷ ' + g.marranasProm + ' × 100 = <b>' + (g.entradas / g.marranasProm * 100).toFixed(1) + ' %</b>',
+            'Descarte = ' + g.salidas + ' ÷ ' + g.marranasProm + ' × 100 = <b>' + (g.salidas / g.marranasProm * 100).toFixed(1) + ' %</b>'];
+  },
+  significa:function(g){
+    var re = g.entradas / g.marranasProm * 100;
+    return 'Renovó el <b>' + re.toFixed(0) + ' %</b> de su hato en el período. ' +
+      'Lo que importa no es solo el número: es <b>por qué salieron</b>. Si se van por fallas reproductivas, ' +
+      'usted está pagando primerizas para tapar un problema de manejo — y esa es la razón por la que el módulo 02 pide anotar el motivo de descarte.';
+  },
+  nota:'La tasa adecuada depende de la estructura de partos que quiera mantener y de su política de reposición. Es una decisión de manejo, no un número universal.',
+  revisa:['Clasifique las salidas por motivo: reproductivo, sanitario, edad, patas, producción.',
+          'Si predomina el motivo reproductivo, el problema está en los módulos 03, 04 y 08 — no en comprar más primerizas.']
+};
+
+(function rpColocarGestion(){
+  if(typeof RPMOD === 'undefined') return;
+  var poner = function(mod, id, t){
+    var m = RPMOD.find(function(x){ return x.n === mod; });
+    if(m && !m.sec.some(function(s){ return s.k === 'rpcalc' && s.id === id; })){
+      m.sec.push({k:'rpcalc', id:id, t:t});
+    }
+  };
+  poner(9,  'dnp',       'Sus días no productivos');
+  poner(10, 'camadas',   'Camadas por marrana y año');
+  poner(10, 'reemplazo', 'Reemplazo y descarte de su hato');
+  poner(10, 'costodnp',  'Cuánto le cuestan los días no productivos');
+})();
+
+/* ============================================================
+   LOS QUINCE CASOS
+   Cada uno carga sus datos en las calculadoras del curso.
+   ============================================================ */
+var RPCASO = [
+{id:'r1', m:1, t:'Marrana destetada que no presenta celo',
+ s:'Destetó hace varios días y la marrana sigue sin dar señales. El encargado dice que «está rara».',
+ q:'¿Qué revisa, y en qué orden?',
+ datos:{destete:'2026-02-10', celo:'2026-02-28'},
+ pista:'Antes de sospechar del animal, mida el intervalo y descarte el problema de observación. Árbol 1 del módulo 08.',
+ cierre:'Casi siempre es una de tres: salió flaca de la lactancia, hace calor, o no se está detectando bien. Las tres se revisan sin gastar un peso.'},
+
+{id:'r2', m:3, t:'Celo detectado a las 7:00 a. m.',
+ s:'Revisión de la mañana: la marrana se planta firme con el verraco delante. Ayer a las 5 de la tarde no mostraba nada.',
+ q:'¿Qué evalúa antes de decidir el servicio?',
+ datos:{},
+ pista:'El inicio está en una ventana acotada entre las dos revisiones. Eso es una ventaja: sabe bastante bien desde cuándo.',
+ cierre:'Con dos revisiones diarias la incertidumbre baja mucho. Ese es todo el valor de revisar dos veces: no es trabajo de más, es precisión.'},
+
+{id:'r3', m:3, t:'Reflejo de inmovilidad pero con dudas',
+ s:'Se planta, pero a medias. Las orejas no terminan de ponerse firmes y se mueve al rato.',
+ q:'¿Sirve, espera o descarta?',
+ datos:{},
+ pista:'Un signo dudoso no autoriza a servir. Confirmar cuesta minutos; servir mal cuesta un ciclo.',
+ cierre:'Verraco, marcar y volver en pocas horas. Y anotarlo: si se repite en varias marranas, el problema es de rutina, no de animales.'},
+
+{id:'r4', m:8, t:'La marrana repite el celo',
+ s:'Servida hace tres semanas, vuelve a mostrar celo en la fecha en que le tocaría el siguiente ciclo.',
+ q:'¿Cómo investiga?',
+ datos:{servidas:25, gestantes:20, repitieron:5},
+ pista:'Repetir en la fecha esperada sugiere que no hubo fecundación. Árbol 3 del módulo 08.',
+ cierre:'Se mira momento del servicio, manejo de la dosis y técnica. Y sobre todo: ¿es una sola o son varias?'},
+
+{id:'r5', m:9, t:'Muchas marranas con intervalo largo',
+ s:'De las últimas 12 destetadas, 7 tardaron bastante más de lo habitual en volver al celo.',
+ q:'¿Qué indicadores revisa?',
+ datos:{diasPeriodo:365, diasGestante:228, diasLactando:48, marranasProm:20},
+ pista:'Mire primero condición corporal al destete y consumo en lactancia. Después, la temporada.',
+ cierre:'Siete de doce no es casualidad: es un patrón. Y un patrón tiene una causa común, casi siempre en la lactancia anterior o en el calor.'},
+
+{id:'r6', m:5, t:'Semen que llegó bien pero se guardó mal',
+ s:'Las dosis llegaron en regla, pero estuvieron varias horas en el pasillo antes de entrar al conservador.',
+ q:'¿Qué riesgos existen y qué hace?',
+ datos:{marranas:20, serviciosPorMarrana:2, dosisPorServicio:1, diasServicio:7, margen:10},
+ pista:'Lo que se dañó por temperatura no se recupera enfriándolo después.',
+ cierre:'Registre el lote y a qué marranas se usó. Si después hay un grupo de repeticiones, ya sabrá si coincide con ese lote.'},
+
+{id:'r7', m:8, t:'Alto porcentaje de retorno al celo',
+ s:'En el último mes, una proporción inusual de servidas volvió al celo.',
+ q:'¿Qué hipótesis investiga y en qué orden?',
+ datos:{servidas:30, gestantes:18, paridas:16, repitieron:12},
+ pista:'Varias fallando a la vez apunta a algo común: un lote, una persona, una semana, un cambio.',
+ cierre:'Clasifique las repeticiones por fecha antes de concluir. En fecha esperada e irregulares son problemas distintos.'},
+
+{id:'r8', m:10, t:'Baja tasa de parto',
+ s:'La tasa de concepción se ve razonable, pero la de parto queda claramente por debajo.',
+ q:'¿Dónde está el problema?',
+ datos:{servidas:30, gestantes:24, paridas:18},
+ pista:'La distancia entre las dos tasas es lo que se perdió DESPUÉS de confirmar la gestación.',
+ cierre:'Si concibe bien y no pare, el problema está en la gestación: estrés, calor, manejo en los días vulnerables, o causa sanitaria.'},
+
+{id:'r9', m:2, t:'Granja que no sabe cuándo van a parir',
+ s:'Sirven cuando ven celo, pero nadie anota la fecha. Las parideras se preparan a la carrera.',
+ q:'¿Por dónde se empieza?',
+ datos:{servicio:'2026-01-15'},
+ pista:'Con una sola fecha ya puede calcular cuándo va a necesitar la paridera.',
+ cierre:'Anotar la fecha de servicio y calcular la de parto en ese mismo momento cambia la granja sin costar nada.'},
+
+{id:'r10', m:6, t:'Camadas chicas solo en los meses calientes',
+ s:'Las camadas de los servicios hechos entre los meses más calurosos salen notoriamente más pequeñas.',
+ q:'¿Qué está pasando y qué puede hacer?',
+ datos:{},
+ pista:'El estrés térmico afecta la supervivencia embrionaria justo en los días en que los embriones aún no se han implantado.',
+ cierre:'Sombra, aire, agua fresca y mover el manejo pesado a horas frescas. No es genética ni mala suerte.'},
+
+{id:'r11', m:7, t:'Marrana vacía descubierta muy tarde',
+ s:'Se descubrió que no estaba gestante cuando ya debía parir.',
+ q:'¿Cuánto costó y cómo se evita?',
+ datos:{diasPeriodo:365, diasGestante:114, diasLactando:24, costoDia:0, marranasProm:20},
+ pista:'Cuente los días que estuvo sin producir y multiplíquelos por lo que cuesta mantenerla.',
+ cierre:'Revisar celos a las servidas en la fecha del siguiente ciclo cuesta cero y habría convertido meses en semanas.'},
+
+{id:'r12', m:4, t:'Celo detectado al final de la tarde',
+ s:'Última revisión del día: la marrana acepta. Mañana el equipo entra a las 7.',
+ q:'¿Cómo organiza el día siguiente?',
+ datos:{},
+ pista:'El criterio es el mismo de siempre; lo que cambia es la logística de su jornada.',
+ cierre:'Planifique la hora de servicio antes de irse, no a la mañana siguiente improvisando.'},
+
+{id:'r13', m:9, t:'Marrana que no repite celo ni queda gestante',
+ s:'Se sirvió, no repitió en la fecha esperada, pero tampoco parió.',
+ q:'¿Qué pasó?',
+ datos:{},
+ pista:'Un «no repitió» es un dato débil: puede haber repetido sin que nadie lo viera.',
+ cierre:'O repitió sin detección, o hubo pérdida más tardía. Las dos se distinguen con diagnóstico de gestación, no esperando.'},
+
+{id:'r14', m:10, t:'Hato que se renueva demasiado rápido',
+ s:'Cada año entran muchas primerizas y salen muchas marranas, casi todas por no quedar gestantes.',
+ q:'¿Está comprando la solución o el problema?',
+ datos:{marranasProm:20, entradas:9, salidas:8},
+ pista:'Calcule la tasa de reemplazo y después pregúntese por el motivo de las salidas.',
+ cierre:'Si se van por fallas reproductivas, está pagando primerizas para tapar un problema de manejo que se arregla en los módulos 03, 04 y 08.'},
+
+{id:'r15', m:10, t:'¿Cuánto vale mejorar la reproducción?',
+ s:'Quiere saber si vale la pena invertir tiempo y trabajo en detectar mejor los celos.',
+ q:'¿Cómo lo justifica con números?',
+ datos:{diasPeriodo:365, diasGestante:228, diasLactando:48, costoDia:0, marranasProm:20},
+ pista:'Calcule sus días no productivos, póngales precio y vea cuánto ahorraría recortando 10 días.',
+ cierre:'La comparación decisiva es esa: lo que cuestan los días perdidos contra lo que cuesta revisar celos dos veces al día. Casi nunca está cerca.'}
+];
+
+function rpCargarCaso(id){
+  var c = RPCASO.find(function(x){ return x.id === id; });
+  if(!c) return;
+  for(var k in c.datos) if(RPGRANJA_DEF.hasOwnProperty(k)) RPGRANJA[k] = c.datos[k];
+  rpGuardarGranja();
+  for(var i in RPCX){ if(document.getElementById('rpcxo-' + i)) rpCxPinta(i); }
+  var el = document.getElementById('rpcaso-' + id);
+  if(el) el.classList.add('nx-caso2-on');
+  if(typeof toast === 'function') toast('Datos del caso cargados en sus calculadoras', '📋');
+}
+
+function rpCasos(mod){
+  var lista = RPCASO.filter(function(c){ return c.m === mod; });
+  if(!lista.length) return '';
+  return '<section class="nx-b nx-full"><h3 class="rv">Situaciones que usted va a reconocer</h3>' +
+  '<div class="nx-caso2 rv">' + lista.map(function(c){
+    var n = RPCASO.indexOf(c) + 1;
+    return '<details class="nx-caso2-i" id="rpcaso-' + c.id + '">' +
+      '<summary><span>Caso ' + n + '</span>' + esc(c.t) + '</summary>' +
+      '<div class="nx-caso2-b">' +
+        '<p class="nx-caso2-s">' + c.s + '</p>' +
+        '<p class="nx-caso2-q"><b>La pregunta:</b> ' + c.q + '</p>' +
+        '<p class="nx-caso2-p"><b>Pista:</b> ' + c.pista + '</p>' +
+        (Object.keys(c.datos).length ?
+          '<button class="nx-caso2-btn" onclick="rpCargarCaso(\'' + c.id + '\')">Cargar estos datos en mis calculadoras →</button>' : '') +
+        '<details class="nx-caso2-r"><summary>Ver la lectura del caso</summary><p>' + c.cierre + '</p></details>' +
+      '</div></details>';
+  }).join('') + '</div></section>';
+}
+
+/* ============================================================
+   PANEL REPRODUCTIVO
+   ============================================================ */
+function rpPanel(){
+  var g = RPGRANJA;
+  var dnp = g.diasPeriodo - g.diasGestante - g.diasLactando;
+  var ciclo = 114 + g.lactancia + g.intervaloServicio;
+  var camadas = 365 / ciclo;
+  var conc = g.servidas > 0 ? (g.gestantes / g.servidas * 100) : 0;
+  var parto = g.servidas > 0 ? (g.paridas / g.servidas * 100) : 0;
+  var rep = g.servidas > 0 ? (g.repitieron / g.servidas * 100) : 0;
+  var svg = g.gestantes > 0 ? (g.servidas / g.gestantes) : 0;
+  var reemp = g.marranasProm > 0 ? (g.entradas / g.marranasProm * 100) : 0;
+  var costo = dnp * g.costoDia * g.marranasProm;
+  var f = function(et, v, nota){
+    return '<div class="nx-pn-i"><span>' + et + '</span><b>' + v + '</b>' + (nota ? '<i>' + nota + '</i>' : '') + '</div>';
+  };
+  var falta = [];
+  if(g.servidas <= 0) falta.push('cuántas marranas sirvió');
+  if(g.costoDia <= 0) falta.push('cuánto le cuesta mantener una marrana al día');
+
+  return '<section class="nx-b nx-full"><h3 class="rv">Mi reproducción</h3>' +
+  '<div class="nx-pn rv">' +
+    '<div class="nx-pn-h"><b>Los números de su hato</b>' +
+      '<p>Todo esto sale de lo que usted fue metiendo en las calculadoras del curso. Cambie un dato en cualquier módulo y aquí se actualiza.</p></div>' +
+    (falta.length ? '<div class="nx-cx-av">⚠️ Para que el cuadro esté completo, todavía le falta meter <b>' + falta.join('</b> y <b>') + '</b>.</div>' : '') +
+    '<div class="nx-pn-g">' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">El servicio</span>' +
+        f('Marranas servidas', String(g.servidas)) +
+        f('Tasa de concepción', conc.toFixed(1) + ' %') +
+        f('Tasa de parto', parto.toFixed(1) + ' %') +
+        f('Tasa de repetición', rep.toFixed(1) + ' %') +
+        f('Servicios por gestación', svg.toFixed(2)) +
+      '</div>' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">El ciclo</span>' +
+        f('Gestación', '114 días', 'referencia') +
+        f('Lactancia', String(g.lactancia) + ' días') +
+        f('Destete a servicio', String(g.intervaloServicio) + ' días') +
+        f('Ciclo completo', String(ciclo) + ' días') +
+        f('Camadas por año', camadas.toFixed(2)) +
+      '</div>' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">Los días perdidos</span>' +
+        f('Período analizado', String(g.diasPeriodo) + ' días') +
+        f('Gestante + lactando', String(g.diasGestante + g.diasLactando) + ' días') +
+        f('Días no productivos', String(dnp) + ' días', 'aquí se va la plata') +
+        f('Cuestan', 'RD$ ' + Math.round(costo).toLocaleString('es-DO')) +
+        f('Si bajara 10 días', 'ahorra RD$ ' + Math.round(10 * g.costoDia * g.marranasProm).toLocaleString('es-DO')) +
+      '</div>' +
+      '<div class="nx-pn-b"><span class="nx-pn-t">El hato</span>' +
+        f('Marranas promedio', String(g.marranasProm)) +
+        f('Entradas', String(g.entradas)) +
+        f('Salidas', String(g.salidas)) +
+        f('Tasa de reemplazo', reemp.toFixed(1) + ' %') +
+        f('Dosis para el período', String(Math.ceil(g.marranas * g.serviciosPorMarrana * g.dosisPorServicio * (1 + g.margen / 100)))) +
+      '</div>' +
+    '</div>' +
+    '<div class="nx-cx-s"><b>¿Cómo se lee este cuadro?</b><p>' +
+      'De izquierda a derecha: <b>qué tan bien está sirviendo → qué tan rápido gira el ciclo → cuántos días se pierden → cómo se renueva el hato</b>. ' +
+      'Si los días no productivos le salen altos, suba por las columnas: casi siempre el origen está en la primera (repeticiones) o en el intervalo destete-servicio de la segunda. ' +
+      'Y recuerde comparar estos números <b>con los suyos del período anterior</b>, no con los de otra granja.' +
+    '</p></div>' +
+  '</div></section>';
+}
+
+/* colocar casos y panel */
+(function rpColocarCasosPanel(){
+  if(typeof RPMOD === 'undefined') return;
+  RPMOD.forEach(function(m){
+    var hay = RPCASO.some(function(c){ return c.m === m.n; });
+    if(hay && !m.sec.some(function(s){ return s.k === 'rpcasos'; })){
+      m.sec.push({k:'rpcasos', mod:m.n, t:'Situaciones que usted va a reconocer'});
+    }
+  });
+  var m10 = RPMOD.find(function(x){ return x.n === 10; });
+  if(m10 && !m10.sec.some(function(s){ return s.k === 'rppanel'; })){
+    m10.sec.push({k:'rppanel', t:'Mi reproducción'});
+  }
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecRP2 = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'rpcasos') return rpCasos(s.mod);
+    if(s && s.k === 'rppanel') return rpPanel();
+    return _nxSecRP2.apply(this, arguments);
+  };
+}
+
 </script>
+
 
 
 
