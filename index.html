@@ -13853,6 +13853,11 @@ if(typeof window.nxSeccion === 'function'){
 .nx-pay-p span{font-size:13px;color:var(--muted)}
 .nx-pay-n{font-size:13px !important;color:var(--muted) !important}
 
+/* la franja de color de la tarjeta en «Mis cursos»: las otras dos
+   la tienen por .c1 y .c2, esta la necesita por .cs-c3 */
+.cs-c.cs-c3::before{background:linear-gradient(90deg,#5B3FA8,#8E5FD4)}
+.cs-c.cs-c3:hover{border-color:#7A4FC0}
+
 </style>
 <script>
 /* ============================================================
@@ -16156,7 +16161,64 @@ if(typeof window.nxSeccion === 'function'){
   };
 }
 
+/* ============================================================
+   LA TARJETA EN «MIS CURSOS»
+   ------------------------------------------------------------
+   El catálogo del estudiante (abrirCursos) tiene los dos cursos
+   escritos a mano en el HTML, no los lee de COURSES. Por eso el
+   tercero no aparecía. Se envuelve la función y se añade la
+   tarjeta con las mismas clases, sin tocar el original.
+   ============================================================ */
+if(typeof window.abrirCursos === 'function'){
+  var _abrirCursos = window.abrirCursos;
+  window.abrirCursos = function(){
+    var r = _abrirCursos.apply(this, arguments);
+    try{ rpTarjetaCatalogo(); }catch(e){}
+    return r;
+  };
+}
+
+function rpTarjetaCatalogo(){
+  var g = document.querySelector('#csOv .cs-g');
+  if(!g || g.querySelector('.cs-c3')) return;
+
+  var esAdmin = rpEsInstructor();
+  /* mientras no esté publicado, al estudiante no le aparece nada:
+     una tarjeta gris de un curso que todavía no existe solo genera
+     preguntas. El instructor sí la ve, marcada como oculta. */
+  if(!RPPUB && !esAdmin) return;
+  var p = rpProgreso();
+  var total = RPMOD.length;
+  var publicado = RPPUB;
+  var acceso = rpTieneAcceso();
+  var puede = acceso && (publicado || esAdmin);
+  var sinPagar = publicado && !acceso;
+
+  var accion = puede ? 'cerrarCursos(); openReproduccion();'
+             : (sinPagar ? 'rpAbrirPago()'
+             : 'toast(\'Este curso todavía no está habilitado\',\'🔒\')');
+
+  var etiqueta = (esAdmin && !publicado) ? 'Oculto · solo usted lo ve' : 'Complementario avanzado';
+  var pie = puede ? (esAdmin && !publicado ? 'Entrar → (oculto para estudiantes)' : 'Entrar →')
+          : (sinPagar ? '🔒 US$ 41 · se adquiere aparte →' : 'No habilitado');
+
+  var b = document.createElement('button');
+  b.className = 'cs-c cs-c3' + (puede ? '' : (sinPagar ? ' pago' : ' off'));
+  b.setAttribute('onclick', accion);
+  b.innerHTML = '<div class="cs-ico">🐖</div><span class="cs-tag adv">' + etiqueta + '</span>' +
+    '<b>Reproducción porcina: celo, inseminación y manejo de marranas</b>' +
+    '<p>' + total + ' módulos · detección del celo, momento del servicio, diagnóstico de fallas, ' +
+    'indicadores reproductivos y 11 calculadoras.</p>' +
+    '<div class="cs-pg"><div class="cs-pgb"><i style="width:' + (p / total * 100) + '%"></i></div>' +
+    '<span>' + p + ' de ' + total + ' módulos</span></div>' +
+    '<em>' + pie + '</em>';
+  g.appendChild(b);
+}
+
 </script>
+
+
+
 
 
 
