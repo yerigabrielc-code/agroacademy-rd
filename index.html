@@ -13893,6 +13893,85 @@ if(typeof window.nxSeccion === 'function'){
 @media(max-width:420px){ .rp-fecha-g{grid-template-columns:1fr 1fr;gap:6px}
   .rp-fecha-g select{grid-column:1 / -1;order:-1} }
 
+/* ===== diagramas: ciclo y tetas ===== */
+.rp-d-eje{stroke:var(--border);stroke-width:2}
+.rp-d-t{fill:var(--muted);font-family:var(--mono);font-size:12.5px}
+.rp-d-h{fill:var(--muted);font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+.rp-d-f{fill:var(--text);font-family:var(--display);font-size:16px;font-weight:700}
+.rp-d-s{fill:var(--text-2);font-family:var(--body);font-size:12.5px}
+.rp-d-v{fill:var(--text-2);font-family:var(--body);font-size:13.5px}
+.rp-d-ok{fill:var(--text);font-weight:600}
+.rp-d-pro{fill:color-mix(in srgb,#E0A526 26%,var(--panel));stroke:#B5811A;stroke-width:1.5}
+.rp-d-est{fill:color-mix(in srgb,#2F7D4F 30%,var(--panel));stroke:#2F7D4F;stroke-width:2}
+.rp-d-met{fill:color-mix(in srgb,#C77DA8 26%,var(--panel));stroke:#A85C8A;stroke-width:1.5}
+.rp-d-die{fill:color-mix(in srgb,#5B3FA8 20%,var(--panel));stroke:#7A4FC0;stroke-width:1.5}
+.rp-d-vuelta{stroke:var(--border);stroke-width:2;stroke-dasharray:6 6}
+.rp-d-leg text{fill:var(--text-2);font-family:var(--body);font-size:13px}
+.rp-t-cuerpo{fill:color-mix(in srgb,#C77DA8 16%,var(--panel));stroke:var(--border);stroke-width:2}
+.rp-t-ok{fill:#2F7D4F}
+.rp-t-no{fill:var(--crit,#C6402E);opacity:.85}
+
+/* ===== pantalla final y confeti ===== */
+#agConfeti{position:fixed;inset:0;z-index:90;pointer-events:none}
+.ag-fin{border-radius:20px;padding:clamp(24px,3.5vw,40px);text-align:center;
+  border:1px solid var(--border);background:var(--panel)}
+.ag-fin-ok{background:linear-gradient(160deg,color-mix(in srgb,var(--green) 16%,var(--panel)),var(--panel) 60%);
+  border-color:color-mix(in srgb,var(--green) 45%,var(--border))}
+.ag-fin-k{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 42%,transparent);
+  border-radius:20px;padding:5px 14px;margin-bottom:16px}
+.ag-fin-esp .ag-fin-k{color:var(--amber-d);border-color:color-mix(in srgb,var(--amber) 45%,transparent)}
+.ag-fin>b{display:block;font-family:var(--display);font-size:clamp(24px,3.4vw,38px);font-weight:800;
+  letter-spacing:-.02em;line-height:1.12;color:var(--text);margin-bottom:12px}
+.ag-fin>p{margin:0 auto 20px;max-width:60ch;font-size:16px;line-height:1.68;color:var(--text-2)}
+.ag-fin>p b{color:var(--text)}
+.ag-fin-bar{max-width:340px;margin:0 auto 18px;height:8px;background:var(--bg);border-radius:5px;
+  overflow:hidden;border:1px solid var(--border)}
+.ag-fin-bar i{display:block;height:100%;background:linear-gradient(90deg,#2F7D4F,#C08A12)}
+.ag-fin-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;
+  background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:22px}
+.ag-fin-g>div{background:var(--panel);padding:16px 12px}
+.ag-fin-g b{display:block;font-family:var(--mono);font-size:26px;font-weight:700;color:var(--green);line-height:1}
+.ag-fin-g span{display:block;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+.ag-fin-acc{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* el .btn-ghost heredado se pierde sobre el fondo verde de la pantalla
+   final: aqui se le da borde y color propios para que se lea */
+.ag-fin-acc .btn{font-size:15px;padding:13px 22px}
+.ag-fin-acc .btn-ghost{background:var(--panel);color:var(--text);opacity:1;
+  border:1px solid color-mix(in srgb,var(--green) 40%,var(--border))}
+.ag-fin-acc .btn-ghost:hover{background:color-mix(in srgb,var(--green) 10%,var(--panel))}
+.ag-fin-adm + .btn-ghost{background:var(--panel);color:var(--text);opacity:1;
+  border:1px solid var(--border)}
+.ag-fin-pie{margin:20px auto 0;max-width:62ch;font-size:13.5px;line-height:1.65;color:var(--muted)}
+.ag-fin-pie b{color:var(--text-2)}
+.ag-fin-adm{margin:6px auto 14px !important;font-size:13px !important;color:var(--muted) !important}
+
+/* ===== diagramas tecnicos M04 · M07 · M08 ===== */
+.rp-d-tic{stroke:var(--border);stroke-width:1.5}
+.rp-d-bt{fill:var(--text);font-family:var(--body);font-size:13.5px;font-weight:600}
+.rp-d-sv{fill:var(--text);font-family:var(--body);font-size:13.5px;font-weight:700}
+.rp-d-celo{fill:color-mix(in srgb,#C77DA8 24%,var(--panel));stroke:#A85C8A;stroke-width:1.5}
+.rp-d-ovu{fill:color-mix(in srgb,#E0A526 34%,var(--panel));stroke:#B5811A;stroke-width:1.5}
+.rp-d-ovo{fill:color-mix(in srgb,#E0A526 20%,var(--panel));stroke:#B5811A;stroke-width:1.5;stroke-dasharray:5 4}
+.rp-d-sem{fill:color-mix(in srgb,#2F7D4F 24%,var(--panel));stroke:#2F7D4F;stroke-width:1.5}
+.rp-d-serv{stroke:var(--text);stroke-width:2.5;stroke-dasharray:7 5}
+.rp-d-diana{fill:none;stroke:#2F7D4F;stroke-width:2.5;opacity:.85}
+.rp-d-dt{fill:#2F7D4F;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.rp-d-m1{fill:color-mix(in srgb,#2F7D4F 26%,var(--panel));stroke:#2F7D4F;stroke-width:1.5}
+.rp-d-m2{fill:color-mix(in srgb,#5B3FA8 22%,var(--panel));stroke:#7A4FC0;stroke-width:1.5}
+.rp-d-m3{fill:color-mix(in srgb,#E0A526 24%,var(--panel));stroke:#B5811A;stroke-width:1.5}
+.rp-d-m4{fill:color-mix(in srgb,#C77DA8 22%,var(--panel));stroke:#A85C8A;stroke-width:1.5}
+.rp-d-parto{stroke:var(--text);stroke-width:2.5}
+.rp-d-c0{fill:color-mix(in srgb,var(--text) 8%,var(--panel));stroke:var(--text);stroke-width:2}
+.rp-d-c1{fill:color-mix(in srgb,#2F7D4F 20%,var(--panel));stroke:#2F7D4F;stroke-width:1.5}
+.rp-d-c2{fill:color-mix(in srgb,#E0A526 22%,var(--panel));stroke:#B5811A;stroke-width:1.5}
+.rp-d-c3{fill:color-mix(in srgb,#C6402E 18%,var(--panel));stroke:#C6402E;stroke-width:1.5}
+.rp-d-q{fill:var(--bg);stroke:var(--border);stroke-width:1.5}
+.rp-d-aviso{fill:color-mix(in srgb,#E0A526 12%,var(--panel));stroke:#B5811A;stroke-width:1.5;stroke-dasharray:6 5}
+.rp-d-ram{stroke:var(--border);stroke-width:2}
+.rp-d-ct{fill:var(--text);font-family:var(--display);font-size:15px;font-weight:700}
+.rp-d-cs{fill:var(--text-2);font-family:var(--body);font-size:12.5px}
+
 </style>
 <script>
 /* ============================================================
@@ -16673,7 +16752,517 @@ function rpColumnaAcceso(html){
   addEventListener('hashchange', function(){ setTimeout(abrir, 60); });
 })();
 
+
+/* ============================================================
+   FIGURAS NUEVAS, DIAGRAMAS TÉCNICOS Y PANTALLA FINAL
+   ============================================================ */
+
+/* ---------- más figuras dentro del contenido ---------- */
+var RPFIG2 = [
+  {m:1,  i:5,  f:'rp-f-camada-grande', t:'Por qué nacen camadas y no un lechón',
+   p:'En cada celo la marrana no madura un óvulo: madura un grupo. Por eso el número de lechones que nacen depende de cuántos óvulos se soltaron <b>y</b> de cuántos embriones sobrevivieron los primeros días.'},
+  {m:2,  i:3,  f:'rp-f-arete', t:'Sin identificación no hay historial',
+   p:'Este arete es lo que convierte «una marrana» en «la marrana 47, tercer parto, servida el 10 de enero». Es el primer trabajo antes de montar cualquier ficha: si no están identificadas, no hay nada que registrar.'},
+  {m:5,  i:8,  f:'rp-f-camada-paridera', t:'El resultado de un servicio bien hecho',
+   p:'Todo lo de este módulo —higiene, momento, técnica, manejo del semen— termina aquí o no termina. Y lo incómodo es que el resultado se ve tres meses y medio después, cuando ya nadie recuerda cómo se hizo aquel día.'},
+  {m:6,  i:6,  f:'rp-f-corrales', t:'Agrupar sin pelear',
+   p:'Si tiene que juntar marranas recién servidas, hágalo con espacio suficiente, comederos para todas y agrupadas por tamaño. Las peleas de los primeros días se pagan en embriones que nadie va a contar.'},
+  {m:9,  i:4,  f:'rp-f-mamando', t:'Lo que se gasta criando hay que reponerlo',
+   p:'Una marrana que crió una camada grande sale de la lactancia con menos reservas. Si no come bien durante esas semanas, el precio se cobra después: intervalo destete-celo largo y un ciclo que se corre.'},
+  {m:10, i:6,  f:'rp-f-mamando2', t:'Los primeros minutos deciden el resto',
+   p:'El orden en que los lechones agarran teta tiende a mantenerse toda la lactancia. Por eso igualar camadas y repartir tetas se hace <b>temprano</b>, no cuando ya se nota la diferencia de tamaño.'},
+  {m:10, i:12, f:'rp-f-biberon', t:'Cuando la camada es más grande que la ubre',
+   p:'Si nacen más lechones que tetas funcionales, alguien se queda sin comer. Las salidas son igualar con otra camada o suplementar, y las dos hay que decidirlas el mismo día del parto, no tres días después.'}
+];
+
+/* ---------- diagrama: el ciclo estral en el tiempo ---------- */
+function rpDiagCiclo(){
+  var fase = function(x, w, cls, t, sub){
+    return '<rect class="' + cls + '" x="' + x + '" y="96" width="' + w + '" height="58" rx="8"/>' +
+      '<text class="rp-d-f" x="' + (x + w / 2) + '" y="126" text-anchor="middle">' + t + '</text>' +
+      '<text class="rp-d-s" x="' + (x + w / 2) + '" y="144" text-anchor="middle">' + sub + '</text>';
+  };
+  return '<section class="nx-b nx-full"><h3 class="rv">El ciclo, visto en el tiempo</h3>' +
+  '<p class="nx-cap rv">Las cuatro fases una detrás de otra, y debajo lo que usted puede ver en el corral en cada una.</p>' +
+  '<div class="rp-esq rv"><svg viewBox="0 0 900 300" role="img" aria-label="Línea de tiempo del ciclo estral con sus cuatro fases y los signos visibles">' +
+    '<line class="rp-d-eje" x1="30" y1="82" x2="870" y2="82"/>' +
+    '<text class="rp-d-t" x="30" y="66">El ciclo se repite mientras no haya gestación</text>' +
+    fase(30, 150, 'rp-d-pro', 'Proestro', 'sube el estrógeno') +
+    fase(188, 190, 'rp-d-est', 'Estro · el celo', 'pico de LH y ovulación') +
+    fase(386, 150, 'rp-d-met', 'Metaestro', 'se forman los cuerpos lúteos') +
+    fase(544, 326, 'rp-d-die', 'Diestro', 'progesterona alta, todo tranquilo') +
+    /* lo que se ve */
+    '<text class="rp-d-h" x="30" y="186">Lo que usted ve</text>' +
+    '<text class="rp-d-v" x="30" y="210">Vulva que empieza a</text>' +
+    '<text class="rp-d-v" x="30" y="228">cambiar. Monta a otras</text>' +
+    '<text class="rp-d-v" x="30" y="246">pero NO se deja montar.</text>' +
+    '<text class="rp-d-v rp-d-ok" x="188" y="210">SE QUEDA QUIETA al</text>' +
+    '<text class="rp-d-v rp-d-ok" x="188" y="228">presionarle el lomo.</text>' +
+    '<text class="rp-d-v rp-d-ok" x="188" y="246">Aquí y solo aquí se sirve.</text>' +
+    '<text class="rp-d-v" x="386" y="210">Los signos se apagan.</text>' +
+    '<text class="rp-d-v" x="386" y="228">Ya no acepta la monta.</text>' +
+    '<text class="rp-d-v" x="544" y="210">Nada. Si quedó gestante</text>' +
+    '<text class="rp-d-v" x="544" y="228">sigue así; si no, vuelve</text>' +
+    '<text class="rp-d-v" x="544" y="246">al proestro.</text>' +
+    /* flecha de vuelta */
+    '<path class="rp-d-vuelta" d="M866,160 C888,200 888,262 500,272 C200,278 60,268 40,178" fill="none" marker-end="url(#rpFlecha)"/>' +
+  '</svg>' +
+  '<p class="rp-esq-pie">La duración de cada fase <b>no es igual en todas las marranas</b>: cambia con la genética, el número de parto, el clima y el manejo. Por eso el ancho de las cajas es orientativo y el protocolo concreto lo define su veterinario.</p>' +
+  '</div></section>';
+}
+
+/* ---------- diagrama: la línea de tetas ---------- */
+function rpDiagTetas(){
+  var t = '';
+  for(var i = 0; i < 7; i++){
+    var x = 130 + i * 100;
+    var buena = i !== 2 && i !== 5;
+    t += '<circle class="' + (buena ? 'rp-t-ok' : 'rp-t-no') + '" cx="' + x + '" cy="96" r="17"/>' +
+         '<circle class="' + (buena ? 'rp-t-ok' : 'rp-t-no') + '" cx="' + x + '" cy="184" r="17"/>' +
+         '<text class="rp-d-s" x="' + x + '" y="70" text-anchor="middle">' + (i + 1) + '</text>' +
+         '<text class="rp-d-s" x="' + x + '" y="218" text-anchor="middle">' + (i + 1) + '</text>';
+  }
+  return '<section class="nx-b nx-full"><h3 class="rv">Contar tetas funcionales antes del parto</h3>' +
+  '<p class="nx-cap rv">Dos hileras. Cuente las que de verdad sirven, no las que están. Una teta invertida, dañada o seca <b>no alimenta</b>.</p>' +
+  '<div class="rp-esq rv"><svg viewBox="0 0 900 290" role="img" aria-label="Esquema de las dos hileras de tetas de una cerda, con dos pares marcados como no funcionales">' +
+    '<rect class="rp-t-cuerpo" x="90" y="76" width="700" height="128" rx="60"/>' +
+    t +
+    '<g class="rp-d-leg">' +
+      '<circle class="rp-t-ok" cx="120" cy="254" r="9"/><text x="138" y="259">Funcional</text>' +
+      '<circle class="rp-t-no" cx="290" cy="254" r="9"/><text x="308" y="259">No funcional: invertida, dañada o seca</text>' +
+    '</g>' +
+  '</svg>' +
+  '<p class="rp-esq-pie">En este ejemplo hay 14 tetas pero solo <b>10 funcionales</b>. Si esa marrana pare 13 lechones vivos, tres se quedan sin lugar. La decisión —igualar con otra camada o suplementar— se toma <b>el día del parto</b>, y para eso hay que haber contado antes. Anótelo en la ficha de cada marrana.</p>' +
+  '</div></section>';
+}
+
+/* ---------- colocar ---------- */
+(function rpColocarFig2(){
+  if(typeof RPMOD === 'undefined') return;
+  var poner = function(mod, pos, sec, clave){
+    var m = RPMOD.find(function(q){ return q.n === mod; });
+    if(!m || m.sec.some(function(s){ return s.__fig === clave; })) return;
+    sec.__fig = clave;
+    m.sec.splice(Math.min(pos, m.sec.length), 0, sec);
+  };
+  /* de atrás hacia delante para no correr los índices */
+  RPFIG2.slice().sort(function(a, b){ return b.i - a.i; }).forEach(function(x){
+    poner(x.m, x.i, {k:'rpfoto', f:x.f, t:x.t, p:x.p}, 'f2:' + x.f);
+  });
+  poner(1, 7, {k:'rpciclo'}, 'diag:ciclo');
+  poner(10, 9, {k:'rptetas'}, 'diag:tetas');
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecD = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'rpciclo') return rpDiagCiclo();
+    if(s && s.k === 'rptetas') return rpDiagTetas();
+    return _nxSecD.apply(this, arguments);
+  };
+}
+
+/* ============================================================
+   PANTALLA FINAL Y CONFETI · para los tres cursos
+   ============================================================ */
+function agConfeti(){
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var vieja = document.getElementById('agConfeti');
+  if(vieja) vieja.remove();
+  var cv = document.createElement('canvas');
+  cv.id = 'agConfeti';
+  cv.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(cv);
+  var ctx = cv.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var W, H;
+  var medir = function(){
+    W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
+    cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px';
+  };
+  medir();
+  addEventListener('resize', medir);
+  var colores = ['#2F7D4F', '#E0A526', '#7A2E6E', '#5B3FA8', '#C77DA8', '#4FA772', '#F0F0EA'];
+  var piezas = [];
+  var n = innerWidth < 600 ? 90 : 160;
+  for(var i = 0; i < n; i++){
+    piezas.push({
+      x: Math.random() * W,
+      y: -Math.random() * H * 0.6,
+      w: (6 + Math.random() * 7) * dpr,
+      h: (9 + Math.random() * 10) * dpr,
+      vy: (1.6 + Math.random() * 2.6) * dpr,
+      vx: (Math.random() - 0.5) * 1.6 * dpr,
+      giro: Math.random() * Math.PI * 2,
+      dg: (Math.random() - 0.5) * 0.22,
+      c: colores[(Math.random() * colores.length) | 0]
+    });
+  }
+  var t0 = performance.now();
+  var dura = 4200;
+  (function anim(t){
+    var pasado = t - t0;
+    if(pasado > dura){ cv.remove(); removeEventListener('resize', medir); return; }
+    var alfa = pasado > dura - 900 ? (dura - pasado) / 900 : 1;
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = alfa;
+    piezas.forEach(function(p){
+      p.y += p.vy; p.x += p.vx; p.giro += p.dg;
+      if(p.y > H + 40) p.y = -30;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.giro);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * (0.55 + 0.45 * Math.abs(Math.cos(p.giro))));
+      ctx.restore();
+    });
+    requestAnimationFrame(anim);
+  })(t0);
+}
+window.agConfeti = agConfeti;
+
+/* la pantalla, igual para los tres cursos */
+function agFinal(cfg){
+  var hechos = cfg.hechos, total = cfg.total;
+  var listo = hechos >= total;
+  var esAdmin = (typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN') ||
+                (typeof PREVIEW !== 'undefined' && PREVIEW);
+  var id = 'agfin-' + cfg.id;
+  /* Cada curso pagina con su propia clase de diapositiva: el curso 1 usa
+     .block y los otros dos .nx-b. Si no coincide, la pantalla final se
+     queda visible encima de todas las demás diapositivas. */
+  var env = cfg.env || 'nx-b nx-full';
+
+  if(!listo){
+    return '<section class="' + env + '"><div class="ag-fin ag-fin-esp rv" id="' + id + '">' +
+      '<span class="ag-fin-k">Le falta poco</span>' +
+      '<b>Aquí lo espera su certificado</b>' +
+      '<p>Ha aprobado <b>' + hechos + ' de ' + total + '</b> módulos. Cuando complete el último, esta pantalla cambia.</p>' +
+      '<div class="ag-fin-bar"><i style="width:' + (hechos / total * 100) + '%"></i></div>' +
+      (esAdmin ? '<p class="ag-fin-adm">Usted es el instructor: pulse para ver la pantalla que verá el estudiante al terminar.</p>' +
+        '<button class="btn btn-ghost" onclick="agVerFinal(\'' + cfg.id + '\')">Ver la pantalla final →</button>' : '') +
+    '</div></section>';
+  }
+  return '<section class="' + env + '"><div class="ag-fin ag-fin-ok rv" id="' + id + '">' +
+    '<span class="ag-fin-k">Curso completado</span>' +
+    '<b>' + esc(cfg.felicidad) + '</b>' +
+    '<p>' + cfg.texto + '</p>' +
+    '<div class="ag-fin-g">' + cfg.logros.map(function(l){
+      return '<div><b>' + l[0] + '</b><span>' + esc(l[1]) + '</span></div>';
+    }).join('') + '</div>' +
+    '<div class="ag-fin-acc">' +
+      (cfg.cert ? '<button class="btn btn-primary" onclick="' + cfg.cert + '">🎓 Generar mi certificado</button>' : '') +
+      '<button class="btn btn-ghost" onclick="agConfeti()">🎉 Otra vez</button>' +
+    '</div>' +
+    (cfg.pie ? '<p class="ag-fin-pie">' + cfg.pie + '</p>' : '') +
+  '</div></section>';
+}
+window.agFinal = agFinal;
+
+/* el instructor puede ver la pantalla final sin haber hecho el curso */
+window.AGFORZAR = {};
+window.agVerFinal = function(curso){
+  AGFORZAR[curso] = true;
+  /* Abre el curso si estaba cerrado, se planta en el ULTIMO modulo y
+     baja hasta la pantalla final. Funciona igual desde el panel de
+     administracion que desde dentro del curso. */
+  if(curso === 'reproduccion'){
+    if(!document.getElementById('rpOv') && typeof openReproduccion === 'function') openReproduccion();
+    setTimeout(function(){
+      if(typeof rpIr === 'function') rpIr(RPMOD.length);
+      else if(typeof rpPinta === 'function'){ RPCUR = RPMOD.length; rpPinta(); }
+      setTimeout(function(){ agIrAlFinal('#rpMain'); agConfeti(); }, 220);
+    }, 160);
+    return;
+  }
+  if(curso === 'nutricion'){
+    if(!document.getElementById('nxOv') && typeof openNutricion === 'function') openNutricion();
+    setTimeout(function(){
+      if(typeof nxIr === 'function') nxIr(NXMOD.length);
+      else if(typeof nxPinta === 'function'){ NXCUR = NXMOD.length; nxPinta(); }
+      setTimeout(function(){ agIrAlFinal('#nxMain'); agConfeti(); }, 220);
+    }, 160);
+    return;
+  }
+  if(typeof mount === 'function'){
+    try{ if(typeof showScreen === 'function') showScreen('curso'); }catch(e){}
+    mount(12);
+    setTimeout(function(){ agIrAlFinal('#main'); agConfeti(); }, 260);
+  }
+};
+function agIrAlFinal(raiz){
+  var cont = document.querySelector(raiz);
+  if(!cont) return;
+  var wrap = cont.querySelector('.nx-wrap') || cont.querySelector('.wrap') || cont;
+  /* El índice hay que contarlo con el MISMO selector con el que pagina
+     cada curso, o la diapositiva a la que salta no es la que se ve. */
+  var sel = (raiz === '#main') ? '.block' : 'section.nx-b';
+  var secs = [].slice.call(wrap.querySelectorAll(sel));
+  var i = -1;
+  for(var k = 0; k < secs.length; k++){
+    if(secs[k].querySelector('.ag-fin')){ i = k; break; }
+  }
+  if(i < 0) return;
+
+  /* modo lección: son diapositivas, hay que PASAR a la última, no bajar */
+  if(raiz === '#rpMain' && typeof RPLECCION !== 'undefined' && RPLECCION && typeof rpMostrarSeccion === 'function'){ rpMostrarSeccion(i); return; }
+  if(raiz === '#nxMain' && typeof NXLECCION !== 'undefined' && NXLECCION && typeof nxMostrarSeccion === 'function'){ nxMostrarSeccion(i); return; }
+  if(raiz === '#main' && typeof LS !== 'undefined' && LS && LS.blocks && typeof showSection === 'function'){ showSection(i); return; }
+
+  /* modo corrido: bajar de verdad. scrollIntoView no siempre mueve el
+     contenedor correcto, así que se busca el que de veras se desplaza. */
+  var sec = secs[i];
+  var caja = sec.parentNode;
+  while(caja && caja !== document.body && caja.scrollHeight <= caja.clientHeight + 4) caja = caja.parentNode;
+  if(caja && caja !== document.body){
+    var y = 0, nn = sec;
+    while(nn && nn !== caja){ y += nn.offsetTop; nn = nn.offsetParent; }
+    caja.scrollTop = Math.max(0, y - 24);
+  } else {
+    scrollTo(0, Math.max(0, sec.getBoundingClientRect().top + (pageYOffset || 0) - 24));
+  }
+  try{ sec.classList.add('on','vis','in'); sec.style.opacity = '1'; sec.style.transform = 'none'; }catch(e){}
+}
+
+
+/* ---------- se engancha en los tres cursos ---------- */
+
+
+function agCfg(curso){
+  if(curso === 'reproduccion'){
+    return {id:'reproduccion', hechos:(AGFORZAR.reproduccion ? RPMOD.length : rpProgreso()), total:RPMOD.length,
+      felicidad:'¡Lo logró! Terminó Reproducción porcina',
+      texto:'Ya sabe detectar un celo sin que se le escape, decidir el momento del servicio con criterio, diagnosticar por qué una marrana falla y —lo que más vale— <b>ponerle precio a los días que su granja pierde</b>.',
+      logros:[[RPMOD.length + ' módulos', 'del celo al parto'], ['11', 'calculadoras que puede seguir usando'],
+              ['15', 'situaciones de granja resueltas'], ['100', 'preguntas aprobadas']],
+      cert:'rpCertificado()',
+      pie:'Lo siguiente no es otro curso: es <b>abrir su ficha de cubrición el lunes</b> y empezar a anotar. Vuelva a las calculadoras cuando cierre el próximo lote.'};
+  }
+  if(curso === 'nutricion'){
+    return {id:'nutricion', hechos:(AGFORZAR.nutricion ? NXMOD.length : nxProgreso()), total:NXMOD.length,
+      felicidad:'¡Terminó! Formulación y fabricación de alimentos',
+      texto:'Ya puede formular una dieta para cada etapa, pasarla a kilos, fabricarla, saber lo que cuesta el kilo y <b>decir si su granja gana o trabaja para el molino</b>.',
+      logros:[[NXMOD.length + ' módulos', 'del ingrediente a la rentabilidad'], ['12', 'fórmulas verificadas'],
+              ['11', 'calculadoras'], ['40', 'ejercicios resueltos']],
+      cert:'nxCertificado()',
+      pie:'Su proyecto final ya tiene sus números. Cuando cambie el precio del maíz, vuelva y <b>mire cómo se mueve el margen</b>.'};
+  }
+  return {id:'porcicultura', env:'block', hechos:(AGFORZAR.porcicultura ? 12 : (typeof passedCount === 'function' ? passedCount() : 0)), total:12,
+    felicidad:'¡Felicidades! Completó Porcicultura aplicada a RD',
+    texto:'Recorrió la granja entera: instalaciones, reproducción, el lechón, alimentación, sanidad, registros, economía y comercialización. <b>Ya tiene el mapa completo del negocio.</b>',
+    logros:[['12', 'módulos aprobados'], ['120', 'preguntas'], ['1', 'proyecto de granja propio'],
+            ['2', 'cursos avanzados esperándolo']],
+    cert:(typeof abrirCert === 'function' ? "abrirCert('porcicultura')" : ''),
+    pie:'Si quiere profundizar: <b>Formulación</b> le enseña a bajar el costo del alimento, y <b>Reproducción</b> a no perder celos. Los dos se consiguen aparte desde «Mis cursos».'};
+}
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecFin = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'agfin') return agFinal(agCfg(s.c));
+    return _nxSecFin.apply(this, arguments);
+  };
+}
+
+/* La pantalla final va DESPUÉS del examen del último módulo: primero se
+   aprueba, después se celebra. Por eso se engancha al examen y no a la
+   lista de secciones, que se pinta antes. */
+if(typeof window.rpExamen === 'function'){
+  var _rpExFin = window.rpExamen;
+  window.rpExamen = function(id){
+    var h = _rpExFin.apply(this, arguments);
+    if(id !== RPMOD.length) return h;
+    return (h || '') + agFinal(agCfg('reproduccion'));
+  };
+}
+if(typeof window.nxExamen === 'function'){
+  var _nxExFin = window.nxExamen;
+  window.nxExamen = function(id){
+    var h = _nxExFin.apply(this, arguments);
+    if(id !== NXMOD.length) return h;
+    return (h || '') + agFinal(agCfg('nutricion'));
+  };
+}
+
+/* curso 1 · porcicultura: renderModule devuelve el HTML del módulo */
+if(typeof window.renderModule === 'function'){
+  var _renderModule = window.renderModule;
+  window.renderModule = function(id){
+    var h = _renderModule.apply(this, arguments);
+    if(id !== 12 || !h) return h;
+    if(h.indexOf('ag-fin') >= 0) return h;
+    return h + agFinal(agCfg('porcicultura'));
+  };
+}
+
+/* confeti automático al aprobar el ÚLTIMO módulo de cualquier curso */
+function agCelebrar(curso){
+  var c = agCfg(curso);
+  if(c.hechos < c.total) return;
+  setTimeout(function(){
+    agConfeti();
+    if(typeof toast === 'function') toast('¡Curso completado! Su certificado ya está disponible', '🎓');
+  }, 500);
+}
+['rpEnviar', 'nxEnviar', 'submitExam'].forEach(function(fn){
+  if(typeof window[fn] !== 'function') return;
+  var curso = fn === 'rpEnviar' ? 'reproduccion' : (fn === 'nxEnviar' ? 'nutricion' : 'porcicultura');
+  var _f = window[fn];
+  window[fn] = function(){
+    var antes = agCfg(curso).hechos;
+    var r = _f.apply(this, arguments);
+    try{
+      var ahora = agCfg(curso).hechos;
+      if(ahora > antes) agCelebrar(curso);
+    }catch(e){}
+    return r;
+  };
+});
+
+
+/* ============================================================
+   TRES DIAGRAMAS TÉCNICOS PARA LOS MÓDULOS QUE NO TENÍAN NINGUNO
+   M04 · la ventana de servicio
+   M07 · cuándo se puede diagnosticar
+   M08 · el árbol de la repetición
+   ============================================================ */
+
+/* ---------- M04: la ventana de servicio ---------- */
+function rpDiagVentana(){
+  /* el celo dura ~48 h en este ejemplo; la escala va de 0 a 60 h */
+  var X0 = 70, X1 = 860, H = 60;
+  var x = function(h){ return X0 + (X1 - X0) * (h / H); };
+  var barra = function(a, b, y, cls, t){
+    return '<rect class="' + cls + '" x="' + x(a) + '" y="' + y + '" width="' + (x(b) - x(a)) + '" height="30" rx="7"/>' +
+      '<text class="rp-d-bt" x="' + ((x(a) + x(b)) / 2) + '" y="' + (y + 20) + '" text-anchor="middle">' + t + '</text>';
+  };
+  var tic = '';
+  for(var h = 0; h <= 60; h += 12){
+    tic += '<line class="rp-d-tic" x1="' + x(h) + '" y1="70" x2="' + x(h) + '" y2="' + (h % 12 === 0 ? 330 : 80) + '"/>' +
+           '<text class="rp-d-s" x="' + x(h) + '" y="58" text-anchor="middle">' + h + ' h</text>';
+  }
+  return '<section class="nx-b nx-full"><h3 class="rv">La ventana de servicio, hora por hora</h3>' +
+  '<p class="nx-cap rv">El reloj arranca cuando la marrana <b>se queda quieta por primera vez</b>. No cuando usted la vio en el corral: cuando se quedó quieta.</p>' +
+  '<div class="rp-esq rv"><svg viewBox="0 0 900 400" role="img" aria-label="Línea de tiempo del celo con la ventana de ovulación y el momento en que conviene inseminar">' +
+    '<text class="rp-d-t" x="' + X0 + '" y="30">Horas desde el primer reflejo de quietud</text>' +
+    tic +
+    barra(0, 48, 90, 'rp-d-celo', 'Celo: se deja montar (aquí dura 48 h)') +
+    '<text class="rp-d-h" x="14" y="150">OVULA</text>' +
+    barra(30, 38, 140, 'rp-d-ovu', 'Ovulación · dos terceras partes del celo') +
+    '<text class="rp-d-h" x="14" y="200">ÓVULO</text>' +
+    barra(30, 42, 190, 'rp-d-ovo', 'El óvulo sirve unas 8–12 h') +
+    '<text class="rp-d-h" x="14" y="250">SEMEN</text>' +
+    barra(6, 36, 240, 'rp-d-sem', 'El semen vive ~24 h y necesita 4–6 h de preparación') +
+    /* los dos servicios */
+    '<line class="rp-d-serv" x1="' + x(12) + '" y1="84" x2="' + x(12) + '" y2="336"/>' +
+    '<line class="rp-d-serv" x1="' + x(28) + '" y1="84" x2="' + x(28) + '" y2="336"/>' +
+    '<text class="rp-d-sv" x="' + x(12) + '" y="356" text-anchor="middle">1.er servicio</text>' +
+    '<text class="rp-d-s"  x="' + x(12) + '" y="374" text-anchor="middle">12 h después</text>' +
+    '<text class="rp-d-sv" x="' + x(28) + '" y="356" text-anchor="middle">2.º servicio</text>' +
+    '<text class="rp-d-s"  x="' + x(28) + '" y="374" text-anchor="middle">16 h más tarde</text>' +
+    '<rect class="rp-d-diana" x="' + x(24) + '" y="84" width="' + (x(38) - x(24)) + '" height="252" rx="10"/>' +
+    '<text class="rp-d-dt" x="' + ((x(24) + x(38)) / 2) + '" y="318" text-anchor="middle">donde se juntan óvulo y semen</text>' +
+  '</svg>' +
+  '<p class="rp-esq-pie">Fíjese en lo que enseña el dibujo: el semen hay que ponerlo <b>antes</b> de que ovule, no cuando ovula. Por eso el primer servicio va temprano y el segundo cae dentro de la ventana. Y como el celo <b>no dura 48 h en todas</b> —la nulípara suele durar menos, la multípara más—, el momento se decide por la <b>detección de dos veces al día</b>, no por un horario fijo de la granja.</p>' +
+  '</div></section>';
+}
+
+/* ---------- M07: cuándo se puede diagnosticar ---------- */
+function rpDiagDiag(){
+  var X0 = 90, X1 = 865, D = 120;
+  var x = function(d){ return X0 + (X1 - X0) * (d / D); };
+  var fila = function(y, a, b, cls, t, nota){
+    return '<rect class="' + cls + '" x="' + x(a) + '" y="' + y + '" width="' + Math.max(x(b) - x(a), 6) + '" height="34" rx="8"/>' +
+      '<text class="rp-d-bt" x="' + (x(a) + 10) + '" y="' + (y + 22) + '">' + t + '</text>' +
+      '<text class="rp-d-s" x="' + X0 + '" y="' + (y + 52) + '">' + nota + '</text>';
+  };
+  var tic = '';
+  [0, 18, 21, 30, 45, 60, 90, 114].forEach(function(d){
+    tic += '<line class="rp-d-tic" x1="' + x(d) + '" y1="66" x2="' + x(d) + '" y2="' + (d === 114 ? 340 : 76) + '"/>' +
+           '<text class="rp-d-s" x="' + x(d) + '" y="56" text-anchor="middle">' + d + '</text>';
+  });
+  return '<section class="nx-b nx-full"><h3 class="rv">Cuándo se puede saber si quedó preñada</h3>' +
+  '<p class="nx-cap rv">Cada método tiene su ventana. Fuera de ella <b>no es que falle: es que no aplica</b>, y el resultado engaña.</p>' +
+  '<div class="rp-esq rv"><svg viewBox="0 0 900 420" role="img" aria-label="Ventanas de cada método de diagnóstico de gestación medidas en días desde el servicio">' +
+    '<text class="rp-d-t" x="' + X0 + '" y="28">Días desde el servicio  ·  el parto cae cerca del 114</text>' +
+    tic +
+    fila(84,  18, 24, 'rp-d-m1', 'Vuelta al celo — lo primero y lo más barato',
+         'No cuesta nada: es pasar el verraco. Si repite, ya lo sabe sin equipo.') +
+    fila(160, 28, 45, 'rp-d-m2', 'Ecógrafo — la ventana buena',
+         'Antes del día 28 hay falsos negativos; después el útero baja y cuesta verlo.') +
+    fila(236, 45, 90, 'rp-d-m3', 'Observación: no repite, come, se le nota el abdomen',
+         'Confirma, no diagnostica. Una marrana vacía también puede dejar de repetir.') +
+    fila(300, 110, 120, 'rp-d-m4', 'A la paridera',
+         'Si llegó aquí sin confirmar, el diagnóstico ya no sirve: solo queda esperar.') +
+    '<line class="rp-d-parto" x1="' + x(114) + '" y1="66" x2="' + x(114) + '" y2="340"/>' +
+    '<text class="rp-d-sv" x="' + x(114) + '" y="360" text-anchor="middle">parto</text>' +
+  '</svg>' +
+  '<p class="rp-esq-pie">La lectura práctica: <b>la vuelta al celo del día 18 al 24 es el diagnóstico que ninguna granja debería saltarse</b>, porque no cuesta nada y recupera el celo a tiempo. El ecógrafo no sustituye eso: lo confirma. Y cada día que una marrana vacía pasa sin detectarse es un día no productivo que usted ya sabe poner en pesos con la calculadora de este curso.</p>' +
+  '</div></section>';
+}
+
+/* ---------- M08: el árbol de la repetición ---------- */
+function rpDiagFalla(){
+  var caja = function(x, y, w, cls, t, s){
+    var l = s.split('|');
+    var ln = l.map(function(q, i){ return '<text class="rp-d-cs" x="' + (x + 14) + '" y="' + (y + 48 + i * 17) + '">' + q + '</text>'; }).join('');
+    return '<rect class="' + cls + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + (40 + l.length * 17 + 14) + '" rx="11"/>' +
+      '<text class="rp-d-ct" x="' + (x + 14) + '" y="' + (y + 26) + '">' + t + '</text>' + ln;
+  };
+  var uneV = function(x, y1, y2){ return '<line class="rp-d-ram" x1="' + x + '" y1="' + y1 + '" x2="' + x + '" y2="' + y2 + '"/>'; };
+  var uneH = function(x1, x2, y){ return '<line class="rp-d-ram" x1="' + x1 + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '"/>'; };
+  return '<section class="nx-b nx-full"><h3 class="rv">La marrana repitió: ¿qué le dice el intervalo?</h3>' +
+  '<p class="nx-cap rv">El número de días entre el servicio y la repetición <b>es el dato que orienta el diagnóstico</b>. Anótelo siempre; sin él está adivinando.</p>' +
+  '<div class="rp-esq rv"><svg viewBox="0 0 900 480" role="img" aria-label="Árbol de decisión según los días transcurridos entre el servicio y la repetición del celo">' +
+    caja(320, 10, 260, 'rp-d-c0', 'Repitió el celo', 'Cuente los días desde el servicio') +
+    uneV(450, 91, 118) + uneH(140, 760, 118) +
+    uneV(140, 118, 140) + uneV(450, 118, 140) + uneV(760, 118, 140) +
+    caja(20, 140, 240, 'rp-d-c1', '18 a 24 días', 'Ciclo normal: no quedó preñada.|Mire el SERVICIO: detección tardía,|semen mal manejado, técnica.') +
+    caja(330, 140, 240, 'rp-d-c2', '25 a 38 días', 'Quedó preñada y la perdió.|Mire lo que pasó DESPUÉS:|estrés, calor, peleas, mal comer.') +
+    caja(640, 140, 240, 'rp-d-c3', 'Más de 38 días', 'O se le escapó un celo sin verlo,|o hay problema sanitario.|Revise también su detección.') +
+    uneV(140, 236, 268) + uneV(450, 236, 268) + uneV(760, 236, 268) +
+    caja(20, 268, 240, 'rp-d-q', 'Qué revisar primero', 'Registro de hora de detección|Conservación del semen (17 °C)|Higiene y técnica de la monta') +
+    caja(330, 268, 240, 'rp-d-q', 'Qué revisar primero', 'Temperatura de la nave|Cambios de corral tras servir|Micotoxinas en el alimento') +
+    caja(640, 268, 240, 'rp-d-q', 'Qué revisar primero', 'Cuántas veces al día detecta|Fiebre, flujo, abortos|Llame al veterinario') +
+    '<rect class="rp-d-aviso" x="20" y="392" width="860" height="72" rx="12"/>' +
+    '<text class="rp-d-ct" x="40" y="420">Una marrana no es un patrón</text>' +
+    '<text class="rp-d-cs" x="40" y="442">Una repetición suelta pasa en cualquier granja. Lo que exige investigar es que se repita el mismo</text>' +
+    '<text class="rp-d-cs" x="40" y="459">intervalo en varias marranas del mismo lote: ahí ya no es la marrana, es el manejo.</text>' +
+  '</svg>' +
+  '<p class="rp-esq-pie">Este árbol <b>orienta, no diagnostica</b>. El tratamiento y el protocolo sanitario los decide su veterinario con los animales delante. Lo que le toca a usted es lo que nadie más puede hacer: <b>tener el dato del intervalo anotado</b> el día que repitió.</p>' +
+  '</div></section>';
+}
+
+/* ---------- colocar y pintar ---------- */
+(function rpColocarDiag(){
+  if(typeof RPMOD === 'undefined') return;
+  var poner = function(mod, pos, k){
+    var m = RPMOD.find(function(q){ return q.n === mod; });
+    if(!m || m.sec.some(function(s){ return s.k === k; })) return;
+    m.sec.splice(Math.min(pos, m.sec.length), 0, {k:k});
+  };
+  poner(8, 4, 'rpfalla');
+  poner(7, 3, 'rpdiag');
+  poner(4, 4, 'rpventana');
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecDg = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'rpventana') return rpDiagVentana();
+    if(s && s.k === 'rpdiag')    return rpDiagDiag();
+    if(s && s.k === 'rpfalla')   return rpDiagFalla();
+    return _nxSecDg.apply(this, arguments);
+  };
+}
+
 </script>
+
+
+
+
+
+
 
 
 
