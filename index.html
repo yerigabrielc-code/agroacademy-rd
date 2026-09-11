@@ -17677,5 +17677,1486 @@ window.agOtraVez = function(){
 
 
 
+<script>
+
+/* ---------- ag-css.js ---------- */
+/* ============================================================
+   AGROACADEMY · SISTEMA VISUAL COMÚN A LOS TRES CURSOS
+   ------------------------------------------------------------
+   Qué problema resuelve, medido antes de escribirlo:
+
+   · El texto corría a 118 caracteres por línea. Lo cómodo son 60-75.
+     Pasaba porque en modo lección se puso .nx-b{max-width:none} para
+     que el contenido llenara la pantalla. La respuesta no es encoger
+     el bloque —los laterales volverían a quedar vacíos— sino dejar el
+     BLOQUE ancho para figuras, tablas y tarjetas, y medir solo la
+     PROSA. Así se llena la pantalla y además se lee.
+
+   · La fuente de lectura estaba en 18px. Sube a 19.5px, con todo lo
+     demás re-escalado alrededor para que la jerarquía no se aplaste.
+
+   · Cada módulo ya traía su color (--ac) pero casi no se usaba. Aquí
+     se convierte en un juego de tokens derivados y se aplica donde
+     ORIENTA: el número de sección, la regla sobre el título, el
+     encabezado de tabla, el riel de las tarjetas. Nunca como fondo
+     grande: eso satura y quita jerarquía en vez de darla.
+
+   Todo esto es CSS que se añade al final, así que gana por cascada
+   sin editar una sola regla de las que ya existen.
+   ============================================================ */
+
+var AGCSS = `
+/* ============================================================
+   1 · TOKENS
+   ============================================================ */
+:root{
+  /* La medida de lectura. En px y no en ch a propósito: 'ch' se
+     resuelve contra el ancho del glifo "0" de la fuente que esté
+     cargada en ese instante, y mientras la webfont no llega da una
+     medida muy distinta. 760px son unos 68 caracteres a 19,5px. */
+  --ag-medida: 760px;
+  /* escala tipográfica */
+  --ag-t-hero: clamp(34px, 4.2vw, 54px);
+  --ag-t-h3:   clamp(27px, 2.6vw, 37px);
+  --ag-t-h4:   clamp(19px, 1.5vw, 23px);
+  --ag-t-p:    19.5px;
+  --ag-t-li:   18.5px;
+  --ag-t-tab:  16.5px;
+  --ag-t-cap:  16px;
+  --ag-t-kick: 12px;
+  /* espaciado vertical del ritmo de lectura */
+  --ag-gap:    clamp(18px, 2.2vw, 30px);
+}
+@media(max-width:900px){ :root{ --ag-t-p:18.5px; --ag-t-li:17.5px; --ag-t-tab:15.5px; } }
+
+/* los derivados del acento del módulo. Se recalculan solos en cada
+   módulo porque --ac ya lo pone el curso en el contenedor. */
+.nx-hero, .nx-wrap, .module, #main .module{
+  --ag-ac: var(--ac, var(--green));
+  --ag-wash: color-mix(in srgb, var(--ag-ac) 9%, var(--panel));
+  --ag-wash2: color-mix(in srgb, var(--ag-ac) 16%, var(--panel));
+  --ag-line: color-mix(in srgb, var(--ag-ac) 40%, var(--border));
+  --ag-ink: color-mix(in srgb, var(--ag-ac) 76%, var(--text));
+}
+
+/* ============================================================
+   2 · MEDIDA Y TAMAÑO DE LECTURA
+   El selector es de hijo directo a propósito: así no toca el texto
+   que vive dentro de tarjetas, tablas, calculadoras ni exámenes.
+   ============================================================ */
+.nx-b > p, .nx-b > ul, .nx-b > ol, .nx-b > .nx-cap, .nx-b > blockquote,
+.block > p, .block > ul, .block > ol, .block > .cap{
+  max-width: var(--ag-medida);
+}
+.nx-b > h3, .nx-b > h4, .block > h3, .block > h4{ max-width: 22em; }
+
+.nx-b > p, .block > p, .nx-b > .nx-cap{
+  font-size: var(--ag-t-p);
+  line-height: 1.72;
+  letter-spacing: -.003em;
+}
+.nx-b > ul > li, .nx-b > ol > li, .block > ul > li, .block > ol > li,
+.nx-obj li, .mastery-item span{
+  font-size: var(--ag-t-li);
+  line-height: 1.62;
+}
+.nx-b > h3, .block > h3{
+  font-size: var(--ag-t-h3);
+  line-height: 1.14;
+  letter-spacing: -.022em;
+  text-wrap: balance;
+}
+.nx-b > h4, .block > h4{ font-size: var(--ag-t-h4); line-height:1.25; }
+.nx-hero h2{ font-size: var(--ag-t-hero); line-height:1.08; letter-spacing:-.026em; text-wrap:balance; }
+.nx-hero p{ font-size: clamp(16px,1.35vw,19px); line-height:1.55; max-width:52ch }
+
+/* tablas: número tabular y un poco más de aire */
+.nx-t, table.nx-t, .block table{ font-size: var(--ag-t-tab); }
+.nx-t td, .nx-t th, .block table td, .block table th{ padding:11px 14px; }
+.nx-t .nx-num, .nx-num, .nx-t td[align="right"], .block table td[align="right"]{
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   3 · EL NÚMERO DE SECCIÓN Y LA REGLA DE ACENTO
+   La numeración NO es decoración: las secciones de estos cursos son
+   una secuencia y el estudiante navega por ellas de una en una, así
+   que saber en cuál va es información.
+   ============================================================ */
+.nx-b > h3::before, .block > h3::before{
+  content:"";
+  display:block;
+  width:52px; height:4px;
+  border-radius:3px;
+  background: var(--ag-ac);
+  margin-bottom:15px;
+}
+.nx-b > h3.ag-sin-regla::before{ display:none; }
+
+/* la etiqueta de sección (el "kicker") toma el color del módulo */
+.nx-b .nx-k, .block .lbl, .block .sec-label, .nx-hero-k, .nx-cover-k{
+  font-family: var(--mono);
+  font-size: var(--ag-t-kick);
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.nx-b .nx-k{ color: var(--ag-ink); }
+
+/* ============================================================
+   4 · FIGURAS  ·  proporción respetada siempre
+   ============================================================ */
+.ag-fig{
+  margin: var(--ag-gap) 0;
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+  background:var(--panel);
+  box-shadow: var(--shadow);
+}
+.ag-fig img{
+  display:block; width:100%; height:auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;       /* recorta, nunca deforma */
+  object-position: center;
+  max-height: clamp(200px, 40vh, 460px);
+  background: var(--ag-wash);
+}
+.ag-fig.ag-alta img{ aspect-ratio: 4 / 3; }
+.ag-fig.ag-baja img{ aspect-ratio: 21 / 9; }
+.ag-fig figcaption{ padding:16px 20px 18px; border-top:3px solid var(--ag-ac); }
+.ag-fig figcaption b{
+  display:block; font-family:var(--display); font-size:17.5px; font-weight:700;
+  color:var(--text); line-height:1.28; margin-bottom:6px;
+}
+.ag-fig figcaption span{ display:block; font-size:16px; line-height:1.62; color:var(--text-2); max-width:62ch; }
+.ag-fig figcaption em{ font-style:normal; color:var(--ag-ink); font-weight:600; }
+
+/* dos o tres figuras en fila cuando son comparables */
+.ag-figs{ display:grid; gap:16px; margin:var(--ag-gap) 0;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.ag-figs .ag-fig{ margin:0 }
+.ag-figs .ag-fig img{ aspect-ratio:4/3; max-height:none }
+
+/* ============================================================
+   5 · TARJETAS DE DATO
+   ============================================================ */
+.ag-datos{
+  display:grid; gap:1px; margin:var(--ag-gap) 0;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  background:var(--border);
+  border:1px solid var(--border); border-radius:16px; overflow:hidden;
+}
+.ag-datos > div{ background:var(--panel); padding:20px 18px; }
+.ag-datos b{
+  display:block; font-family:var(--mono); font-size:clamp(26px,2.6vw,34px);
+  font-weight:700; line-height:1; color:var(--ag-ink);
+  font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+}
+.ag-datos b i{ font-style:normal; font-size:.52em; font-weight:600; color:var(--muted); margin-left:3px; }
+.ag-datos span{ display:block; font-size:14px; color:var(--text-2); margin-top:8px; line-height:1.4; font-weight:600; }
+.ag-datos em{ display:block; font-style:normal; font-size:13px; color:var(--muted); margin-top:5px; line-height:1.45; }
+
+/* ============================================================
+   6 · TARJETAS CON ICONO
+   ============================================================ */
+.ag-cards{ display:grid; gap:14px; margin:var(--ag-gap) 0;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
+.ag-card{
+  background:var(--panel); border:1px solid var(--border); border-radius:16px;
+  padding:20px 20px 22px; position:relative; overflow:hidden;
+}
+.ag-card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--ag-ac); }
+.ag-card .ag-ico{
+  display:flex; align-items:center; justify-content:center;
+  width:44px; height:44px; border-radius:12px; margin-bottom:14px;
+  background:var(--ag-wash2); font-size:22px; line-height:1;
+}
+.ag-card b{ display:block; font-family:var(--display); font-size:17px; font-weight:700;
+  color:var(--text); line-height:1.3; margin-bottom:7px; }
+.ag-card p{ margin:0; font-size:15.5px; line-height:1.6; color:var(--text-2); }
+.ag-card p + p{ margin-top:9px }
+
+/* ============================================================
+   7 · LÍNEA DE PASOS  ·  para procesos que sí van en orden
+   ============================================================ */
+.ag-linea{ margin:var(--ag-gap) 0; position:relative; padding-left:8px; }
+.ag-linea > div{ position:relative; padding:0 0 26px 52px; }
+.ag-linea > div::before{
+  content:attr(data-n); position:absolute; left:0; top:0;
+  width:34px; height:34px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:14px; font-weight:700;
+  color:var(--panel); background:var(--ag-ac);
+}
+.ag-linea > div::after{
+  content:""; position:absolute; left:16.5px; top:38px; bottom:2px; width:2px;
+  background:var(--ag-line);
+}
+.ag-linea > div:last-child{ padding-bottom:0 }
+.ag-linea > div:last-child::after{ display:none }
+.ag-linea b{ display:block; font-family:var(--display); font-size:17.5px; font-weight:700;
+  color:var(--text); line-height:1.3; margin:5px 0 7px; }
+.ag-linea p{ margin:0; font-size:16px; line-height:1.64; color:var(--text-2); max-width:60ch; }
+.ag-linea .ag-t{ display:inline-block; font-family:var(--mono); font-size:12px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--ag-ink);
+  background:var(--ag-wash); border:1px solid var(--ag-line);
+  border-radius:20px; padding:3px 10px; margin-top:8px; }
+
+/* ============================================================
+   8 · COMPARADOR  ·  lo que funciona / lo que no
+   ============================================================ */
+.ag-comp{ display:grid; gap:14px; margin:var(--ag-gap) 0;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.ag-comp > div{ border:1px solid var(--border); border-radius:16px; padding:20px; background:var(--panel); }
+.ag-comp .ag-bien{ border-color:color-mix(in srgb,var(--good) 42%,var(--border));
+  background:color-mix(in srgb,var(--good) 6%,var(--panel)); }
+.ag-comp .ag-mal{ border-color:color-mix(in srgb,var(--crit) 40%,var(--border));
+  background:color-mix(in srgb,var(--crit) 5%,var(--panel)); }
+.ag-comp h5{ margin:0 0 13px; font-family:var(--display); font-size:16.5px; font-weight:700;
+  display:flex; align-items:center; gap:9px; }
+.ag-comp .ag-bien h5{ color:var(--green-d) } .ag-comp .ag-mal h5{ color:var(--crit) }
+.ag-comp ul{ margin:0; padding-left:0; list-style:none }
+.ag-comp li{ position:relative; padding-left:24px; margin-bottom:10px; font-size:15.5px;
+  line-height:1.58; color:var(--text-2); }
+.ag-comp li:last-child{ margin-bottom:0 }
+.ag-comp li::before{ position:absolute; left:0; top:0; font-weight:700 }
+.ag-comp .ag-bien li::before{ content:"✓"; color:var(--good) }
+.ag-comp .ag-mal li::before{ content:"✕"; color:var(--crit) }
+
+/* ============================================================
+   9 · AVISOS TIPIFICADOS
+   El tipo lleva su propio color semántico, que es distinto del
+   acento del módulo: así "cuidado" siempre se ve igual, esté en el
+   módulo que esté.
+   ============================================================ */
+.ag-nota{ margin:var(--ag-gap) 0; border-radius:15px; padding:18px 22px 20px;
+  border:1px solid var(--border); border-left-width:5px; background:var(--panel); max-width:78ch; }
+.ag-nota b{ display:flex; align-items:center; gap:9px; font-family:var(--display);
+  font-size:16px; font-weight:700; margin-bottom:8px; }
+.ag-nota p{ margin:0; font-size:16.5px; line-height:1.66; color:var(--text-2); max-width:none !important; }
+.ag-nota p + p{ margin-top:10px }
+.ag-n-dato{ border-left-color:var(--green); background:color-mix(in srgb,var(--green) 6%,var(--panel)) }
+.ag-n-dato b{ color:var(--green-d) }
+.ag-n-ojo{ border-left-color:var(--crit); background:color-mix(in srgb,var(--crit) 6%,var(--panel)) }
+.ag-n-ojo b{ color:var(--crit) }
+.ag-n-plata{ border-left-color:var(--amber-d); background:color-mix(in srgb,var(--amber) 11%,var(--panel)) }
+.ag-n-plata b{ color:var(--amber-d) }
+.ag-n-campo{ border-left-color:var(--ag-ac); background:var(--ag-wash) }
+.ag-n-campo b{ color:var(--ag-ink) }
+
+/* ============================================================
+   10 · TABLA CON JERARQUÍA
+   ============================================================ */
+.ag-tabla{ margin:var(--ag-gap) 0; border:1px solid var(--border); border-radius:16px;
+  overflow:hidden; background:var(--panel); }
+.ag-tabla .ag-tw{ overflow-x:auto }
+.ag-tabla table{ width:100%; border-collapse:collapse; font-size:var(--ag-t-tab) }
+.ag-tabla thead th{ background:var(--ag-wash); color:var(--ag-ink); text-align:left;
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.07em; text-transform:uppercase;
+  font-weight:600; padding:13px 16px; border-bottom:2px solid var(--ag-line); white-space:nowrap; }
+.ag-tabla tbody td{ padding:12px 16px; border-bottom:1px solid var(--border); color:var(--text-2); line-height:1.5 }
+.ag-tabla tbody tr:last-child td{ border-bottom:none }
+.ag-tabla tbody tr:nth-child(even){ background:color-mix(in srgb,var(--text) 2.5%,var(--panel)) }
+.ag-tabla tbody td:first-child{ color:var(--text); font-weight:600 }
+.ag-tabla td.n, .ag-tabla th.n{ text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono) }
+.ag-tabla caption{ caption-side:bottom; padding:12px 16px 14px; font-size:14px;
+  color:var(--muted); text-align:left; line-height:1.55; border-top:1px solid var(--border) }
+
+/* ============================================================
+   11 · SEPARACIÓN ENTRE SECCIONES
+   ============================================================ */
+.nx-b{ padding-top:clamp(26px,3vw,42px); padding-bottom:clamp(26px,3vw,42px) }
+.nx-ov.nx-leccion .nx-b{ padding-top:clamp(14px,2vw,26px) }
+
+@media(prefers-reduced-motion:reduce){ .ag-fig, .ag-card{ transition:none } }
+`;
+
+(function agInyectaCss(){
+  if(document.getElementById('agCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss';
+  s.textContent = AGCSS;
+  /* Al FINAL DEL BODY, no al head: los cursos traen sus <style> dentro
+     del body, y a igualdad de especificidad gana el que va después en
+     el documento. Desde el head estas reglas perdían todas. */
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+/* ============================================================
+   AJUSTES SOBRE LOS COMPONENTES QUE YA EXISTÍAN
+   ------------------------------------------------------------
+   Dos cosas que se vieron al mirar las diapositivas de verdad:
+
+   1) Los avisos (.nx-al) y los pasos corrían a 105 caracteres por
+      línea porque nadie les había puesto medida. Se les da la misma
+      que a la prosa, con algo de holgura porque llevan icono.
+
+   2) En modo lección cada sección es una diapositiva. Una sección
+      corta dejaba dos tercios de pantalla en blanco debajo. Ahora el
+      contenido de la diapositiva se centra verticalmente: la sección
+      corta queda en el medio, la larga sigue fluyendo desde arriba.
+   ============================================================ */
+var AGCSS2 = `
+/* medida de los componentes de texto heredados */
+.nx-b > .nx-al{ max-width: calc(var(--ag-medida) + 90px) }
+.nx-b > .nx-al p, .nx-b > .nx-al div{ font-size:17px; line-height:1.66 }
+.nx-b > .nx-hlo, .nx-b > .nx-obj{ max-width: calc(var(--ag-medida) + 140px) }
+.nx-paso p, .nx-pasos p{ max-width:66ch }
+
+/* La diapositiva corta ya no cae arriba con el vacío debajo. El alto
+   mínimo va en el CONTENEDOR y no en cada sección: ahora una diapositiva
+   puede llevar dos o tres secciones agrupadas, y si cada una reclamara
+   una pantalla entera la diapositiva mediría el doble. */
+.nx-ov.nx-leccion .nx-wrap{
+  min-height: calc(100vh - 150px);
+  display:flex; flex-direction:column; justify-content:center;
+}
+.nx-ov.nx-leccion .nx-wrap > .nx-lnav{ margin-top:auto }
+.ag-midiendo .nx-wrap{ min-height:0 !important; display:block !important }
+/* no hace falta marcar las largas: con min-height (no height) el
+   bloque crece con su contenido y centrar deja de tener efecto solo */
+@media(max-width:900px){
+  .nx-ov.nx-leccion .nx-wrap > section.nx-b{ min-height: calc(100vh - 280px) }
+}
+
+/* tablas heredadas: mismo tratamiento de encabezado que las nuevas */
+.nx-b .nx-t thead th{
+  background: var(--ag-wash);
+  color: var(--ag-ink);
+  border-bottom:2px solid var(--ag-line);
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+}
+.nx-b .nx-t tbody tr:nth-child(even){ background:color-mix(in srgb,var(--text) 2.5%,var(--panel)) }
+.nx-b .nx-t tbody td:first-child{ color:var(--text) }
+
+/* las tarjetas heredadas reciben el riel de acento */
+.nx-b > .nx-cards > .nx-card{ position:relative; overflow:hidden }
+.nx-b > .nx-cards > .nx-card::after{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--ag-ac); opacity:.85;
+}
+`;
+(function agInyectaCss2(){
+  if(document.getElementById('agCss2')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss2';
+  s.textContent = AGCSS2;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+
+/* ---------- panel de certificados ---------- */
+var AGCSS3 = `
+.agc-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.agc-tab{display:flex;align-items:center;gap:9px;padding:11px 16px;border-radius:12px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--border);color:var(--text-2);
+  font-family:var(--sans);font-size:13.5px;text-align:left}
+.agc-tab span{font-size:17px;line-height:1}
+.agc-tab b{font-weight:600}
+.agc-tab:hover{border-color:var(--green)}
+.agc-tab.on{background:color-mix(in srgb,var(--green) 10%,var(--panel));
+  border-color:var(--green);color:var(--text)}
+.agc-grid{display:grid;gap:16px;grid-template-columns:minmax(320px,1fr) minmax(340px,1.15fr);align-items:start}
+@media(max-width:1080px){ .agc-grid{grid-template-columns:1fr} }
+.agc-f{margin-bottom:13px}
+.agc-f label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.agc-f input,.agc-f textarea,.agc-copiar select{width:100%;font-family:var(--sans);font-size:14px;color:var(--text);
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;line-height:1.5}
+.agc-f textarea{resize:vertical;min-height:88px}
+.agc-f input:focus,.agc-f textarea:focus,.agc-copiar select:focus{outline:none;border-color:var(--green)}
+.agc-f input[type=color]{padding:4px;height:42px;max-width:90px;cursor:pointer}
+.agc-fila{display:flex;align-items:center;gap:14px}
+.agc-fila label{margin:0;flex:1}
+.agc-acc{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.agc-acc .nxa-btn{margin:0}
+.agc-copiar{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.agc-copiar > label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:7px}
+.agc-copiar > div{display:flex;gap:9px;align-items:center}
+.agc-copiar select{flex:1}
+.agc-copiar .nxa-btn{margin:0;white-space:nowrap}
+.agc-copiar em{display:block;font-style:normal;font-size:12.5px;color:var(--muted);margin-top:9px;line-height:1.5}
+.agc-marco{overflow:hidden;border:1px solid var(--border);border-radius:12px;background:#fff}
+.agc-lienzo{width:1123px}
+`;
+(function agInyectaCss3(){
+  if(document.getElementById('agCss3')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss3';
+  s.textContent = AGCSS3;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+/* ---------- remates vistos en pantalla ---------- */
+var AGCSS5 = `
+/* la caja de objetivos no debe estirarse hasta el alto de la foto */
+.nx-ov.nx-leccion .nx-b.nx-objg{ align-items:start }
+.nx-ov.nx-leccion .nx-b.nx-objg > *{ align-self:start }
+/* aire entre el último bloque y la barra de la diapositiva */
+.nx-ov.nx-leccion .nx-wrap > .nx-lnav{ margin-top:auto; padding-top:18px }
+.nx-ov.nx-leccion .nx-wrap > *:not(.nx-lnav):last-of-type{ margin-bottom:14px }
+/* el cajón de notas del módulo, con su propio respiro */
+.nx-ov.nx-leccion .uc-notas, .nx-ov.nx-leccion .nx-notas{ margin-bottom:16px }
+`;
+(function agInyectaCss5(){
+  if(document.getElementById('agCss5')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss5';
+  s.textContent = AGCSS5;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-piezas.js ---------- */
+/* ============================================================
+   AGROACADEMY · PIEZAS VISUALES REUTILIZABLES
+   ------------------------------------------------------------
+   Devuelven HTML. Las usan los tres cursos, así que todo lo que se
+   construya con ellas se ve igual en los tres y hereda solo el color
+   del módulo donde esté.
+   ============================================================ */
+
+function agEsc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+/* el texto de los contenidos lleva <b> e <i> a propósito: aquí no se
+   escapa, se confía. Lo que viene de fuera pasa por agEsc. */
+function agTxt(s){ return String(s == null ? '' : s); }
+
+/* ---------- figura ---------- */
+function agFig(o){
+  var cls = 'ag-fig' + (o.alta ? ' ag-alta' : '') + (o.baja ? ' ag-baja' : '');
+  return '<figure class="' + cls + ' rv">' +
+    '<img src="images/' + agEsc(o.f) + '.jpg" alt="' + agEsc(o.alt || o.t || '') + '" loading="lazy">' +
+    '<figcaption><b>' + agTxt(o.t) + '</b>' +
+      (o.p ? '<span>' + agTxt(o.p) + '</span>' : '') +
+    '</figcaption></figure>';
+}
+/* varias figuras comparables en fila */
+function agFigs(lista){
+  return '<div class="ag-figs rv">' + lista.map(function(x){
+    return '<figure class="ag-fig"><img src="images/' + agEsc(x.f) + '.jpg" alt="' +
+      agEsc(x.alt || x.t || '') + '" loading="lazy">' +
+      '<figcaption><b>' + agTxt(x.t) + '</b>' + (x.p ? '<span>' + agTxt(x.p) + '</span>' : '') +
+      '</figcaption></figure>';
+  }).join('') + '</div>';
+}
+
+/* ---------- tarjetas de dato ----------
+   cada entrada: [valor, etiqueta, nota?]  ·  el valor admite
+   "12,5<i>kg</i>" para que la unidad vaya más pequeña */
+function agDatos(lista){
+  return '<div class="ag-datos rv">' + lista.map(function(d){
+    return '<div><b>' + agTxt(d[0]) + '</b><span>' + agTxt(d[1]) + '</span>' +
+      (d[2] ? '<em>' + agTxt(d[2]) + '</em>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+
+/* ---------- tarjetas con icono ----------  [icono, titulo, texto] */
+function agCards(lista){
+  return '<div class="ag-cards rv">' + lista.map(function(c){
+    return '<div class="ag-card"><div class="ag-ico">' + agTxt(c[0]) + '</div>' +
+      '<b>' + agTxt(c[1]) + '</b><p>' + agTxt(c[2]) + '</p>' +
+      (c[3] ? '<p>' + agTxt(c[3]) + '</p>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+
+/* ---------- línea de pasos ----------  [titulo, texto, etiqueta?] */
+function agLinea(lista){
+  return '<div class="ag-linea rv">' + lista.map(function(s, i){
+    return '<div data-n="' + (i + 1) + '"><b>' + agTxt(s[0]) + '</b>' +
+      '<p>' + agTxt(s[1]) + '</p>' +
+      (s[2] ? '<span class="ag-t">' + agTxt(s[2]) + '</span>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+
+/* ---------- comparador ---------- */
+function agComp(bienT, bien, malT, mal){
+  return '<div class="ag-comp rv">' +
+    '<div class="ag-bien"><h5>✓ ' + agTxt(bienT) + '</h5><ul>' +
+      bien.map(function(x){ return '<li>' + agTxt(x) + '</li>'; }).join('') + '</ul></div>' +
+    '<div class="ag-mal"><h5>✕ ' + agTxt(malT) + '</h5><ul>' +
+      mal.map(function(x){ return '<li>' + agTxt(x) + '</li>'; }).join('') + '</ul></div>' +
+  '</div>';
+}
+
+/* ---------- aviso tipificado ----------
+   tipo: dato · ojo · plata · campo */
+var AGICO = {dato:'📊', ojo:'⚠️', plata:'💰', campo:'🧰'};
+function agNota(tipo, titulo, texto){
+  return '<div class="ag-nota ag-n-' + tipo + ' rv"><b>' + (AGICO[tipo] || '•') + ' ' +
+    agTxt(titulo) + '</b><p>' + agTxt(texto) + '</p></div>';
+}
+
+/* ---------- tabla ----------
+   cols: ['Texto', {t:'Número', n:true}, ...]   filas: [[...], ...]   pie: string */
+function agTabla(cols, filas, pie){
+  var th = cols.map(function(c){
+    var t = (typeof c === 'string') ? c : c.t;
+    var n = (typeof c === 'object' && c.n) ? ' class="n"' : '';
+    return '<th' + n + '>' + agTxt(t) + '</th>';
+  }).join('');
+  var tb = filas.map(function(f){
+    return '<tr>' + f.map(function(v, i){
+      var c = cols[i];
+      var n = (typeof c === 'object' && c.n) ? ' class="n"' : '';
+      return '<td' + n + '>' + agTxt(v) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  return '<div class="ag-tabla rv"><div class="ag-tw"><table>' +
+    '<thead><tr>' + th + '</tr></thead><tbody>' + tb + '</tbody>' +
+    (pie ? '<caption>' + agTxt(pie) + '</caption>' : '') +
+    '</table></div></div>';
+}
+
+/* ---------- envoltorio de sección, para el contenido nuevo ---------- */
+function agSec(titulo, cuerpo, kicker){
+  return '<section class="nx-b nx-full">' +
+    (kicker ? '<span class="nx-k">' + agTxt(kicker) + '</span>' : '') +
+    (titulo ? '<h3 class="rv">' + agTxt(titulo) + '</h3>' : '') +
+    cuerpo + '</section>';
+}
+
+/* que los tres cursos las vean */
+window.agFig = agFig; window.agFigs = agFigs; window.agDatos = agDatos;
+window.agCards = agCards; window.agLinea = agLinea; window.agComp = agComp;
+window.agNota = agNota; window.agTabla = agTabla; window.agSec = agSec;
+
+/* ============================================================
+   TIPOS DE SECCIÓN NUEVOS, DISPONIBLES EN LOS TRES CURSOS
+   Se enganchan a nxSeccion, que es el pintor que comparten el
+   curso 2 y el 3. Cada tipo lleva sus datos en la propia entrada.
+   ============================================================ */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecAg = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(!s) return _nxSecAg.apply(this, arguments);
+    switch(s.k){
+      case 'agfig':   return agSec(s.t, agFig(s), s.kick);
+      case 'agfigs':  return agSec(s.t, agFigs(s.l), s.kick);
+      case 'agdatos': return agSec(s.t, (s.p ? '<p>' + agTxt(s.p) + '</p>' : '') + agDatos(s.l) +
+                                        (s.pie ? '<p class="nx-cap">' + agTxt(s.pie) + '</p>' : ''), s.kick);
+      case 'agcards': return agSec(s.t, (s.p ? '<p>' + agTxt(s.p) + '</p>' : '') + agCards(s.l), s.kick);
+      case 'aglinea': return agSec(s.t, (s.p ? '<p>' + agTxt(s.p) + '</p>' : '') + agLinea(s.l) +
+                                        (s.pie ? '<p class="nx-cap">' + agTxt(s.pie) + '</p>' : ''), s.kick);
+      case 'agcomp':  return agSec(s.t, (s.p ? '<p>' + agTxt(s.p) + '</p>' : '') +
+                                        agComp(s.bt, s.bien, s.mt, s.mal) +
+                                        (s.pie ? '<p class="nx-cap">' + agTxt(s.pie) + '</p>' : ''), s.kick);
+      case 'agtabla': return agSec(s.t, (s.p ? '<p>' + agTxt(s.p) + '</p>' : '') +
+                                        agTabla(s.cols, s.filas, s.pie), s.kick);
+      case 'agnota':  return agSec(s.t, agNota(s.tipo || 'campo', s.nt, s.p), s.kick);
+      case 'agmix':   return agSec(s.t, s.partes.map(function(p){ return agPieza(p); }).join(''), s.kick);
+    }
+    return _nxSecAg.apply(this, arguments);
+  };
+}
+
+/* una pieza suelta dentro de una sección mixta */
+function agPieza(p){
+  switch(p.k){
+    case 'p':      return '<p>' + agTxt(p.t) + '</p>';
+    case 'h4':     return '<h4>' + agTxt(p.t) + '</h4>';
+    case 'fig':    return agFig(p);
+    case 'figs':   return agFigs(p.l);
+    case 'datos':  return agDatos(p.l);
+    case 'cards':  return agCards(p.l);
+    case 'linea':  return agLinea(p.l);
+    case 'comp':   return agComp(p.bt, p.bien, p.mt, p.mal);
+    case 'nota':   return agNota(p.tipo || 'campo', p.nt, p.p);
+    case 'tabla':  return agTabla(p.cols, p.filas, p.pie);
+    case 'cap':    return '<p class="nx-cap">' + agTxt(p.t) + '</p>';
+    case 'html':   return p.h;
+  }
+  return '';
+}
+window.agPieza = agPieza;
+
+
+/* ---------- ag-certificados.js ---------- */
+/* ============================================================
+   AGROACADEMY · CERTIFICADOS  ·  uno por curso, editable aparte
+   ------------------------------------------------------------
+   Cómo estaba antes:
+
+   · Porcicultura guardaba su plantilla en localStorage['porci_cert']
+     y la editaba en una pestaña propia.
+   · Formulación guardaba la suya en localStorage['nx_cert'] y la
+     editaba en OTRA pestaña, con otros campos.
+   · Reproducción no tenía plantilla: se le pasaban tres valores a
+     mano, y por eso salía casi idéntica a la de porcicultura.
+
+   Tres almacenes, dos editores distintos y un curso sin editor. Aquí
+   se unifican en un solo almacén (AGCERT), un solo impresor
+   (agCertImprimir) y un solo panel con selector de curso, donde cada
+   uno se edita por separado.
+
+   Lo que ya tuviera guardado NO se pierde: al arrancar, si todavía no
+   hay plantilla nueva, se siembra con la vieja de cada curso.
+   ============================================================ */
+
+var AGCURSOSCERT = [
+  {id:'porcicultura', ico:'🐷', n:'Porcicultura aplicada a RD',                  mods:12, pref:'AGRO-RD'},
+  {id:'nutricion',    ico:'🌽', n:'Formulación y fabricación de alimentos',      mods:10, pref:'AGRO-NUT'},
+  {id:'reproduccion', ico:'🐖', n:'Reproducción porcina',                        mods:10, pref:'AGRO-REP'}
+];
+function agCursoCert(id){
+  for(var i = 0; i < AGCURSOSCERT.length; i++) if(AGCURSOSCERT[i].id === id) return AGCURSOSCERT[i];
+  return AGCURSOSCERT[0];
+}
+
+/* la plantilla de fábrica de cada curso: lo que los distingue */
+var AGCERTDEF = {
+  porcicultura: {
+    title:'Certificado de Participación',
+    org:'Formación agropecuaria profesional',
+    intro:'Se otorga el presente reconocimiento a',
+    course:'CURSO DE PORCICULTURA APLICADO A REPÚBLICA DOMINICANA',
+    body:'Por su cumplimiento exitoso del {curso}, compuesto por 12 módulos y un proyecto final aplicado a las condiciones reales del país, aprobando todas las evaluaciones calificadas.',
+    seal:'Curso Aprobado',
+    accent:'#215B3A',
+    dur:'12 módulos'
+  },
+  nutricion: {
+    title:'Certificado de Aprovechamiento',
+    org:'Formación agropecuaria profesional',
+    intro:'Se otorga el presente reconocimiento a',
+    course:'FORMULACIÓN Y FABRICACIÓN DE ALIMENTOS PARA CERDOS',
+    body:'Por su cumplimiento exitoso del {curso}, compuesto por 10 módulos con 12 fórmulas verificadas, el cálculo de costos por kilo y un proyecto final con los números de su propia granja.',
+    seal:'Nivel Avanzado',
+    accent:'#A85B10',
+    dur:'10 módulos'
+  },
+  reproduccion: {
+    title:'Certificado de Aprovechamiento',
+    org:'Formación agropecuaria profesional',
+    intro:'Se otorga el presente reconocimiento a',
+    course:'REPRODUCCIÓN PORCINA: CELO, INSEMINACIÓN Y MANEJO DE MARRANAS',
+    body:'Por su cumplimiento exitoso del {curso}, compuesto por 10 módulos sobre detección de celo, momento del servicio, diagnóstico de gestación y manejo de la marrana, con 11 calculadoras y 15 situaciones de granja resueltas.',
+    seal:'Nivel Avanzado',
+    accent:'#5B3FA8',
+    dur:'10 módulos'
+  }
+};
+
+var AGCERT = {};
+function agCertClave(curso){ return 'ag_cert_' + curso; }
+
+/* ---------- leer, con siembra desde lo viejo ---------- */
+function agCertCfg(curso){
+  if(AGCERT[curso]) return AGCERT[curso];
+  var base = Object.assign({}, (typeof DEFCERT !== 'undefined' ? DEFCERT : {}), AGCERTDEF[curso] || {});
+  var guardado = null;
+  try{ guardado = JSON.parse(localStorage.getItem(agCertClave(curso)) || 'null'); }catch(e){}
+  if(!guardado){
+    /* primera vez: recoger lo que el usuario ya hubiera configurado */
+    try{
+      if(curso === 'porcicultura') guardado = JSON.parse(localStorage.getItem('porci_cert') || 'null');
+      if(curso === 'nutricion')    guardado = JSON.parse(localStorage.getItem('nx_cert') || 'null');
+    }catch(e){}
+  }
+  AGCERT[curso] = Object.assign(base, guardado || {});
+  return AGCERT[curso];
+}
+function agCertGuardar(curso){
+  try{ localStorage.setItem(agCertClave(curso), JSON.stringify(AGCERT[curso])); }catch(e){}
+  /* que los almacenes viejos sigan de acuerdo, por si algo los lee */
+  try{
+    if(curso === 'porcicultura'){ localStorage.setItem('porci_cert', JSON.stringify(AGCERT[curso]));
+      if(typeof CERTCFG !== 'undefined') CERTCFG = Object.assign({}, AGCERT[curso]); }
+    if(curso === 'nutricion'){ localStorage.setItem('nx_cert', JSON.stringify(AGCERT[curso]));
+      if(typeof NXCERTCFG !== 'undefined') NXCERTCFG = null; }
+  }catch(e){}
+  /* a la nube, con las mismas reglas que el resto del panel */
+  if(window.SB && typeof SB.from === 'function'){
+    try{ SB.from('ajustes').upsert({clave:agCertClave(curso), valor:JSON.stringify(AGCERT[curso])}).then(function(){}, function(){}); }catch(e){}
+  }
+}
+function agCertRestaurar(curso){
+  var c = agCursoCert(curso);
+  if(!confirm('¿Restaurar la plantilla de «' + c.n + '» a los valores de fábrica?\nLo que haya escrito en este certificado se pierde.')) return;
+  delete AGCERT[curso];
+  try{ localStorage.removeItem(agCertClave(curso)); }catch(e){}
+  if(curso === 'porcicultura'){ try{ localStorage.removeItem('porci_cert'); }catch(e){} }
+  if(curso === 'nutricion'){ try{ localStorage.removeItem('nx_cert'); }catch(e){} if(typeof NXCERTCFG !== 'undefined') NXCERTCFG = null; }
+  agCertCfg(curso);
+  agCertPanel();
+  if(typeof toast === 'function') toast('Plantilla de ' + c.n + ' restaurada', '↩️');
+}
+function agCertCopiar(){
+  var s = document.getElementById('agCertDesde');
+  if(!s) return;
+  var desde = s.value, hacia = AGCERTTAB;
+  if(desde === hacia) return;
+  var d = agCertCfg(desde), h = agCertCfg(hacia);
+  if(!confirm('¿Copiar el diseño de «' + agCursoCert(desde).n + '» a «' + agCursoCert(hacia).n + '»?\n' +
+              'Se copian el encabezado, las firmas, el lugar y el color.\n' +
+              'NO se copian el nombre del curso ni el texto del cuerpo, que son propios de cada uno.')) return;
+  ['title','org','intro','place','note','signName','signer','signName2','signer2','showCode','accent']
+    .forEach(function(k){ h[k] = d[k]; });
+  agCertGuardar(hacia);
+  agCertPanel();
+  if(typeof toast === 'function') toast('Diseño copiado', '📋');
+}
+
+/* ---------- el único impresor ---------- */
+function agCertImprimir(curso, nombre, aprob){
+  if(typeof certInner !== 'function' || typeof openPrint !== 'function'){
+    if(typeof toast === 'function') toast('El generador de certificados no está disponible', '⚠️');
+    return;
+  }
+  var c = agCursoCert(curso);
+  var cfg = agCertCfg(curso);
+  var total = c.mods;
+  var n = (aprob != null) ? aprob : agCertAprobados(curso);
+
+  var esAdmin = (typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN') ||
+                (typeof PREVIEW !== 'undefined' && PREVIEW);
+  if(n < total){
+    if(!esAdmin){
+      if(typeof toast === 'function') toast('Complete los ' + total + ' módulos para su certificado', '🔒');
+      return;
+    }
+    if(!confirm('Todavía no están aprobados los ' + total + ' módulos (' + n + '/' + total + ').\n' +
+                '¿Generar el certificado igual, para ver cómo queda?')) return;
+  }
+
+  var nm = nombre;
+  if(!nm){
+    var cs = (typeof curStudent === 'function') ? curStudent() : null;
+    nm = (cs && cs.name && cs.name !== 'Vista de estudiante') ? cs.name
+       : ((typeof SESSION !== 'undefined' && SESSION && SESSION.name && SESSION.role !== 'ADMIN') ? SESSION.name
+       : ((window.prompt('Nombre del participante:', '') || '').trim() || 'Participante'));
+  }
+
+  var guardar = CERTCFG;
+  CERTCFG = Object.assign({}, cfg, {total: total, dur: cfg.dur || (total + ' módulos')});
+  try{
+    var code = (cfg.codigoPref || c.pref) + '-' + Date.now().toString(36).toUpperCase().slice(-7);
+    openPrint('Certificado - ' + c.n, cfg.accent || '#215B3A', certInner(nm, total, code), {landscape:true});
+  } finally { CERTCFG = guardar; }
+}
+function agCertAprobados(curso){
+  try{
+    if(curso === 'porcicultura' && typeof passedCount === 'function') return passedCount();
+    if(curso === 'nutricion' && typeof nxProgreso === 'function') return nxProgreso();
+    if(curso === 'reproduccion' && typeof rpProgreso === 'function') return rpProgreso();
+  }catch(e){}
+  return 0;
+}
+
+/* los tres botones del curso pasan por aquí */
+window.agCert = function(curso, nombre, aprob){
+  var yo = (typeof SESSION !== 'undefined' && SESSION) ? SESSION : null;
+  var nm = nombre || ((yo && yo.role !== 'ADMIN' && yo.name) ? yo.name : null);
+  try{ agCertImprimir(curso, nm, aprob); }
+  catch(err){ if(typeof toast === 'function') toast('No se pudo abrir el certificado: ' + err.message, '⚠️'); }
+};
+/* y las funciones de siempre, para que nada que ya llamaba a ellas se rompa */
+window.rpCertificado = function(nombre, aprob){ agCertImprimir('reproduccion', nombre, aprob); };
+if(typeof window.nxCertificado === 'function'){
+  window.nxCertificado = function(nombre, aprob){ agCertImprimir('nutricion', nombre, aprob); };
+}
+if(typeof window.printCert === 'function'){
+  window.printCert = function(nombre, aprob){ agCertImprimir('porcicultura', nombre, aprob); };
+}
+
+/* ============================================================
+   EL PANEL
+   ============================================================ */
+var AGCERTTAB = 'porcicultura';
+var AGCAMPOS = [
+  {k:'title',     e:'Título del documento',        a:'Certificado de Participación'},
+  {k:'org',       e:'Línea bajo el título',        a:'Formación agropecuaria profesional'},
+  {k:'intro',     e:'Frase antes del nombre',      a:'Se otorga el presente reconocimiento a'},
+  {k:'course',    e:'Nombre del curso',            a:'CURSO DE…', larga:true},
+  {k:'body',      e:'Texto del cuerpo',            a:'Use {curso} donde quiera que aparezca el nombre del curso', area:true},
+  {k:'place',     e:'Lugar y fecha',               a:'Santo Domingo, D.N., República Dominicana'},
+  {k:'note',      e:'Nota al pie (opcional)',      a:''},
+  {k:'signName',  e:'Firma izquierda — nombre',    a:''},
+  {k:'signer',    e:'Firma izquierda — cargo',     a:'Dirección del Programa'},
+  {k:'signName2', e:'Firma derecha — nombre',      a:''},
+  {k:'signer2',   e:'Firma derecha — cargo',       a:'Coordinación Académica'},
+  {k:'seal',      e:'Texto del sello',             a:'Curso Aprobado'},
+  {k:'dur',       e:'Duración que se imprime',     a:'10 módulos'}
+];
+
+function agCertTabs(){
+  return '<div class="agc-tabs">' + AGCURSOSCERT.map(function(c){
+    return '<button class="agc-tab' + (AGCERTTAB === c.id ? ' on' : '') + '" onclick="agCertIr(\'' + c.id + '\')">' +
+      '<span>' + c.ico + '</span><b>' + c.n + '</b></button>';
+  }).join('') + '</div>';
+}
+window.agCertIr = function(id){ AGCERTTAB = id; agCertPanel(); };
+
+function agAdmCertificados(){
+  var curso = agCursoCert(AGCERTTAB);
+  var c = agCertCfg(AGCERTTAB);
+  var v = function(k){ return String(c[k] == null ? '' : c[k]).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); };
+
+  var h = '<p class="adm-note">Cada curso tiene <b>su propio certificado</b> y se edita aquí por separado. ' +
+    'Elija el curso arriba, cambie lo que necesite y mire la vista previa: se actualiza mientras escribe.</p>' +
+    agCertTabs() +
+    '<div class="agc-grid"><div class="agc-form">' +
+    '<div class="adm-card"><h4>' + curso.ico + ' ' + curso.n + '</h4>';
+
+  AGCAMPOS.forEach(function(f){
+    h += '<div class="agc-f' + (f.larga || f.area ? ' agc-ancha' : '') + '"><label>' + f.e + '</label>' +
+      (f.area
+        ? '<textarea rows="4" id="agc_' + f.k + '" oninput="agCertLive()" placeholder="' + f.a + '">' + v(f.k) + '</textarea>'
+        : '<input id="agc_' + f.k + '" value="' + v(f.k) + '" oninput="agCertLive()" placeholder="' + f.a + '">') +
+      '</div>';
+  });
+  h += '<div class="agc-f agc-fila"><label>Color de acento</label>' +
+       '<input id="agc_accent" type="color" value="' + (c.accent || '#215B3A') + '" oninput="agCertLive()"></div>' +
+       '<div class="agc-f agc-fila"><label>Imprimir código de verificación</label>' +
+       '<span class="switch"><input id="agc_showCode" type="checkbox"' + (c.showCode !== false ? ' checked' : '') +
+       ' onchange="agCertLive()"><span></span></span></div>' +
+       '<div class="agc-f agc-fila"><label>Prefijo del código</label>' +
+       '<input id="agc_codigoPref" value="' + (v('codigoPref') || curso.pref) + '" oninput="agCertLive()" style="max-width:160px"></div>';
+
+  h += '<div class="agc-acc">' +
+    '<button class="nxa-btn on" onclick="agCertSalvar()">💾 Guardar</button>' +
+    '<button class="nxa-btn" onclick="agCertImprimir(\'' + AGCERTTAB + '\',\'Nombre del Participante\',' + curso.mods + ')">🖨️ Ver un ejemplo</button>' +
+    '<button class="nxa-btn" onclick="agCertRestaurar(\'' + AGCERTTAB + '\')">↩ Restaurar de fábrica</button>' +
+    '</div>' +
+    '<div class="agc-copiar"><label for="agCertDesde">Copiar el diseño de otro curso</label>' +
+      '<div><select id="agCertDesde">' + AGCURSOSCERT.filter(function(x){ return x.id !== AGCERTTAB; })
+        .map(function(x){ return '<option value="' + x.id + '">' + x.ico + ' ' + x.n + '</option>'; }).join('') +
+      '</select><button class="nxa-btn" onclick="agCertCopiar()">Copiar</button></div>' +
+      '<em>Trae el encabezado, las firmas, el lugar y el color. El nombre del curso y el cuerpo no se copian: son propios de cada certificado.</em>' +
+    '</div>' +
+    '</div></div>';
+
+  /* columna derecha: vista previa y quién lo tiene ganado */
+  h += '<div class="agc-prev"><div class="adm-card"><h4>Vista previa</h4>' +
+    '<div id="agCertPrev" class="agc-marco"></div></div>' +
+    agCertListos(AGCERTTAB) + '</div></div>';
+
+  setTimeout(agCertPintaPrev, 50);
+  return h;
+}
+
+function agCertListos(curso){
+  var c = agCursoCert(curso);
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+  var listos = alum.filter(function(a){ return agAprobadosDe(curso, a.id) >= c.mods; });
+  var h = '<div class="adm-card" style="margin-top:14px"><h4>Ya lo tienen ganado ' +
+    '<span style="font-weight:400;color:var(--muted);font-size:12px">' + c.mods + ' de ' + c.mods + ' módulos</span></h4>';
+  if(!alum.length) return h + '<div class="adm-empty">Todavía no hay estudiantes registrados.</div></div>';
+  if(!listos.length) return h + '<div class="adm-empty">Todavía nadie ha completado los ' + c.mods + ' módulos de este curso.</div></div>';
+  h += '<div class="nx-tw"><table class="nx-t"><tbody>' + listos.map(function(a){
+    return '<tr><td><b>' + (typeof esc === 'function' ? esc(a.name) : a.name) + '</b>' +
+      '<span style="display:block;font-size:11.5px;color:var(--muted)">' + (a.email || '') + '</span></td>' +
+      '<td style="text-align:right"><button class="nxa-btn on" style="margin:0;padding:7px 14px;font-size:12.5px" ' +
+      'onclick="agCert(\'' + curso + '\',\'' + String(a.name).replace(/'/g, '&#39;') + '\',' + c.mods + ')">🎓 Generar</button></td></tr>';
+  }).join('') + '</tbody></table></div>';
+  return h + '</div>';
+}
+function agAprobadosDe(curso, id){
+  var n = 0, c = agCursoCert(curso);
+  var pref = curso === 'porcicultura' ? 'porci::' : (curso === 'nutricion' ? 'nx::' : 'rp::');
+  if(curso === 'porcicultura' && typeof studentProgress === 'function'){
+    try{ return studentProgress(id); }catch(e){}
+  }
+  for(var i = 1; i <= c.mods; i++){
+    try{ var r = JSON.parse(localStorage.getItem(pref + id + '::exam_m' + i)); if(r && r.passed) n++; }catch(e){}
+  }
+  return n;
+}
+
+/* ---------- vista previa en vivo ---------- */
+function agCertRecoge(){
+  var c = agCertCfg(AGCERTTAB);
+  AGCAMPOS.forEach(function(f){
+    var el = document.getElementById('agc_' + f.k);
+    if(el) c[f.k] = el.value;
+  });
+  var a = document.getElementById('agc_accent'); if(a) c.accent = a.value;
+  var s = document.getElementById('agc_showCode'); if(s) c.showCode = s.checked;
+  var p = document.getElementById('agc_codigoPref'); if(p) c.codigoPref = p.value;
+  return c;
+}
+window.agCertLive = function(){ agCertRecoge(); agCertPintaPrev(); };
+function agCertPintaPrev(){
+  var caja = document.getElementById('agCertPrev');
+  if(!caja || typeof certInner !== 'function') return;
+  var curso = agCursoCert(AGCERTTAB);
+  var cfg = agCertCfg(AGCERTTAB);
+  var guardar = CERTCFG;
+  CERTCFG = Object.assign({}, cfg, {total: curso.mods, dur: cfg.dur || (curso.mods + ' módulos')});
+  try{
+    caja.innerHTML = '<div class="agc-lienzo">' +
+      certInner('Nombre del Estudiante', curso.mods, (cfg.codigoPref || curso.pref) + '-EJEMPLO') + '</div>';
+  } finally { CERTCFG = guardar; }
+  agCertAjusta();
+}
+function agCertAjusta(){
+  var caja = document.getElementById('agCertPrev');
+  if(!caja) return;
+  var l = caja.querySelector('.agc-lienzo');
+  if(!l) return;
+  var W = (typeof CERT_W !== 'undefined') ? CERT_W : 1123;
+  var e = Math.min(1, (caja.clientWidth || W) / W);
+  l.style.transform = 'scale(' + e + ')';
+  l.style.transformOrigin = 'top left';
+  caja.style.height = (l.scrollHeight * e) + 'px';
+}
+addEventListener('resize', function(){ if(document.getElementById('agCertPrev')) setTimeout(agCertAjusta, 80); });
+
+window.agCertSalvar = function(){
+  agCertRecoge();
+  agCertGuardar(AGCERTTAB);
+  if(typeof toast === 'function') toast('Certificado de ' + agCursoCert(AGCERTTAB).n + ' guardado', '🎓');
+};
+function agCertPanel(){
+  if(typeof nxAdmin === 'function' && typeof NXADMTAB !== 'undefined' && NXADMTAB === 'certificados'){ nxAdmin(); return; }
+  var b = document.getElementById('adminBody');
+  if(b) b.innerHTML = agAdmCertificados();
+}
+window.agCertPanel = agCertPanel;
+window.agAdmCertificados = agAdmCertificados;
+window.agCertImprimir = agCertImprimir;
+window.agCertRestaurar = agCertRestaurar;
+window.agCertCopiar = agCertCopiar;
+
+/* ---------- que la pestaña del panel use este ---------- */
+if(typeof window.nxAdmCertificados === 'function'){
+  window.nxAdmCertificados = function(){ return agAdmCertificados(); };
+}
+
+/* traer de la nube lo que haya, sin pisar lo que el usuario acabe de escribir */
+(function agCertNube(){
+  setTimeout(function(){
+    if(!window.SB || typeof SB.from !== 'function') return;
+    AGCURSOSCERT.forEach(function(c){
+      try{
+        SB.from('ajustes').select('valor').eq('clave', agCertClave(c.id)).then(function(r){
+          if(!r || !r.data || !r.data.length) return;
+          try{
+            var v = JSON.parse(r.data[0].valor);
+            if(v && !localStorage.getItem(agCertClave(c.id))){
+              AGCERT[c.id] = Object.assign(agCertCfg(c.id), v);
+              try{ localStorage.setItem(agCertClave(c.id), JSON.stringify(AGCERT[c.id])); }catch(e){}
+            }
+          }catch(e){}
+        }, function(){});
+      }catch(e){}
+    });
+  }, 2400);
+})();
+
+/* sembrar los tres al arrancar para que el panel no dependa del orden */
+AGCURSOSCERT.forEach(function(c){ agCertCfg(c.id); });
+
+
+/* ---------- ag-catalogo.js ---------- */
+/* ============================================================
+   AGROACADEMY · LAS TARJETAS DE «MIS CURSOS», CON IMAGEN
+   ------------------------------------------------------------
+   Las tres tarjetas eran un emoji sobre fondo plano. Es la pantalla
+   donde el estudiante decide si compra el curso complementario, así
+   que es la que más tiene que entrar por los ojos.
+
+   Se le añade a cada una una portada de 16:9 con la foto del tema,
+   un velo oscuro abajo para que el texto encima se lea siempre, y la
+   etiqueta del curso sobre la imagen. El emoji pasa a ser una chapa
+   redonda montada en el borde de la foto.
+
+   Se hace envolviendo abrirCursos y trabajando sobre el HTML ya
+   pintado: así la tarjeta que añade el curso 3 recibe el mismo trato
+   sin tocar el código que la crea.
+   ============================================================ */
+
+var AGPORTADAS = {
+  c1:   {f:'nutri-portada',     alt:'Nave de cerdos en producción con comederos de tolva',
+         pos:'center 58%'},
+  c2:   {f:'nutri-m02-maiz-grano', alt:'Maíz en grano, la materia prima principal del alimento',
+         pos:'center 50%'},
+  'cs-c3': {f:'rp-b-lactancia', alt:'Camada de lechones mamando de la marrana en la paridera',
+         pos:'center 45%'}
+};
+
+function agPortadaDe(card){
+  if(card.classList.contains('cs-c3')) return AGPORTADAS['cs-c3'];
+  if(card.classList.contains('c2')) return AGPORTADAS.c2;
+  if(card.classList.contains('c1')) return AGPORTADAS.c1;
+  return null;
+}
+
+function agVisteCatalogo(){
+  var cards = document.querySelectorAll('#csOv .cs-c');
+  if(!cards.length) return;
+  [].forEach.call(cards, function(card){
+    if(card.querySelector('.agp-cover')) return;         /* ya vestida */
+    var p = agPortadaDe(card);
+    if(!p) return;
+
+    /* la etiqueta y el emoji se mudan encima de la foto */
+    var ico = card.querySelector('.cs-ico');
+    var tag = card.querySelector('.cs-tag');
+    var emoji = ico ? ico.textContent.trim() : '';
+    var etiqueta = tag ? tag.textContent.trim() : '';
+
+    var cover = document.createElement('div');
+    cover.className = 'agp-cover';
+    cover.innerHTML =
+      '<div class="agp-marco">' +
+        '<img src="images/' + p.f + '.jpg" alt="' + p.alt + '" loading="lazy" style="object-position:' + p.pos + '">' +
+        '<div class="agp-velo"></div>' +
+      '</div>' +
+      (etiqueta ? '<span class="agp-tag">' + etiqueta + '</span>' : '') +
+      (emoji ? '<span class="agp-ico">' + emoji + '</span>' : '');
+
+    card.insertBefore(cover, card.firstChild);
+    if(ico) ico.remove();
+    if(tag) tag.remove();
+
+    /* si el curso está bloqueado, la foto se atenúa y se marca */
+    if(card.classList.contains('off') || card.classList.contains('pago')){
+      cover.classList.add('agp-lock');
+      var ll = document.createElement('span');
+      ll.className = 'agp-candado';
+      ll.textContent = card.classList.contains('pago') ? '🔒 Se compra aparte' : '🔒 No disponible';
+      cover.appendChild(ll);
+    }
+  });
+}
+
+if(typeof window.abrirCursos === 'function'){
+  var _abrirCursosAg = window.abrirCursos;
+  window.abrirCursos = function(){
+    var r = _abrirCursosAg.apply(this, arguments);
+    /* dos pasadas: la segunda recoge la tarjeta del curso 3 y los
+       cambios que hacen otros envoltorios sobre el estado bloqueado */
+    setTimeout(agVisteCatalogo, 0);
+    setTimeout(agVisteCatalogo, 140);
+    return r;
+  };
+}
+window.agVisteCatalogo = agVisteCatalogo;
+
+/* ---------- estilos ---------- */
+var AGCSS4 = `
+/* La tarjeta original trae padding:24px 26px. Se lo quitamos a ella y
+   se lo damos a sus hijos, para que la portada llegue de verdad a los
+   bordes y no quede el marco blanco alrededor de la foto. */
+.cs-c{ padding:0 !important; overflow:hidden; padding-bottom:22px !important }
+.agp-cover{ position:relative; margin:0 0 18px; aspect-ratio:16/9 }
+/* el recorte vive en el marco interior: así la chapa del emoji puede
+   sobresalir por debajo sin que nadie se la corte */
+.agp-marco{
+  position:absolute; inset:0; overflow:hidden;
+  border-bottom:1px solid var(--border);
+  background:color-mix(in srgb,var(--text) 8%,var(--panel));
+}
+.agp-cover img{
+  display:block; width:100%; height:100%;
+  object-fit:cover;                  /* recorta, nunca deforma */
+  transition:transform .5s cubic-bezier(.2,.7,.3,1);
+}
+.cs-c:hover .agp-cover img{ transform:scale(1.045) }
+.agp-velo{
+  position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(to top, rgba(12,10,9,.82) 0%, rgba(12,10,9,.30) 38%, rgba(12,10,9,0) 68%);
+}
+.agp-tag{
+  position:absolute; left:18px; bottom:16px;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:#fff; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  border-radius:20px; padding:5px 12px;
+}
+.agp-ico{
+  position:absolute; right:18px; bottom:-22px;
+  width:56px; height:56px; border-radius:16px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:29px; line-height:1;
+  background:var(--panel); border:1px solid var(--border);
+  box-shadow:0 10px 26px rgba(0,0,0,.28);
+}
+.agp-lock .agp-marco img{ filter:saturate(.45) brightness(.78) }
+.agp-candado{
+  position:absolute; left:18px; top:16px;
+  font-family:var(--sans); font-size:12px; font-weight:600; color:#fff;
+  background:rgba(12,10,9,.68); border:1px solid rgba(255,255,255,.22);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  border-radius:20px; padding:6px 13px;
+}
+/* el contenido de la tarjeta, ahora que la foto ocupa la cabecera */
+.cs-c > *:not(.agp-cover){ padding-left:26px; padding-right:26px }
+.cs-c h3, .cs-c > b{ margin-top:14px }
+@media(max-width:720px){
+  .agp-ico{ width:48px; height:48px; font-size:25px; right:14px; bottom:-18px }
+  .agp-tag{ left:14px; bottom:13px }
+}
+@media(prefers-reduced-motion:reduce){ .agp-cover img, .cs-c:hover .agp-cover img{ transition:none; transform:none } }
+/* la barra de color de arriba queda por encima de la foto */
+.cs-c::before{ z-index:2 }
+`;
+(function agInyectaCss4(){
+  if(document.getElementById('agCss4')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss4';
+  s.textContent = AGCSS4;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-slides.js ---------- */
+/* ============================================================
+   AGROACADEMY · UN SOLO MODO: DIAPOSITIVAS, Y BIEN LLENAS
+   ------------------------------------------------------------
+   Dos cosas, y son la misma cosa:
+
+   1) Se elimina el modo corrido (bajar por la página). Los tres cursos
+      se leen siempre como diapositivas. El botón 📖 que cambiaba de
+      modo desaparece, y la preferencia guardada de quien lo tuviera
+      apagado se ignora.
+
+   2) Al quedarse solo con diapositivas, las secciones cortas se veían
+      mal: media pantalla en blanco debajo de un aviso de cuatro
+      líneas. Aquí se AGRUPAN: se mide cuánto ocupa cada sección de
+      verdad y se juntan las que caben en una misma pantalla, sin
+      partir ninguna por la mitad.
+
+   Nada de esto reescribe el paginador de cada curso: se envuelve.
+   ============================================================ */
+
+/* la altura útil: lo que queda quitando el encabezado y la barra */
+function agAlto(){
+  var v = innerHeight;
+  return Math.max(360, v - (v < 720 ? 250 : 214));
+}
+
+/* ---------- agrupar las secciones de la diapositiva ---------- */
+function agGrupos(wrap, sel){
+  var secs = [].slice.call(wrap.querySelectorAll(sel));
+  if(!secs.length) return [];
+
+  /* Medir con todo visible Y sin el min-height de la diapositiva: esa
+     regla hace que cada sección declare el alto de una pantalla entera,
+     y entonces no se agrupa nada porque parece que todas van llenas. */
+  var raiz = wrap.closest ? (wrap.closest('.nx-ov') || wrap.parentNode) : wrap.parentNode;
+  var antes = secs.map(function(s){ return s.style.display; });
+  if(raiz) raiz.classList.add('ag-midiendo');
+  secs.forEach(function(s){ s.style.display = ''; });
+  var alto = secs.map(function(s){ return s.offsetHeight || 0; });
+  secs.forEach(function(s, i){ s.style.display = antes[i]; });
+  if(raiz) raiz.classList.remove('ag-midiendo');
+
+  var T = agAlto();
+  var grupos = [], g = [], h = 0;
+  var cierra = function(){ if(g.length){ grupos.push(g); g = []; h = 0; } };
+
+  for(var i = 0; i < secs.length; i++){
+    var s = secs[i], a = alto[i];
+    /* lo que nunca se junta con nada: el examen, la pantalla final,
+       el panel de la granja y cualquier sección que ya llene sola */
+    var sola = s.querySelector('.nx-ex, .ag-fin, .nx-panel, .rp-panel') ||
+               s.classList.contains('nx-solo') || a > T * 0.84;
+    if(sola){ cierra(); grupos.push([i]); continue; }
+    /* cabe en lo que llevamos: se suma. El 26 es el hueco entre secciones. */
+    if(g.length && (h + a + 18) > T){ cierra(); }
+    g.push(i); h += a + 18;
+  }
+  cierra();
+  return grupos;
+}
+
+/* ---------- la barra de abajo ----------
+   Cada curso la crea en su rpIniciarLeccion/nxIniciarLeccion, pero eso
+   solo corría al encender el modo. Ahora el modo está siempre puesto,
+   así que la barra hay que reponerla cada vez que se repinta el wrap. */
+function agBarra(curso){
+  var w = agWrap(curso);
+  if(!w || w.querySelector('.nx-lnav')) return;
+  var pre = curso === 'reproduccion' ? 'rp' : 'nx';
+  var barra = document.createElement('div');
+  barra.className = 'nx-lnav';
+  barra.innerHTML =
+    '<button class="nx-lb" onclick="' + pre + 'Pagina(-1)">← Anterior</button>' +
+    '<div class="nx-lp"><span id="' + pre + 'Lc"></span><div class="nx-lpb"><i id="' + pre + 'Li"></i></div></div>' +
+    '<button class="nx-lb on" onclick="' + pre + 'Pagina(1)">Continuar →</button>';
+  w.appendChild(barra);
+}
+window.agBarra = agBarra;
+
+/* ---------- el paginador por grupos ---------- */
+var AGPAG = {};      /* curso -> índice de grupo actual */
+var AGGRP = {};      /* curso -> grupos calculados */
+
+function agSel(curso){ return curso === 'porcicultura' ? '.block' : 'section.nx-b'; }
+function agWrap(curso){
+  if(curso === 'reproduccion') return document.querySelector('#rpMain .nx-wrap');
+  if(curso === 'nutricion')    return document.querySelector('#nxMain .nx-wrap');
+  return document.querySelector('#main .module') || document.getElementById('main');
+}
+
+function agRecalcula(curso){
+  var w = agWrap(curso);
+  if(!w) return [];
+  AGGRP[curso] = agGrupos(w, agSel(curso));
+  return AGGRP[curso];
+}
+
+function agMuestra(curso, i){
+  var w = agWrap(curso);
+  if(!w) return;
+  var g = AGGRP[curso] || agRecalcula(curso);
+  if(!g.length) return;
+  i = Math.max(0, Math.min(g.length - 1, i));
+  AGPAG[curso] = i;
+  var secs = [].slice.call(w.querySelectorAll(agSel(curso)));
+  var dentro = {};
+  g[i].forEach(function(n){ dentro[n] = 1; });
+  secs.forEach(function(s, n){ s.style.display = dentro[n] ? '' : 'none'; });
+
+  /* el encabezado del módulo solo en la primera */
+  var hero = w.parentNode ? w.parentNode.querySelector('.nx-hero') : null;
+  if(hero) hero.style.display = (i === 0) ? '' : 'none';
+
+  /* Mantener al día las variables de siempre. La paginación ahora va
+     por grupos, pero el teclado, el repaso del examen y la barra leen
+     RPPAG / NXPAG: si se quedan en cero, todo eso cree que no se movió. */
+  try{
+    if(curso === 'reproduccion' && typeof RPPAG !== 'undefined') RPPAG = i;
+    if(curso === 'nutricion' && typeof NXPAG !== 'undefined') NXPAG = i;
+    if(curso === 'porcicultura' && typeof LS !== 'undefined' && LS) LS.idx = i;
+  }catch(e){}
+
+  agContador(curso, i + 1, g.length);
+  var m = (curso === 'reproduccion') ? document.getElementById('rpMain')
+        : (curso === 'nutricion') ? document.getElementById('nxMain') : null;
+  if(m) m.scrollTop = 0; else scrollTo(0, 0);
+
+  /* la animación de entrada, sección por sección */
+  g[i].forEach(function(n, k){
+    var s = secs[n];
+    if(!s) return;
+    try{ if(typeof Anim !== 'undefined' && Anim.reveal) { Anim.reveal(s); return; } }catch(e){}
+    [].forEach.call(s.querySelectorAll('.rv'), function(x, j){
+      x.classList.remove('in');
+      setTimeout(function(){ x.classList.add('in'); }, 50 + k * 70 + j * 45);
+    });
+  });
+}
+
+function agContador(curso, n, total){
+  var c = document.getElementById(curso === 'reproduccion' ? 'rpLc' : (curso === 'nutricion' ? 'nxLc' : 'lessonCount'));
+  var b = document.getElementById(curso === 'reproduccion' ? 'rpLi' : (curso === 'nutricion' ? 'nxLi' : 'lessonBarFill'));
+  if(c) c.textContent = 'Sección ' + n + ' de ' + total;
+  if(b) b.style.width = (n / total * 100) + '%';
+}
+
+function agPasa(curso, d){
+  var g = AGGRP[curso] || agRecalcula(curso);
+  var i = (AGPAG[curso] || 0) + d;
+  if(i < 0){
+    if(curso === 'reproduccion' && RPCUR > 1) return rpIr(RPCUR - 1);
+    if(curso === 'nutricion' && NXCUR > 1) return nxIr(NXCUR - 1);
+    return;
+  }
+  if(i >= g.length){
+    if(curso === 'reproduccion' && RPCUR < RPMOD.length) return rpIr(RPCUR + 1);
+    if(curso === 'nutricion' && NXCUR < NXMOD.length) return nxIr(NXCUR + 1);
+    if(curso === 'porcicultura' && typeof current !== 'undefined' && current < 12) return goto(current + 1);
+    return;
+  }
+  agMuestra(curso, i);
+}
+
+/* ---------- se sustituyen los paginadores de los tres cursos ---------- */
+window.rpMostrarSeccion = function(i){ agMuestra('reproduccion', agGrupoDe('reproduccion', i)); };
+window.rpPagina = function(d){ agPasa('reproduccion', d); };
+if(typeof window.nxMostrarSeccion === 'function') window.nxMostrarSeccion = function(i){ agMuestra('nutricion', agGrupoDe('nutricion', i)); };
+if(typeof window.nxPagina === 'function') window.nxPagina = function(d){ agPasa('nutricion', d); };
+
+/* traducir "quiero la sección n" a "quiero el grupo que la contiene":
+   lo usan el repaso del examen y el salto a la pantalla final */
+function agGrupoDe(curso, sec){
+  var g = AGGRP[curso] || agRecalcula(curso);
+  for(var i = 0; i < g.length; i++) if(g[i].indexOf(sec) >= 0) return i;
+  return Math.min(sec, Math.max(0, g.length - 1));
+}
+window.agGrupoDe = agGrupoDe;
+window.agMuestra = agMuestra;
+
+/* al pintar un módulo nuevo hay que volver a medir */
+['rpPinta', 'nxPinta'].forEach(function(fn){
+  if(typeof window[fn] !== 'function') return;
+  var curso = fn === 'rpPinta' ? 'reproduccion' : 'nutricion';
+  var _f = window[fn];
+  window[fn] = function(){
+    var r = _f.apply(this, arguments);
+    setTimeout(function(){
+      var cur = (curso === 'reproduccion') ? RPCUR : NXCUR;
+      if(!cur) return;                    /* la portada no se pagina */
+      agBarra(curso);                     /* rpPinta reescribe el wrap: la barra hay que reponerla */
+      agRecalcula(curso);
+      agMuestra(curso, 0);
+    }, 60);
+    return r;
+  };
+});
+addEventListener('resize', function(){
+  clearTimeout(window.__agRe);
+  window.__agRe = setTimeout(function(){
+    ['reproduccion', 'nutricion'].forEach(function(c){
+      if(!agWrap(c)) return;
+      var antes = (AGGRP[c] && AGGRP[c][AGPAG[c] || 0]) ? AGGRP[c][AGPAG[c] || 0][0] : 0;
+      agRecalcula(c);
+      agMuestra(c, agGrupoDe(c, antes));
+    });
+  }, 260);
+});
+
+/* ============================================================
+   FUERA EL MODO CORRIDO
+   ============================================================ */
+(function agSoloDiapositivas(){
+  /* la preferencia guardada ya no manda: siempre diapositivas */
+  try{ localStorage.setItem('rp_leccion', '1'); }catch(e){}
+  try{
+    var c = JSON.parse(localStorage.getItem('nx_ui') || '{}');
+    c.leccion = true; localStorage.setItem('nx_ui', JSON.stringify(c));
+  }catch(e){}
+  try{ localStorage.setItem('nx_leccion', '1'); }catch(e){}
+
+  if(typeof RPLECCION !== 'undefined') RPLECCION = true;
+  if(typeof NXLECCION !== 'undefined') NXLECCION = true;
+  if(typeof LESSON !== 'undefined') LESSON = true;
+
+  /* el botón que cambiaba de modo deja de existir */
+  ['rpControles', 'nxControles'].forEach(function(fn){
+    if(typeof window[fn] !== 'function') return;
+    var _f = window[fn];
+    window[fn] = function(){
+      return _f.apply(this, arguments)
+        .replace(/<button[^>]*onclick="(rp|nx)ToggleLeccion\(\)"[^>]*>[\s\S]*?<\/button>/g, '');
+    };
+  });
+  /* y si alguien lo llama igual (tecla L, o un botón que quedara), no hace nada */
+  var nada = function(){
+    if(typeof toast === 'function') toast('Este curso se lee en diapositivas', '📖');
+  };
+  window.rpToggleLeccion = nada;
+  window.nxToggleLeccion = nada;
+  if(typeof window.toggleLesson === 'function') window.toggleLesson = nada;
+
+  /* al abrir cada curso, asegurarse de que la barra de diapositivas está */
+  ['openReproduccion', 'openNutricion'].forEach(function(fn){
+    if(typeof window[fn] !== 'function') return;
+    var curso = fn === 'openReproduccion' ? 'reproduccion' : 'nutricion';
+    var _f = window[fn];
+    window[fn] = function(){
+      var r = _f.apply(this, arguments);
+      setTimeout(function(){
+        var ov = document.getElementById(curso === 'reproduccion' ? 'rpOv' : 'nxOv');
+        if(ov) ov.classList.add('nx-leccion');
+        if(curso === 'reproduccion'){ RPLECCION = true; if(typeof rpIniciarLeccion === 'function' && !document.querySelector('#rpOv .nx-lnav')) rpIniciarLeccion(); }
+        else { NXLECCION = true; if(typeof nxIniciarLeccion === 'function' && !document.querySelector('#nxOv .nx-lnav')) nxIniciarLeccion(); }
+        agRecalcula(curso);
+        if(agWrap(curso)) agMuestra(curso, 0);
+      }, 240);
+      return r;
+    };
+  });
+})();
+
+/* quitar de la ayuda de atajos la línea del modo que ya no existe */
+['rpAtajos', 'nxAtajos'].forEach(function(fn){
+  if(typeof window[fn] !== 'function') return;
+  var _f = window[fn];
+  window[fn] = function(){
+    var r = _f.apply(this, arguments);
+    var ov = document.getElementById(fn === 'rpAtajos' ? 'rpAtOv' : 'nxAtOv');
+    if(!ov) return r;
+    [].forEach.call(ov.querySelectorAll('.nxat-l > div'), function(d){
+      if(/modo lecci/i.test(d.textContent)) d.remove();
+    });
+    return r;
+  };
+});
+
+
+/* la clase que quita el min-height solo mientras se mide */
+(function agCssMide(){
+  if(document.getElementById('agCssMide')) return;
+  var st = document.createElement('style');
+  st.id = 'agCssMide';
+  st.textContent = '.ag-midiendo .nx-wrap > section.nx-b{min-height:0 !important;display:block !important}' +
+    '.ag-midiendo .nx-lnav{display:none !important}';
+  var poner = function(){ (document.body || document.documentElement).appendChild(st); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* En diapositivas el relleno grande de cada sección sobra: son pantallas,
+   no un documento que se baja. Bajarlo es lo que permite que dos secciones
+   cortas compartan diapositiva en vez de quedarse cada una con su hueco. */
+(function agCssCompacto(){
+  if(document.getElementById('agCssCompacto')) return;
+  var st = document.createElement('style');
+  st.id = 'agCssCompacto';
+  st.textContent =
+    '.nx-ov.nx-leccion .nx-wrap > section.nx-b{padding-top:10px;padding-bottom:10px;border-bottom:none}' +
+    '.nx-ov.nx-leccion .nx-wrap > section.nx-b + section.nx-b{margin-top:6px}' +
+    '.ag-midiendo .nx-wrap > section.nx-b{padding-top:10px !important;padding-bottom:10px !important}';
+  var poner = function(){ (document.body || document.documentElement).appendChild(st); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+/* La tecla Fin iba a "la última sección", pero ahora las secciones se
+   agrupan: la última sección y la última diapositiva ya no son el mismo
+   número. Se reescribe para que cuente diapositivas. */
+(function agFinDeModulo(){
+  var ultimo = function(curso){
+    var g = AGGRP[curso] || agRecalcula(curso);
+    if(g.length) agMuestra(curso, g.length - 1);
+  };
+  ['rpTecla'].forEach(function(fn){
+    if(typeof window[fn] !== 'function') return;
+    var _f = window[fn];
+    window[fn] = function(e){
+      if(e && e.key === 'End' && !agEscribiendo(e) && !e.ctrlKey && !e.metaKey && !e.altKey){
+        var ov = document.getElementById('rpOv');
+        if(ov && !document.getElementById('rpAtOv')){ e.preventDefault(); ultimo('reproduccion'); return; }
+      }
+      return _f.apply(this, arguments);
+    };
+    document.removeEventListener('keydown', _f);
+    document.addEventListener('keydown', window[fn]);
+  });
+  /* el de formulación vive en un manejador aparte */
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'End') return;
+    var ov = document.getElementById('nxOv');
+    if(!ov || ov.style.display === 'none') return;
+    if(document.getElementById('nxAtOv') || document.getElementById('rpAtOv')) return;
+    if(agEscribiendo(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+    e.preventDefault();
+    ultimo('nutricion');
+  }, true);
+})();
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
 </html>
