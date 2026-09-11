@@ -12119,6 +12119,49 @@ try{ setTimeout(nxArreglarLamina, 400); }catch(e){}
 .nx-pn-i b{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text);white-space:nowrap}
 .nx-pn-i i{width:100%;font-style:normal;font-size:11px;color:var(--muted)}
 
+/* ===== el hilo: proyecto final guiado ===== */
+.nx-hlo{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--panel)}
+.nx-hlo-h{padding:18px 20px;border-bottom:1px solid var(--border);background:rgba(47,125,79,.07)}
+.nx-hlo-h>b{display:block;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--green);margin-bottom:8px}
+.nx-hlo-h p{margin:0 0 12px;font-size:13.5px;line-height:1.6;color:var(--text-2)}
+.nx-hlo-bar{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.nx-hlo-bar i{display:block;height:100%;background:linear-gradient(90deg,#2F7D4F,#C08A12);transition:width .4s ease}
+.nx-hlo-cnt{display:block;margin-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.nx-hlo-p{border-bottom:1px solid var(--border)}
+.nx-hlo-p>summary{cursor:pointer;display:flex;align-items:center;gap:13px;padding:13px 20px}
+.nx-hlo-num{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;font-weight:700;background:var(--bg);border:1px solid var(--border);color:var(--muted)}
+.nx-hlo-p.ok .nx-hlo-num{background:var(--green);border-color:var(--green);color:#fff}
+.nx-hlo-t{flex:1;min-width:0}
+.nx-hlo-t b{display:block;font-size:15px;color:var(--text)}
+.nx-hlo-t i{display:block;font-style:normal;font-size:12.5px;color:var(--muted);margin-top:1px}
+.nx-hlo-ok{flex:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:3px 8px}
+.nx-hlo-p.ok .nx-hlo-ok{color:var(--green);border-color:rgba(47,125,79,.42)}
+.nx-hlo-b{padding:0 20px 18px 61px}
+.nx-hlo-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px}
+.nx-hlo-c{display:flex;flex-direction:column;gap:4px}
+.nx-hlo-c>span{font-size:12.5px;color:var(--text-2)}
+.nx-hlo-w{display:flex;align-items:center;gap:7px}
+.nx-hlo-w input{flex:1;min-width:0;font-family:var(--mono);font-size:15px;color:var(--text);background:var(--bg);
+  border:1px solid var(--border);border-radius:9px;padding:9px 11px}
+.nx-hlo-w input:focus{outline:none;border-color:var(--green)}
+.nx-hlo-w i{font-style:normal;font-size:11.5px;color:var(--muted);white-space:nowrap;min-width:46px}
+.nx-hlo-c select{font-family:inherit;font-size:14px;color:var(--text);background:var(--bg);
+  border:1px solid var(--border);border-radius:9px;padding:9px 11px}
+.nx-hlo-c em{font-style:normal;font-size:11.5px;color:var(--muted);line-height:1.45}
+.nx-hlo-n{margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.55}
+.nx-hlo-r{background:rgba(47,125,79,.09);border-radius:11px;padding:13px 16px;font-size:14.5px;line-height:1.6;color:var(--text-2)}
+.nx-hlo-r b{color:var(--text)}
+.nx-hlo-d{margin-top:11px;font-size:13.5px;line-height:1.6;color:var(--muted);border-left:3px solid var(--amber);padding-left:12px}
+.nx-hlo-d b{color:var(--text-2)}
+.nx-hlo-fin{padding:20px;background:rgba(47,125,79,.10);border-top:1px solid var(--border)}
+.nx-hlo-fin>b{display:block;font-family:var(--display);font-size:17px;font-weight:800;color:var(--text);margin-bottom:9px}
+.nx-hlo-fin p{margin:0;font-size:15px;line-height:1.7;color:var(--text-2)}
+.nx-hlo-fin p b{color:var(--text)}
+.nx-hlo-fin2{margin-top:11px !important;font-size:13.5px !important;color:var(--muted) !important}
+@media(max-width:640px){ .nx-hlo-b{padding-left:20px} }
+
 /* ===== casos ===== */
 .nx-caso2{display:flex;flex-direction:column;gap:9px}
 .nx-caso2-i{border:1px solid var(--border);border-radius:13px;background:var(--panel);overflow:hidden}
@@ -12230,6 +12273,8 @@ var NXGRANJA_DEF = {
   mortalidad: 0,            /* % del lote */
   precioVenta: 0,           /* RD$ por kg vivo */
   fx:         null,         /* la fórmula del estudiante, si tocó algún % */
+  tocado:     {},           /* qué campos ha llenado él: sin esto, los valores
+                               por defecto hacen creer que ya hizo el paso */
   formulaB:   'engorde2'    /* la alternativa que compara en sustitución */
 };
 
@@ -12250,6 +12295,8 @@ function nxGuardarGranja(){
 function nxSet(campo, valor){
   if(!NXGRANJA_DEF.hasOwnProperty(campo)) return;
   NXGRANJA[campo] = (campo === 'formula') ? valor : (parseFloat(valor) || 0);
+  NXGRANJA.tocado = NXGRANJA.tocado || {};
+  NXGRANJA.tocado[campo] = 1;
   nxGuardarGranja();
   nxRecalcular();
 }
@@ -12811,16 +12858,19 @@ function nxFxReset(){
 }
 function nxFxFormula(id){
   NXGRANJA.formula = id;
+  NXGRANJA.tocado = NXGRANJA.tocado || {}; NXGRANJA.tocado.formula = 1;
   NXGRANJA.fx = null;
   nxGuardarGranja();
   nxRecalcular();
 }
 function nxFxLote(v){
+  NXGRANJA.tocado = NXGRANJA.tocado || {}; NXGRANJA.tocado.lote = 1;
   NXGRANJA.lote = Math.max(1, parseFloat(v) || 100);
   nxGuardarGranja();
   nxRecalcular();
 }
 function nxFxPrecio(k, v){
+  NXGRANJA.tocado = NXGRANJA.tocado || {}; NXGRANJA.tocado.precios = 1; nxGuardarGranja();
   NXCFG.precios = NXCFG.precios || {};
   NXCFG.precios[k] = Math.max(0, parseFloat(v) || 0);
   if(typeof nxGuardarCfg === 'function') nxGuardarCfg();
@@ -13554,7 +13604,232 @@ if(typeof nxAlCambiar === 'function'){
   });
 }
 
+
+/* ============================================================
+   EL HILO · proyecto final guiado
+   ------------------------------------------------------------
+   Ocho pasos que recorren la cadena completa del curso:
+   mi fórmula → mi alimento → mi costo → mis cerdos → mi CA →
+   mi costo por kilo → mi precio → mi rentabilidad.
+
+   No es una calculadora más: usa las mismas cuentas del motor y
+   va enseñando cómo un paso empuja al siguiente.
+   ============================================================ */
+
+function nxHiloCampo(k, et, u, paso, ayuda){
+  var v = NXGRANJA[k];
+  return '<label class="nx-hlo-c">' +
+    '<span>' + nxEsc(et) + '</span>' +
+    '<span class="nx-hlo-w">' +
+      '<input type="number" inputmode="decimal" data-k="' + k + '" step="' + (paso || 'any') + '" value="' + (v == null ? '' : v) + '" ' +
+        'oninput="nxSet(\'' + k + '\',this.value)">' +
+      '<i>' + nxEsc(u || '') + '</i>' +
+    '</span>' +
+    (ayuda ? '<em>' + ayuda + '</em>' : '') +
+  '</label>';
+}
+
+function nxHiloPasos(){
+  var g = NXGRANJA, d = nxDatos();
+  var F = d.formula;
+  var r = nxCostoLote(nxFx(), g.lote);
+  /* sin esto, los valores por defecto hacen creer que ya hizo el paso */
+  var tocado = NXGRANJA.tocado || {};
+
+  return [
+  { n:1, t:'Mi fórmula', q:'¿Qué le voy a dar de comer?',
+    listo: !!F && !!tocado.formula,
+    campos:'<div class="nx-hlo-g">' +
+      '<label class="nx-hlo-c"><span>Fórmula que va a trabajar</span>' +
+      '<select onchange="nxFxFormula(this.value)">' +
+      (typeof NXFORM !== 'undefined' ? NXFORM : []).map(function(x){
+        return '<option value="' + x.id + '"' + (x.id === g.formula ? ' selected' : '') + '>' + nxEsc(x.nombre) + '</option>';
+      }).join('') + '</select></label></div>',
+    res: F ? ('Trabajando <b>' + nxEsc(F.nombre) + '</b> (' + nxEsc(F.peso) + '), con ' + r.filas.length + ' ingredientes.') : 'Escoja una fórmula.',
+    dice:'La fórmula es la decisión técnica. Todo lo que viene después —los kilos, el costo, la conversión— sale de aquí. Si la cambia, cambia toda la cadena.' },
+
+  { n:2, t:'Mi alimento', q:'¿Cuánto voy a fabricar y qué peso de cada cosa?',
+    listo: g.lote > 0 && !!tocado.lote,
+    campos:'<div class="nx-hlo-g">' + nxHiloCampo('lote', 'Tamaño del lote que fabrica', 'kg', 1,
+      'Lo que de verdad le cabe a su mezcladora, no lo que dice el libro.') + '</div>',
+    res: 'Un lote de <b>' + nxD(g.lote, 0) + ' kg</b> son <b>' + nxD(NXU.deKg(g.lote, 'qq'), 1) + ' quintales</b>. ' +
+      'El maíz de esta fórmula pesa <b>' + nxD((r.filas.find(function(x){ return x.k === 'maiz'; }) || {kg:0}).kg, 1) + ' kg</b> en ese lote.',
+    dice:'Un porcentaje no se pesa. El paso de % a kilos es donde se pierde la fórmula si se hace de memoria. Y recuerde: un lote debería consumirse en menos de 30 días.' },
+
+  { n:3, t:'Mi costo', q:'¿Cuánto me cuesta ese alimento?',
+    listo: r.total > 0 && !!tocado.precios,
+    campos:'<p class="nx-hlo-n">Los precios se ponen en la calculadora del módulo 04, ingrediente por ingrediente. Aquí ve el resultado.</p>',
+    res: r.total > 0 ?
+      ('<b>RD$ ' + nxD(r.porKg) + ' el kilo</b> · ' + nxRD(r.porQq) + ' el quintal · ' + nxRD(r.porT) + ' la tonelada. ' +
+       'El lote de ' + nxD(g.lote, 0) + ' kg le cuesta <b>' + nxRD(r.total) + '</b>.') :
+      'Todavía no ha puesto precios. Vaya al módulo 04 y llene la columna RD$/kg.',
+    dice:'Este es el número que se compara con el saco comercial, pasando los dos a RD$ por kilo. Y todavía no incluye molienda, energía ni su tiempo.' },
+
+  { n:4, t:'Mis cerdos', q:'¿A quién se lo voy a dar?',
+    listo: g.cerdos > 0 && g.pesoFin > g.pesoIni && g.dias > 0 &&
+           !!(tocado.cerdos || tocado.pesoFin || tocado.pesoIni || tocado.dias),
+    campos:'<div class="nx-hlo-g">' +
+      nxHiloCampo('cerdos', 'Cerdos del lote', 'cerdos', 1) +
+      nxHiloCampo('pesoIni', 'Peso al entrar', 'kg', 0.5) +
+      nxHiloCampo('pesoFin', 'Peso al salir', 'kg', 0.5) +
+      nxHiloCampo('dias', 'Días que duró', 'días', 1) + '</div>',
+    res: (g.pesoFin > g.pesoIni && g.dias > 0) ?
+      ('Ganaron <b>' + nxD(d.ganancia, 1) + ' kg</b> cada uno en ' + nxD(g.dias, 0) + ' días: ' +
+       '<b>' + nxD(d.gdpG, 0) + ' gramos al día</b>.') :
+      'El peso final tiene que ser mayor que el inicial y los días mayores que cero.',
+    dice:'La ganancia diaria le dice si el lote va al ritmo que usted esperaba. Si baja con el mismo alimento, el problema no está en la fórmula.' },
+
+  { n:5, t:'Mi conversión', q:'¿Cuánto comieron para ganar eso?',
+    listo: g.consumo > 0 && d.ganancia > 0 && !!tocado.consumo,
+    campos:'<div class="nx-hlo-g">' + nxHiloCampo('consumo', 'Alimento consumido por cerdo', 'kg', 1,
+      'Todo lo que salió del almacén hacia ese corral, incluyendo lo que se desperdició.') + '</div>',
+    res: (g.consumo > 0 && d.ganancia > 0) ?
+      ('Su conversión es <b>' + nxD(d.ca) + '</b> kg de alimento por kg de ganancia. ' +
+       'El lote de ' + nxD(g.cerdos, 0) + ' se comió <b>' + nxD(d.loteAlimKg, 0) + ' kg</b> (' + nxD(NXU.deKg(d.loteAlimKg, 't'), 2) + ' toneladas).') :
+      'Meta el alimento consumido.',
+    dice:'Este es el número que más manda. No lo compare con el de otra granja: compárelo con el suyo del lote anterior, medido igual.' },
+
+  { n:6, t:'Mi costo por kilo', q:'¿Cuánto me costó de verdad cada cerdo?',
+    listo: d.otrosCostos > 0 && d.costoAlim > 0,
+    campos:'<div class="nx-hlo-g">' +
+      nxHiloCampo('lechon', 'Lechón al destete', 'RD$', 1) +
+      nxHiloCampo('sanidad', 'Sanidad', 'RD$', 1) +
+      nxHiloCampo('mano', 'Mano de obra', 'RD$', 1) +
+      nxHiloCampo('energia', 'Energía y agua', 'RD$', 1) +
+      nxHiloCampo('transporte', 'Transporte', 'RD$', 1) +
+      nxHiloCampo('otros', 'Otros', 'RD$', 1) +
+      nxHiloCampo('mortalidad', 'Mortalidad del lote', '%', 0.1) + '</div>',
+    res: (d.costoTotal > 0) ?
+      ('Alimento <b>' + nxRD(d.costoAlim) + '</b> + lo demás <b>' + nxRD(d.otrosCostos) + '</b> = ' +
+       '<b>' + nxRD(d.costoTotal) + ' por cerdo</b>, que son <b>RD$ ' + nxD(d.costoPorKgVivo) + ' por kilo vivo</b>. ' +
+       'El alimento es el ' + nxD(d.pesoAlimPct, 0) + ' % del total.') :
+      'Meta los costos que no son alimento.',
+    dice:'Aquí está la trampa más común del negocio: <b>el costo por cerdo y el costo por kilo son números distintos</b>. El que se compara con lo que le pagan es el de por kilo.' },
+
+  { n:7, t:'Mi precio', q:'¿A cómo tengo que vender?',
+    listo: g.precioVenta > 0,
+    campos:'<div class="nx-hlo-g">' + nxHiloCampo('precioVenta', 'Precio que le ofrecen', 'RD$/kg vivo', 0.5,
+      'El que le están pagando a usted hoy, no el de la noticia.') + '</div>',
+    res: (d.costoPorKgVivo > 0) ?
+      ('Su piso es <b>RD$ ' + nxD(d.equilibrio) + ' por kilo vivo</b>. ' +
+       (g.precioVenta > 0 ?
+        ('A RD$ ' + nxD(g.precioVenta) + ' ' + (d.margen >= 0 ? 'le quedan <b>' + nxRD(d.margen) + '</b> por cerdo.' :
+         'está <b>perdiendo ' + nxRD(-d.margen) + '</b> por cerdo.')) : 'Meta el precio que le ofrecen.')) :
+      'Complete primero el paso 6.',
+    dice:'Ese piso es sobre costos variables: no incluye la nave, el equipo ni los préstamos. Es el mínimo para no perder en el día a día, no su meta.' },
+
+  { n:8, t:'Mi rentabilidad', q:'¿Este lote me dejó algo?',
+    listo: g.precioVenta > 0 && d.costoTotal > 0 && g.consumo > 0,
+    campos:'',
+    res: (g.precioVenta > 0 && d.costoTotal > 0) ?
+      ('El lote de ' + nxD(g.cerdos, 0) + ' cerdos: ingreso <b>' + nxRD(d.ingreso * d.lotePorVender) + '</b>, ' +
+       'costo <b>' + nxRD(d.loteCosto) + '</b>, margen <b>' + nxRD(d.loteMargen) + '</b> ' +
+       '(' + nxD(d.margenPct, 1) + ' % del ingreso).') :
+      'Complete los pasos anteriores.',
+    dice:'Y ahora la pregunta que cierra el curso: si el margen no le gusta, ¿por dónde lo arregla? Suba por los pasos. Casi siempre está en el 5 (conversión) o en el 3 (precio del alimento) — y los dos los controla usted.' }
+  ];
+}
+
+function nxHilo(){
+  var pasos = nxHiloPasos();
+  var hechos = pasos.filter(function(p){ return p.listo; }).length;
+  var g = NXGRANJA, d = nxDatos();
+
+  var lista = pasos.map(function(p){
+    return '<details class="nx-hlo-p' + (p.listo ? ' ok' : '') + '" data-p="' + p.n + '"' + (p.n === 1 && hechos < 8 ? ' open' : '') + '>' +
+      '<summary><span class="nx-hlo-num">' + p.n + '</span>' +
+        '<span class="nx-hlo-t"><b>' + nxEsc(p.t) + '</b><i>' + nxEsc(p.q) + '</i></span>' +
+        '<span class="nx-hlo-ok">' + (p.listo ? 'listo' : 'falta') + '</span></summary>' +
+      '<div class="nx-hlo-b">' + p.campos +
+        '<div class="nx-hlo-r">' + p.res + '</div>' +
+        '<div class="nx-hlo-d">' + p.dice + '</div>' +
+      '</div></details>';
+  }).join('');
+
+  var resumen = '';
+  if(hechos === 8){
+    resumen = '<div class="nx-hlo-fin">' +
+      '<b>Su proyecto, en una línea</b>' +
+      '<p>Con la fórmula <b>' + nxEsc(d.formula ? d.formula.nombre : '—') + '</b> a <b>RD$ ' + nxD(d.costoAlimKg) + ' el kilo</b>, ' +
+      'sus cerdos pasaron de ' + nxD(g.pesoIni, 0) + ' a ' + nxD(g.pesoFin, 0) + ' kg en ' + nxD(g.dias, 0) + ' días ' +
+      'con una conversión de <b>' + nxD(d.ca) + '</b>. Cada cerdo le costó <b>' + nxRD(d.costoTotal) + '</b>, ' +
+      'o sea <b>RD$ ' + nxD(d.costoPorKgVivo) + ' el kilo vivo</b>. Vendiendo a RD$ ' + nxD(g.precioVenta) + ', ' +
+      'el lote de ' + nxD(g.cerdos, 0) + ' le dejó <b>' + nxRD(d.loteMargen) + '</b>.</p>' +
+      '<p class="nx-hlo-fin2">Ese párrafo es el entregable del curso. Cuando cierre su próximo lote, vuelva aquí, meta los números nuevos y compare los dos párrafos. Esa comparación es gestión.</p>' +
+    '</div>';
+  }
+
+  return '<section class="nx-b nx-full"><h3 class="rv">Mi proyecto: de la fórmula a la rentabilidad</h3>' +
+  '<div class="nx-hlo rv">' +
+    '<div class="nx-hlo-h">' +
+      '<b>Mi fórmula → mi alimento → mi costo → mis cerdos → mi CA → mi costo/kg → mi precio → mi rentabilidad</b>' +
+      '<p>Ocho pasos con <b>sus</b> números. Cada uno empuja al siguiente: si cambia algo en el paso 3, el paso 8 se mueve. Los datos son los mismos de las calculadoras del curso, así que lo que ya llenó, ya está aquí.</p>' +
+      '<div class="nx-hlo-bar"><i style="width:' + (hechos / 8 * 100) + '%"></i></div>' +
+      '<span class="nx-hlo-cnt">' + hechos + ' de 8 pasos completos</span>' +
+    '</div>' +
+    lista + '<div class="nx-hlo-fbox">' + resumen + '</div>' +
+  '</div></section>';
+}
+
+/* Actualizar EN SU SITIO, no repintar.
+   Repintar el bloque entero en cada tecla destruía el campo donde el
+   estudiante estaba escribiendo y le quitaba el cursor. Aquí solo se
+   refrescan los resultados, las marcas de "listo" y la barra. */
+if(typeof nxAlCambiar === 'function'){
+  nxAlCambiar(function(){
+    var raiz = document.querySelector('#nxMain .nx-hlo');
+    if(!raiz) return;
+    var pasos = nxHiloPasos();
+    var hechos = 0;
+    pasos.forEach(function(p){
+      if(p.listo) hechos++;
+      var det = raiz.querySelector('.nx-hlo-p[data-p="' + p.n + '"]');
+      if(!det) return;
+      det.classList.toggle('ok', !!p.listo);
+      var ok = det.querySelector('.nx-hlo-ok');
+      if(ok) ok.textContent = p.listo ? 'listo' : 'falta';
+      var r = det.querySelector('.nx-hlo-r');
+      if(r && r.innerHTML !== p.res) r.innerHTML = p.res;
+    });
+    var barra = raiz.querySelector('.nx-hlo-bar i');
+    if(barra) barra.style.width = (hechos / 8 * 100) + '%';
+    var cnt = raiz.querySelector('.nx-hlo-cnt');
+    if(cnt) cnt.textContent = hechos + ' de 8 pasos completos';
+    /* el resumen aparece solo cuando estan los ocho */
+    var caja = raiz.querySelector('.nx-hlo-fbox');
+    if(caja){
+      var d = document.createElement('div');
+      d.innerHTML = nxHilo();
+      var nuevoRes = d.querySelector('.nx-hlo-fbox');
+      var a = nuevoRes ? nuevoRes.innerHTML : '';
+      if(caja.innerHTML !== a) caja.innerHTML = a;
+    }
+  });
+}
+
+/* colocarlo al cierre del módulo 10 */
+(function nxColocarHilo(){
+  if(typeof NXMOD === 'undefined') return;
+  var m = NXMOD[9];
+  if(!m || m.sec.some(function(s){ return s.k === 'hilo'; })) return;
+  var i = m.sec.findIndex(function(s){ return s.k === 'panel'; });
+  if(i < 0) m.sec.push({k:'hilo', t:'Mi proyecto'});
+  else m.sec.splice(i, 0, {k:'hilo', t:'Mi proyecto'});
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecHilo = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'hilo') return nxHilo();
+    return _nxSecHilo.apply(this, arguments);
+  };
+}
+
 </script>
+
+
+
+
 
 
 
