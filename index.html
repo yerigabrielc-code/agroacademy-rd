@@ -14080,7 +14080,7 @@ function rpTieneAcceso(){
   return !!RPACCESO[rpYo()];
 }
 
-var RPPUB = false;   /* no se publica hasta que el curso esté completo */
+var RPPUB = true;    /* lo manda NXPUB desde su panel; esto es solo el arranque */
 try{ var _p = localStorage.getItem('rp_pub'); if(_p !== null) RPPUB = _p === '1'; }catch(e){}
 
 /* ---------- avance ---------- */
@@ -16215,7 +16215,43 @@ function rpTarjetaCatalogo(){
   g.appendChild(b);
 }
 
+/* ============================================================
+   PUBLICAR / OCULTAR DESDE TU PANEL
+   ------------------------------------------------------------
+   nxPublicar ya es generico y guarda en NXPUB, pero el aviso
+   busca el curso en NXCURSOS —que no lo tenia— y reventaba.
+   Se agrega el curso a esa lista y se sincroniza RPPUB con NXPUB,
+   que es la fuente de verdad que ya usa tu panel y la nube.
+   ============================================================ */
+(function rpRegistrarEnListas(){
+  if(typeof NXCURSOS !== 'undefined' && !NXCURSOS.some(function(c){ return c.id === 'reproduccion'; })){
+    NXCURSOS.push({id:'reproduccion', ico:'🐖', n:'Reproducción porcina',
+      sub:'10 módulos · 100 preguntas · 11 calculadoras y 15 casos',
+      mods:(typeof RPMOD !== 'undefined' ? RPMOD.length : 10), base:false});
+  }
+  /* RPPUB pasa a leerse de NXPUB, que es lo que guarda y sincroniza tu panel */
+  if(typeof NXPUB !== 'undefined'){
+    if(NXPUB.reproduccion == null) NXPUB.reproduccion = true;
+    RPPUB = !!NXPUB.reproduccion;
+    try{ localStorage.setItem('rp_pub', RPPUB ? '1' : '0'); }catch(e){}
+  }
+})();
+
+if(typeof window.nxPublicar === 'function'){
+  var _nxPublicar = window.nxPublicar;
+  window.nxPublicar = function(curso, v){
+    var r = _nxPublicar.apply(this, arguments);
+    if(curso === 'reproduccion'){
+      RPPUB = !!v;
+      try{ localStorage.setItem('rp_pub', v ? '1' : '0'); }catch(e){}
+    }
+    try{ if(typeof mountCourseSwitch === 'function') mountCourseSwitch(true); }catch(e){}
+    return r;
+  };
+}
+
 </script>
+
 
 
 
