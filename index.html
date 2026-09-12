@@ -19853,5 +19853,2453 @@ var AGCSS8 = `
 
 
 
+<style>
+
+/* ===== curso 4: solo lo que no existe ya ===== */
+.cs-c.cs-c4::before{background:linear-gradient(90deg,#B03A2E,#E07A5F)}
+.cs-c.cs-c4:hover{border-color:#B03A2E}
+.cs-cert{font-size:11.5px;color:var(--amber-d)}
+
+/* ===== el aviso PPA · el rojo está reservado para esto ===== */
+.sb-ppa{border:2px solid #B03A2E;border-radius:16px;padding:20px 24px 22px;
+  background:color-mix(in srgb,#B03A2E 8%,var(--panel));max-width:82ch}
+.sb-ppa-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sb-ppa-h span{font-size:20px;line-height:1}
+.sb-ppa-h b{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#B03A2E}
+.sb-ppa h4{margin:0 0 9px;font-family:var(--display);font-size:19px;font-weight:700;color:var(--text);line-height:1.25}
+.sb-ppa p{margin:0;font-size:17px;line-height:1.66;color:var(--text-2)}
+.sb-ppa p b{color:var(--text)}
+
+/* ===== el mapa de puertas de entrada ===== */
+.sb-mapa{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;
+  margin:var(--ag-gap) 0}
+.sb-col{display:flex;flex-direction:column;gap:9px}
+.sb-puerta{display:flex;align-items:center;gap:11px;padding:11px 15px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--border);position:relative}
+.sb-puerta b{font-family:var(--body);font-size:14.5px;font-weight:600;color:var(--text)}
+.sb-pico{font-size:19px;line-height:1}
+.sb-p-izq::after,.sb-p-der::after{content:"";position:absolute;top:50%;width:16px;height:2px;
+  background:color-mix(in srgb,#B03A2E 55%,var(--border))}
+.sb-p-izq::after{right:-17px} .sb-p-der::after{left:-17px}
+.sb-granja{display:flex;align-items:center;justify-content:center}
+.sb-granja-c{text-align:center;padding:26px 22px;border-radius:18px;min-width:190px;
+  background:color-mix(in srgb,#B03A2E 10%,var(--panel));border:2px dashed #B03A2E}
+.sb-granja-c span{display:block;font-size:34px;line-height:1;margin-bottom:8px}
+.sb-granja-c b{display:block;font-family:var(--display);font-size:16px;font-weight:800;
+  letter-spacing:.04em;color:var(--text);margin-bottom:6px}
+.sb-granja-c em{display:block;font-style:normal;font-size:12.5px;line-height:1.45;color:var(--muted)}
+@media(max-width:900px){ .sb-mapa{grid-template-columns:1fr}
+  .sb-p-izq::after,.sb-p-der::after{display:none}
+  .sb-granja-c{min-width:0;margin:6px 0} }
+
+/* ===== zona limpia / zona sucia ===== */
+.sb-zonas{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch;margin:var(--ag-gap) 0}
+.sb-z{border-radius:16px;padding:20px;border:1px solid var(--border)}
+.sb-z b{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.12em;margin-bottom:4px}
+.sb-z > span{display:block;font-size:13.5px;color:var(--muted);margin-bottom:13px}
+.sb-z ul{margin:0;padding-left:18px}
+.sb-z li{font-size:14.5px;line-height:1.55;color:var(--text-2);margin-bottom:6px}
+.sb-z-sucia{background:color-mix(in srgb,#8A5A2B 9%,var(--panel));border-color:color-mix(in srgb,#8A5A2B 40%,var(--border))}
+.sb-z-sucia b{color:#8A5A2B}
+.sb-z-limpia{background:color-mix(in srgb,var(--green) 8%,var(--panel));border-color:color-mix(in srgb,var(--green) 42%,var(--border))}
+.sb-z-limpia b{color:var(--green-d)}
+.sb-linea{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 10px;text-align:center;min-width:120px;position:relative}
+.sb-linea::before{content:"";position:absolute;top:8px;bottom:8px;left:50%;width:3px;
+  background:repeating-linear-gradient(to bottom,var(--text) 0 8px,transparent 8px 16px);opacity:.45}
+.sb-linea span{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--text);
+  background:var(--bg);padding:6px 4px;position:relative;z-index:1}
+.sb-linea em{font-style:normal;font-size:12px;line-height:1.4;color:var(--muted);
+  background:var(--bg);padding:6px 4px;position:relative;z-index:1;margin-top:8px}
+@media(max-width:860px){ .sb-zonas{grid-template-columns:1fr}
+  .sb-linea{min-height:70px} .sb-linea::before{top:0;bottom:0} }
+
+/* ===== flujo de trabajo ===== */
+.sb-flujo{margin:var(--ag-gap) 0;max-width:560px}
+.sb-fp{display:flex;align-items:center;gap:14px;padding:13px 18px;border-radius:13px;
+  background:var(--panel);border:1px solid var(--border);border-left:5px solid var(--c)}
+.sb-fn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--c);min-width:74px}
+.sb-fp b{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);flex:1}
+.sb-fp em{font-style:normal;font-size:13px;color:var(--muted)}
+.sb-fflecha{text-align:center;color:var(--border);font-size:17px;line-height:1;padding:3px 0}
+
+/* ===== protocolo de 5 pasos ===== */
+.sb-proto{display:flex;flex-direction:column;gap:12px;margin:var(--ag-gap) 0}
+.sb-pp{display:flex;gap:16px;padding:18px 20px;border-radius:15px;
+  background:var(--panel);border:1px solid var(--border);border-left:5px solid #B03A2E}
+.sb-pp-n{flex:0 0 38px;height:38px;border-radius:50%;background:#B03A2E;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:16px;font-weight:700}
+.sb-pp-c b{display:flex;align-items:center;gap:9px;font-family:var(--display);font-size:17px;
+  font-weight:800;letter-spacing:.03em;color:var(--text);margin-bottom:7px}
+.sb-pp-c p{margin:0 0 6px;font-size:15.5px;line-height:1.6;color:var(--text-2)}
+.sb-pp-c em{font-style:normal;font-size:13.5px;color:var(--muted)}
+
+/* ===== información oficial ===== */
+.sb-oficial{border:1px solid var(--border);border-radius:16px;padding:20px 24px;
+  background:color-mix(in srgb,#1F6F8B 7%,var(--panel));max-width:82ch}
+.sb-of-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sb-of-h span{font-size:19px}
+.sb-of-h b{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:#1F6F8B}
+.sb-oficial p{margin:0 0 10px;font-size:16px;line-height:1.65;color:var(--text-2)}
+.sb-of-vacio{color:var(--muted) !important;font-size:15px !important}
+.sb-of-pie{margin-top:14px;padding-top:13px;border-top:1px solid var(--border);
+  font-size:13.5px;line-height:1.55;color:var(--muted)}
+
+/* ===== casos prácticos ===== */
+.sb-caso{border:1px solid var(--border);border-radius:17px;padding:22px 24px;background:var(--panel);max-width:86ch}
+.sb-caso-h span{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ag-ink,var(--green));margin-bottom:5px}
+.sb-caso-h b{display:block;font-family:var(--display);font-size:20px;font-weight:700;color:var(--text);margin-bottom:13px}
+.sb-caso-e{margin:0 0 16px;font-size:16.5px;line-height:1.66;color:var(--text-2);
+  padding-left:15px;border-left:3px solid var(--border)}
+.sb-caso-q{margin:0 0 14px;font-size:17px;font-weight:700;color:var(--text)}
+.sb-caso-o{display:flex;flex-direction:column;gap:8px}
+.sb-op{display:flex;align-items:flex-start;gap:12px;text-align:left;width:100%;cursor:pointer;
+  padding:13px 16px;border-radius:12px;background:var(--bg);border:1px solid var(--border);
+  font-family:var(--body);font-size:15.5px;line-height:1.5;color:var(--text-2)}
+.sb-op span{flex:0 0 24px;height:24px;border-radius:7px;background:var(--panel);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12.5px;font-weight:700}
+.sb-op:hover:not(:disabled){border-color:var(--green)}
+.sb-op:disabled{cursor:default}
+.sb-op.sb-ok{background:color-mix(in srgb,var(--good) 13%,var(--panel));border-color:var(--good);color:var(--text)}
+.sb-op.sb-ok span{background:var(--good);color:#fff;border-color:var(--good)}
+.sb-op.sb-no{background:color-mix(in srgb,var(--crit) 11%,var(--panel));border-color:var(--crit)}
+.sb-op.sb-no span{background:var(--crit);color:#fff;border-color:var(--crit)}
+.sb-caso-fb{margin-top:15px;padding:16px 18px;border-radius:12px;background:var(--bg);border:1px solid var(--border)}
+.sb-caso-fb b{display:block;font-size:15px;margin-bottom:7px}
+.sb-caso-fb p{margin:0;font-size:15.5px;line-height:1.62;color:var(--text-2)}
+.sb-fb-ok b{color:var(--good)} .sb-fb-no b{color:var(--crit)}
+
+/* ===== checklist ===== */
+.sb-chk{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;margin:var(--ag-gap) 0}
+.sb-chk-g{border:1px solid var(--border);border-radius:15px;padding:16px 18px;background:var(--panel)}
+.sb-chk-g h5{display:flex;align-items:center;gap:9px;margin:0 0 12px;
+  font-family:var(--display);font-size:15.5px;font-weight:700;color:var(--text)}
+.sb-chk-g h5 span{font-size:18px}
+.sb-chk-i{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:7px 0;
+  font-size:14.5px;line-height:1.45;color:var(--text-2)}
+.sb-chk-i input{position:absolute;opacity:0;width:0;height:0}
+.sb-chk-x{flex:0 0 20px;height:20px;border-radius:6px;border:1.5px solid var(--border);
+  background:var(--bg);display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:transparent;margin-top:1px}
+.sb-chk-i input:checked ~ .sb-chk-x{background:var(--good);border-color:var(--good);color:#fff}
+.sb-chk-i input:focus-visible ~ .sb-chk-x{outline:2px solid var(--green);outline-offset:2px}
+.sb-chk-t{flex:1}
+.sb-chk-i em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.sb-chk-i input:checked ~ .sb-chk-t{color:var(--text)}
+.sb-chk-res{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;
+  border-radius:17px;padding:22px 26px;border:2px solid var(--border);background:var(--panel);margin:var(--ag-gap) 0}
+.sb-chk-num b{display:block;font-family:var(--mono);font-size:52px;font-weight:700;line-height:1;letter-spacing:-.03em}
+.sb-chk-num b i{font-style:normal;font-size:.45em}
+.sb-chk-num span{display:block;font-size:13px;color:var(--muted);margin-top:6px}
+.sb-chk-txt b{display:block;font-family:var(--display);font-size:19px;font-weight:700;color:var(--text);margin-bottom:6px}
+.sb-chk-txt p{margin:0 0 12px;font-size:15.5px;line-height:1.6;color:var(--text-2)}
+.sb-chk-bar{height:9px;border-radius:6px;background:var(--bg);overflow:hidden;border:1px solid var(--border)}
+.sb-chk-bar i{display:block;height:100%;border-radius:6px}
+.sb-chk-falta{grid-column:1/-1;padding-top:16px;border-top:1px solid var(--border)}
+.sb-chk-falta b{display:block;font-size:14px;color:var(--text);margin-bottom:9px}
+.sb-chk-falta ul{margin:0;padding:0;list-style:none;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:7px}
+.sb-chk-falta li{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--text-2)}
+.sb-chk-falta li em{font-style:normal;margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.sb-n-crit{border-color:var(--crit)} .sb-n-crit .sb-chk-num b{color:var(--crit)} .sb-n-crit .sb-chk-bar i{background:var(--crit)}
+.sb-n-bajo{border-color:#CC5A24} .sb-n-bajo .sb-chk-num b{color:#CC5A24} .sb-n-bajo .sb-chk-bar i{background:#CC5A24}
+.sb-n-med{border-color:var(--amber-d)} .sb-n-med .sb-chk-num b{color:var(--amber-d)} .sb-n-med .sb-chk-bar i{background:var(--amber)}
+.sb-n-ok{border-color:var(--good)} .sb-n-ok .sb-chk-num b{color:var(--good)} .sb-n-ok .sb-chk-bar i{background:var(--good)}
+@media(max-width:620px){ .sb-chk-res{grid-template-columns:1fr} }
+
+/* ===== calculadora de dilución ===== */
+.sb-dil{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:var(--ag-gap) 0}
+.sb-dil-f label{display:block;font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:6px}
+.sb-dil-in{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:11px;
+  overflow:hidden;background:var(--bg)}
+.sb-dil-in input{flex:1;min-width:0;border:0;background:transparent;padding:12px 14px;
+  font-family:var(--mono);font-size:19px;color:var(--text)}
+.sb-dil-in input:focus{outline:none}
+.sb-dil-in span{display:flex;align-items:center;padding:0 14px;background:var(--panel);
+  border-left:1px solid var(--border);font-family:var(--mono);font-size:13px;color:var(--muted)}
+.sb-dil-f em{display:block;font-style:normal;font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+.sb-dil-res{display:grid;grid-template-columns:auto auto 1fr;gap:22px;align-items:start;
+  border:2px solid var(--green);border-radius:17px;padding:22px 26px;
+  background:color-mix(in srgb,var(--green) 6%,var(--panel));margin:var(--ag-gap) 0}
+.sb-dil-big b{display:block;font-family:var(--mono);font-size:38px;font-weight:700;line-height:1;
+  color:var(--green-d);letter-spacing:-.02em}
+.sb-dil-big b i{font-style:normal;font-size:.5em;color:var(--muted);margin-left:3px}
+.sb-dil-big span{display:block;font-size:13px;color:var(--text-2);margin-top:6px}
+.sb-dil-paso b{display:block;font-size:14px;color:var(--text);margin-bottom:9px}
+.sb-dil-paso ol{margin:0;padding-left:19px}
+.sb-dil-paso li{font-size:14.5px;line-height:1.62;color:var(--text-2);margin-bottom:7px}
+.sb-dil-mal{border-color:var(--crit);background:color-mix(in srgb,var(--crit) 6%,var(--panel));
+  grid-template-columns:1fr}
+.sb-dil-mal b{display:block;font-size:16px;color:var(--crit);margin-bottom:7px}
+.sb-dil-mal p{margin:0;font-size:15px;line-height:1.6;color:var(--text-2)}
+@media(max-width:820px){ .sb-dil-res{grid-template-columns:1fr 1fr} .sb-dil-paso{grid-column:1/-1} }
+
+/* ===== plan ===== */
+.sb-plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;margin:var(--ag-gap) 0}
+.sb-plan-f label{display:block;font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:6px}
+.sb-plan-f textarea{width:100%;font-family:var(--body);font-size:15px;line-height:1.5;color:var(--text);
+  background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:11px 13px;resize:vertical}
+.sb-plan-f textarea:focus{outline:none;border-color:var(--green)}
+.sb-plan-acc{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:6px}
+.sb-plan-acc span{font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* ===== recursos ===== */
+.sb-recs{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin:var(--ag-gap) 0}
+.sb-rec{border:1px solid var(--border);border-radius:16px;padding:20px;background:var(--panel);
+  display:flex;flex-direction:column}
+.sb-rec-i{font-size:28px;line-height:1;margin-bottom:12px}
+.sb-rec b{display:block;font-family:var(--display);font-size:16.5px;font-weight:700;color:var(--text);margin-bottom:7px}
+.sb-rec p{margin:0 0 15px;font-size:14.5px;line-height:1.55;color:var(--text-2);flex:1}
+.sb-rec .btn{align-self:flex-start;font-size:13.5px;padding:9px 15px}
+
+/* ===== logros ===== */
+.sb-logros{margin:14px 12px 4px;padding:12px 14px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.sb-logros > span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  color:rgba(255,255,255,.45);margin-bottom:9px}
+.sb-logros div{display:flex;gap:8px;flex-wrap:wrap}
+.sb-logros i{font-style:normal;font-size:19px;line-height:1;opacity:.28;filter:grayscale(1);cursor:default}
+.sb-logros i.on{opacity:1;filter:none}
+
+/* ===== elegibilidad en el panel ===== */
+.sb-eleg{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:5px}
+.sb-eleg.on{color:var(--good)}
+
+/* ===== planillas impresas ===== */
+.reg{width:100%;border-collapse:collapse;font-size:11px;margin-top:14px}
+.reg th{background:#eee;border:1px solid #999;padding:7px 6px;text-align:left;font-size:10.5px}
+.reg td{border:1px solid #bbb;height:26px;padding:3px 6px}
+.plan{width:100%;border-collapse:collapse;margin-top:16px}
+.plan th{width:34%;text-align:left;vertical-align:top;border:1px solid #bbb;padding:10px 12px;
+  background:#f4f4f4;font-size:12.5px}
+.plan td{border:1px solid #bbb;padding:10px 12px;font-size:12.5px;vertical-align:top}
+.proto{font-size:14px;line-height:1.7;padding-left:22px}
+.proto li{margin-bottom:11px}
+
+</style>
+<script>
+
+/* ---------- sb-shell.js ---------- */
+/* ============================================================
+   CURSO 4 · SANIDAD Y BIOSEGURIDAD PORCINA — armazón
+   Prevención, control y respuesta ante la Peste Porcina Africana
+   ------------------------------------------------------------
+   Se monta sobre lo que ya existe, sin plataforma nueva:
+
+   · nxSeccion(s, mod) pinta el contenido y solo depende de mod.ac,
+     así que la tipografía es la misma que en los otros tres cursos.
+   · exDesarmar/exArmar dan el examen sin clave a la vista.
+   · agCertImprimir/AGCERT dan el certificado.
+   · agGrupos/agMuestra dan las diapositivas.
+   · agFig/agCards/agLinea/agComp/agNota/agTabla dan las piezas.
+
+   Lo propio de este curso: navegación, avance, candado de acceso,
+   y una cosa que ningún curso anterior tenía — el certificado se
+   compra APARTE del curso.
+   ============================================================ */
+
+var SBCUR = 0, SBPAG = 0;
+var SBLECCION = true, SBENFOQUE = false;
+
+var SBPASS = 80, SBGATE = true;
+try{
+  var _sc = JSON.parse(localStorage.getItem('sb_cfg') || '{}');
+  if(_sc.passing != null) SBPASS = +_sc.passing;
+  if(_sc.gating  != null) SBGATE = !!_sc.gating;
+}catch(e){}
+function sbGuardarCfg(){ try{ localStorage.setItem('sb_cfg', JSON.stringify({passing:SBPASS, gating:SBGATE})); }catch(e){} }
+function sbSetPass(v){ SBPASS = Math.max(1, Math.min(100, +v || 80)); sbGuardarCfg(); }
+function sbSetGate(v){ SBGATE = !!v; sbGuardarCfg(); }
+
+function sbYo(){
+  if(typeof SESSION !== 'undefined' && SESSION && SESSION.id) return SESSION.id;
+  return 'local';
+}
+function sbEsInstructor(){
+  if(typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN') return true;
+  if(typeof PREVIEW !== 'undefined' && PREVIEW) return true;
+  return false;
+}
+
+/* ============================================================
+   COMPRA: EL CURSO Y EL CERTIFICADO SON DOS PRODUCTOS
+   ------------------------------------------------------------
+   Los cursos 2 y 3 tenían un solo interruptor por estudiante. Aquí
+   hacen falta dos, porque el certificado se vende aparte. Se guardan
+   en el mismo sitio y con las mismas reglas que los demás para que
+   el panel de administración los trate igual.
+   ============================================================ */
+var SBPRECIO = { curso: 38, certificado: 15, moneda: 'US$' };
+try{
+  var _sp = JSON.parse(localStorage.getItem('sb_precio') || 'null');
+  if(_sp) SBPRECIO = Object.assign(SBPRECIO, _sp);
+}catch(e){}
+function sbGuardarPrecio(){ try{ localStorage.setItem('sb_precio', JSON.stringify(SBPRECIO)); }catch(e){} }
+
+var SBACCESO = {};     /* id de estudiante -> true  ·  compró el CURSO */
+var SBCERT   = {};     /* id de estudiante -> true  ·  compró el CERTIFICADO */
+try{ SBACCESO = JSON.parse(localStorage.getItem('sb_acceso') || '{}') || {}; }catch(e){}
+try{ SBCERT   = JSON.parse(localStorage.getItem('sb_cert_pago') || '{}') || {}; }catch(e){}
+function sbGuardarAcceso(){ try{ localStorage.setItem('sb_acceso', JSON.stringify(SBACCESO)); }catch(e){} }
+function sbGuardarCertPago(){ try{ localStorage.setItem('sb_cert_pago', JSON.stringify(SBCERT)); }catch(e){} }
+
+/* las cuatro preguntas que el resto del código le hace al curso */
+function sbTieneAcceso(id){                       /* coursePurchased / courseAccess */
+  if(sbEsInstructor()) return true;
+  return !!SBACCESO[id || sbYo()];
+}
+function sbCertPagado(id){                        /* certificatePurchased */
+  if(sbEsInstructor()) return true;
+  return !!SBCERT[id || sbYo()];
+}
+function sbCertElegible(id){                      /* certificateEligibility */
+  return sbProgreso(id) >= SBMOD.length;          /* aprobó los 10 módulos */
+}
+function sbPuedeCertificado(id){
+  return sbCertElegible(id) && sbCertPagado(id);
+}
+
+var SBPUB = true;
+try{ var _sb = localStorage.getItem('sb_pub'); if(_sb !== null) SBPUB = _sb === '1'; }catch(e){}
+
+/* ---------- avance ---------- */
+function sbK(n, id){ return 'sb::' + (id || sbYo()) + '::exam_m' + n; }
+function sbRec(n, id){ try{ return JSON.parse(localStorage.getItem(sbK(n, id))); }catch(e){ return null; } }
+function sbAprob(n, id){
+  if(typeof cloudRec === 'function'){
+    var c = cloudRec(id || sbYo(), n, 'sanidad');
+    if(c) return !!c.passed;
+  }
+  var r = sbRec(n, id); return !!(r && r.passed);
+}
+function sbProgreso(id){ var c = 0; for(var i = 1; i <= SBMOD.length; i++) if(sbAprob(i, id)) c++; return c; }
+function sbDesbloq(n){
+  if(sbEsInstructor()) return true;
+  if(!SBGATE) return true;
+  return n <= 1 || sbAprob(n - 1);
+}
+function sbGuardarNota(n, nota, pasa){
+  var r = sbRec(n) || {best:0, attempts:0, passed:false};
+  r.attempts = (r.attempts || 0) + 1;
+  r.last = nota;
+  r.best = Math.max(r.best || 0, nota);
+  r.passed = r.passed || pasa;
+  r.date = Date.now();
+  try{ localStorage.setItem(sbK(n), JSON.stringify(r)); }catch(e){}
+  if(typeof pushProgress === 'function'){
+    try{ pushProgress(sbYo(), n, r, 'sanidad'); }catch(e){}
+  }
+  return r;
+}
+
+/* ---------- portada ---------- */
+function sbPortada(){
+  var p = sbProgreso();
+  return '<div class="nx-port" style="--foto:url(&quot;images/sb-portada.jpg&quot;)">' +
+    '<div class="nx-port-velo"></div>' +
+    '<div class="nx-cover"><span class="nx-cover-k">Curso complementario · Sanidad</span>' +
+    '<h1>Sanidad y bioseguridad porcina</h1>' +
+    '<p class="nx-cover-s">Prevención, control y respuesta ante la Peste Porcina Africana (PPA), aplicado a granjas de República Dominicana</p>' +
+    '<div class="nx-cover-kpis">' +
+      '<div><b>' + SBMOD.length + '</b><span>módulos</span></div>' +
+      '<div><b>6</b><span>documentos para su granja</span></div>' +
+      '<div><b>8</b><span>casos prácticos</span></div>' +
+      '<div><b>' + p + '/' + SBMOD.length + '</b><span>su avance</span></div>' +
+    '</div>' +
+    '<div class="nx-simcta"><b>Con qué se va a quedar al terminar</b>' +
+    '<p>El plan de bioseguridad de SU granja escrito y puntuado, el protocolo de qué hacer ante una sospecha de PPA, las seis planillas de registro listas para imprimir, y la capacidad de reconocer por dónde entra el riesgo antes de que entre.</p></div>' +
+    '<button class="btn btn-primary nx-empieza" onclick="sbIr(1)">' + (p ? 'Continuar el curso' : 'Empezar por el módulo 01') + ' →</button>' +
+    '</div></div>';
+}
+
+/* ---------- pintar ---------- */
+function sbPinta(){
+  var c = document.getElementById('sbMain'); if(!c) return;
+  if(SBCUR === 0){ c.innerHTML = sbPortada(); return; }
+  var m = SBMOD[SBCUR - 1]; if(!m) return;
+  var h = '<div class="nx-hero" style="--ac:' + m.ac + '"><span class="nx-hero-k">Módulo ' + m.num + '</span>' +
+    '<h2>' + esc(m.t) + '</h2><p>' + esc(m.sub) + '</p></div>' +
+    '<div class="nx-wrap"><section class="nx-b"><div class="nx-obj rv" style="border-color:' + m.ac + '">' +
+    '<b>Al terminar este módulo usted podrá</b><ul>' +
+    m.obj.map(function(o){ return '<li>' + esc(o) + '</li>'; }).join('') + '</ul></div></section>';
+  h += m.sec.map(function(s){ return nxSeccion(s, m); }).join('');
+  h += sbExamen(m.n);
+  h += '<div class="nx-navb">' +
+    (SBCUR > 1 ? '<button class="btn btn-ghost" onclick="sbIr(' + (SBCUR - 1) + ')">← ' + esc(SBMOD[SBCUR - 2].t) + '</button>' : '<span></span>') +
+    (SBCUR < SBMOD.length ? '<button class="btn btn-primary" onclick="sbIr(' + (SBCUR + 1) + ')">' + esc(SBMOD[SBCUR].t) + ' →</button>'
+      : (sbCertElegible() ? '<button class="btn btn-primary" onclick="sbCertificado()">🎓 Mi certificado</button>'
+         : '<span class="nx-fin">Le faltan ' + (SBMOD.length - sbProgreso()) + ' módulos para el certificado</span>')) +
+    '</div></div>';
+  c.innerHTML = h;
+  if(window.Anim && Anim.reveal) try{ Anim.reveal(c); }catch(e){}
+  else c.querySelectorAll('.rv').forEach(function(x){ x.classList.add('in'); });
+}
+
+function sbNav(){
+  var n = document.getElementById('sbNav'); if(!n) return;
+  var p = sbProgreso();
+  n.innerHTML = '<div class="nx-pg"><span>PROGRESO</span><b>' + Math.round(p / SBMOD.length * 100) + '%</b>' +
+    '<div class="nx-pgb"><i style="width:' + (p / SBMOD.length * 100) + '%"></i></div></div>' +
+    '<button class="nx-nl' + (SBCUR === 0 ? ' on' : '') + '" onclick="sbIr(0)"><span class="nx-nn">◆</span> Portada</button>' +
+    SBMOD.map(function(m){
+      var ap = sbAprob(m.n), lock = !sbDesbloq(m.n);
+      return '<button class="nx-nl' + (SBCUR === m.n ? ' on' : '') + (lock ? ' lock' : '') + '" onclick="sbIr(' + m.n + ')">' +
+        '<span class="nx-nn" style="' + (SBCUR === m.n ? 'background:' + m.ac + ';color:#fff' : '') + '">' +
+        (ap ? '✓' : lock ? '🔒' : m.num) + '</span> ' + esc(m.t) + '</button>';
+    }).join('') +
+    sbLogrosNav();
+}
+
+function sbIr(id){
+  if(!sbDesbloq(id)){
+    if(typeof toast === 'function') toast('Apruebe el módulo ' + (id - 1) + ' para desbloquear este', '🔒');
+    return;
+  }
+  SBCUR = id; sbPinta(); sbNav();
+  try{ localStorage.setItem('sb_pos', String(id)); }catch(e){}
+  var m = document.getElementById('sbMain'); if(m) m.scrollTop = 0;
+}
+
+function sbToggleEnfoque(){
+  SBENFOQUE = !SBENFOQUE;
+  var o = document.getElementById('sbOv'); if(o) o.classList.toggle('enfoque', SBENFOQUE);
+}
+function sbPantallaCompleta(){
+  if(document.fullscreenElement) document.exitFullscreen();
+  else (document.getElementById('sbOv') || document.documentElement).requestFullscreen();
+}
+function sbControles(){
+  return '<div class="nx-ctl">' +
+    '<button class="nx-cb2" onclick="sbToggleEnfoque()" title="Modo enfoque: menos distracciones">🎯</button>' +
+    '<button class="nx-cb2" onclick="sbPantallaCompleta()" title="Pantalla completa">⛶</button>' +
+    '<button class="nx-cb2" onclick="nxTema()" title="Cambiar tema">🌙</button>' +
+    '</div>';
+}
+
+/* ---------- abrir y cerrar ---------- */
+window.openSanidad = function(){
+  if(!sbTieneAcceso()){ sbAbrirPago(); return; }
+  if(!SBPUB && !sbEsInstructor()){
+    if(typeof toast === 'function') toast('Este curso todavía no está publicado', '🔒');
+    return;
+  }
+  var ov = document.getElementById('sbOv');
+  if(!ov){
+    ov = document.createElement('div'); ov.id = 'sbOv'; ov.className = 'nx-ov';
+    ov.innerHTML = '<aside class="nx-side"><div class="nx-side-h"><div class="nx-logo">🛡️</div>' +
+      '<div><b>Sanidad y bioseguridad</b><span>Curso avanzado · PPA</span></div></div>' +
+      '<nav class="nx-nav" id="sbNav"></nav>' +
+      '<div class="nx-side-f">' +
+        '<button class="btn btn-ghost" onclick="sbCerrar()">← Volver a mis cursos</button>' +
+      '</div></aside>' +
+      '<main class="nx-main" id="sbMain"></main>' + sbControles();
+    document.body.appendChild(ov);
+  }
+  ov.classList.toggle('enfoque', SBENFOQUE);
+  document.body.style.overflow = 'hidden';
+  var pos = 0;
+  try{ pos = parseInt(localStorage.getItem('sb_pos') || '0', 10) || 0; }catch(e){}
+  SBCUR = sbDesbloq(pos) ? pos : 0;
+  sbPinta(); sbNav();
+};
+window.sbCerrar = function(){
+  var o = document.getElementById('sbOv'); if(o) o.remove();
+  document.body.style.overflow = '';
+};
+
+/* ---------- candado de pago del CURSO ---------- */
+function sbAbrirPago(){
+  var o = document.getElementById('sbPago');
+  if(o) o.remove();
+  o = document.createElement('div'); o.id = 'sbPago'; o.className = 'nx-pay';
+  o.innerHTML = '<div class="nx-pay-c">' +
+    '<div class="nx-pay-h"><span>Curso complementario</span>' +
+    '<b>Sanidad y bioseguridad porcina</b></div>' +
+    '<p>Este curso <b>se adquiere por separado</b>. Es el más práctico de los cuatro: se lleva el plan de bioseguridad de su granja escrito, las planillas de registro y el protocolo de qué hacer ante una sospecha de PPA.</p>' +
+    '<div class="nx-pay-p"><b>' + SBPRECIO.moneda + ' ' + SBPRECIO.curso + '</b><span>acceso permanente al curso</span></div>' +
+    '<p class="nx-pay-n">El <b>certificado se adquiere aparte</b> (' + SBPRECIO.moneda + ' ' + SBPRECIO.certificado +
+      '), y solo después de aprobar los ' + SBMOD.length + ' módulos. Puede hacer el curso completo sin comprarlo.</p>' +
+    '<p>Escriba al instructor para coordinar el pago. Una vez confirmado, se le habilita con la misma cuenta que ya tiene.</p>' +
+    '<div class="nx-pay-acc">' +
+      '<button class="btn btn-ghost" onclick="document.getElementById(\'sbPago\').remove()">Cerrar</button>' +
+    '</div></div>';
+  o.onclick = function(e){ if(e.target === o) o.remove(); };
+  document.body.appendChild(o);
+}
+window.sbAbrirPago = sbAbrirPago;
+
+/* ---------- examen ---------- */
+function sbExamen(id){
+  var q = (typeof SBQUIZ !== 'undefined' && SBQUIZ[id]) ? SBQUIZ[id] : null;
+  if(!q || !q.length) return '';
+  var m = SBMOD[id - 1];
+  var h = '<section class="nx-b nx-ex nx-solo"><h3 class="rv">Evaluación del módulo</h3>' +
+    '<p class="nx-cap rv">Nota mínima: <b>' + SBPASS + ' %</b> · ' + q.length + ' preguntas. ' +
+    'Si no la aprueba puede volver a intentarlo: su avance no se pierde.</p>' +
+    '<div class="nx-exq" id="sbEx' + id + '">' +
+    q.map(function(x, i){
+      return '<div class="nx-q" data-c="' + x.c + '"><p><b>' + (i + 1) + '.</b> ' + x.q + '</p>' +
+        x.o.map(function(o, j){
+          return '<label class="nx-o"><input type="radio" name="sbq' + id + '_' + i + '" value="' + j + '"><span>' + o + '</span></label>';
+        }).join('') +
+        '<div class="nx-fb">' + (x.fb || '') + '</div></div>';
+    }).join('') +
+    '</div>' +
+    '<div class="nx-exa"><button class="btn btn-primary" onclick="sbEnviar(' + id + ')">Calificar</button>' +
+    '<button class="btn btn-ghost" onclick="sbReset(' + id + ')">Limpiar</button>' +
+    '<span id="sbRes' + id + '" class="nx-exr"></span></div></section>';
+  return h;
+}
+
+function sbEnviar(id){
+  var caja = document.getElementById('sbEx' + id); if(!caja) return;
+  if(typeof exArmar === 'function') try{ exArmar('sanidad', id, caja); }catch(e){}
+  var qs = [].slice.call(caja.querySelectorAll('.nx-q'));
+  var bien = 0, sinResponder = 0, fallos = [];
+  qs.forEach(function(qd, i){
+    var sel = qd.querySelector('input:checked');
+    var c = parseInt(qd.getAttribute('data-c'), 10);
+    if(!sel){ sinResponder++; fallos.push(i); return; }
+    if(parseInt(sel.value, 10) === c) bien++;
+    else fallos.push(i);
+  });
+  if(sinResponder){
+    if(typeof toast === 'function') toast('Le faltan ' + sinResponder + ' preguntas por responder', '✋');
+    if(typeof exDesarmar === 'function') try{ exTapar('sanidad', id, caja, []); }catch(e){}
+    return;
+  }
+  var nota = Math.round(bien / qs.length * 100);
+  var pasa = nota >= SBPASS;
+  sbGuardarNota(id, nota, pasa);
+  var r = document.getElementById('sbRes' + id);
+  if(r){
+    r.className = 'nx-exr ' + (pasa ? 'ok' : 'no');
+    r.innerHTML = pasa
+      ? '✓ Aprobado con ' + nota + ' % (' + bien + ' de ' + qs.length + ')'
+      : '✕ ' + nota + ' % — necesita ' + SBPASS + ' %. Puede volver a intentarlo.';
+  }
+  if(typeof exTapar === 'function') try{ exTapar('sanidad', id, caja, fallos); }catch(e){}
+  sbNav();
+  if(pasa && typeof sbRevisarLogros === 'function') sbRevisarLogros();
+  if(typeof toast === 'function') toast(pasa ? 'Módulo ' + id + ' aprobado' : 'Repase y vuelva a intentarlo', pasa ? '✓' : '📘');
+}
+
+function sbReset(id){
+  var caja = document.getElementById('sbEx' + id); if(!caja) return;
+  [].forEach.call(caja.querySelectorAll('input[type=radio]'), function(i){ i.checked = false; });
+  [].forEach.call(caja.querySelectorAll('.nx-q'), function(q){ q.className = 'nx-q'; });
+  var r = document.getElementById('sbRes' + id); if(r){ r.className = 'nx-exr'; r.textContent = ''; }
+}
+
+/* ---------- certificado: elegible Y pagado ---------- */
+function sbCertificado(){
+  if(!sbCertElegible() && !sbEsInstructor()){
+    if(typeof toast === 'function') toast('Apruebe los ' + SBMOD.length + ' módulos para optar al certificado', '🔒');
+    return;
+  }
+  if(!sbCertPagado()){ sbAbrirPagoCert(); return; }
+  if(typeof agCertImprimir === 'function') return agCertImprimir('sanidad', null, SBMOD.length);
+  if(typeof toast === 'function') toast('El generador de certificados no está disponible', '⚠️');
+}
+window.sbCertificado = sbCertificado;
+
+function sbAbrirPagoCert(){
+  var o = document.getElementById('sbPagoCert');
+  if(o) o.remove();
+  o = document.createElement('div'); o.id = 'sbPagoCert'; o.className = 'nx-pay';
+  o.innerHTML = '<div class="nx-pay-c">' +
+    '<div class="nx-pay-h"><span>Ya cumplió el requisito</span><b>Su certificado está listo para emitirse</b></div>' +
+    '<p>Aprobó los <b>' + SBMOD.length + ' módulos</b>. El certificado de este curso <b>se adquiere aparte</b>: lleva su nombre, el nombre completo del curso, la fecha de emisión y un código único de verificación.</p>' +
+    '<div class="nx-pay-p"><b>' + SBPRECIO.moneda + ' ' + SBPRECIO.certificado + '</b><span>emisión del certificado</span></div>' +
+    '<p class="nx-pay-n">Su avance y el acceso al curso <b>no dependen de esto</b>: puede seguir consultando el material y usando las herramientas aunque no lo emita.</p>' +
+    '<p>Escriba al instructor para coordinar el pago. Una vez confirmado se habilita la descarga.</p>' +
+    '<div class="nx-pay-acc">' +
+      '<button class="btn btn-ghost" onclick="document.getElementById(\'sbPagoCert\').remove()">Cerrar</button>' +
+    '</div></div>';
+  o.onclick = function(e){ if(e.target === o) o.remove(); };
+  document.body.appendChild(o);
+}
+window.sbAbrirPagoCert = sbAbrirPagoCert;
+
+
+/* ---------- sb-datos.js ---------- */
+/* ============================================================
+   CURSO 4 · CONTENIDO · MÓDULOS 01 a 04
+   ------------------------------------------------------------
+   Regla que gobierna todo el módulo 02 y el 10, y que no se rompe
+   en ninguna línea del curso: los signos clínicos NO sirven para
+   que el productor diagnostique PPA. Se habla siempre de «signos
+   compatibles», «sospecha», «evaluación veterinaria» y
+   «confirmación por laboratorio oficial». Nunca de diagnóstico.
+
+   Tampoco se inventan teléfonos, instituciones, números de
+   expediente ni requisitos legales. Donde hace falta un dato
+   oficial se deja un hueco marcado para que el instructor lo
+   rellene con la información vigente (ver SBOFICIAL).
+   ============================================================ */
+
+var SBMOD = [
+{
+  n:1, num:'01', ac:'#2F7D4F',
+  t:'Qué es sanidad y por qué prevenir sale más barato',
+  sub:'Lo que se mira todos los días, y lo que cuesta no mirarlo',
+  obj:[
+    'Explicar con sus palabras qué es sanidad y qué es bioseguridad.',
+    'Distinguir infección, enfermedad y signo clínico, y por qué importa la diferencia.',
+    'Hacer una ronda de observación diaria con un orden fijo.',
+    'Poner en pesos lo que cuesta un brote en una granja pequeña.'
+  ],
+  sec:[
+    {k:'agnota', tipo:'ojo', nt:'Antes de empezar: qué es y qué no es este curso',
+     p:'Este curso tiene <b>fines educativos y de capacitación</b>. No sustituye la evaluación de un médico veterinario ni las instrucciones de las autoridades sanitarias competentes. Ante sospecha de Peste Porcina Africana u otra enfermedad de notificación obligatoria, el productor debe seguir los procedimientos oficiales vigentes.'},
+
+    {k:'prosa', t:'Sanidad no es curar: es que no haga falta curar',
+     p:['Mucha gente entiende «sanidad» como el momento en que un animal se enferma y hay que hacer algo. Eso ya es tarde y es la parte cara. <b>Sanidad es todo lo que usted hace cuando no pasa nada</b>: la ronda de la mañana, el agua limpia, el corral seco, la libreta donde anota.',
+        'Y <b>bioseguridad</b> es la parte de la sanidad que se ocupa de una sola pregunta: <b>cómo evito que una enfermedad entre a mi granja, se quede en ella, o se mueva de un corral a otro</b>. Nada más que eso. No hace falta un laboratorio ni un edificio nuevo: hace falta un orden y cumplirlo.']},
+
+    {k:'agcards', t:'Tres palabras que se usan como sinónimos y no lo son',
+     p:'La diferencia no es académica. Cambia lo que usted tiene que hacer ese día.',
+     l:[
+      ['🦠','Infección','El agente entró al animal y está ahí. <b>El animal puede verse perfectamente normal</b> y estar transmitiendo. Por eso un cerdo «que se ve bien» no es una garantía.'],
+      ['🤒','Enfermedad','La infección ya le hace daño y el animal lo manifiesta. Aquí es cuando la mayoría de la gente se entera — y ya hay otros contagiados.'],
+      ['👁️','Signo clínico','Lo que usted VE: fiebre, no come, se echa, manchas. Un signo <b>orienta</b>, no diagnostica: varias enfermedades distintas dan signos parecidos.']
+     ]},
+
+    {k:'agnota', tipo:'campo', nt:'Por qué esta distinción vale dinero',
+     p:'Si usted solo actúa cuando ve animales enfermos, siempre va a llegar tarde: para cuando el primero se ve mal, el agente lleva días circulando. La bioseguridad se hace <b>pensando en el animal infectado que se ve sano</b>, no en el que ya está tirado.'},
+
+    {k:'aglinea', t:'La ronda de la mañana, en el mismo orden todos los días',
+     p:'Diez minutos. El orden fijo es lo que hace que usted note lo que cambió, y va siempre <b>de los animales más sanos hacia los de más riesgo</b>.',
+     l:[
+      ['Antes de entrar, mire desde afuera','¿Hay algo distinto? Un portón abierto, huellas de vehículo, un perro dentro, un saco que no estaba. El riesgo casi siempre entra por algo que cambió.','30 segundos'],
+      ['Cerdas gestantes y reproductoras','Son las de mayor valor y las que menos se mueven. Se ven primero, con la ropa y las botas limpias del día.','2 minutos'],
+      ['Maternidad y lechones','Mire consumo de la marrana, camada pareja, lechones que no se levantan. Aquí un problema se ve en horas, no en días.','3 minutos'],
+      ['Destete y crecimiento','Cuente los que no vienen al comedero. Un cerdo que no come es el primer aviso de casi todo.','2 minutos'],
+      ['Engorde','Mire respiración, diarreas, cojeras, manchas en la piel.','2 minutos'],
+      ['Enfermería y animales apartados','Siempre al final. Después de esta parada, usted no vuelve a los otros corrales sin cambiarse las botas.','lo que haga falta'],
+      ['Anote antes de que se le olvide','Muertos, tratados, lo raro que vio. En la libreta, con la fecha. Sin este paso, los seis anteriores no sirven de mucho.','1 minuto']
+     ],
+     pie:'El orden de los animales de menor a mayor riesgo es el concepto que va a atravesar todo el curso. Aquí aparece por primera vez y en el módulo 05 se convierte en la regla de trabajo de toda la granja.'},
+
+    {k:'agcomp', t:'Lo que se anota y lo que no se anota',
+     p:'Una libreta de granja no es burocracia: es la única forma de saber después si algo cambió, y es el primer documento que le va a pedir un veterinario.',
+     bt:'Esto sí, todos los días',
+     bien:['Muertos: cuántos, de qué edad, en qué corral',
+           'Animales tratados: cuál, con qué, quién lo indicó',
+           'Entradas y salidas de animales, con la procedencia',
+           'Visitas: quién entró, de dónde venía, a qué hora',
+           'Lo raro, aunque no sepa qué es: «tres lechones flojos en el corral 4»'],
+     mt:'Esto no hace falta',
+     mal:['Copiar formularios que nadie va a leer',
+          'Anotar solo cuando hay problema — así no hay con qué comparar',
+          'Guardarlo todo en la cabeza: a los diez días nadie recuerda la fecha',
+          'Un cuaderno tan complicado que al tercer día se abandona'],
+     pie:'En el módulo 09 se arma el juego completo de planillas, y en el 16 del temario están las seis listas para imprimir.'},
+
+    {k:'agdatos', t:'Lo que cuesta un brote en una granja pequeña',
+     p:'Números de ejemplo para una granja de 20 madres, con precios que usted debe sustituir por los suyos. El punto no es la cifra exacta: es el <b>orden de magnitud</b> frente a lo que cuesta prevenir.',
+     l:[
+      ['20–60<i>%</i>', 'de mortalidad', 'según la enfermedad y la edad afectada'],
+      ['+15<i>días</i>', 'de atraso al mercado', 'en los que sobreviven pero se atrasan'],
+      ['2–4<i>meses</i>', 'sin poder repoblar', 'entre el vacío sanitario y volver a llenar'],
+      ['1<i>vez</i>', 'basta', 'un solo animal comprado sin cuarentena']
+     ],
+     pie:'Comparado con eso: un portón con candado, un par de botas exclusivas y una libreta cuestan menos que un solo lechón muerto.'},
+
+    {k:'agnota', tipo:'plata', nt:'La cuenta que conviene hacerse una vez',
+     p:'Sume cuánto vale el inventario de animales que tiene hoy en la granja. Ese es el valor que está protegiendo. Ahora sume lo que costaría el mínimo de bioseguridad: portón, cerca, botas, un pediluvio, desinfectante y las planillas. En casi todas las granjas pequeñas del país, <b>lo segundo es menos del 2 % de lo primero</b>.'}
+  ]
+},
+
+{
+  n:2, num:'02', ac:'#B03A2E',
+  t:'Peste Porcina Africana: lo que hay que saber',
+  sub:'Qué es, cómo se mueve, qué hacer y —sobre todo— qué NO hacer',
+  obj:[
+    'Explicar qué es la PPA y por qué se trata distinto de otras enfermedades.',
+    'Reconocer signos compatibles sin confundirlos con un diagnóstico.',
+    'Enumerar las vías por las que el virus se mueve entre granjas.',
+    'Saber exactamente qué hacer y qué no hacer ante una sospecha.'
+  ],
+  sec:[
+    {k:'sbppa', t:'Lo primero, porque es lo que más se confunde',
+     p:'<b>La PPA no se diagnostica mirando al animal.</b> Lo que usted puede hacer —y es muchísimo— es <b>sospechar a tiempo</b>, no mover nada y avisar. La confirmación la hace un laboratorio oficial a través de la autoridad veterinaria competente. Un productor que sospecha rápido y avisa vale más que uno que cree saber qué enfermedad es.'},
+
+    {k:'prosa', t:'Qué es la PPA, en cristiano',
+     p:['Es una enfermedad <b>viral</b> que afecta a los cerdos —domésticos y silvestres— y <b>solo a ellos</b>. No afecta a las personas: no es un problema de salud humana. Es un problema económico, y de los grandes.',
+        'Lo que la hace distinta de casi todo lo demás que usted conoce es la combinación de tres cosas: <b>mata a una proporción muy alta de los animales afectados</b>, <b>no tiene tratamiento ni vacuna disponible para uso general</b>, y <b>el virus aguanta muchísimo fuera del animal</b> — en carne, en embutidos, en un cuchillo, en una bota, en un camión.',
+        'Por eso el manejo no se parece al de otras enfermedades. Aquí no se trata: se evita que entre, y si entra, se corta el movimiento. Todo el curso gira alrededor de esas dos frases.']},
+
+    {k:'agcards', t:'Por qué esta enfermedad se trata distinto',
+     l:[
+      ['💀','Mortalidad muy alta','En las formas agudas muere una proporción muy grande de los animales afectados, y rápido. No hay margen para «esperar a ver».'],
+      ['💊','Sin tratamiento ni vacuna de uso general','No hay nada que darle al animal. Lo único que funciona es que no llegue, y si llegó, que no salga.'],
+      ['🧊','El virus aguanta fuera del cerdo','Sobrevive en carne, en productos curados, en restos de comida, en superficies y equipos. Por eso viaja en cosas, no solo en animales.'],
+      ['📢','Es de notificación obligatoria','No es una decisión del productor si avisar o no. Hay un procedimiento oficial y hay que seguirlo.']
+     ]},
+
+    {k:'sbsignos'},
+
+    {k:'sbppa', t:'La frase que hay que tener clara',
+     p:'Varias enfermedades del cerdo dan signos parecidos a los de la PPA. Por eso <b>ver estos signos no confirma PPA, y no verlos no la descarta</b>. Lo que estos signos deben producir en usted es <b>una llamada</b>, no un diagnóstico y mucho menos un tratamiento por su cuenta.'},
+
+    {k:'sbvias'},
+
+    {k:'agcomp', t:'Ante una sospecha: lo que sí y lo que nunca',
+     p:'Esto es lo que de verdad decide si un problema se queda en una granja o se convierte en un problema de la zona.',
+     bt:'Haga esto',
+     bien:['<b>Pare el movimiento</b>: ni un animal entra, ni un animal sale',
+           'Separe los animales afectados donde estén, sin pasearlos por la granja',
+           'Cierre el acceso: nadie entra que no sea imprescindible',
+           'Avise al veterinario y a la autoridad competente, ese mismo día',
+           'Anote todo: fechas, corrales, cuántos, qué vio, quién entró la última semana',
+           'Siga las instrucciones oficiales que le den, tal como se las den'],
+     mt:'No haga esto, aunque se lo aconsejen',
+     mal:['<b>Vender o regalar animales «antes de que se pongan malos»</b> — es así como la enfermedad se muda de granja',
+          'Sacrificar y repartir carne por su cuenta',
+          'Mover los animales a otro corral, patio o finca',
+          'Tirar los muertos al río, a un terreno o a la basura común',
+          'Llamar a otros productores para que vengan a ver',
+          'Tratar con antibióticos «por si acaso» y esperar a ver qué pasa',
+          'Esperar unos días a ver si mejora'],
+     pie:'El módulo 10 convierte esta comparación en un protocolo de cinco pasos que se puede pegar en la pared.'},
+
+    {k:'agnota', tipo:'ojo', nt:'La diferencia entre sospecha y diagnóstico',
+     p:'<b>Sospecha</b> es lo que usted tiene: animales con signos compatibles, mortalidad que no cuadra, algo que no se parece a lo de siempre. Es motivo suficiente para actuar. <b>Diagnóstico</b> es lo que da un laboratorio oficial sobre muestras tomadas por quien corresponde. Usted no necesita el segundo para hacer lo primero, y esperar al segundo sin hacer lo primero es lo que cuesta granjas.'},
+
+    {k:'sboficial'}
+  ]
+},
+
+{
+  n:3, num:'03', ac:'#C08A12',
+  t:'¿Por dónde puede entrar una enfermedad a mi granja?',
+  sub:'Más puertas de las que uno imagina, y casi ninguna tiene forma de puerta',
+  obj:[
+    'Nombrar las vías de entrada de riesgo de su propia granja.',
+    'Ordenar esas vías por probabilidad real, no por lo que más se teme.',
+    'Identificar cuáles puede cerrar hoy sin gastar dinero.',
+    'Explicar por qué el vehículo que visita varias granjas es el riesgo peor entendido.'
+  ],
+  sec:[
+    {k:'prosa', t:'Casi nadie pierde la granja por lo que estaba vigilando',
+     p:['Cuando uno pregunta «¿cómo entra una enfermedad?», la respuesta que más se oye es «por un cerdo enfermo». Es cierto y es la más obvia. Pero en la mayoría de los casos documentados de granjas pequeñas, <b>el agente entró en algo, no en alguien</b>: un camión que venía de otro sitio, unas botas, un saco de alimento apoyado en el suelo equivocado, restos de comida.',
+        'Este módulo es el mapa. En los módulos 04 y 05 se cierra cada puerta; aquí solo se trata de <b>verlas todas</b>, incluidas las que uno no considera puertas.']},
+
+    {k:'sbpuertas'},
+
+    {k:'agcards', t:'Las tres que más se subestiman en granjas pequeñas',
+     l:[
+      ['🚛','El vehículo que visita varias granjas','El camión del alimento, el que recoge cerdos, el del veterinario. Las ruedas y el piso de la cabina han estado en otro patio esta misma semana. <b>Es la vía que más gente deja abierta.</b>'],
+      ['🥘','Los restos de comida','El virus de la PPA sobrevive en carne y en productos de cerdo curados. Dar sobras de cocina que contengan carne de cerdo es una de las vías de entrada mejor documentadas que existen.'],
+      ['🐷','El cerdo comprado a otro productor','Aquí sí es un animal, pero el error no es comprarlo: es <b>meterlo directo al grupo</b>. Sin cuarentena, usted acaba de mezclar la sanidad de dos granjas.']
+     ]},
+
+    {k:'agnota', tipo:'ojo', nt:'Sobras de cocina: la regla sin excepciones',
+     p:'<b>No alimente cerdos con restos de comida que contengan o hayan estado en contacto con carne de cerdo.</b> Es barato y por eso se hace, y es una de las formas más directas de meter PPA en una granja. Donde exista regulación oficial sobre alimentación con residuos, esa regulación manda sobre cualquier cosa que diga este curso.'},
+
+    {k:'sbcaso', id:'c1'},
+
+    {k:'agtabla', t:'Qué tan probable y qué tan grave',
+     p:'Ordenado por lo que de verdad pasa en granjas del país, no por lo que más miedo da. La última columna es la que hay que mirar primero.',
+     cols:['Vía de entrada', 'Qué tan común', 'Qué tan grave', '¿Puedo cerrarla hoy sin gastar?'],
+     filas:[
+      ['Vehículos que entran al patio', 'Muy común', 'Muy grave', '<b>Sí</b> — que paren afuera'],
+      ['Restos de comida con carne de cerdo', 'Común', 'Muy grave', '<b>Sí</b> — dejar de darlos'],
+      ['Animales nuevos sin cuarentena', 'Común', 'Muy grave', '<b>Sí</b> — apartarlos 30 días'],
+      ['Visitantes que vienen de otra granja', 'Muy común', 'Grave', '<b>Sí</b> — botas y ropa, o que no entren'],
+      ['Botas y ropa del propio personal', 'Muy común', 'Grave', '<b>Sí</b> — un par que no sale de la granja'],
+      ['Equipos y herramientas prestados', 'Común', 'Grave', '<b>Sí</b> — no prestar, o lavar y desinfectar'],
+      ['Jaulas y cajones de transporte', 'Común', 'Grave', 'Sí — lavar antes de bajarlos'],
+      ['Roedores, perros, gatos, aves', 'Muy común', 'Moderada', 'En parte — programa de control'],
+      ['Agua de escorrentía de un terreno vecino', 'Poco común', 'Grave', 'No — requiere obra'],
+      ['Cerdos asilvestrados en la zona', 'Depende de la zona', 'Muy grave', 'No — requiere cerca perimetral']
+     ],
+     pie:'Fíjese en la última columna: siete de las diez vías más probables se cierran con decisiones, no con dinero. Ese es el mensaje del curso entero.'},
+
+    {k:'agnota', tipo:'campo', nt:'Ejercicio de cinco minutos, hoy mismo',
+     p:'Salga al patio y cuente: ¿cuántas personas distintas entraron en la última semana? ¿Cuántos vehículos llegaron hasta donde están los cerdos? ¿De cuántas granjas distintas venían? Ese número es su exposición real. En el módulo 09 lo va a convertir en un plan.'}
+  ]
+},
+
+{
+  n:4, num:'04', ac:'#2B7A8F',
+  t:'Bioseguridad externa: que el riesgo no llegue',
+  sub:'El portón, el visitante, el camión y el animal nuevo',
+  obj:[
+    'Definir el perímetro de su granja y dónde está la línea que no se cruza.',
+    'Aplicar un procedimiento de entrada para personas y para vehículos.',
+    'Decidir qué hacer con un proveedor, un técnico y un visitante.',
+    'Comprar animales con un criterio sanitario y no solo de precio.'
+  ],
+  sec:[
+    {k:'prosa', t:'Todo se reduce a una línea en el suelo',
+     p:['La bioseguridad externa no es una lista de aparatos. Es <b>una línea</b>: de aquí para afuera es zona sucia, de aquí para adentro es zona limpia. Y una regla: <b>nada cruza esa línea sin cambiar algo</b> — las botas, la ropa, las manos, o directamente sin bajarse del vehículo.',
+        'Esa línea puede ser una cerca, una franja pintada, una tabla en el piso o la puerta de un cuarto. Lo que la hace funcionar no es el material: es que <b>todo el mundo sepa dónde está y nadie la cruce por costumbre</b>.']},
+
+    {k:'sbzonas'},
+
+    {k:'aglinea', t:'Procedimiento de entrada de personas',
+     p:'Vale para usted, para su familia y para cualquiera. Es corto a propósito: un procedimiento largo no se cumple.',
+     l:[
+      ['Pare en el portón','Nadie sigue de largo. Si no hay portón, una cadena y un cartel hacen el mismo trabajo.','zona sucia'],
+      ['Pregunte de dónde viene','¿Estuvo hoy en otra granja, en un matadero, en un mercado de animales? Si la respuesta es sí, la visita se pospone o se hace sin entrar al área de animales.','zona sucia'],
+      ['Anótelo','Nombre, fecha, hora, de dónde viene, a qué viene. Si algo pasa en tres semanas, esta planilla es lo que permite reconstruir.','zona sucia'],
+      ['Cambio de botas y ropa','Botas de la granja, overol de la granja. Las suyas se quedan del lado de afuera de la línea.','la línea'],
+      ['Lavado de manos','Agua y jabón, de verdad, 20 segundos. Es lo más barato que hay y lo que más se salta.','la línea'],
+      ['Acompañado, y de menor a mayor riesgo','El visitante no anda solo por la granja, y el recorrido va de los animales sanos hacia los apartados. Nunca al revés.','zona limpia'],
+      ['Al salir, las botas se quedan','Se lavan y se desinfectan. No se van puestas a la casa ni al carro.','la línea']
+     ]},
+
+    {k:'sbcaso', id:'c2'},
+
+    {k:'agcomp', t:'Vehículos: la puerta más grande y la peor cerrada',
+     p:'Un camión que entra hasta el corral ha estado esta semana en otros patios. Sus ruedas y su piso no se ven, pero son lo que más superficie de contacto tiene con el suelo de otras granjas.',
+     bt:'Así sí',
+     bien:['El vehículo <b>no entra</b>: descarga en un punto fuera del perímetro',
+           'El alimento se recibe en una zona de descarga, no junto a los corrales',
+           'Si tiene que entrar, se desinfectan ruedas y bajos antes',
+           'El chofer no se baja al área de animales',
+           'Los cerdos se cargan en un muelle o rampa que da al exterior'],
+     mt:'Así no',
+     mal:['El camión entra hasta el corral porque «es más cómodo descargar»',
+          'El chofer ayuda a mover los cerdos con sus propias botas',
+          'La jaula de transporte se baja y se guarda dentro sin lavar',
+          'El mismo vehículo trae animales y se lleva animales el mismo día',
+          'Se desinfecta la rueda y no el piso de la cabina']},
+
+    {k:'agcards', t:'Comprar animales: cuatro preguntas antes del precio',
+     p:'No hace falta ser experto. Hacer estas cuatro preguntas ya lo pone por delante de la mayoría.',
+     l:[
+      ['📍','¿De dónde vienen exactamente?','Granja, dueño, zona. Si la respuesta es vaga o cambia, esa es la respuesta. Anótelo aunque se lo digan de palabra.'],
+      ['🩺','¿Qué estado sanitario tiene esa granja?','¿Ha tenido mortalidad rara? ¿Ha tenido visita de veterinario? Preguntarlo no ofende: es lo normal entre productores serios.'],
+      ['🚛','¿En qué vienen y con quién más?','Un animal que viaja con cerdos de tres procedencias distintas llega con el riesgo de las tres.'],
+      ['🏠','¿Dónde los voy a poner los primeros 30 días?','Si la respuesta es «con los demás», todavía no está listo para comprar. Módulo 07.']
+     ]},
+
+    {k:'sbcaso', id:'c3'},
+
+    {k:'agnota', tipo:'plata', nt:'Lo que cuesta cerrar la puerta externa',
+     p:'Una cadena y un cartel en el portón, un par de botas por persona que se quedan en la granja, una palangana con desinfectante, y una libreta de visitas. Eso es todo el equipamiento mínimo de la bioseguridad externa. Lo caro no es comprarlo: <b>lo caro es sostener la costumbre el día que llega alguien con prisa</b>.'}
+  ]
+}
+];
+
+
+/* ---------- sb-datos2.js ---------- */
+/* ============================================================
+   CURSO 4 · CONTENIDO · MÓDULOS 05 a 10
+   ============================================================ */
+
+SBMOD.push(
+{
+  n:5, num:'05', ac:'#6B4E9E',
+  t:'Bioseguridad interna: que no se mueva por dentro',
+  sub:'El orden de trabajo, las botas y los corrales que no se mezclan',
+  obj:[
+    'Ordenar el trabajo diario de menor a mayor riesgo y sostenerlo.',
+    'Separar los flujos de personas, animales y materiales.',
+    'Decidir qué hacer con un animal sospechoso sin contaminar el resto.',
+    'Identificar qué equipos no deben compartirse entre áreas.'
+  ],
+  sec:[
+    {k:'prosa', t:'Ya entró. Ahora la pregunta es cuánto se mueve',
+     p:['La bioseguridad externa falla de vez en cuando: alguien entró con prisa, un camión pasó, un animal llegó con algo. Eso va a pasar. La bioseguridad interna es lo que decide si ese fallo afecta a <b>un corral</b> o a <b>la granja completa</b>.',
+        'Y casi toda se resume en una frase que ya apareció en el módulo 01: <b>se trabaja de los animales de menor riesgo hacia los de mayor riesgo, y nunca al revés</b>.']},
+
+    {k:'sbflujo'},
+
+    {k:'agcards', t:'Los tres flujos que hay que separar',
+     l:[
+      ['🚶','Personas','Un orden de recorrido fijo, de menor a mayor riesgo. El que entra a la enfermería no vuelve a maternidad ese día sin cambiarse.'],
+      ['🐷','Animales','Los animales avanzan hacia adelante en el ciclo: maternidad → destete → engorde → salida. <b>Un animal que retrocede</b> —vuelve a un área anterior— es un problema sanitario, no logístico.'],
+      ['🧰','Materiales','Carretillas, palas, jeringas, cuerdas. Lo que entra a un área contaminada no sale limpio solo porque se vea limpio.']
+     ]},
+
+    {k:'agnota', tipo:'campo', nt:'La regla de las botas, que es la que más se rompe',
+     p:'Un par de botas por área, o un pediluvio en cada paso de área. Si solo puede tener un par: <b>el orden de recorrido es su pediluvio</b>. Empiece por lo más sano, termine por lo más enfermo, y no vuelva sobre sus pasos. El día que tenga que volver, lave y desinfecte las botas antes.'},
+
+    {k:'agcomp', t:'El animal que se ve mal',
+     bt:'Lo correcto',
+     bien:['Se aparta <b>donde está</b> o se lleva a un área de enfermería que no se cruza con los corrales sanos',
+           'Se atiende <b>al final</b> del recorrido del día',
+           'Se anota: corral, fecha, qué se ve, qué se hizo',
+           'Las botas, guantes y equipo usados ahí se lavan antes de volver a usarse',
+           'Si son varios y el cuadro no cuadra con lo de siempre: se llama, no se espera'],
+     mt:'Lo que agrava el problema',
+     mal:['Pasearlo por la granja hasta un corral libre al otro extremo',
+          'Meterlo en maternidad «porque ahí hay espacio»',
+          'Atenderlo primero porque «es el que está mal»',
+          'Usar la misma jeringa y la misma aguja en el resto del lote',
+          'Sacarlo de la granja para venderlo rápido']},
+
+    {k:'sbcaso', id:'c4'},
+
+    {k:'agtabla', t:'Qué se comparte y qué no',
+     cols:['Equipo', '¿Se puede compartir entre áreas?', 'Qué hacer'],
+     filas:[
+      ['Agujas y jeringas', '<b>No</b>', 'Aguja por animal donde sea posible; nunca reutilizar entre lotes'],
+      ['Botas', 'No', 'Un par por área, o pediluvio en cada paso'],
+      ['Carretilla de alimento', 'Con lavado', 'Una para animales sanos, otra para enfermería si se puede'],
+      ['Palas y escobas', 'Con lavado y desinfección', 'Marcarlas por color según el área'],
+      ['Cuerdas y lazos de manejo', 'Con lavado', 'Se ensucian de fluidos: es el equipo que más se olvida'],
+      ['Termómetro', 'Con desinfección entre animales', 'Limpiar y desinfectar cada vez'],
+      ['Overol', 'No', 'Uno de trabajo que no sale de la granja; otro para la enfermería'],
+      ['Vehículo interno o triciclo', 'Con lavado de ruedas', 'No debe entrar al área de maternidad']
+     ]}
+  ]
+},
+
+{
+  n:6, num:'06', ac:'#1F6F8B',
+  t:'Limpiar y desinfectar no es lo mismo',
+  sub:'Los nueve pasos, los errores que anulan el trabajo y la cuenta de la dilución',
+  obj:[
+    'Explicar por qué desinfectar sobre suciedad no sirve de nada.',
+    'Ejecutar el procedimiento completo en el orden correcto.',
+    'Calcular cuánto producto necesita para el volumen que va a preparar.',
+    'Reconocer los seis errores que anulan una desinfección bien intencionada.'
+  ],
+  sec:[
+    {k:'sbppa', t:'La frase de este módulo',
+     p:'<b>Limpiar primero. Desinfectar después.</b> Un desinfectante aplicado sobre materia orgánica —estiércol, restos de alimento, sangre seca— se inactiva antes de tocar nada. Es dinero y tiempo tirados, con el agravante de que usted se queda creyendo que el área está desinfectada.'},
+
+    {k:'prosa', t:'Por qué el orden no es negociable',
+     p:['La suciedad hace dos cosas a la vez: <b>protege físicamente</b> a los microorganismos, que quedan debajo de una capa que el producto no atraviesa, y <b>consume químicamente</b> al desinfectante, que reacciona con la materia orgánica en vez de con el agente.',
+        'Por eso el trabajo de verdad está en los pasos 2, 3 y 4 —retirar, remojar, lavar—. La desinfección es el remate, y sin esos tres pasos previos el remate no existe.']},
+
+    {k:'sbpasos'},
+
+    {k:'agcards', t:'Los seis errores que anulan todo el trabajo',
+     l:[
+      ['💩','Desinfectar sobre suciedad','El más común y el más caro. El producto se gasta con la materia orgánica y no llega al agente.'],
+      ['💧','Concentración inventada','«Un chorrito» no es una dosis. Diluir de menos no mata; diluir de más no mata el doble y sí daña superficies y personas.'],
+      ['⏱️','No respetar el tiempo de contacto','Aplicar y enjuagar a los dos minutos es no desinfectar. El tiempo lo dice la etiqueta y suele ser de 10 a 30 minutos.'],
+      ['🧪','Mezclar productos','Mezclar desinfectantes entre sí o con detergentes sin saber si son compatibles puede anularlos o generar gases peligrosos. <b>Nunca mezcle sin leer la etiqueta.</b>'],
+      ['🪣','Agua sucia y pediluvio viejo','Un pediluvio con agua marrón es un charco de contagio. Se cambia cuando se ensucia, no cuando toca.'],
+      ['🧰','Olvidar equipos y botas','Se desinfecta el piso y se deja la carretilla, la pala y las botas que lo pisaron todo.']
+     ]},
+
+    {k:'sbdilucion'},
+
+    {k:'agnota', tipo:'ojo', nt:'Lo que este curso no le va a decir',
+     p:'No se dan nombres de productos, ni dosis concretas, ni tiempos concretos. <b>Eso lo dice la etiqueta del producto que usted tenga en la mano</b>, y cambia entre marcas y entre concentraciones. La etiqueta es la autoridad; este curso solo le enseña a leerla y a hacer la cuenta. Si va a comprar un desinfectante, consulte con su veterinario cuál es adecuado para lo que necesita.'},
+
+    {k:'sbcaso', id:'c5'},
+
+    {k:'agtabla', t:'Programa mínimo de limpieza de una granja pequeña',
+     p:'Un programa que se cumple vale más que uno perfecto que se abandona. Ajústelo a su granja y déjelo por escrito.',
+     cols:['Qué', 'Cada cuánto', 'Quién', 'Se anota'],
+     filas:[
+      ['Comederos y bebederos', 'Diario (retirar restos) / semanal (lavado)', 'Encargado', 'Sí'],
+      ['Pasillos', 'Diario', 'Encargado', 'No'],
+      ['Corral vacío entre lotes', 'Cada vacío, procedimiento completo', 'Encargado', '<b>Sí</b>'],
+      ['Maternidad entre partos', 'Cada vacío, procedimiento completo', 'Encargado', '<b>Sí</b>'],
+      ['Pediluvio del portón', 'Cambio de solución al ensuciarse', 'Quien lo vea sucio', 'No'],
+      ['Botas y overoles', 'Al terminar la jornada', 'Cada persona', 'No'],
+      ['Herramientas y carretillas', 'Al terminar la jornada', 'Cada persona', 'No'],
+      ['Área de cuarentena', 'Al salir cada grupo', 'Encargado', '<b>Sí</b>'],
+      ['Jaulas de transporte', 'Antes de entrar y al salir', 'Encargado', '<b>Sí</b>']
+     ],
+     pie:'Las cuatro filas marcadas son las que se anotan en la planilla de Control de Limpieza y Desinfección del módulo 09.'}
+  ]
+},
+
+{
+  n:7, num:'07', ac:'#C56A34',
+  t:'Cuarentena y entrada de animales',
+  sub:'Los 30 días que evitan el 80 % de los problemas',
+  obj:[
+    'Montar un área de cuarentena con lo que ya tiene.',
+    'Saber qué observar durante la cuarentena y cada cuánto.',
+    'Decidir cuándo un animal en cuarentena no debe pasar al grupo.',
+    'Registrar la procedencia de cada animal que entra.'
+  ],
+  sec:[
+    {k:'prosa', t:'La medida más barata y la que menos se hace',
+     p:['La cuarentena es apartar al animal nuevo durante un tiempo antes de juntarlo con los suyos. No cura nada ni previene nada por sí misma: lo que hace es <b>darle tiempo a que se manifieste</b> lo que traiga, y que se manifieste lejos del resto.',
+        'No hace falta un edificio. Hace falta <b>distancia, aire que no vaya del nuevo hacia los suyos, y un orden de trabajo donde el nuevo se atiende de último</b>. Un corral al fondo del patio con su propia palangana y sus propias botas es una cuarentena válida.']},
+
+    {k:'agcards', t:'Lo que hace que una cuarentena sea cuarentena',
+     l:[
+      ['📏','Separación','Lo más lejos posible del resto, y a favor de la dirección en que corre el aire. Si no puede separar mucho, separe lo que pueda: 20 metros es mejor que 5, y 5 es mejor que ninguno.'],
+      ['🥾','Equipo propio','Sus botas, su carretilla, su pala. Si no hay para todo, la cuarentena se atiende <b>siempre de último</b> y después se lava.'],
+      ['📅','Tiempo','Un mínimo de 30 días es la referencia práctica que se maneja. El período exacto y lo que corresponda hacer durante él lo indica su veterinario.'],
+      ['📋','Observación anotada','Temperatura, consumo, comportamiento, heces. Todos los días, por escrito. Sin esta parte, la cuarentena es solo un corral aparte.']
+     ]},
+
+    {k:'aglinea', t:'Cómo se hace, día por día',
+     l:[
+      ['Antes de que llegue: prepare el sitio','Corral limpio y desinfectado, agua, alimento, botas y utensilios propios, y la planilla con el nombre del proveedor ya escrito.','día −1'],
+      ['Llegada: descargue sin pasar por la granja','El animal va del vehículo a la cuarentena por el camino más corto, sin cruzar los corrales de sus animales.','día 0'],
+      ['Primera semana: observación diaria','Consumo, ánimo, respiración, heces, temperatura si sabe tomarla. Anote aunque esté todo normal — lo normal es el dato de referencia.','días 1–7'],
+      ['Semanas 2 a 4: siga observando','La mayoría de lo que trae un animal se manifiesta en este tiempo. Baje la guardia el día 31, no el día 8.','días 8–30'],
+      ['Consulta veterinaria','Es el momento de que un veterinario lo revise y le diga si procede alguna prueba o manejo antes de juntarlo.','antes de juntar'],
+      ['Incorporación','Si todo bien y el veterinario da el visto bueno: se junta, preferiblemente con pocos animales primero y no con las reproductoras de más valor.','día 31+']
+     ],
+     pie:'Si durante la cuarentena aparece algo raro, el reloj no se reinicia solo: ahí es cuando se llama, no cuando se espera.'},
+
+    {k:'sbcaso', id:'c6'},
+    {k:'sbcaso', id:'c7'},
+
+    {k:'agnota', tipo:'plata', nt:'La cuenta que convence a cualquiera',
+     p:'Treinta días de un corral ocupado por un animal nuevo cuestan alimento y espacio. Un brote cuesta el inventario completo, el vacío sanitario y los meses sin vender. <b>No hay comparación posible</b>, y sin embargo la cuarentena sigue siendo la medida que más se salta por prisa.'}
+  ]
+},
+
+{
+  n:8, num:'08', ac:'#8E2C2C',
+  t:'Cadáveres, desechos y plagas',
+  sub:'Lo que sale de la granja y lo que entra sin permiso',
+  obj:[
+    'Manejar un animal muerto sin convertirlo en una fuente de contagio.',
+    'Separar y controlar los desechos con riesgo sanitario.',
+    'Montar un programa de control de roedores e insectos que se sostenga.',
+    'Entender por qué perros, gatos y aves son parte del problema.'
+  ],
+  sec:[
+    {k:'prosa', t:'Un animal muerto sigue siendo un problema sanitario',
+     p:['Un cadáver concentra todo lo que el animal tenía. Manejado mal, es la forma más eficiente que existe de repartir una enfermedad por la zona: los perros lo arrastran, las aves lo picotean, el agua lo mueve, la gente lo pasea.',
+        'Este módulo no le va a dar un método concreto, y eso es a propósito: <b>el destino final de los cadáveres está regulado</b>, y ante sospecha de una enfermedad de notificación obligatoria lo que corresponda lo indican las autoridades veterinarias competentes. Lo que sí le corresponde a usted es el manejo inmediato, que es donde se juega casi todo.']},
+
+    {k:'aglinea', t:'Lo que sí le toca a usted, desde que lo encuentra',
+     l:[
+      ['Anótelo antes de moverlo','Fecha, corral, edad, cuántos van en la semana. La planilla de mortalidad es el dato que más rápido detecta un brote: <b>lo que se mira es el número, no el animal</b>.','planilla'],
+      ['No lo arrastre por la granja','Sáquelo por el camino más corto hacia la zona sucia, en un recipiente o sobre algo que después se pueda lavar y desinfectar.','manejo'],
+      ['Protéjase','Guantes y botas. Después, lavado de manos con agua y jabón antes de tocar cualquier otra cosa.','manejo'],
+      ['Manténgalo fuera del alcance de animales','Perros, gatos, aves y roedores no deben poder acceder mientras espera el destino final.','contención'],
+      ['Lave y desinfecte lo que tocó','El sitio donde estaba, el recipiente, las botas y las herramientas.','limpieza'],
+      ['Si la mortalidad no cuadra, llame','Varios muertos en pocos días sin explicación clara es motivo de consulta veterinaria, no de esperar a ver.','decisión']
+     ]},
+
+    {k:'agnota', tipo:'ojo', nt:'Lo que nunca',
+     p:'No tire cadáveres a ríos, cañadas, terrenos baldíos ni a la basura común. No los venda, ni los regale, ni los use para alimentar otros animales. Y ante sospecha de PPA u otra enfermedad de notificación obligatoria, <b>no disponga de los cadáveres por su cuenta</b>: avise y siga las instrucciones que reciba.'},
+
+    {k:'sbplagas'},
+
+    {k:'agcards', t:'Los que entran sin que nadie los invite',
+     l:[
+      ['🐀','Roedores','Comen del alimento, se orinan en él y se mueven entre granjas. El control es permanente, no una campaña: eliminar refugios, tapar el alimento, y un programa con cebaderos fijos y numerados.'],
+      ['🪰','Moscas','Se reproducen donde hay estiércol húmedo y restos. El control de verdad es sanear el criadero, no fumigar el adulto.'],
+      ['🐕','Perros y gatos','Entran y salen del perímetro, arrastran restos y cadáveres. No deben tener acceso al área de animales ni a los cadáveres.'],
+      ['🐦','Aves silvestres','Acceden al alimento almacenado y a los comederos abiertos. Almacenamiento cerrado y mallas donde sea posible.']
+     ]},
+
+    {k:'agtabla', t:'Desechos: qué se hace con cada cosa',
+     cols:['Desecho', 'Riesgo', 'Manejo'],
+     filas:[
+      ['Estiércol', 'Moderado a alto', 'Acopio en un punto alejado del área de animales, controlado, sin acceso de plagas'],
+      ['Restos de alimento', 'Moderado', 'Se retiran diario: son el criadero de roedores y moscas'],
+      ['Sangre y fluidos', '<b>Alto</b>', 'Se contienen, se lava y se desinfecta la superficie de inmediato'],
+      ['Material contaminado (guantes, trapos)', 'Alto', 'Bolsa cerrada, fuera del alcance de animales'],
+      ['Agujas y cortantes', 'Alto (también para personas)', 'Recipiente rígido cerrado, nunca en la basura suelta'],
+      ['Envases de productos', 'Químico', 'Según indique la etiqueta; nunca reutilizar para agua o alimento']
+     ]}
+  ]
+},
+
+{
+  n:9, num:'09', ac:'#2F7D4F',
+  t:'El plan de bioseguridad de MI granja',
+  sub:'La parte en la que usted se lleva algo escrito',
+  obj:[
+    'Evaluar su granja con un checklist y obtener una puntuación orientativa.',
+    'Priorizar qué cerrar primero según riesgo y costo.',
+    'Armar su plan escrito con las seis planillas de registro.',
+    'Dejarlo en un formato que su personal pueda seguir sin usted.'
+  ],
+  sec:[
+    {k:'prosa', t:'Aquí es donde el curso se convierte en algo suyo',
+     p:['Los ocho módulos anteriores eran para entender. Este es para <b>hacer</b>. Al terminarlo debe tener tres cosas en la mano: la foto de cómo está su granja hoy, la lista de qué cerrar primero, y las planillas para sostenerlo.',
+        'El checklist de abajo <b>no es un examen</b>: nadie lo ve más que usted, y responder con honestidad es lo único que lo hace útil. Una granja que empieza en 30 % y sube a 60 % en tres meses está infinitamente mejor que una que se pone 90 % en el papel.']},
+
+    {k:'sbchecklist'},
+
+    {k:'agnota', tipo:'campo', nt:'Cómo priorizar lo que le salió mal',
+     p:'Ordene lo pendiente por dos criterios y en este orden: <b>primero lo que no cuesta dinero</b> (dejar de dar restos de comida, que los vehículos no entren, atender la enfermería de último, anotar las visitas), <b>después lo que cuesta poco</b> (botas, pediluvio, candado), y al final lo que requiere obra (cerca perimetral, muelle de carga). La mayoría de las granjas gana 30 puntos sin gastar un peso.'},
+
+    {k:'sbplan'},
+
+    {k:'sbrecursos'},
+
+    {k:'agcomp', t:'Un plan que se cumple contra uno que se archiva',
+     bt:'Se cumple',
+     bien:['Cabe en una hoja pegada en la pared',
+           'Dice <b>quién</b> hace cada cosa, no solo qué',
+           'Las planillas están donde se usan, con un lápiz amarrado',
+           'Se revisa una vez al mes, aunque sea en cinco minutos',
+           'El personal lo conoce porque se lo explicaron, no porque lo leyó'],
+     mt:'Se archiva',
+     mal:['Veinte páginas en una carpeta en la casa',
+          'Escrito en términos que el que trabaja no entiende',
+          'Sin responsable: «hay que hacerlo» no lo hace nadie',
+          'Copiado de otra granja sin adaptarlo',
+          'Nunca se vuelve a mirar después del día que se escribió']}
+  ]
+},
+
+{
+  n:10, num:'10', ac:'#B03A2E',
+  t:'Protocolo ante sospecha de PPA',
+  sub:'Cinco pasos, en orden, y lo que pasa si se salta uno',
+  obj:[
+    'Ejecutar los cinco pasos del protocolo sin improvisar.',
+    'Reconocer qué observaciones deben disparar el protocolo.',
+    'Explicar por qué no mover animales es el paso que más pesa.',
+    'Dejar el protocolo escrito y visible para quien esté en la granja.'
+  ],
+  sec:[
+    {k:'sbppa', t:'El módulo entero en una frase',
+     p:'<b>La PPA no se diagnostica por los signos que usted observa.</b> Ante una sospecha: no mueva animales, no venda, no invite a nadie a ver, y avise a un veterinario y a la autoridad competente. Lo que decide el desenlace no es lo que usted sepa de la enfermedad — es lo rápido que pare el movimiento y avise.'},
+
+    {k:'sbprotocolo'},
+
+    {k:'agcards', t:'Qué debe disparar el protocolo',
+     p:'No hace falta estar seguro de nada. Cualquiera de estas situaciones es motivo suficiente para arrancar los cinco pasos.',
+     l:[
+      ['📈','Mortalidad que no cuadra','Varios animales muertos en pocos días sin una explicación clara. El número, no el animal, es lo que avisa.'],
+      ['🤒','Varios animales con signos compatibles a la vez','Fiebre, decaimiento, falta de apetito en un grupo y no en uno solo.'],
+      ['❓','Un cuadro que no se parece a lo de siempre','Usted conoce su granja. Si algo no encaja con lo que ha visto antes, eso ya es una razón.'],
+      ['📰','Aviso sanitario en la zona','Si hay comunicación oficial de casos cerca, la vara para sospechar baja: extreme el control aunque no vea nada.']
+     ]},
+
+    {k:'agcomp', t:'Los cinco errores que convierten un caso en un brote regional',
+     bt:'Lo que contiene',
+     bien:['Parar el movimiento el mismo día',
+           'Avisar aunque no esté seguro',
+           'Dejar constancia escrita de todo',
+           'Restringir el acceso a lo imprescindible',
+           'Seguir las instrucciones oficiales sin adaptarlas'],
+     mt:'Lo que lo esparce',
+     mal:['<b>Vender rápido antes de que se note</b> — el error que más granjas ha costado',
+          'Llamar a otros productores para que vengan a opinar',
+          'Mover los animales a otra finca «para aislarlos»',
+          'Sacrificar y repartir la carne',
+          'Esperar tres días a ver si mejora']},
+
+    {k:'sboficial'},
+
+    {k:'sbcaso', id:'c8'},
+
+    {k:'agnota', tipo:'campo', nt:'Lo último: péguelo en la pared',
+     p:'Este protocolo no sirve guardado. Imprímalo del recurso 6, póngalo donde se vea desde el área de animales, y asegúrese de que <b>quien esté solo en la granja un domingo sepa qué hacer</b> sin llamarlo a usted. Ese es el examen de verdad de este curso.'},
+
+    {k:'agnota', tipo:'ojo', nt:'Nota final',
+     p:'Este curso tiene fines educativos y de capacitación. No sustituye la evaluación de un médico veterinario ni las instrucciones de las autoridades sanitarias competentes. Ante sospecha de Peste Porcina Africana u otra enfermedad de notificación obligatoria, el productor debe seguir los procedimientos oficiales vigentes.'}
+  ]
+}
+);
+
+
+/* ---------- sb-piezas.js ---------- */
+/* ============================================================
+   CURSO 4 · PIEZAS PROPIAS
+   Todo lo que este curso necesita y los otros tres no tenían.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   EL AVISO PPA · el rojo está reservado para esto
+   ------------------------------------------------------------ */
+function sbAvisoPPA(t, p){
+  return '<section class="nx-b nx-full"><div class="sb-ppa rv">' +
+    '<div class="sb-ppa-h"><span>🚨</span><b>Punto clave · PPA</b></div>' +
+    (t ? '<h4>' + agTxt(t) + '</h4>' : '') +
+    '<p>' + agTxt(p) + '</p></div></section>';
+}
+
+/* ------------------------------------------------------------
+   SIGNOS COMPATIBLES · nunca presentados como diagnóstico
+   ------------------------------------------------------------ */
+var SBSIGNOS = [
+  ['🌡️', 'Fiebre alta',          'El animal se siente caliente, busca sombra o se amontona. Es de los primeros signos.'],
+  ['🍽️', 'Deja de comer',        'Un cerdo que no viene al comedero es siempre una señal, de esta y de casi todo lo demás.'],
+  ['😴', 'Decaimiento',          'Se echa, no se levanta cuando usted entra, se queda atrás del grupo.'],
+  ['🔴', 'Enrojecimiento de la piel', 'Sobre todo en orejas, hocico, vientre y patas. En piel clara se nota antes.'],
+  ['🩸', 'Signos hemorrágicos',  'Manchas o puntos rojos en la piel. También puede haber sangre en heces o secreciones.'],
+  ['🤰', 'Abortos',              'En hembras gestantes, sin otra causa aparente.'],
+  ['😮‍💨', 'Dificultad para respirar', 'Respiración agitada, tos, secreción por nariz u ojos.'],
+  ['📈', 'Mortalidad que sube rápido', 'Este es el que más pesa: varios animales muertos en pocos días.']
+];
+function sbSecSignos(){
+  return agSec('Signos compatibles con PPA',
+    '<p>Estos son signos que <b>deben hacerle sospechar</b>. No son una lista para diagnosticar: varias enfermedades del cerdo producen cuadros parecidos, y la confirmación solo la da un laboratorio oficial a través de la autoridad veterinaria competente.</p>' +
+    agCards(SBSIGNOS.map(function(s){ return [s[0], s[1], s[2]]; })) +
+    agNota('ojo', 'Cómo se usa esta lista',
+      'Si observa <b>varios de estos signos a la vez</b>, o uno solo acompañado de mortalidad que no cuadra, eso es una sospecha. Una sospecha no se confirma ni se descarta desde el corral: se avisa. Y mientras tanto, no se mueve ningún animal.'),
+    'Lo que debe hacerle sospechar');
+}
+
+/* ------------------------------------------------------------
+   CÓMO SE MUEVE EL VIRUS
+   ------------------------------------------------------------ */
+function sbSecVias(){
+  return agSec('Por dónde se mueve el virus',
+    '<p>Lo que hace a la PPA tan difícil de contener es que <b>no necesita un cerdo vivo para viajar</b>. Aguanta en cosas, y las cosas se mueven mucho más que los animales.</p>' +
+    agCards([
+      ['🐷', 'Cerdo a cerdo', 'Contacto directo con un animal infectado, vivo o muerto. Incluye secreciones, sangre y heces.'],
+      ['🥓', 'Carne y productos de cerdo', 'El virus sobrevive en carne cruda y en productos curados. Por eso las sobras de cocina son una vía real.'],
+      ['🚛', 'Vehículos y jaulas', 'Ruedas, pisos, cajones de transporte. Han estado en otros patios esta misma semana.'],
+      ['🥾', 'Botas, ropa y equipos', 'Lo que pisó y lo que tocó. Es la vía que viaja con las personas sin que nadie lo note.'],
+      ['🧰', 'Herramientas prestadas', 'Una pala, un lazo, una jeringa que pasó por otra granja.'],
+      ['🐗', 'Cerdos asilvestrados', 'Donde existan, el contacto con cerdos sin dueño o silvestres es una vía a considerar.']
+    ]) +
+    agNota('campo', 'Lo que esto significa para su granja',
+      'Si el virus viaja sobre todo en cosas, entonces la bioseguridad no se hace vigilando animales: se hace <b>controlando qué cruza el portón</b>. Ese es el contenido del módulo 04.'),
+    'Cómo llega de una granja a otra');
+}
+
+/* ------------------------------------------------------------
+   LAS PUERTAS DE ENTRADA · la infografía del módulo 03
+   ------------------------------------------------------------ */
+function sbSecPuertas(){
+  var izq = [
+    ['🚶', 'Personas'], ['🚛', 'Vehículos'], ['🐷', 'Animales nuevos'],
+    ['🥾', 'Botas y ropa'], ['🧰', 'Equipos prestados'], ['📦', 'Jaulas y cajones']
+  ];
+  var der = [
+    ['🥘', 'Restos de comida'], ['🌾', 'Alimento y su transporte'], ['🐀', 'Roedores y plagas'],
+    ['🐕', 'Perros, gatos, aves'], ['🏘️', 'Contacto entre granjas'], ['🐗', 'Cerdos asilvestrados']
+  ];
+  var fila = function(l, lado){
+    return l.map(function(x, i){
+      return '<div class="sb-puerta sb-p-' + lado + '" style="--i:' + i + '">' +
+        '<span class="sb-pico">' + x[0] + '</span><b>' + x[1] + '</b></div>';
+    }).join('');
+  };
+  return agSec('La enfermedad puede entrar por más puertas de las que imagina',
+    '<p>Doce vías, y solo una de ellas es «un cerdo enfermo». Las otras once son cosas, personas y animales que entran todos los días sin que nadie las cuente.</p>' +
+    '<div class="sb-mapa rv">' +
+      '<div class="sb-col">' + fila(izq, 'izq') + '</div>' +
+      '<div class="sb-granja"><div class="sb-granja-c"><span>🏠</span><b>SU GRANJA</b>' +
+        '<em>todo lo que cruza esta línea trae lo que traiga</em></div></div>' +
+      '<div class="sb-col">' + fila(der, 'der') + '</div>' +
+    '</div>' +
+    agNota('campo', 'El ejercicio de este módulo',
+      'Tape con la mano la palabra «Animales nuevos». Lo que queda son <b>once vías que no son un cerdo</b>. Si su bioseguridad consiste en fijarse en los animales que compra, tiene once puertas abiertas.'),
+    'El mapa completo del riesgo');
+}
+
+/* ------------------------------------------------------------
+   ZONA LIMPIA / ZONA SUCIA
+   ------------------------------------------------------------ */
+function sbSecZonas(){
+  return agSec('La línea: zona sucia y zona limpia',
+    '<p>No es una metáfora: es una línea física que se puede señalar con el dedo. De un lado se está como se venga de la calle; del otro, con lo de la granja.</p>' +
+    '<div class="sb-zonas rv">' +
+      '<div class="sb-z sb-z-sucia"><b>ZONA SUCIA</b><span>Todo lo de afuera</span><ul>' +
+        '<li>El portón y el camino de entrada</li><li>Donde paran los vehículos</li>' +
+        '<li>Donde se descarga el alimento</li><li>Donde se recogen los cerdos para vender</li>' +
+        '<li>La ropa y el calzado con que usted llegó</li></ul></div>' +
+      '<div class="sb-linea"><span>LA LÍNEA</span><em>aquí se cambia de botas, de ropa y se lavan las manos</em></div>' +
+      '<div class="sb-z sb-z-limpia"><b>ZONA LIMPIA</b><span>Donde están los animales</span><ul>' +
+        '<li>Corrales, maternidad, engorde</li><li>Pasillos internos</li>' +
+        '<li>Almacén de alimento</li><li>Botas y overol que no salen de aquí</li>' +
+        '<li>Herramientas que no se prestan</li></ul></div>' +
+    '</div>' +
+    agNota('ojo', 'El error clásico',
+      'Tener la línea pero cruzarla «un momentito» sin cambiarse, porque era solo a buscar algo. El virus no distingue entre un paso y una jornada completa. <b>Si la línea se cruza sin cambiar nada, la línea no existe.</b>'),
+    'El concepto que ordena toda la granja');
+}
+
+/* ------------------------------------------------------------
+   FLUJO DE TRABAJO · de menor a mayor riesgo
+   ------------------------------------------------------------ */
+function sbSecFlujo(){
+  var pasos = [
+    ['Cuarentena', 'los nuevos', 'ÚLTIMO', '#8E2C2C'],
+    ['Enfermería', 'los apartados', 'penúltimo', '#B03A2E'],
+    ['Engorde', 'los grandes', '4.º', '#C56A34'],
+    ['Destete y crecimiento', 'los medianos', '3.º', '#C08A12'],
+    ['Maternidad', 'lechones', '2.º', '#2B7A8F'],
+    ['Gestación', 'reproductoras', '<b>PRIMERO</b>', '#2F7D4F']
+  ].reverse();
+  return agSec('El orden de trabajo: de menor a mayor riesgo',
+    '<p>Es la regla que más rendimiento da por lo poco que cuesta: <b>cero pesos</b>. Solo hay que sostener el orden todos los días y no volver sobre los pasos.</p>' +
+    '<div class="sb-flujo rv">' + pasos.map(function(p, i){
+      return '<div class="sb-fp" style="--c:' + p[3] + '">' +
+        '<span class="sb-fn">' + p[2] + '</span>' +
+        '<b>' + p[0] + '</b><em>' + p[1] + '</em></div>' +
+        (i < pasos.length - 1 ? '<div class="sb-fflecha">↓</div>' : '');
+    }).join('') + '</div>' +
+    agNota('campo', 'Y si tiene que volver atrás',
+      'Pasa: se le olvidó algo en maternidad y ya estuvo en la enfermería. La regla entonces es simple: <b>lave y desinfecte las botas antes de volver</b>, y cámbiese el overol si lo tiene. No es un pecado volver; es un pecado volver igual.'),
+    'La medida que no cuesta nada');
+}
+
+/* ------------------------------------------------------------
+   LOS NUEVE PASOS DE LIMPIEZA Y DESINFECCIÓN
+   ------------------------------------------------------------ */
+function sbSecPasos(){
+  return agSec('Los nueve pasos, en este orden',
+    '<p>Saltarse uno no ahorra tiempo: anula los anteriores. El orden es el procedimiento.</p>' +
+    agLinea([
+      ['Retirar los animales', 'El área se trabaja vacía. No se desinfecta con animales dentro: ni funciona bien, ni es seguro para ellos.', 'preparación'],
+      ['Retirar todo lo movible', 'Comederos, bebederos, equipos, cortinas. Se lavan aparte y se devuelven al final.', 'preparación'],
+      ['Retirar la materia orgánica en seco', 'Pala y escoba. <b>Este paso solo ya elimina la mayor parte de la carga</b>, y es el que más gente se salta por ir directo a la manguera.', 'el que más rinde'],
+      ['Remojar', 'Agua a baja presión y dejar reposar. Ablanda lo pegado y evita que el lavado a presión lo convierta en aerosol.', '15–30 min'],
+      ['Detergente', 'Donde corresponda, según el producto. Es lo que despega la grasa y la película que protege a los microorganismos.', 'según etiqueta'],
+      ['Lavar', 'A presión, de arriba hacia abajo y del fondo hacia la puerta. Si al terminar queda algo que se ve sucio, todavía no terminó.', 'lavado'],
+      ['Enjuagar y dejar secar', 'El desinfectante no se aplica sobre una superficie encharcada: el agua lo diluye y le baja la concentración.', 'secado'],
+      ['Aplicar el desinfectante', 'A la concentración que diga la etiqueta, cubriendo toda la superficie. Ni un chorrito, ni el doble.', 'según etiqueta'],
+      ['Respetar el tiempo de contacto y secar', 'El producto tiene que quedarse el tiempo que indique la etiqueta. Después, secado y vacío antes de volver a meter animales.', 'lo que diga la etiqueta']
+    ]) +
+    agNota('ojo', 'El paso 3 es el que decide',
+      'Si retira bien la materia orgánica en seco, los seis pasos siguientes rinden. Si no, puede hacer todo lo demás perfecto y el resultado será el mismo que no hacer nada.'),
+    'El procedimiento completo');
+}
+
+/* ------------------------------------------------------------
+   PLAGAS
+   ------------------------------------------------------------ */
+function sbSecPlagas(){
+  return agSec('Control de plagas que se sostiene',
+    '<p>Una fumigación aislada no es un programa. Lo que funciona es <b>quitarles el alimento y el refugio</b>, y mantener una rutina que alguien revise.</p>' +
+    agTabla(
+      ['Qué', 'Lo que de verdad funciona', 'Cada cuánto', 'Se anota'],
+      [
+        ['Roedores', 'Cebaderos fijos y numerados, alimento almacenado cerrado, eliminar refugios y maleza pegada a las naves', 'Revisión semanal', '<b>Sí</b>'],
+        ['Moscas', 'Sanear el criadero: estiércol seco y retirado, sin charcos ni restos de alimento', 'Diario', 'No'],
+        ['Perros y gatos', 'Cerca, portón cerrado, sin acceso a cadáveres ni a comederos', 'Permanente', 'No'],
+        ['Aves', 'Almacenamiento de alimento cerrado, mallas donde se pueda', 'Permanente', 'No']
+      ],
+      'Si usa productos para el control de plagas, siga la etiqueta y manténgalos fuera del alcance de los animales y del alimento. Ante dudas, consulte con su veterinario.'),
+    'Lo que entra sin permiso');
+}
+
+/* ------------------------------------------------------------
+   EL PROTOCOLO DE CINCO PASOS
+   ------------------------------------------------------------ */
+function sbSecProtocolo(){
+  var p = [
+    ['OBSERVAR', '👁️', 'Algo no cuadra: mortalidad que sube, varios animales con signos compatibles, un cuadro distinto a lo de siempre.', 'No hace falta estar seguro. La duda ya es motivo.'],
+    ['AISLAR Y CONTROLAR', '🚧', 'Separe los animales afectados donde estén. Cierre el acceso a la granja: solo entra quien sea imprescindible.', 'Sin pasearlos por la granja hasta otro corral.'],
+    ['NO MOVER', '🛑', 'Ni un animal sale. No vender, no regalar, no trasladar, no sacrificar y repartir.', 'Este es el paso que más pesa de los cinco.'],
+    ['NOTIFICAR', '📞', 'Avise a su veterinario y a la autoridad veterinaria competente, el mismo día.', 'La PPA es de notificación obligatoria: no es opcional.'],
+    ['SEGUIR INSTRUCCIONES', '📋', 'Haga lo que le indiquen, tal como se lo indiquen, y deje constancia escrita de todo lo ocurrido.', 'Anote fechas, corrales, cuántos, y quién entró la última semana.']
+  ];
+  return agSec('OBSERVAR → AISLAR → NO MOVER → NOTIFICAR → SEGUIR INSTRUCCIONES',
+    '<p>Cinco pasos, en este orden. Están pensados para que los pueda ejecutar <b>quien esté en la granja</b>, aunque usted no esté.</p>' +
+    '<div class="sb-proto rv">' + p.map(function(x, i){
+      return '<div class="sb-pp"><div class="sb-pp-n">' + (i + 1) + '</div>' +
+        '<div class="sb-pp-c"><b><span>' + x[1] + '</span>' + x[0] + '</b>' +
+        '<p>' + x[2] + '</p><em>' + x[3] + '</em></div></div>';
+    }).join('') + '</div>' +
+    agNota('ojo', 'El orden importa',
+      'Notificar sin haber parado el movimiento deja tres días de animales saliendo mientras llega la respuesta. <b>Primero se para, después se avisa.</b> Los dos el mismo día.'),
+    'Para pegar en la pared');
+}
+
+/* ------------------------------------------------------------
+   EL HUECO PARA LA INFORMACIÓN OFICIAL
+   Deliberadamente vacío: no se inventan teléfonos ni instituciones.
+   El instructor lo rellena desde el panel con lo que esté vigente.
+   ------------------------------------------------------------ */
+var SBOFICIAL = {texto:'', quien:'', como:''};
+try{
+  var _so = JSON.parse(localStorage.getItem('sb_oficial') || 'null');
+  if(_so) SBOFICIAL = Object.assign(SBOFICIAL, _so);
+}catch(e){}
+function sbGuardarOficial(){ try{ localStorage.setItem('sb_oficial', JSON.stringify(SBOFICIAL)); }catch(e){} }
+
+function sbSecOficial(){
+  var hay = SBOFICIAL.texto || SBOFICIAL.quien || SBOFICIAL.como;
+  return agSec('A quién se notifica',
+    '<div class="sb-oficial rv">' +
+      '<div class="sb-of-h"><span>📞</span><b>Información oficial vigente</b></div>' +
+      (hay
+        ? (SBOFICIAL.quien ? '<p><b>A quién:</b> ' + agTxt(SBOFICIAL.quien) + '</p>' : '') +
+          (SBOFICIAL.como  ? '<p><b>Cómo:</b> '   + agTxt(SBOFICIAL.como)  + '</p>' : '') +
+          (SBOFICIAL.texto ? '<p>' + agTxt(SBOFICIAL.texto) + '</p>' : '')
+        : '<p class="sb-of-vacio">Este recuadro lo completa el instructor con los datos de contacto y el procedimiento oficial <b>vigentes en el momento</b>. ' +
+          'Este curso no incluye teléfonos ni nombres de instituciones porque esa información cambia y publicarla desactualizada sería peor que no publicarla.</p>' +
+          '<p class="sb-of-vacio">Mientras tanto, lo que no cambia: <b>avise a su veterinario</b>, y pregúntele a él cuál es el canal oficial vigente para notificar una sospecha de enfermedad de notificación obligatoria.</p>') +
+      '<div class="sb-of-pie">Lo de arriba es <b>información oficial</b> y puede cambiar. Todo lo demás de este curso es <b>material educativo</b>. ' +
+        'Si hay contradicción entre ambos, manda la instrucción oficial.</div>' +
+    '</div>', 'Lo que no inventamos');
+}
+window.sbSecOficial = sbSecOficial;
+
+/* ------------------------------------------------------------
+   CASOS PRÁCTICOS · «¿qué harías?» con respuesta explicada
+   ------------------------------------------------------------ */
+var SBCASO = {
+  c1:{t:'Las dos cerdas del vecino',
+    e:'Un productor de su zona le vende dos cerdas de reemplazo a buen precio. Se las lleva el mismo día en el cajón de su camioneta y las mete directo al corral de las gestantes, que es donde hay espacio.',
+    q:'¿Cuál es el error principal?',
+    o:['Comprarle cerdas a otro productor',
+       'No tener alimento suficiente preparado para ellas',
+       'Introducirlas al grupo sin un procedimiento sanitario de entrada',
+       'Ponerlas en gestación en vez de en engorde'],
+    c:2,
+    fb:'Comprar entre productores es normal y necesario. El error es <b>meterlas directo al grupo</b>: en ese momento la sanidad de las dos granjas se vuelve una sola. Lo correcto: preguntar la procedencia y el estado sanitario, transportarlas en un cajón limpio, y <b>cuarentena de al menos 30 días</b> antes de juntarlas — y menos aún con las gestantes, que son los animales de más valor.'},
+
+  c2:{t:'El proveedor con prisa',
+    e:'Llega el camión del alimento. El chofer viene de repartir en otras dos granjas esta mañana y quiere entrar hasta el almacén para no cargar los sacos a mano. Le dice que tiene prisa.',
+    q:'¿Qué hace usted?',
+    o:['Lo deja entrar: es un proveedor de confianza y viene siempre',
+       'Lo deja entrar pero le echa desinfectante a las ruedas',
+       'Descarga en un punto fuera del perímetro y usted mueve los sacos',
+       'Lo deja entrar pero que no se baje del camión'],
+    c:2,
+    fb:'La respuesta correcta es la incómoda. Ese camión estuvo hoy en dos patios: sus ruedas y el piso de la cabina traen lo que haya ahí. <b>La descarga se hace fuera del perímetro</b>, aunque cueste trabajo. La opción de desinfectar ruedas es mejor que nada pero incompleta —queda el piso de la cabina y las botas del chofer— y la confianza en la persona no tiene nada que ver: el riesgo no lo trae él, lo trae el vehículo.'},
+
+  c3:{t:'El técnico que viene de otra granja',
+    e:'Un técnico llega a revisarle un equipo. Le comenta, de pasada, que viene de una granja del otro lado del pueblo donde estuvo esta mañana.',
+    q:'¿Qué corresponde hacer?',
+    o:['Dejarlo pasar: no viene a tocar los animales',
+       'Que se cambie botas y ropa antes de cruzar la línea, y acompañarlo',
+       'Rociarle los zapatos con desinfectante y que pase',
+       'Pedirle que vuelva mañana'],
+    c:1,
+    fb:'No hace falta prohibirle la entrada: hace falta que <b>cruce la línea como todo el mundo</b> — botas y ropa de la granja, lavado de manos, acompañado y recorriendo de menor a mayor riesgo. Rociar el zapato por encima no sustituye el cambio. Y que «no venga a tocar animales» no importa: el riesgo va en lo que pisa, no en lo que toca.'},
+
+  c4:{t:'El lechón que amaneció mal',
+    e:'En el corral de destete hay un lechón echado que no se levanta y no ha comido. Los demás están normales. Usted está a mitad de la ronda de la mañana, después de maternidad.',
+    q:'¿Qué hace en ese momento?',
+    o:['Lo lleva enseguida a la enfermería y sigue la ronda',
+       'Lo apunta, termina la ronda y lo atiende al final',
+       'Le pone un antibiótico de una vez por si acaso',
+       'Lo devuelve con la madre en maternidad'],
+    c:1,
+    fb:'Lo apunta y lo atiende <b>al final</b>. Si lo atiende ahora, todo lo que toque después —engorde, comederos, herramientas— lleva lo que ese animal tenga. Devolverlo a maternidad es lo peor de todo: sería llevar un problema al área de menor riesgo. Y el antibiótico «por si acaso» sin saber qué tiene no cura y sí enmascara.'},
+
+  c5:{t:'El corral que se lavó rápido',
+    e:'Salió un lote de engorde y hay que meter el siguiente mañana. El encargado echó agua a presión al corral, le pasó desinfectante encima y lo dejó. Se ve limpio y huele a desinfectante.',
+    q:'¿Qué falta?',
+    o:['Nada: se lavó y se desinfectó',
+       'Retirar la materia orgánica en seco antes de lavar, y respetar el tiempo de contacto y el secado',
+       'Aplicar más desinfectante para asegurar',
+       'Volver a lavar con agua más caliente'],
+    c:1,
+    fb:'Faltan los pasos que hacen que la desinfección sirva: <b>retirar en seco</b> lo que quedó (paso 3), el remojo y el detergente, el <b>tiempo de contacto</b> que pida la etiqueta, y el <b>secado y vacío</b> antes de meter animales. Que huela a desinfectante no dice nada del resultado. Y echar más producto no compensa: el problema no es la cantidad, es la superficie sucia debajo.'},
+
+  c6:{t:'El grupo de lechones de recría',
+    e:'Compró doce lechones para recría de un productor conocido. No tiene un corral aparte libre y el único espacio disponible es la mitad de un corral de engorde, separado por una tabla.',
+    q:'¿Qué es lo mejor que puede hacer con lo que tiene?',
+    o:['Meterlos ahí: la tabla los separa',
+       'Posponer la compra hasta tener un espacio realmente separado',
+       'Meterlos con los engordes: total, son de un productor conocido',
+       'Meterlos en maternidad, que está más limpia'],
+    c:1,
+    fb:'Una tabla no es una cuarentena: comparten aire, moscas, y todo lo que camine entre los dos lados. Lo correcto es <b>posponer</b> hasta tener separación real —aunque sea un corral improvisado al fondo del patio con sus propias botas—. «Productor conocido» no es un estado sanitario, y maternidad es el último sitio donde pondría un animal nuevo.'},
+
+  c7:{t:'El día 22 de cuarentena',
+    e:'Un animal en cuarentena lleva tres semanas bien. Hoy amanece con fiebre y no come. Faltan ocho días para juntarlo con el grupo.',
+    q:'¿Qué corresponde?',
+    o:['Esperar los ocho días y ver si se recupera',
+       'Juntarlo ya: lleva tres semanas sin problema',
+       'Avisar al veterinario, no juntarlo, y anotar todo',
+       'Tratarlo por su cuenta y reiniciar la cuarentena'],
+    c:2,
+    fb:'Para esto es la cuarentena: para que lo que traiga se manifieste <b>lejos de sus animales</b>, y está funcionando. Corresponde <b>avisar al veterinario</b>, no juntarlo, y dejar constancia escrita de qué se vio y cuándo. Ni esperar callado ni tratar por cuenta propia: el objetivo ahora es saber qué es.'},
+
+  c8:{t:'Domingo en la mañana',
+    e:'Es domingo. Usted no está en la granja. La persona que quedó a cargo encuentra cuatro cerdos muertos en el corral de engorde y varios más echados que no comen. Le llama.',
+    q:'¿Qué le dice que haga, en este orden?',
+    o:['Que saque los muertos y venda rápido los que están bien',
+       'Que espere a mañana, que usted va temprano',
+       'Que no mueva ni saque ningún animal, que cierre el acceso, y que usted llama al veterinario y a la autoridad ahora mismo',
+       'Que le dé antibiótico a todo el lote'],
+    c:2,
+    fb:'Es exactamente el protocolo del módulo 10: <b>no mover, controlar el acceso, notificar el mismo día</b>. Vender rápido es el error que ha costado más granjas en los brotes documentados. Esperar a mañana son 24 horas de virus circulando. Y medicar el lote entero sin saber qué es no cura y borra información que el veterinario necesita.'}
+};
+
+function sbSecCaso(id){
+  var c = SBCASO[id];
+  if(!c) return '';
+  return '<section class="nx-b nx-full"><div class="sb-caso rv" id="sbc-' + id + '">' +
+    '<div class="sb-caso-h"><span>Caso práctico</span><b>' + agTxt(c.t) + '</b></div>' +
+    '<p class="sb-caso-e">' + agTxt(c.e) + '</p>' +
+    '<p class="sb-caso-q">' + agTxt(c.q) + '</p>' +
+    '<div class="sb-caso-o">' + c.o.map(function(o, i){
+      return '<button class="sb-op" onclick="sbResponder(\'' + id + '\',' + i + ')">' +
+        '<span>' + 'ABCD'.charAt(i) + '</span>' + agTxt(o) + '</button>';
+    }).join('') + '</div>' +
+    '<div class="sb-caso-fb" hidden><b></b><p>' + agTxt(c.fb) + '</p></div>' +
+    '</div></section>';
+}
+
+window.sbResponder = function(id, i){
+  var c = SBCASO[id];
+  var caja = document.getElementById('sbc-' + id);
+  if(!c || !caja) return;
+  var ops = caja.querySelectorAll('.sb-op');
+  [].forEach.call(ops, function(b, j){
+    b.disabled = true;
+    if(j === c.c) b.classList.add('sb-ok');
+    else if(j === i) b.classList.add('sb-no');
+  });
+  var fb = caja.querySelector('.sb-caso-fb');
+  fb.hidden = false;
+  fb.querySelector('b').textContent = (i === c.c) ? '✓ Correcto' : '✕ La respuesta es la ' + 'ABCD'.charAt(c.c);
+  fb.className = 'sb-caso-fb ' + (i === c.c ? 'sb-fb-ok' : 'sb-fb-no');
+  try{
+    var v = JSON.parse(localStorage.getItem('sb_casos') || '{}');
+    v[id] = (i === c.c);
+    localStorage.setItem('sb_casos', JSON.stringify(v));
+  }catch(e){}
+  if(typeof sbRevisarLogros === 'function') sbRevisarLogros();
+};
+
+/* ---------- engancharlo todo al pintor ---------- */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecSb = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(!s) return _nxSecSb.apply(this, arguments);
+    switch(s.k){
+      case 'sbppa':       return sbAvisoPPA(s.t, s.p);
+      case 'sbsignos':    return sbSecSignos();
+      case 'sbvias':      return sbSecVias();
+      case 'sbpuertas':   return sbSecPuertas();
+      case 'sbzonas':     return sbSecZonas();
+      case 'sbflujo':     return sbSecFlujo();
+      case 'sbpasos':     return sbSecPasos();
+      case 'sbplagas':    return sbSecPlagas();
+      case 'sbprotocolo': return sbSecProtocolo();
+      case 'sboficial':   return sbSecOficial();
+      case 'sbcaso':      return sbSecCaso(s.id);
+    }
+    return _nxSecSb.apply(this, arguments);
+  };
+}
+
+
+/* ---------- sb-herramientas.js ---------- */
+/* ============================================================
+   CURSO 4 · HERRAMIENTAS
+   Lo que el estudiante se lleva: checklist puntuado, calculadora
+   de dilución, plan escrito, seis planillas y los logros.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · CHECKLIST DE BIOSEGURIDAD, CON PUNTUACIÓN
+   ------------------------------------------------------------ */
+var SBCHK = [
+  {g:'Entrada', ico:'🚪', items:[
+    ['e1', 'Hay un portón, cadena o barrera que se cierra', 3],
+    ['e2', 'Los vehículos NO entran al área de animales', 5],
+    ['e3', 'Hay una libreta o planilla de visitantes que se usa', 3],
+    ['e4', 'Hay un punto definido donde se cambian botas y ropa', 4],
+    ['e5', 'Se pregunta a quien entra de dónde viene', 3]
+  ]},
+  {g:'Animales nuevos', ico:'🐷', items:[
+    ['a1', 'Existe un área de cuarentena separada del resto', 5],
+    ['a2', 'Todo animal nuevo pasa cuarentena antes de juntarse', 5],
+    ['a3', 'Se anota de dónde viene cada animal que entra', 3],
+    ['a4', 'Se pregunta el estado sanitario de la granja de origen', 3]
+  ]},
+  {g:'Personal y trabajo', ico:'👷', items:[
+    ['p1', 'Hay botas que no salen de la granja', 4],
+    ['p2', 'Hay ropa de trabajo que no sale de la granja', 3],
+    ['p3', 'Se lavan las manos con agua y jabón al entrar', 3],
+    ['p4', 'El recorrido va de menor a mayor riesgo, todos los días', 5],
+    ['p5', 'Los animales apartados se atienden de último', 4]
+  ]},
+  {g:'Limpieza y desinfección', ico:'🧽', items:[
+    ['l1', 'Hay un programa de limpieza escrito', 3],
+    ['l2', 'Se retira la materia orgánica ANTES de desinfectar', 5],
+    ['l3', 'Se respeta la concentración que dice la etiqueta', 4],
+    ['l4', 'Se respeta el tiempo de contacto del desinfectante', 4],
+    ['l5', 'Se lavan y desinfectan equipos, carretillas y botas', 3],
+    ['l6', 'El corral se limpia y queda vacío entre lotes', 4]
+  ]},
+  {g:'Plagas y animales ajenos', ico:'🐀', items:[
+    ['g1', 'Hay control de roedores con cebaderos fijos', 3],
+    ['g2', 'El alimento se almacena cerrado y elevado', 4],
+    ['g3', 'Perros y gatos no acceden al área de animales', 3],
+    ['g4', 'No se dan restos de comida con carne de cerdo', 5]
+  ]},
+  {g:'Cadáveres y registros', ico:'📋', items:[
+    ['c1', 'Hay un procedimiento definido para animales muertos', 4],
+    ['c2', 'Los cadáveres quedan fuera del alcance de otros animales', 4],
+    ['c3', 'Se lleva registro de mortalidad', 4],
+    ['c4', 'Hay un protocolo escrito de qué hacer ante una sospecha', 5]
+  ]}
+];
+var SBCHKTOT = SBCHK.reduce(function(a, g){ return a + g.items.reduce(function(b, i){ return b + i[2]; }, 0); }, 0);
+
+function sbChkLeer(){
+  try{ return JSON.parse(localStorage.getItem('sb_chk::' + sbYo()) || '{}') || {}; }catch(e){ return {}; }
+}
+function sbChkGuardar(v){ try{ localStorage.setItem('sb_chk::' + sbYo(), JSON.stringify(v)); }catch(e){} }
+function sbChkPuntos(){
+  var v = sbChkLeer(), p = 0;
+  SBCHK.forEach(function(g){ g.items.forEach(function(i){ if(v[i[0]]) p += i[2]; }); });
+  return p;
+}
+function sbChkNivel(pct){
+  if(pct >= 85) return ['Granja protegida', 'Su bioseguridad está en un nivel alto. Lo que toca ahora es sostenerla: revise el plan una vez al mes y no deje que se relaje.', 'ok'];
+  if(pct >= 60) return ['Buen camino, con huecos', 'Tiene lo esencial. Mire abajo lo que quedó sin marcar y cierre primero lo que no cuesta dinero: casi todo lo pendiente a este nivel es costumbre, no inversión.', 'med'];
+  if(pct >= 35) return ['Riesgo importante', 'Hay puertas abiertas de las que cuestan caro. Empiece por las tres de más peso que le salieron sin marcar: suelen ser vehículos, cuarentena y restos de comida.', 'bajo'];
+  return ['Riesgo alto', 'Su granja está expuesta por varias vías a la vez. La buena noticia es que la mayoría de lo que falta no cuesta dinero: es decidir y sostenerlo. Empiece por el módulo 04.', 'crit'];
+}
+
+window.sbChkMarcar = function(id, on){
+  var v = sbChkLeer();
+  if(on) v[id] = 1; else delete v[id];
+  sbChkGuardar(v);
+  sbChkPintarResultado();
+  if(typeof sbRevisarLogros === 'function') sbRevisarLogros();
+};
+function sbChkPintarResultado(){
+  var caja = document.getElementById('sbChkRes');
+  if(!caja) return;
+  var p = sbChkPuntos(), pct = Math.round(p / SBCHKTOT * 100);
+  var n = sbChkNivel(pct);
+  var v = sbChkLeer();
+  var faltan = [];
+  SBCHK.forEach(function(g){ g.items.forEach(function(i){ if(!v[i[0]]) faltan.push([i[1], i[2], g.ico]); }); });
+  faltan.sort(function(a, b){ return b[1] - a[1]; });
+  caja.className = 'sb-chk-res sb-n-' + n[2];
+  caja.innerHTML =
+    '<div class="sb-chk-num"><b>' + pct + '<i>%</i></b><span>' + p + ' de ' + SBCHKTOT + ' puntos</span></div>' +
+    '<div class="sb-chk-txt"><b>' + n[0] + '</b><p>' + n[1] + '</p>' +
+      '<div class="sb-chk-bar"><i style="width:' + pct + '%"></i></div></div>' +
+    (faltan.length ? '<div class="sb-chk-falta"><b>Lo de más peso que le falta</b><ul>' +
+      faltan.slice(0, 5).map(function(f){ return '<li><span>' + f[2] + '</span>' + f[0] + ' <em>+' + f[1] + '</em></li>'; }).join('') +
+      '</ul></div>' : '<div class="sb-chk-falta"><b>No le falta nada de la lista.</b><p>Revise igual una vez al mes: la bioseguridad se pierde por relajación, no por desconocimiento.</p></div>');
+}
+
+function sbSecChecklist(){
+  var v = sbChkLeer();
+  var h = '<p>Marque solo lo que <b>de verdad se hace hoy</b> en su granja, no lo que debería hacerse. Nadie ve esto más que usted, y responder de más solo se engaña a sí mismo. Se guarda automáticamente.</p>' +
+    '<div class="sb-chk rv">' + SBCHK.map(function(g){
+      return '<div class="sb-chk-g"><h5><span>' + g.ico + '</span>' + g.g + '</h5>' +
+        g.items.map(function(i){
+          return '<label class="sb-chk-i"><input type="checkbox"' + (v[i[0]] ? ' checked' : '') +
+            ' onchange="sbChkMarcar(\'' + i[0] + '\',this.checked)"><span class="sb-chk-x">✓</span>' +
+            '<span class="sb-chk-t">' + i[1] + '</span><em>+' + i[2] + '</em></label>';
+        }).join('') + '</div>';
+    }).join('') + '</div>' +
+    '<div class="sb-chk-res" id="sbChkRes"></div>';
+  setTimeout(sbChkPintarResultado, 60);
+  return agSec('¿Qué tan preparada está su granja?', h, 'Autoevaluación · se guarda sola');
+}
+
+/* ------------------------------------------------------------
+   2 · CALCULADORA DE DILUCIÓN
+   ------------------------------------------------------------ */
+var SBDIL = {conc:10, vol:20, objetivo:1};
+try{ var _sd = JSON.parse(localStorage.getItem('sb_dil') || 'null'); if(_sd) SBDIL = Object.assign(SBDIL, _sd); }catch(e){}
+window.sbDilSet = function(k, v){
+  SBDIL[k] = Math.max(0, parseFloat(String(v).replace(',', '.')) || 0);
+  try{ localStorage.setItem('sb_dil', JSON.stringify(SBDIL)); }catch(e){}
+  sbDilPintar();
+};
+function sbDilPintar(){
+  var caja = document.getElementById('sbDilRes');
+  if(!caja) return;
+  var c = SBDIL.conc, v = SBDIL.vol, o = SBDIL.objetivo;
+  if(!c || !v || !o || o > c){
+    caja.className = 'sb-dil-res sb-dil-mal';
+    caja.innerHTML = '<b>Revise los datos</b><p>' +
+      (o > c && c ? 'La concentración que quiere preparar (' + o + ' %) es <b>mayor</b> que la del producto (' + c + ' %). Con ese producto no se puede llegar ahí: haría falta uno más concentrado.'
+                  : 'Complete las tres casillas con números mayores que cero.') + '</p>';
+    return;
+  }
+  var ml = (o / c) * v * 1000;          /* v en litros -> ml de producto */
+  var agua = v * 1000 - ml;
+  var fmt = function(x){ return x >= 100 ? Math.round(x).toLocaleString('es-DO') : (Math.round(x * 10) / 10).toString().replace('.', ','); };
+  caja.className = 'sb-dil-res';
+  caja.innerHTML =
+    '<div class="sb-dil-big"><b>' + fmt(ml) + '<i>ml</i></b><span>de producto</span></div>' +
+    '<div class="sb-dil-big"><b>' + fmt(agua / 1000) + '<i>L</i></b><span>de agua</span></div>' +
+    '<div class="sb-dil-paso"><b>Cómo sale esa cuenta</b>' +
+      '<ol>' +
+      '<li>Quiere <b>' + v + ' litros</b> de solución al <b>' + o + ' %</b>. Eso son <b>' + fmt(v * 1000 * o / 100) + ' ml</b> de principio activo puro (' + v + ' × 1000 × ' + o + ' ÷ 100).</li>' +
+      '<li>Su producto trae <b>' + c + ' %</b> de principio activo, así que cada 100 ml del envase aportan ' + c + ' ml puros.</li>' +
+      '<li>Para sacar ' + fmt(v * 1000 * o / 100) + ' ml puros necesita <b>' + fmt(ml) + ' ml del producto</b> (' + fmt(v * 1000 * o / 100) + ' ÷ ' + c + ' × 100).</li>' +
+      '<li>El resto es agua: <b>' + fmt(agua / 1000) + ' litros</b>. Eche primero el agua y después el producto, nunca al revés.</li>' +
+      '</ol></div>';
+}
+function sbSecDilucion(){
+  var campo = function(k, et, sub, unidad){
+    return '<div class="sb-dil-f"><label>' + et + '</label>' +
+      '<div class="sb-dil-in"><input type="text" inputmode="decimal" value="' + String(SBDIL[k]).replace('.', ',') + '" ' +
+      'oninput="sbDilSet(\'' + k + '\',this.value)"><span>' + unidad + '</span></div>' +
+      '<em>' + sub + '</em></div>';
+  };
+  setTimeout(sbDilPintar, 60);
+  return agSec('Calculadora de dilución',
+    '<p>La cuenta que más se hace mal en las granjas. Ponga lo que dice la etiqueta de su producto y cuánta solución necesita preparar.</p>' +
+    '<div class="sb-dil rv">' +
+      campo('conc', 'Concentración del producto', 'lo que dice el envase', '%') +
+      campo('objetivo', 'Concentración que quiere preparar', 'lo que pide la etiqueta para ese uso', '%') +
+      campo('vol', 'Cuánta solución va a preparar', 'la capacidad de su bomba o tanque', 'litros') +
+    '</div>' +
+    '<div class="sb-dil-res" id="sbDilRes"></div>' +
+    agNota('ojo', 'La etiqueta manda sobre esta calculadora',
+      'Esta herramienta hace la aritmética, nada más. <b>Qué producto usar, a qué concentración y con cuánto tiempo de contacto lo dice la etiqueta</b> del producto que usted tenga, y cambia entre marcas. Si tiene dudas sobre cuál es el adecuado, consulte con su veterinario.'),
+    'La cuenta que más se hace mal');
+}
+
+/* ------------------------------------------------------------
+   3 · MI PLAN DE BIOSEGURIDAD
+   ------------------------------------------------------------ */
+var SBPLANC = [
+  ['granja', 'Nombre de la granja', 'Ej.: Granja Los Almendros'],
+  ['resp',   'Quién es el responsable de la bioseguridad', 'La persona, con nombre. No «todos».'],
+  ['linea',  'Dónde está la línea entre zona sucia y zona limpia', 'Ej.: la puerta del galpón, marcada con pintura amarilla'],
+  ['veh',    'Dónde paran y descargan los vehículos', 'Ej.: en el camino, antes del portón'],
+  ['cuar',   'Dónde está el área de cuarentena', 'Ej.: corral del fondo, junto al tanque'],
+  ['orden',  'El orden de recorrido de la granja', 'Ej.: gestación → maternidad → destete → engorde → enfermería'],
+  ['limp',   'Quién limpia qué y cada cuánto', 'Ej.: Juan, comederos diario y corral vacío entre lotes'],
+  ['muerto', 'Qué se hace con un animal muerto', 'El procedimiento de su granja, paso a paso'],
+  ['sosp',   'Qué se hace ante una sospecha, y a quién se llama', 'Los cinco pasos del módulo 10 + el teléfono de su veterinario']
+];
+function sbPlanLeer(){ try{ return JSON.parse(localStorage.getItem('sb_plan::' + sbYo()) || '{}') || {}; }catch(e){ return {}; } }
+window.sbPlanSet = function(k, v){
+  var p = sbPlanLeer(); p[k] = v;
+  try{ localStorage.setItem('sb_plan::' + sbYo(), JSON.stringify(p)); }catch(e){}
+  var n = document.getElementById('sbPlanN');
+  if(n){
+    var hechos = SBPLANC.filter(function(c){ return (p[c[0]] || '').trim(); }).length;
+    n.textContent = hechos + ' de ' + SBPLANC.length + ' completados';
+  }
+  if(typeof sbRevisarLogros === 'function') sbRevisarLogros();
+};
+window.sbPlanImprimir = function(){
+  var p = sbPlanLeer();
+  var filas = SBPLANC.map(function(c){
+    return '<tr><th>' + c[1] + '</th><td>' + ((p[c[0]] || '').trim() || '<i>— sin completar —</i>') + '</td></tr>';
+  }).join('');
+  var pct = Math.round(sbChkPuntos() / SBCHKTOT * 100);
+  var inner = '<h1>Plan de bioseguridad</h1>' +
+    '<p class="sub">' + ((p.granja || '').trim() || 'Mi granja') + ' · ' +
+    new Date().toLocaleDateString('es-DO', {day:'numeric', month:'long', year:'numeric'}) + '</p>' +
+    '<p class="sub">Autoevaluación de bioseguridad: <b>' + pct + ' %</b></p>' +
+    '<table class="plan">' + filas + '</table>' +
+    '<p class="pie">Documento generado en el curso <b>Sanidad y bioseguridad porcina</b> de AgroAcademy RD. ' +
+    'Material educativo: no sustituye la evaluación de un médico veterinario ni las instrucciones de las autoridades sanitarias competentes.</p>';
+  if(typeof openPrint === 'function') openPrint('Plan de bioseguridad', '#2F7D4F', inner, {});
+  else if(typeof toast === 'function') toast('No se pudo abrir la ventana de impresión', '⚠️');
+};
+function sbSecPlan(){
+  var p = sbPlanLeer();
+  var hechos = SBPLANC.filter(function(c){ return (p[c[0]] || '').trim(); }).length;
+  return agSec('Mi plan de bioseguridad',
+    '<p>Nueve preguntas. Respóndalas con lo que de verdad va a hacer, no con lo ideal. Al final lo imprime y lo pega donde se vea: <b>un plan que nadie lee no es un plan</b>.</p>' +
+    '<div class="sb-plan rv">' + SBPLANC.map(function(c){
+      return '<div class="sb-plan-f"><label>' + c[1] + '</label>' +
+        '<textarea rows="2" placeholder="' + agEsc(c[2]) + '" oninput="sbPlanSet(\'' + c[0] + '\',this.value)">' +
+        agEsc(p[c[0]] || '') + '</textarea></div>';
+    }).join('') + '</div>' +
+    '<div class="sb-plan-acc"><span id="sbPlanN">' + hechos + ' de ' + SBPLANC.length + ' completados</span>' +
+    '<button class="btn btn-primary" onclick="sbPlanImprimir()">🖨️ Imprimir mi plan</button></div>',
+    'Lo que se lleva por escrito');
+}
+
+/* ------------------------------------------------------------
+   4 · LAS SEIS PLANILLAS
+   ------------------------------------------------------------ */
+var SBREC = [
+  {id:'visitas', ico:'📝', t:'Registro de visitantes',
+   d:'Quién entró, de dónde venía y a qué hora. Es la planilla que permite reconstruir si algo pasa tres semanas después.',
+   cols:['Fecha', 'Hora', 'Nombre', 'De dónde viene', 'A qué viene', '¿Cambió botas y ropa?', 'Firma'], filas:22},
+  {id:'mortalidad', ico:'⚰️', t:'Registro de mortalidad',
+   d:'El dato que más rápido detecta un brote no es el animal: es el número de la semana comparado con el de la anterior.',
+   cols:['Fecha', 'Corral', 'Edad / etapa', 'Cuántos', 'Qué se observó', 'Destino del cadáver', 'Anotó'], filas:22},
+  {id:'limpieza', ico:'🧽', t:'Control de limpieza y desinfección',
+   d:'Qué área, qué producto, a qué concentración y cuánto tiempo de contacto. Sin esto no hay forma de saber si se hizo bien.',
+   cols:['Fecha', 'Área', 'Se retiró en seco', 'Producto', 'Concentración', 'Tiempo de contacto', 'Quién'], filas:20},
+  {id:'entradas', ico:'🐷', t:'Registro de entrada de animales',
+   d:'De dónde viene cada animal. Es lo primero que le va a pedir un veterinario y lo primero que nadie tiene apuntado.',
+   cols:['Fecha', 'Cuántos', 'Categoría', 'Procedencia (granja y dueño)', 'Transporte', 'Entró a cuarentena', 'Salió de cuarentena'], filas:18},
+  {id:'cuarentena', ico:'📋', t:'Seguimiento de cuarentena',
+   d:'La observación diaria de los 30 días. Anotar cuando todo está normal es lo que da el punto de comparación.',
+   cols:['Día', 'Fecha', 'Come normal', 'Ánimo', 'Heces', 'Temperatura', 'Observaciones'], filas:31},
+  {id:'protocolo', ico:'🚨', t:'Protocolo ante sospecha de enfermedad',
+   d:'Los cinco pasos para pegar en la pared, con espacio para el teléfono de su veterinario. Este no se llena: se cuelga.',
+   protocolo:true}
+];
+
+window.sbImprimirRec = function(id){
+  var r = null;
+  SBREC.forEach(function(x){ if(x.id === id) r = x; });
+  if(!r) return;
+  var inner;
+  if(r.protocolo){
+    inner = '<h1>Ante sospecha de enfermedad</h1><p class="sub">Cinco pasos · pegar donde se vea desde el área de animales</p>' +
+      '<ol class="proto">' +
+      '<li><b>OBSERVAR.</b> Mortalidad que sube, varios animales con signos compatibles, o un cuadro distinto a lo de siempre. No hace falta estar seguro.</li>' +
+      '<li><b>AISLAR Y CONTROLAR.</b> Separe los afectados donde están. Cierre el acceso: solo entra quien sea imprescindible.</li>' +
+      '<li><b>NO MOVER.</b> Ni un animal sale. No vender, no regalar, no trasladar, no sacrificar y repartir.</li>' +
+      '<li><b>NOTIFICAR.</b> Avise a su veterinario y a la autoridad veterinaria competente, el mismo día.</li>' +
+      '<li><b>SEGUIR INSTRUCCIONES.</b> Haga lo que le indiquen, tal como se lo indiquen. Anote todo lo ocurrido.</li>' +
+      '</ol>' +
+      '<table class="plan"><tr><th>Mi veterinario</th><td style="height:34px"></td></tr>' +
+      '<tr><th>Teléfono</th><td style="height:34px"></td></tr>' +
+      '<tr><th>Autoridad veterinaria competente</th><td style="height:34px"></td></tr>' +
+      '<tr><th>Teléfono</th><td style="height:34px"></td></tr></table>' +
+      '<p class="pie">Complete los datos de contacto con la información oficial vigente. Material educativo de AgroAcademy RD: ' +
+      'no sustituye la evaluación de un médico veterinario ni las instrucciones de las autoridades sanitarias competentes.</p>';
+  } else {
+    var th = r.cols.map(function(c){ return '<th>' + c + '</th>'; }).join('');
+    var tr = '';
+    for(var i = 0; i < r.filas; i++) tr += '<tr>' + r.cols.map(function(){ return '<td></td>'; }).join('') + '</tr>';
+    inner = '<h1>' + r.t + '</h1><p class="sub">' + r.d + '</p>' +
+      '<table class="reg"><thead><tr>' + th + '</tr></thead><tbody>' + tr + '</tbody></table>' +
+      '<p class="pie">Planilla del curso <b>Sanidad y bioseguridad porcina</b> de AgroAcademy RD.</p>';
+  }
+  if(typeof openPrint === 'function') openPrint(r.t, '#2F7D4F', inner, {landscape: !r.protocolo});
+  else if(typeof toast === 'function') toast('No se pudo abrir la ventana de impresión', '⚠️');
+};
+
+function sbSecRecursos(){
+  return agSec('Las seis planillas de su granja',
+    '<p>Se abren listas para imprimir. Son las que sostienen todo lo anterior: sin registro, la bioseguridad dura hasta que se le olvida.</p>' +
+    '<div class="sb-recs rv">' + SBREC.map(function(r){
+      return '<div class="sb-rec"><div class="sb-rec-i">' + r.ico + '</div>' +
+        '<b>' + r.t + '</b><p>' + r.d + '</p>' +
+        '<button class="btn btn-ghost" onclick="sbImprimirRec(\'' + r.id + '\')">🖨️ Abrir para imprimir</button></div>';
+    }).join('') + '</div>', 'Material descargable');
+}
+
+/* ------------------------------------------------------------
+   5 · LOGROS
+   ------------------------------------------------------------ */
+var SBLOGROS = [
+  {id:'basica',   ico:'🏆', t:'Bioseguridad básica',   d:'Aprobó los módulos 01 a 04',
+   ok:function(){ return sbAprob(1) && sbAprob(2) && sbAprob(3) && sbAprob(4); }},
+  {id:'detective',ico:'🔍', t:'Detective sanitario',   d:'Acertó al menos 6 casos prácticos',
+   ok:function(){ try{ var v = JSON.parse(localStorage.getItem('sb_casos') || '{}');
+     return Object.keys(v).filter(function(k){ return v[k]; }).length >= 6; }catch(e){ return false; } }},
+  {id:'protegida',ico:'🛡️', t:'Granja protegida',      d:'Llegó al 85 % en la autoevaluación',
+   ok:function(){ return sbChkPuntos() / SBCHKTOT >= 0.85; }},
+  {id:'planista', ico:'📋', t:'Plan escrito',          d:'Completó las nueve preguntas de su plan',
+   ok:function(){ var p = sbPlanLeer(); return SBPLANC.every(function(c){ return (p[c[0]] || '').trim(); }); }},
+  {id:'experto',  ico:'🎓', t:'Experto en bioseguridad',d:'Aprobó los ' + 10 + ' módulos del curso',
+   ok:function(){ return sbProgreso() >= SBMOD.length; }}
+];
+function sbLogrosGanados(){
+  return SBLOGROS.filter(function(l){ try{ return l.ok(); }catch(e){ return false; } });
+}
+function sbLogrosNav(){
+  var g = sbLogrosGanados();
+  return '<div class="sb-logros"><span>LOGROS · ' + g.length + ' de ' + SBLOGROS.length + '</span><div>' +
+    SBLOGROS.map(function(l){
+      var on = g.indexOf(l) >= 0;
+      return '<i class="' + (on ? 'on' : '') + '" title="' + agEsc(l.t + (on ? '' : ' — ' + l.d)) + '">' + l.ico + '</i>';
+    }).join('') + '</div></div>';
+}
+window.sbRevisarLogros = function(){
+  var antes = [];
+  try{ antes = JSON.parse(localStorage.getItem('sb_logros::' + sbYo()) || '[]'); }catch(e){}
+  var ahora = sbLogrosGanados().map(function(l){ return l.id; });
+  var nuevos = ahora.filter(function(id){ return antes.indexOf(id) < 0; });
+  try{ localStorage.setItem('sb_logros::' + sbYo(), JSON.stringify(ahora)); }catch(e){}
+  nuevos.forEach(function(id, i){
+    var l = null; SBLOGROS.forEach(function(x){ if(x.id === id) l = x; });
+    if(!l) return;
+    setTimeout(function(){
+      if(typeof toast === 'function') toast('Logro: ' + l.t, l.ico);
+      if(typeof agConfeti === 'function' && id === 'experto') agConfeti();
+    }, 400 + i * 900);
+  });
+  sbNav();
+};
+
+/* ---------- engancharlas al pintor ---------- */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecSbH = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(!s) return _nxSecSbH.apply(this, arguments);
+    switch(s.k){
+      case 'sbchecklist': return sbSecChecklist();
+      case 'sbdilucion':  return sbSecDilucion();
+      case 'sbplan':      return sbSecPlan();
+      case 'sbrecursos':  return sbSecRecursos();
+    }
+    return _nxSecSbH.apply(this, arguments);
+  };
+}
+
+
+/* ---------- sb-quiz.js ---------- */
+/* ============================================================
+   CURSO 4 · EVALUACIONES · 10 por módulo
+   Mezcla de selección múltiple, verdadero/falso y casos.
+   ============================================================ */
+var SBQUIZ = {
+1:[
+ {q:'¿Qué es bioseguridad?', o:['Vacunar a todos los animales','El conjunto de medidas para evitar que una enfermedad entre, se quede o se mueva dentro de la granja','Tener un veterinario de planta','Desinfectar una vez al mes'], c:1,
+  fb:'Bioseguridad es evitar la entrada, la permanencia y la propagación. La vacunación es otra herramienta distinta.'},
+ {q:'Un cerdo infectado siempre se ve enfermo.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Un animal puede estar infectado y verse perfectamente normal mientras transmite. Por eso la bioseguridad no se hace vigilando animales enfermos.'},
+ {q:'En la ronda diaria, ¿por dónde se empieza?', o:['Por la enfermería, que es lo urgente','Por donde quede más cerca','Por los animales de menor riesgo: gestantes y maternidad','Da igual, lo importante es mirar todo'], c:2,
+  fb:'De menor a mayor riesgo. Si empieza por la enfermería, lleva lo que haya ahí al resto de la granja.'},
+ {q:'¿Cuál de estos NO es un signo clínico?', o:['Fiebre','Falta de apetito','La presencia del agente en el animal','Diarrea'], c:2,
+  fb:'La presencia del agente es la infección. El signo clínico es lo que usted VE.'},
+ {q:'¿Por qué se anota aunque no pase nada?', o:['Por requisito legal','Porque sin datos de lo normal no hay con qué comparar cuando algo cambia','Para justificar gastos','No hace falta anotar si no pasa nada'], c:1,
+  fb:'Lo normal es el punto de comparación. Sin él, usted no sabe si la mortalidad de esta semana es alta o corriente.'},
+ {q:'La sanidad es sobre todo lo que se hace cuando un animal se enferma.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Esa es la parte cara y tardía. La sanidad es casi toda lo que se hace cuando no pasa nada.'},
+ {q:'Un cerdo que no viene al comedero…', o:['Es normal, a veces no tienen hambre','Es una de las primeras señales de casi cualquier problema','Solo importa si además tiene diarrea','Se corrige cambiando el alimento'], c:1,
+  fb:'La falta de apetito es el aviso más temprano y más común. Siempre se anota.'},
+ {q:'¿Qué se anota en la libreta de la granja?', o:['Solo los animales muertos','Solo cuando hay un problema','Muertos, tratados, entradas y salidas, visitas y lo raro que se vio','Solo lo que pida el veterinario'], c:2,
+  fb:'Los cinco. Las visitas son el que más se olvida y el que más sirve cuando hay que reconstruir.'},
+ {q:'El costo de prevenir comparado con el de un brote en una granja pequeña es…', o:['Parecido','Mayor el de prevenir','Mucho menor el de prevenir','Depende del precio del cerdo'], c:2,
+  fb:'El equipamiento mínimo de bioseguridad suele costar menos del 2 % del valor del inventario de animales.'},
+ {q:'¿A quién se atiende de último en el recorrido diario?', o:['A las reproductoras','A los lechones','A los animales apartados o en cuarentena','A los de engorde'], c:2,
+  fb:'Siempre de último, y después de eso no se vuelve a los otros corrales sin lavar y cambiar botas.'}
+],
+2:[
+ {q:'La PPA afecta a las personas.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Afecta solo a los cerdos, domésticos y silvestres. No es un problema de salud humana: es un problema económico muy grave.'},
+ {q:'Un productor puede diagnosticar PPA por los signos que observa.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso, y es lo más importante de este módulo. Los signos permiten SOSPECHAR. La confirmación la da un laboratorio oficial a través de la autoridad veterinaria competente.'},
+ {q:'¿Qué hace a la PPA distinta de otras enfermedades?', o:['Que se cura con antibióticos si se detecta temprano','Alta mortalidad, sin tratamiento ni vacuna de uso general, y un virus que aguanta mucho fuera del animal','Que solo afecta a lechones','Que se transmite únicamente por contacto directo'], c:1,
+  fb:'Las tres cosas juntas. Por eso el manejo no es tratar: es evitar que entre y, si entró, cortar el movimiento.'},
+ {q:'Ante una sospecha, lo primero es…', o:['Vender los animales que todavía se ven bien','Parar todo movimiento de animales','Llamar a otros productores para que opinen','Dar antibiótico al lote'], c:1,
+  fb:'Parar el movimiento. Vender rápido es el error que más granjas ha costado en los brotes documentados.'},
+ {q:'Los restos de comida con carne de cerdo son una vía de entrada real.', o:['Verdadero','Falso'], c:0,
+  fb:'Verdadero. El virus sobrevive en carne cruda y en productos curados. Es una de las vías mejor documentadas.'},
+ {q:'¿Cuál de estos NO es un signo compatible con PPA?', o:['Fiebre alta','Enrojecimiento de la piel','Mejoría rápida al tercer día','Mortalidad que sube rápido'], c:2,
+  fb:'Los otros tres son signos compatibles. La mejoría espontánea rápida no lo es.'},
+ {q:'¿Qué significa que la PPA sea de notificación obligatoria?', o:['Que hay que avisar a los vecinos','Que avisar no es una decisión del productor: hay un procedimiento oficial que seguir','Que el veterinario decide si se notifica','Que solo se notifica si se confirma'], c:1,
+  fb:'No es opcional, y se notifica ante la SOSPECHA, no ante la confirmación.'},
+ {q:'Ver signos compatibles descarta que sea otra enfermedad.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Varias enfermedades del cerdo dan cuadros parecidos. Por eso se habla de signos compatibles y no de diagnóstico.'},
+ {q:'¿Por qué el virus viaja tanto en vehículos?', o:['Porque los choferes no se lavan','Porque sobrevive mucho tiempo en superficies y las ruedas y el piso han estado en otros patios','Porque los camiones llevan animales enfermos','No viaja en vehículos'], c:1,
+  fb:'Es la vía que más gente deja abierta, precisamente porque no se ve.'},
+ {q:'Sospecha y diagnóstico son lo mismo.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. La sospecha es suya y basta para actuar. El diagnóstico es de laboratorio. Esperar al segundo sin hacer lo primero es lo que cuesta granjas.'}
+],
+3:[
+ {q:'¿Cuál es la vía de entrada más subestimada en granjas pequeñas?', o:['Los cerdos comprados','El vehículo que visita varias granjas','El alimento comercial','Las moscas'], c:1,
+  fb:'Las ruedas y el piso de la cabina han estado en otros patios esta semana, y no se ven.'},
+ {q:'De las doce vías de entrada del módulo, ¿cuántas son «un cerdo»?', o:['La mayoría','La mitad','Una','Ninguna'], c:2,
+  fb:'Una. Las otras once son cosas, personas y otros animales. Si su bioseguridad mira solo los cerdos que compra, tiene once puertas abiertas.'},
+ {q:'Alimentar cerdos con restos de comida que contengan carne de cerdo…', o:['Es aceptable si se cocina','Es una de las vías de entrada de PPA mejor documentadas y no debe hacerse','Solo es riesgoso en granjas grandes','Es la forma más barata de alimentar'], c:1,
+  fb:'Donde exista regulación oficial al respecto, esa regulación manda sobre cualquier cosa que diga este curso.'},
+ {q:'El error al comprar una cerda a otro productor es comprarla.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Comprar entre productores es normal. El error es meterla directo al grupo sin cuarentena.'},
+ {q:'¿Cuáles de estas vías puede cerrar hoy sin gastar dinero?', o:['Solo la cerca perimetral','Ninguna: todas requieren inversión','Que los vehículos no entren, no dar restos de comida, y hacer cuarentena','Solo el control de roedores'], c:2,
+  fb:'Siete de las diez vías más probables se cierran con decisiones, no con dinero.'},
+ {q:'Las botas del propio personal son una vía de entrada.', o:['Verdadero','Falso'], c:0,
+  fb:'Verdadero, y de las más comunes. Lo que se pisa afuera entra con usted.'},
+ {q:'Una jaula de transporte prestada…', o:['No tiene riesgo si se ve limpia','Debe lavarse y desinfectarse antes de bajarla en su granja','Solo importa si llevó animales enfermos','Es responsabilidad del que la prestó'], c:1,
+  fb:'Lo que se ve limpio y lo que está desinfectado son dos cosas distintas.'},
+ {q:'¿Qué hace el ejercicio de contar visitas y vehículos de la semana?', o:['Cumplir un requisito','Medir su exposición real al riesgo','Saber cuánto cobrar','Nada práctico'], c:1,
+  fb:'Ese número es su exposición. En el módulo 09 se convierte en un plan.'},
+ {q:'Los roedores y las aves son un riesgo menor que un cerdo enfermo, así que pueden ignorarse.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Son de gravedad moderada pero de frecuencia muy alta, y el riesgo es probabilidad por gravedad.'},
+ {q:'La forma correcta de priorizar las vías de entrada es…', o:['Por lo que más miedo da','Por lo que más común y más grave es, empezando por lo que se cierra sin gastar','Por orden alfabético','Por lo que diga el vecino'], c:1,
+  fb:'Probabilidad × gravedad, y dentro de eso, primero lo gratis.'}
+],
+4:[
+ {q:'¿Qué es la línea entre zona sucia y zona limpia?', o:['Una pared de bloques','Un punto físico definido donde se cambian botas, ropa y se lavan las manos','Una recomendación teórica','El portón de la finca, siempre'], c:1,
+  fb:'Puede ser una tabla, una franja pintada o una puerta. Lo que la hace funcionar es que todos sepan dónde está y nadie la cruce por costumbre.'},
+ {q:'Un proveedor con prisa quiere entrar con el camión hasta el almacén. Lo correcto es…', o:['Dejarlo entrar, es de confianza','Desinfectarle las ruedas y dejarlo entrar','Descargar fuera del perímetro aunque cueste trabajo','Dejarlo entrar si no se baja'], c:2,
+  fb:'El riesgo no lo trae la persona: lo trae el vehículo, que estuvo hoy en otros patios.'},
+ {q:'Un visitante que viene de otra granja no puede entrar nunca.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Puede entrar cambiándose botas y ropa, lavándose las manos, acompañado y recorriendo de menor a mayor riesgo.'},
+ {q:'¿Cuál de estas preguntas NO corresponde hacer antes de comprar animales?', o:['¿De dónde vienen exactamente?','¿Qué estado sanitario tiene esa granja?','¿Cuál es el precio más bajo que me acepta?','¿Dónde los voy a poner los primeros 30 días?'], c:2,
+  fb:'El precio importa, pero no es una pregunta sanitaria. Las otras tres deciden si compra un animal o un problema.'},
+ {q:'El registro de visitantes sirve para…', o:['Cobrar la entrada','Reconstruir quién entró y de dónde venía si algo pasa semanas después','Cumplir con el seguro','Controlar al personal'], c:1,
+  fb:'Es la planilla que permite rastrear. Sin ella, a las tres semanas nadie recuerda quién vino.'},
+ {q:'Las botas de la granja pueden usarse para ir a la casa al mediodía.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Se quedan del lado limpio de la línea. Si salen, dejan de ser botas de la granja.'},
+ {q:'Rociar desinfectante sobre los zapatos de un visitante equivale a un cambio de botas.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Es mejor que nada pero muy incompleto: el producto no llega a la suela ni a la ranura, que es donde va la tierra.'},
+ {q:'¿Por dónde debe recorrer la granja un visitante?', o:['Por donde quiera, va acompañado','De los animales de menor riesgo a los de mayor riesgo','Empezando por la enfermería para ver lo importante','Solo por los pasillos'], c:1,
+  fb:'La misma regla que para usted, y por la misma razón.'},
+ {q:'El equipamiento mínimo de bioseguridad externa incluye…', o:['Un arco de desinfección automático','Cadena y cartel en el portón, botas, palangana con desinfectante y libreta','Una caseta de vigilancia','Un laboratorio de campo'], c:1,
+  fb:'Lo caro no es comprarlo: es sostener la costumbre el día que llega alguien con prisa.'},
+ {q:'Si un vehículo tiene que entrar sí o sí, lo correcto es…', o:['Que entre rápido y ya','Desinfectar ruedas y bajos antes, y que el chofer no baje al área de animales','Lavarlo con agua a presión después','No hay forma de reducir el riesgo'], c:1,
+  fb:'Reducir no es eliminar, pero es mucho mejor que dejarlo pasar sin nada.'}
+],
+5:[
+ {q:'La regla central de la bioseguridad interna es…', o:['Desinfectar todos los días','Trabajar de los animales de menor riesgo hacia los de mayor riesgo','Tener un corral vacío siempre','Separar por sexos'], c:1,
+  fb:'Es la medida que más rendimiento da por lo que cuesta: cero pesos.'},
+ {q:'Un animal que retrocede a un área anterior del ciclo es…', o:['Normal si hay espacio','Un problema sanitario, no logístico','Bueno para que se recupere','Indiferente'], c:1,
+  fb:'Los animales avanzan. Un retroceso lleva lo del área de más riesgo al área de menos riesgo.'},
+ {q:'Encuentra un lechón echado a mitad de la ronda. ¿Qué hace?', o:['Lo atiende enseguida','Lo apunta y lo atiende al final de la ronda','Lo devuelve a maternidad','Le da antibiótico por si acaso'], c:1,
+  fb:'Si lo atiende ahora, todo lo que toque después lleva lo que ese animal tenga.'},
+ {q:'Las agujas y jeringas pueden compartirse entre lotes si se ven limpias.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Es una de las vías más directas de transmitir entre animales. Aguja por animal donde sea posible.'},
+ {q:'Si tiene un solo par de botas para toda la granja…', o:['No se puede hacer bioseguridad interna','El orden de recorrido es su pediluvio: de menor a mayor riesgo y sin volver atrás','Da igual, no sirve de nada','Hay que comprar más antes de empezar'], c:1,
+  fb:'Con lo que hay se puede hacer mucho. El orden es gratis.'},
+ {q:'Tuvo que volver a maternidad después de estar en la enfermería. ¿Qué hace?', o:['Nada, fue un momento','Lava y desinfecta las botas antes de volver','Se descalza y entra en medias','Espera al día siguiente'], c:1,
+  fb:'No es pecado volver: es pecado volver igual.'},
+ {q:'El overol de trabajo…', o:['Se puede usar también en la enfermería','Debe haber uno distinto para la enfermería','Da lo mismo si se lava semanal','Solo importa en granjas grandes'], c:1,
+  fb:'El overol que estuvo con animales apartados no vuelve a los corrales sanos.'},
+ {q:'Las cuerdas y lazos de manejo son de los equipos que más se olvidan porque…', o:['Son baratos','Se ensucian de fluidos y nadie piensa en ellos','Se usan poco','No tocan al animal'], c:1,
+  fb:'Se ensucian de saliva, sangre y secreciones, y pasan de un animal a otro.'},
+ {q:'La bioseguridad interna decide…', o:['Si una enfermedad entra o no','Si un fallo afecta a un corral o a la granja completa','El precio del alimento','La conversión alimenticia'], c:1,
+  fb:'La externa decide si entra. La interna decide cuánto se mueve una vez que entró.'},
+ {q:'Un animal sospechoso se lleva al corral libre que esté más lejos.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Se aparta donde está o se lleva a enfermería por el camino más corto. Pasearlo por la granja es repartir el problema.'}
+],
+6:[
+ {q:'Desinfectar sobre materia orgánica…', o:['Funciona igual','No sirve: el producto se inactiva antes de tocar el agente','Funciona si se echa el doble','Solo falla con productos baratos'], c:1,
+  fb:'La suciedad protege físicamente y consume químicamente al desinfectante.'},
+ {q:'La desinfección funciona correctamente aunque haya materia orgánica.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso, y es el error más común y más caro del módulo. Limpiar primero. Desinfectar después.'},
+ {q:'¿Cuál es el paso que más carga elimina?', o:['La aplicación del desinfectante','El lavado a presión','Retirar la materia orgánica en seco','El enjuague'], c:2,
+  fb:'El paso 3. Si se hace bien, los seis siguientes rinden. Si no, da igual lo demás.'},
+ {q:'Diluir el desinfectante al doble de lo que dice la etiqueta…', o:['Mata el doble','No mejora el resultado y sí daña superficies y personas','Es lo recomendable ante dudas','Compensa si la superficie está sucia'], c:1,
+  fb:'Ni de menos ni de más: lo que diga la etiqueta.'},
+ {q:'El tiempo de contacto es…', o:['Opcional','El tiempo que el producto debe quedarse sobre la superficie para funcionar','El tiempo de preparar la mezcla','Siempre 2 minutos'], c:1,
+  fb:'Lo dice la etiqueta y suele ser de 10 a 30 minutos. Aplicar y enjuagar enseguida es no desinfectar.'},
+ {q:'Mezclar dos desinfectantes distintos…', o:['Los potencia','Puede anularlos o generar gases peligrosos: nunca se hace sin leer la etiqueta','Es indiferente','Es lo que hacen las granjas grandes'], c:1,
+  fb:'La compatibilidad la dice la etiqueta. Sin esa información, no se mezcla.'},
+ {q:'Tiene un producto al 10 % y necesita 20 litros al 1 %. ¿Cuánto producto?', o:['200 ml','2 litros','20 ml','2 000 ml'], c:1,
+  fb:'20 L × 1 % = 200 ml puros. Como el producto trae 10 %, hacen falta 200 ÷ 10 × 100 = 2 000 ml, o sea 2 litros. La calculadora del módulo hace esta cuenta.'},
+ {q:'Un pediluvio con agua marrón…', o:['Sigue sirviendo, tiene desinfectante','Es un charco de contagio y hay que cambiarlo','Solo hay que agregarle más producto','Se cambia una vez al mes'], c:1,
+  fb:'Se cambia cuando se ensucia, no cuando toca.'},
+ {q:'Que el corral huela a desinfectante indica que está desinfectado.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. El olor no dice nada del resultado: dice que se echó producto, no que se hicieran los pasos previos.'},
+ {q:'Este curso NO le va a dar…', o:['El orden de los pasos','Los errores comunes','Nombres de productos, dosis y tiempos concretos','La forma de hacer la cuenta de dilución'], c:2,
+  fb:'Eso lo dice la etiqueta del producto que usted tenga, y cambia entre marcas. La etiqueta es la autoridad.'}
+],
+7:[
+ {q:'¿Qué hace la cuarentena?', o:['Cura al animal nuevo','Le da tiempo a que se manifieste lo que traiga, lejos del resto','Sustituye al veterinario','Evita que el animal se estrese'], c:1,
+  fb:'No previene ni cura nada por sí misma: gana tiempo y distancia.'},
+ {q:'El período de referencia práctico de cuarentena es…', o:['3 días','1 semana','Al menos 30 días','6 meses'], c:2,
+  fb:'Es la referencia práctica. El período exacto y lo que corresponda hacer durante él lo indica su veterinario.'},
+ {q:'Una tabla que separa medio corral es una cuarentena válida.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Comparten aire, moscas y todo lo que camine entre los dos lados.'},
+ {q:'Si no tiene equipo aparte para la cuarentena, lo correcto es…', o:['No hacer cuarentena','Atenderla siempre de último y lavar después','Usar el mismo equipo sin más','Pedir prestado a otra granja'], c:1,
+  fb:'Con lo que hay se puede. Lo que no se puede es atenderla primero.'},
+ {q:'Durante la cuarentena se anota solo cuando hay algo raro.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Anotar lo normal es lo que da el punto de comparación para detectar el cambio.'},
+ {q:'Día 22 de cuarentena: el animal amanece con fiebre. ¿Qué corresponde?', o:['Esperar los 8 días que faltan','Juntarlo, ya pasó lo peor','Avisar al veterinario, no juntarlo y anotar todo','Tratarlo y reiniciar el conteo'], c:2,
+  fb:'Para esto es la cuarentena, y está funcionando. Ahora el objetivo es saber qué es.'},
+ {q:'¿Dónde se coloca el área de cuarentena?', o:['Junto a maternidad, que está más limpia','Lo más lejos posible del resto y a favor de la dirección del aire','En el corral que quede libre','Fuera de la granja'], c:1,
+  fb:'Si no puede separar mucho, separe lo que pueda: 20 m es mejor que 5, y 5 mejor que ninguno.'},
+ {q:'Comprar a un «productor conocido» equivale a conocer su estado sanitario.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. La confianza personal no es un dato sanitario.'},
+ {q:'Al descargar un animal nuevo…', o:['Se lleva por el camino habitual','Va del vehículo a la cuarentena por el camino más corto, sin cruzar los corrales','Se pasa primero por el pediluvio general','Se mete a maternidad la primera noche'], c:1,
+  fb:'Cualquier paso por los corrales de sus animales anula el propósito de la cuarentena.'},
+ {q:'Antes de incorporar al grupo, lo indicado es…', o:['Soltarlo directamente con las reproductoras','Que un veterinario lo revise y dé el visto bueno','Esperar a que engorde','Bañarlo con desinfectante'], c:1,
+  fb:'Y al juntarlo, mejor con pocos animales primero y no con los de más valor.'}
+],
+8:[
+ {q:'Un cadáver es un problema sanitario porque…', o:['Huele mal','Concentra todo lo que el animal tenía y otros animales lo dispersan','Ocupa espacio','Atrae compradores'], c:1,
+  fb:'Perros, aves, roedores y el agua lo mueven. Es una forma muy eficiente de repartir una enfermedad.'},
+ {q:'Lo primero que se hace al encontrar un animal muerto es…', o:['Sacarlo enseguida','Anotarlo: fecha, corral, edad y cuántos van en la semana','Enterrarlo','Llamar al comprador'], c:1,
+  fb:'Lo que detecta un brote no es el animal: es el número comparado con el de la semana anterior.'},
+ {q:'Ante sospecha de una enfermedad de notificación obligatoria, el destino de los cadáveres…', o:['Lo decide el productor','Lo indican las autoridades veterinarias competentes','Es siempre el enterramiento','Es siempre la incineración'], c:1,
+  fb:'Este curso no da un método concreto a propósito: eso está regulado y lo indica quien corresponda.'},
+ {q:'Tirar un cadáver a una cañada es aceptable si está lejos.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso, nunca. El agua mueve el problema mucho más lejos que cualquier animal.'},
+ {q:'El control de roedores que funciona es…', o:['Una fumigación al año','Cebaderos fijos y numerados, alimento cerrado y eliminar refugios','Tener gatos','Poner veneno suelto'], c:1,
+  fb:'Es un programa permanente con revisión semanal anotada, no una campaña.'},
+ {q:'Para controlar moscas, lo que de verdad funciona es…', o:['Fumigar al adulto','Sanear el criadero: estiércol seco y retirado, sin charcos ni restos','Poner trampas','Cerrar las ventanas'], c:1,
+  fb:'Si no se quita el criadero, el adulto vuelve a los dos días.'},
+ {q:'Perros y gatos en el área de animales…', o:['Ayudan con los roedores','No deben tener acceso: entran y salen del perímetro y arrastran restos','Son indiferentes','Solo son problema de noche'], c:1,
+  fb:'Y sobre todo, no deben tener acceso a los cadáveres.'},
+ {q:'Las agujas usadas van…', o:['En la basura común','En un recipiente rígido cerrado','En el fondo del saco de alimento','Se entierran'], c:1,
+  fb:'Es riesgo sanitario y también riesgo para las personas.'},
+ {q:'Los envases vacíos de desinfectante pueden reutilizarse para agua.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso, nunca. Se manejan según indique la etiqueta.'},
+ {q:'Mortalidad de varios animales en pocos días sin explicación clara es…', o:['Normal en verano','Motivo de consulta veterinaria, no de esperar a ver','Un problema de alimentación','Algo que se resuelve solo'], c:1,
+  fb:'Es exactamente el disparador del protocolo del módulo 10.'}
+],
+9:[
+ {q:'El checklist de bioseguridad sirve si…', o:['Se responde con lo que debería hacerse','Se responde con lo que de verdad se hace hoy','Da más de 90 %','Lo llena el veterinario'], c:1,
+  fb:'Nadie lo ve más que usted. Responder de más solo se engaña a sí mismo.'},
+ {q:'¿Qué se cierra primero de lo que salió pendiente?', o:['Lo más caro, que es lo más importante','Lo que no cuesta dinero','Lo que dijo el vecino','Lo que aparezca primero en la lista'], c:1,
+  fb:'La mayoría de las granjas gana 30 puntos sin gastar un peso.'},
+ {q:'Un plan de bioseguridad que funciona…', o:['Tiene veinte páginas y mucho detalle','Cabe en una hoja, dice quién hace cada cosa y se revisa cada mes','Se copia de otra granja','Lo guarda el dueño en la casa'], c:1,
+  fb:'«Hay que hacerlo» no lo hace nadie. Sin responsable con nombre, no hay plan.'},
+ {q:'¿Cuál de estas planillas detecta un brote más rápido?', o:['Registro de visitantes','Registro de mortalidad','Control de limpieza','Plan de bioseguridad'], c:1,
+  fb:'El número de muertos de la semana comparado con el de la anterior es el indicador más temprano que existe.'},
+ {q:'El registro de visitantes se usa cuando…', o:['Viene alguien importante','Siempre que entra alguien, sea quien sea','Solo con técnicos y veterinarios','Una vez al mes'], c:1,
+  fb:'Si tiene excepciones, deja de servir para reconstruir.'},
+ {q:'El plan se escribe para…', o:['El veterinario','La autoridad','Que quien esté en la granja pueda seguirlo sin usted','El expediente'], c:2,
+  fb:'Ese es el examen de verdad: que funcione un domingo que usted no está.'},
+ {q:'Subir de 30 % a 60 % en tres meses es peor que ponerse 90 % en el papel.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. Lo primero es progreso real; lo segundo es una mentira que se va a pagar.'},
+ {q:'Las planillas se guardan…', o:['En la casa, ordenadas','Donde se usan, con un lápiz amarrado','En la computadora','Con el contador'], c:1,
+  fb:'Una planilla que hay que ir a buscar no se llena.'},
+ {q:'El plan se revisa…', o:['Nunca más después de escribirlo','Una vez al mes, aunque sea en cinco minutos','Solo si hay un problema','Cada cinco años'], c:1,
+  fb:'La bioseguridad se pierde por relajación, no por desconocimiento.'},
+ {q:'Copiar el plan de otra granja sin adaptarlo…', o:['Ahorra tiempo y funciona igual','No funciona: cada granja tiene su distribución, su personal y sus riesgos','Es lo recomendable','Solo falla en granjas grandes'], c:1,
+  fb:'El plan describe SU granja o no describe nada.'}
+],
+10:[
+ {q:'Los cinco pasos del protocolo, en orden, son…', o:['Notificar, observar, aislar, mover, esperar','Observar, aislar y controlar, no mover, notificar, seguir instrucciones','Vender, avisar, limpiar, esperar, repoblar','Aislar, tratar, observar, notificar, vender'], c:1,
+  fb:'Y el orden importa: primero se para el movimiento, después se avisa. Los dos el mismo día.'},
+ {q:'¿Cuál es el paso que más pesa de los cinco?', o:['Observar','No mover','Notificar','Seguir instrucciones'], c:1,
+  fb:'Todos importan, pero vender o trasladar animales es lo que convierte un caso en un brote regional.'},
+ {q:'Hay que estar seguro de que es PPA para arrancar el protocolo.', o:['Verdadero','Falso'], c:1,
+  fb:'Falso. La duda ya es motivo. No hace falta estar seguro de nada.'},
+ {q:'Es domingo y usted no está. Su encargado encuentra cuatro muertos. ¿Qué le dice?', o:['Que saque los muertos y venda los que están bien','Que espere a mañana','Que no mueva ni saque ningún animal, cierre el acceso, y usted llama ahora mismo','Que le dé antibiótico a todo el lote'], c:2,
+  fb:'Es el protocolo completo. Esperar a mañana son 24 horas de virus circulando.'},
+ {q:'Llamar a otros productores para que vengan a ver es…', o:['Buena idea: más ojos, mejor criterio','Un error: se multiplican las vías de salida del problema','Obligatorio','Indiferente'], c:1,
+  fb:'Cada persona que entra y sale es una vía nueva.'},
+ {q:'Ante una sospecha, medicar el lote entero…', o:['Es lo primero que hay que hacer','No cura y además borra información que el veterinario necesita','Es obligatorio','Reduce la mortalidad siempre'], c:1,
+  fb:'Enmascara el cuadro y dificulta la evaluación posterior.'},
+ {q:'¿Qué baja la vara para sospechar?', o:['Que el precio del cerdo esté alto','Que haya comunicación oficial de casos en la zona','Que sea temporada de lluvia','Que la granja sea pequeña'], c:1,
+  fb:'Si hay casos cerca, extreme el control aunque no vea nada.'},
+ {q:'La información oficial de a quién notificar y cómo…', o:['Está en este curso y no cambia','Puede cambiar, y por eso la completa el instructor con lo vigente','La inventa cada productor','No existe'], c:1,
+  fb:'Este curso no publica teléfonos ni instituciones porque esa información cambia y publicarla desactualizada sería peor.'},
+ {q:'Si hay contradicción entre este curso y una instrucción oficial vigente…', o:['Manda el curso','Manda la instrucción oficial','Se elige la más cómoda','Se consulta a otro productor'], c:1,
+  fb:'Siempre. Este material es educativo; la instrucción oficial es la que obliga.'},
+ {q:'¿Dónde debe estar el protocolo escrito?', o:['En la carpeta del plan, en la casa','Pegado donde se vea desde el área de animales','En el teléfono del dueño','No hace falta escribirlo'], c:1,
+  fb:'Tiene que poder ejecutarlo quien esté solo en la granja un domingo.'}
+]
+};
+
+/* el examen sin clave a la vista, igual que los otros tres cursos */
+if(typeof exDesarmar === 'function' && typeof window.sbExamen === 'function'){
+  var _sbEx = window.sbExamen;
+  window.sbExamen = function(id){
+    var h = _sbEx.apply(this, arguments);
+    if(!h) return h;
+    return exDesarmar(h, 'sanidad', id, '.nx-q', 'data-c', '.nx-fb');
+  };
+}
+
+
+/* ---------- sb-panel.js ---------- */
+/* ============================================================
+   CURSO 4 · INTEGRACIÓN CON LA PLATAFORMA
+   Nada nuevo: se engancha a lo que ya existe.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · REGISTRO EN LAS ESTRUCTURAS QUE YA ESTABAN
+   ------------------------------------------------------------ */
+if(typeof NXCURSOS !== 'undefined' && !NXCURSOS.some(function(c){ return c.id === 'sanidad'; })){
+  NXCURSOS.push({id:'sanidad', ico:'🛡️', n:'Sanidad y bioseguridad porcina',
+    sub:'10 módulos · PPA, bioseguridad, limpieza y plan de granja', mods:10, base:false});
+}
+if(typeof NXPUB !== 'undefined' && NXPUB.sanidad === undefined){
+  NXPUB.sanidad = SBPUB;
+  if(typeof nxGuardarPub === 'function') try{ nxGuardarPub(); }catch(e){}
+}
+if(typeof window.COURSES !== 'undefined' && !COURSES.sanidad){
+  COURSES.sanidad = {
+    id:'sanidad', nombre:'Sanidad y bioseguridad porcina',
+    sub:'Prevención, control y respuesta ante la Peste Porcina Africana (PPA)',
+    ico:'🛡️', modulos:10, abrir:'openSanidad()', color:'#B03A2E'
+  };
+}
+/* que el interruptor de publicar del panel lo reconozca */
+if(typeof window.nxPublicar === 'function'){
+  var _nxPubSb = window.nxPublicar;
+  window.nxPublicar = function(curso, v){
+    if(curso === 'sanidad'){
+      SBPUB = !!v;
+      try{ localStorage.setItem('sb_pub', v ? '1' : '0'); }catch(e){}
+    }
+    return _nxPubSb.apply(this, arguments);
+  };
+}
+
+/* el certificado, en el almacén unificado */
+if(typeof AGCURSOSCERT !== 'undefined' && !AGCURSOSCERT.some(function(c){ return c.id === 'sanidad'; })){
+  AGCURSOSCERT.push({id:'sanidad', ico:'🛡️', n:'Sanidad y bioseguridad porcina', mods:10, pref:'AGRO-SAN'});
+}
+if(typeof AGCERTDEF !== 'undefined' && !AGCERTDEF.sanidad){
+  AGCERTDEF.sanidad = {
+    title:'Certificado de Finalización',
+    org:'AgroAcademy RD · Formación agropecuaria profesional',
+    intro:'Certificamos que',
+    course:'SANIDAD Y BIOSEGURIDAD PORCINA · PREVENCIÓN, CONTROL Y RESPUESTA ANTE LA PESTE PORCINA AFRICANA (PPA)',
+    body:'Ha completado satisfactoriamente el {curso}, compuesto por 10 módulos con evaluación por módulo, 8 casos prácticos resueltos, el plan de bioseguridad de su granja y el protocolo de actuación ante sospecha.',
+    seal:'Curso Completado',
+    accent:'#B03A2E',
+    dur:'10 módulos'
+  };
+  if(typeof agCertCfg === 'function') try{ agCertCfg('sanidad'); }catch(e){}
+}
+/* el certificado de este curso se paga aparte: el impresor lo respeta */
+if(typeof window.agCertImprimir === 'function'){
+  var _agCertSb = window.agCertImprimir;
+  window.agCertImprimir = function(curso, nombre, aprob){
+    if(curso === 'sanidad' && !sbEsInstructor()){
+      if(!sbCertElegible()){
+        if(typeof toast === 'function') toast('Apruebe los ' + SBMOD.length + ' módulos para optar al certificado', '🔒');
+        return;
+      }
+      if(!sbCertPagado()){ sbAbrirPagoCert(); return; }
+    }
+    return _agCertSb.apply(this, arguments);
+  };
+}
+
+/* ------------------------------------------------------------
+   2 · LA TARJETA EN «MIS CURSOS»
+   ------------------------------------------------------------ */
+if(typeof window.abrirCursos === 'function'){
+  var _abrirCursosSb = window.abrirCursos;
+  window.abrirCursos = function(){
+    var r = _abrirCursosSb.apply(this, arguments);
+    setTimeout(sbTarjeta, 0);
+    setTimeout(sbTarjeta, 160);
+    return r;
+  };
+}
+function sbTarjeta(){
+  var g = document.querySelector('#csOv .cs-g');
+  if(!g || g.querySelector('.cs-c4')) return;
+  var esAdmin = sbEsInstructor();
+  var pub = (typeof NXPUB !== 'undefined' && NXPUB.sanidad !== undefined) ? NXPUB.sanidad : SBPUB;
+  if(!pub && !esAdmin) return;                       /* oculto mientras no se publica */
+  var tiene = sbTieneAcceso();
+  var p = sbProgreso();
+  var cert = sbCertPagado() ? 'Certificado adquirido'
+           : (sbCertElegible() ? 'Certificado disponible por separado' : 'Certificado por separado');
+
+  var b = document.createElement('button');
+  b.className = 'cs-c cs-c4' + (tiene ? '' : ' pago');
+  b.setAttribute('onclick', tiene ? 'cerrarCursos(); openSanidad();' : 'sbAbrirPago();');
+  b.innerHTML =
+    '<div class="cs-ico">🛡️</div><span class="cs-tag">Complementario avanzado</span>' +
+    '<h3>Sanidad y bioseguridad porcina</h3>' +
+    '<p>Prevención, control y respuesta ante la Peste Porcina Africana (PPA). 10 módulos · plan de bioseguridad de su granja · 6 planillas.</p>' +
+    '<div class="cs-pg"><i style="width:' + (p / SBMOD.length * 100) + '%"></i></div>' +
+    '<div class="cs-meta"><span>' + p + ' de ' + SBMOD.length + ' módulos</span>' +
+    '<span class="cs-cert">🎓 ' + cert + '</span></div>' +
+    '<span class="cs-go">' + (tiene ? 'Entrar →' : 'Ver cómo adquirirlo →') + '</span>';
+  g.appendChild(b);
+  if(typeof agVisteCatalogo === 'function') try{ agVisteCatalogo(); }catch(e){}
+}
+window.sbTarjeta = sbTarjeta;
+/* la portada de la tarjeta, en el mismo sistema que las otras tres */
+if(typeof AGPORTADAS !== 'undefined'){
+  AGPORTADAS['cs-c4'] = {f:'sb-portada', alt:'Botas y overol en la entrada de una granja porcina', pos:'center 50%'};
+}
+if(typeof window.agPortadaDe === 'function'){
+  var _agPortDe = window.agPortadaDe;
+  window.agPortadaDe = function(card){
+    if(card.classList.contains('cs-c4')) return AGPORTADAS['cs-c4'];
+    return _agPortDe.apply(this, arguments);
+  };
+}
+
+/* ------------------------------------------------------------
+   3 · GESTIÓN DE ACCESOS · DOS INTERRUPTORES POR ESTUDIANTE
+   ------------------------------------------------------------ */
+window.sbDarAcceso = function(id, v){
+  if(v) SBACCESO[id] = true; else delete SBACCESO[id];
+  sbGuardarAcceso();
+  if(window.SB && typeof SB.from === 'function'){
+    try{ SB.from('profiles').update({acceso_sanidad: !!v}).eq('id', id).then(function(){}, function(){}); }catch(e){}
+  }
+  if(typeof toast === 'function') toast(v ? 'Sanidad habilitada' : 'Sanidad bloqueada', v ? '🔓' : '🔒');
+  if(typeof nxAdmin === 'function') try{ nxAdmin(); }catch(e){}
+};
+window.sbDarCert = function(id, v){
+  if(v) SBCERT[id] = true; else delete SBCERT[id];
+  sbGuardarCertPago();
+  if(window.SB && typeof SB.from === 'function'){
+    try{ SB.from('profiles').update({cert_sanidad: !!v}).eq('id', id).then(function(){}, function(){}); }catch(e){}
+  }
+  if(typeof toast === 'function') toast(v ? 'Certificado habilitado' : 'Certificado bloqueado', v ? '🎓' : '🔒');
+  if(typeof nxAdmin === 'function') try{ nxAdmin(); }catch(e){}
+};
+window.sbAccesoTodos = function(v){
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+  if(!alum.length) return;
+  if(!confirm((v ? 'Habilitar' : 'Quitar') + ' el acceso a Sanidad a ' + alum.length + ' estudiante(s)?')) return;
+  alum.forEach(function(a){ if(v) SBACCESO[a.id] = true; else delete SBACCESO[a.id]; });
+  sbGuardarAcceso();
+  if(typeof toast === 'function') toast(v ? 'Habilitado a todos' : 'Quitado a todos', v ? '🔓' : '🔒');
+  if(typeof nxAdmin === 'function') try{ nxAdmin(); }catch(e){}
+};
+
+/* dos columnas más en la tabla de accesos, sin tocar quien la construye */
+if(typeof window.nxAdmAcceso === 'function'){
+  var _nxAdmAccSb = window.nxAdmAcceso;
+  window.nxAdmAcceso = function(){
+    var html = _nxAdmAccSb.apply(this, arguments);
+    try{ return sbColumnasAcceso(html); }catch(e){ return html; }
+  };
+}
+function sbColumnasAcceso(html){
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  var tabla = d.querySelector('table.nx-t');
+  if(!tabla) return html;
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+
+  var ths = tabla.querySelectorAll('thead th');
+  if(!ths.length) return html;
+  var ult = ths[ths.length - 1];
+  ['🛡️ Sanidad', '🎓 Cert. Sanidad'].forEach(function(t){
+    var th = document.createElement('th');
+    th.innerHTML = t;
+    ult.parentNode.insertBefore(th, ult);
+  });
+
+  [].forEach.call(tabla.querySelectorAll('tbody tr'), function(tr, i){
+    var a = alum[i];
+    if(!a) return;
+    var tds = tr.querySelectorAll('td');
+    if(!tds.length) return;
+    var ultTd = tds[tds.length - 1];
+
+    var on = !!SBACCESO[a.id];
+    var td1 = document.createElement('td');
+    td1.innerHTML = '<label class="nxa-sw"><input type="checkbox"' + (on ? ' checked' : '') +
+      ' onchange="sbDarAcceso(\'' + a.id + '\',this.checked)"><span></span>' +
+      '<em>' + (on ? 'Habilitado' : 'Bloqueado') + '</em></label>';
+    ultTd.parentNode.insertBefore(td1, ultTd);
+
+    var eleg = sbProgreso(a.id) >= SBMOD.length;
+    var oc = !!SBCERT[a.id];
+    var td2 = document.createElement('td');
+    td2.innerHTML = '<label class="nxa-sw"><input type="checkbox"' + (oc ? ' checked' : '') +
+      ' onchange="sbDarCert(\'' + a.id + '\',this.checked)"><span></span>' +
+      '<em>' + (oc ? 'Pagado' : 'No pagado') + '</em></label>' +
+      '<span class="sb-eleg' + (eleg ? ' on' : '') + '">' + (eleg ? '✓ cumple requisito' : sbProgreso(a.id) + '/' + SBMOD.length + ' módulos') + '</span>';
+    ultTd.parentNode.insertBefore(td2, ultTd);
+  });
+
+  var res = d.querySelector('.nxa-res');
+  if(res){
+    var conSb = alum.filter(function(a){ return !!SBACCESO[a.id]; }).length;
+    var c1 = document.createElement('div');
+    c1.innerHTML = '<b>' + conSb + '</b><span>con el curso de sanidad</span>';
+    res.appendChild(c1);
+  }
+  var notas = d.querySelectorAll('.adm-note');
+  if(notas.length){
+    var n = document.createElement('p');
+    n.className = 'adm-note';
+    n.innerHTML = 'En <b>sanidad</b> hay dos productos independientes: el <b>curso</b> y el <b>certificado</b>. ' +
+      'Un estudiante puede tener el curso y no el certificado. El certificado además exige haber aprobado los ' + SBMOD.length + ' módulos: ' +
+      'la columna muestra si ya cumple ese requisito.';
+    notas[notas.length - 1].parentNode.insertBefore(n, notas[notas.length - 1].nextSibling);
+  }
+  var pie = d.querySelector('div[style*="margin-top:14px"][style*="display:flex"]');
+  if(pie){
+    var b1 = document.createElement('button');
+    b1.className = 'nxa-btn'; b1.style.margin = '0';
+    b1.textContent = 'Habilitar sanidad a todos';
+    b1.setAttribute('onclick', 'sbAccesoTodos(true)');
+    var b2 = document.createElement('button');
+    b2.className = 'nxa-btn'; b2.style.margin = '0';
+    b2.textContent = 'Quitársela a todos';
+    b2.setAttribute('onclick', 'sbAccesoTodos(false)');
+    var span = pie.querySelector('span');
+    if(span){ pie.insertBefore(b1, span); pie.insertBefore(b2, span); }
+    else { pie.appendChild(b1); pie.appendChild(b2); }
+  }
+  return d.innerHTML;
+}
+
+/* traer accesos de la nube */
+(function sbTraerAccesos(){
+  setTimeout(function(){
+    if(!window.SB || typeof SB.from !== 'function') return;
+    try{
+      SB.from('profiles').select('id,acceso_sanidad,cert_sanidad').then(function(r){
+        if(!r || !r.data) return;
+        r.data.forEach(function(p){
+          if(p.acceso_sanidad) SBACCESO[p.id] = true;
+          if(p.cert_sanidad) SBCERT[p.id] = true;
+        });
+        sbGuardarAcceso(); sbGuardarCertPago();
+      }, function(){});
+    }catch(e){}
+  }, 2600);
+})();
+
+/* ------------------------------------------------------------
+   4 · LA PANTALLA FINAL Y EL CONFETI, COMO LOS OTROS TRES
+   ------------------------------------------------------------ */
+if(typeof window.agCfg === 'function'){
+  var _agCfgSb = window.agCfg;
+  window.agCfg = function(curso){
+    if(curso !== 'sanidad') return _agCfgSb.apply(this, arguments);
+    var total = SBMOD.length;
+    var hechos = (typeof AGFORZAR !== 'undefined' && AGFORZAR.sanidad) ? total : sbProgreso();
+    return {id:'sanidad', hechos:hechos, total:total,
+      felicidad:'¡Terminó! Sanidad y bioseguridad porcina',
+      texto:'Ya sabe por dónde entra el riesgo, cómo cerrarle las puertas, cómo limpiar y desinfectar de verdad, y —lo que más vale— <b>qué hacer el día que algo no cuadre</b>.',
+      logros:[[total + ' módulos', 'de la sanidad al protocolo'], ['1', 'plan de bioseguridad escrito'],
+              ['6', 'planillas para su granja'], ['8', 'casos prácticos resueltos']],
+      cert:"agCert('sanidad')",
+      pie:'Lo siguiente no es otro curso: es <b>pegar el protocolo en la pared</b> y que quien esté solo un domingo sepa qué hacer. Vuelva al checklist dentro de un mes y compare.'};
+  };
+}
+if(typeof window.sbExamen === 'function'){
+  var _sbExFin = window.sbExamen;
+  window.sbExamen = function(id){
+    var h = _sbExFin.apply(this, arguments);
+    if(id !== SBMOD.length || !h) return h;
+    if(typeof agFinal !== 'function' || typeof agCfg !== 'function') return h;
+    return h + agFinal(agCfg('sanidad'));
+  };
+}
+
+/* ------------------------------------------------------------
+   5 · TECLADO Y DIAPOSITIVAS, IGUAL QUE EN LOS OTROS
+   ------------------------------------------------------------ */
+if(typeof window.agWrap === 'function'){
+  var _agWrapSb = window.agWrap;
+  window.agWrap = function(curso){
+    if(curso === 'sanidad') return document.querySelector('#sbMain .nx-wrap');
+    return _agWrapSb.apply(this, arguments);
+  };
+}
+window.sbMostrarSeccion = function(i){ if(typeof agMuestra === 'function') agMuestra('sanidad', agGrupoDe('sanidad', i)); };
+window.sbPagina = function(d){ if(typeof agPasa === 'function') agPasa('sanidad', d); };
+
+if(typeof window.sbPinta === 'function'){
+  var _sbPintaSl = window.sbPinta;
+  window.sbPinta = function(){
+    var r = _sbPintaSl.apply(this, arguments);
+    setTimeout(function(){
+      if(!SBCUR) return;
+      if(typeof agBarra === 'function') agBarra('sanidad');
+      if(typeof agRecalcula === 'function'){ agRecalcula('sanidad'); agMuestra('sanidad', 0); }
+    }, 60);
+    return r;
+  };
+}
+if(typeof window.openSanidad === 'function'){
+  var _openSb = window.openSanidad;
+  window.openSanidad = function(){
+    var r = _openSb.apply(this, arguments);
+    setTimeout(function(){
+      var ov = document.getElementById('sbOv');
+      if(ov) ov.classList.add('nx-leccion');
+      if(typeof agRecalcula === 'function' && document.querySelector('#sbMain .nx-wrap')){
+        if(typeof agBarra === 'function') agBarra('sanidad');
+        agRecalcula('sanidad'); agMuestra('sanidad', 0);
+      }
+      if(typeof agPistaTeclado === 'function') try{ agPistaTeclado('sanidad', '#sbOv'); }catch(e){}
+    }, 260);
+    return r;
+  };
+}
+/* el teclado: mismas teclas que en los otros tres */
+document.addEventListener('keydown', function(e){
+  var ov = document.getElementById('sbOv');
+  if(!ov || ov.style.display === 'none') return;
+  if(document.getElementById('nxAtOv') || document.getElementById('rpAtOv')) return;
+  if(document.getElementById('sbPago') || document.getElementById('sbPagoCert') || document.getElementById('csOv')) return;
+  if(typeof agEscribiendo === 'function' && agEscribiendo(e)) return;
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  var k = e.key;
+  var enBoton = (typeof agEnBoton === 'function') && agEnBoton(e);
+  if(k === 'ArrowRight' || k === 'PageDown' || ((k === ' ' || k === 'Spacebar') && !e.shiftKey && !enBoton)){
+    e.preventDefault(); sbPagina(1); return;
+  }
+  if(k === 'ArrowLeft' || k === 'PageUp' || (k === ' ' && e.shiftKey && !enBoton)){
+    e.preventDefault(); sbPagina(-1); return;
+  }
+  if(k === 'Home'){ e.preventDefault(); if(typeof agMuestra === 'function') agMuestra('sanidad', 0); return; }
+  if(k === 'End'){ e.preventDefault();
+    if(typeof AGGRP !== 'undefined' && AGGRP.sanidad) agMuestra('sanidad', AGGRP.sanidad.length - 1); return; }
+  if(k === 'Escape'){ e.preventDefault(); sbCerrar(); return; }
+  if(k === 'f' || k === 'F'){ e.preventDefault(); sbToggleEnfoque(); return; }
+  if(/^[0-9]$/.test(k)){
+    var n = (k === '0') ? 10 : parseInt(k, 10);
+    if(n >= 1 && n <= SBMOD.length){ e.preventDefault(); sbIr(n); }
+  }
+});
+
+</script>
+
 </body>
 </html>
