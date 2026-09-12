@@ -19144,7 +19144,622 @@ addEventListener('resize', function(){
   }, true);
 })();
 
+
+/* ---------- ag-diagcss.js ---------- */
+/* Estilos de los diagramas de Formulación */
+var AGCSS6 = `
+.nx-d-t{fill:var(--text);font-family:var(--display);font-size:16px;font-weight:700}
+.nx-d-leg{fill:var(--muted);font-family:var(--body);font-size:13px}
+.nx-d-legi{fill:var(--text-2);font-family:var(--body);font-size:13.5px}
+.nx-d-s{fill:var(--text-2);font-family:var(--body);font-size:13px}
+.nx-d-et{fill:var(--text);font-family:var(--body);font-size:14.5px;font-weight:600}
+.nx-d-et2{fill:var(--text);font-family:var(--body);font-size:14px;font-weight:600}
+.nx-d-num{fill:var(--text);font-family:var(--mono);font-size:13.5px;font-weight:600;
+  dominant-baseline:auto;font-variant-numeric:tabular-nums}
+.nx-d-eje{stroke:var(--border);stroke-width:2}
+.nx-d-tic{stroke:var(--border);stroke-width:1.5}
+.nx-d-pista{fill:color-mix(in srgb,var(--text) 7%,var(--panel))}
+.nx-d-seg{stroke:var(--panel);stroke-width:1.5}
+.nx-d-pct{fill:#fff;font-family:var(--mono);font-size:16px;font-weight:700}
+.nx-d-pct2{fill:rgba(255,255,255,.82);font-family:var(--body);font-size:12px}
+.nx-d-cs2{fill:var(--text-2);font-family:var(--body);font-size:13px}
+.nx-d-ct2{fill:var(--text);font-family:var(--display);font-size:14.5px;font-weight:700}
+.nx-d-nn{fill:#fff;font-family:var(--mono);font-size:14px;font-weight:700}
+
+/* proteína ideal */
+.nx-d-need{fill:color-mix(in srgb,var(--text) 10%,var(--panel))}
+.nx-d-tiene{fill:#2F7D4F}
+.nx-d-falta{fill:#C6402E}
+.nx-d-lim{stroke:#C6402E;stroke-width:2.5;stroke-dasharray:5 4}
+.nx-d-av{fill:#C6402E;font-family:var(--body);font-size:13.5px;font-weight:600}
+
+/* curvas */
+.nx-d-lis{stroke:#2F7D4F;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.nx-d-con{stroke:#C08A12;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.nx-d-mala{stroke:#C6402E;stroke-width:3.5;stroke-dasharray:8 5;stroke-linecap:round}
+.nx-d-plis{fill:#2F7D4F} .nx-d-pcon{fill:#C08A12}
+.nx-d-rot1{fill:#2F7D4F;font-family:var(--body);font-size:14px;font-weight:600}
+.nx-d-rot2{fill:#B5811A;font-family:var(--body);font-size:14px;font-weight:600}
+.nx-d-rot3{fill:#C6402E;font-family:var(--body);font-size:14px;font-weight:600}
+.nx-d-serv{stroke:var(--text);stroke-width:2;stroke-dasharray:6 5}
+
+/* Pearson */
+.nx-d-cruz{stroke:var(--border);stroke-width:2}
+.nx-d-caja{fill:color-mix(in srgb,var(--text) 5%,var(--panel));stroke:var(--border);stroke-width:1.5}
+.nx-d-res{fill:color-mix(in srgb,#2F7D4F 14%,var(--panel));stroke:#2F7D4F;stroke-width:1.5}
+.nx-d-obj{fill:color-mix(in srgb,#C08A12 20%,var(--panel));stroke:#B5811A;stroke-width:2.5}
+.nx-d-ot{fill:var(--text);font-family:var(--mono);font-size:24px;font-weight:700}
+.nx-d-os{fill:var(--muted);font-family:var(--body);font-size:11.5px}
+
+/* molino */
+.nx-d-paso{fill:var(--panel);stroke-width:2}
+.nx-d-flecha{stroke:var(--border);stroke-width:2.5;fill:none;marker-end:none}
+.nx-d-mal{stroke:#C6402E;stroke-width:1.5;stroke-dasharray:3 3}
+.nx-d-malt{fill:#C6402E;font-family:var(--body);font-size:11.5px}
+
+/* costo y reparto */
+.nx-d-llave{stroke:var(--text);stroke-width:2}
+.nx-d-llavet{fill:var(--text);font-family:var(--body);font-size:14px;font-weight:700}
+
+/* cadena */
+.nx-d-emb{fill:#fff;font-family:var(--mono);font-size:17px;font-weight:700}
+.nx-d-embs{font-family:var(--body);font-size:13px;font-weight:400;opacity:.88}
+.nx-d-embp{fill:rgba(255,255,255,.86);font-family:var(--body);font-size:12.5px}
+
+@media(max-width:760px){
+  .nx-d-cs2,.nx-d-legi,.nx-d-s{font-size:15px}
+  .nx-d-et{font-size:16px}
+}
+`;
+(function agInyectaCss6(){
+  if(document.getElementById('agCss6')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss6';
+  s.textContent = AGCSS6;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+/* la última tarjeta de la diapositiva no debe quedar debajo de la barra */
+var AGCSS7 = `.nx-ov.nx-leccion .nx-wrap{ padding-bottom:8px }
+.nx-ov.nx-leccion .nx-wrap > .nx-lnav{ background:var(--bg); border-top:1px solid var(--border); padding-bottom:6px }`;
+(function agInyectaCss7(){
+  if(document.getElementById('agCss7')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss7';
+  s.textContent = AGCSS7;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-nutricion.js ---------- */
+/* ============================================================
+   FORMULACIÓN · LAS VISUALES QUE NO TENÍA
+   ------------------------------------------------------------
+   La auditoría dio el número más duro de los tres cursos: 15 416
+   palabras y CERO imágenes o diagramas dentro del contenido. Las 24
+   fotos nutri-* existían, pero solo como fondo degradado detrás del
+   texto: decoración, no material de enseñanza.
+
+   Aquí se hacen dos cosas distintas y las dos hacen falta:
+
+   · FOTOS con pie que explica: se sacan del fondo y se ponen dentro,
+     donde el texto habla de eso. Una foto del grano no sustituye a la
+     explicación, pero fija de qué se está hablando.
+
+   · DIAGRAMAS dibujados para los conceptos que NO tienen foto posible:
+     la proteína ideal, el cuadrado de Pearson, la curva de lisina, el
+     flujo del molino, el desglose del costo del kilo. Estos son el
+     verdadero aporte: son cosas que en texto cuestan tres párrafos y
+     en un dibujo se entienden de una mirada.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   M01 · LA PROTEÍNA IDEAL Y EL AMINOÁCIDO LIMITANTE
+   El concepto que manda en todo el curso: la dieta no vale por la
+   proteína que tiene, sino por el aminoácido que le falta.
+   ------------------------------------------------------------ */
+function nxDiagIdeal(){
+  /* perfil de proteína ideal, relativo a lisina = 100 */
+  /* El dibujo tiene que contar UNA cosa: que un solo aminoácido limita.
+     Si se pintan cuatro cortos, el mensaje se pierde: parece que la dieta
+     está mal en todo, cuando lo que enseña el concepto es que basta con
+     que UNO se agote para que se pare la fábrica. */
+  var aa = [
+    ['Lisina',        100, 100],
+    ['Metionina+Cis',  60,  62],
+    ['Treonina',       65,  68],
+    ['Triptófano',     18,  11],
+    ['Valina',         70,  75],
+    ['Isoleucina',     55,  58]
+  ];
+  var X0 = 210, ANCHO = 620, H = 46;
+  var barras = aa.map(function(a, i){
+    var y = 74 + i * H;
+    var need = a[1] / 110 * ANCHO;
+    var tiene = a[2] / 110 * ANCHO;
+    var falta = a[2] < a[1];
+    return '<text class="nx-d-et" x="' + (X0 - 14) + '" y="' + (y + 19) + '" text-anchor="end">' + a[0] + '</text>' +
+      '<rect class="nx-d-need" x="' + X0 + '" y="' + y + '" width="' + need + '" height="26" rx="5"/>' +
+      '<rect class="' + (falta ? 'nx-d-falta' : 'nx-d-tiene') + '" x="' + X0 + '" y="' + y + '" width="' + tiene + '" height="26" rx="5"/>' +
+      '<text class="nx-d-num" x="' + (X0 + Math.max(need, tiene) + 12) + '" y="' + (y + 19) + '">' + a[2] + '</text>';
+  }).join('');
+  return agSec('El aminoácido que falta es el que manda',
+    '<p>Una dieta no vale por la proteína cruda que declara la etiqueta. Vale por el <b>aminoácido que se le acaba primero</b>: en cuanto uno se agota, el cerdo deja de construir músculo y lo demás se quema como energía. Es dinero que usted compró y el animal orinó.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 370" role="img" aria-label="Comparación entre el aminoácido que el cerdo necesita y el que la dieta aporta, con la lisina como referencia">' +
+      '<text class="nx-d-t" x="' + X0 + '" y="40">Perfil de proteína ideal · todo relativo a la lisina = 100</text>' +
+      '<text class="nx-d-leg" x="' + X0 + '" y="60">gris claro: lo que el cerdo necesita   ·   color: lo que la dieta aporta</text>' +
+      barras +
+      '<line class="nx-d-lim" x1="' + (X0 + 11 / 110 * ANCHO) + '" y1="' + (74 + 3 * H - 6) + '" x2="' + (X0 + 11 / 110 * ANCHO) + '" y2="' + (74 + 4 * H - 14) + '"/>' +
+      '<text class="nx-d-av" x="' + (X0 + 11 / 110 * ANCHO + 14) + '" y="' + (74 + 4 * H - 4) + '">↑ hasta aquí llega la dieta: el triptófano es el limitante</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Cinco de los seis van sobrados. Da igual: el cerdo solo crece hasta donde alcance el <b>triptófano</b>, que llega a 11 cuando hacían falta 18. El resto del aporte no se aprovecha — se quema como energía y sale por la orina. Por eso las fórmulas serias se equilibran <b>por aminoácidos digestibles</b> y no por «porcentaje de proteína».</p>' +
+    '</div>' +
+    agNota('plata', 'Qué significa esto en pesos',
+      'Subir la proteína cruda comprando más soya, cuando lo que falta es un aminoácido concreto, es la forma más cara de no resolver el problema. Corregir el limitante con el ingrediente correcto —o con el aminoácido sintético— suele costar menos y sí mueve la conversión.'),
+    'El concepto que manda en todo el curso');
+}
+
+/* ------------------------------------------------------------
+   M03 · LA CURVA QUE SE CRUZA
+   El requerimiento de lisina BAJA con el peso, pero el consumo SUBE.
+   Ver las dos curvas juntas explica de una vez por qué hay etapas.
+   ------------------------------------------------------------ */
+function nxDiagCurva(){
+  /* peso vivo -> lisina SID % de la dieta, y consumo kg/día */
+  var d = [
+    [7, 1.45, 0.35], [15, 1.35, 0.75], [25, 1.20, 1.20], [40, 1.05, 1.75],
+    [60, 0.92, 2.25], [80, 0.82, 2.65], [100, 0.74, 2.95], [115, 0.70, 3.10]
+  ];
+  var X0 = 100, X1 = 830, Y0 = 300, Y1 = 70;
+  var x = function(p){ return X0 + (X1 - X0) * ((p - 7) / (115 - 7)); };
+  var yL = function(v){ return Y0 - (Y0 - Y1) * ((v - 0.6) / (1.5 - 0.6)); };
+  var yC = function(v){ return Y0 - (Y0 - Y1) * ((v - 0) / 3.4); };
+  var linea = function(f, k){ return d.map(function(p, i){ return (i ? 'L' : 'M') + x(p[0]) + ',' + f(p[k]); }).join(' '); };
+  var pts = function(f, k, cls){ return d.map(function(p){ return '<circle class="' + cls + '" cx="' + x(p[0]) + '" cy="' + f(p[k]) + '" r="4.5"/>'; }).join(''); };
+  var ejes = [7, 25, 40, 60, 80, 100, 115].map(function(p){
+    return '<line class="nx-d-tic" x1="' + x(p) + '" y1="' + Y0 + '" x2="' + x(p) + '" y2="' + (Y0 + 7) + '"/>' +
+      '<text class="nx-d-s" x="' + x(p) + '" y="' + (Y0 + 26) + '" text-anchor="middle">' + p + '</text>';
+  }).join('');
+  return agSec('Por qué hay etapas y no una sola dieta',
+    '<p>Son dos cosas que se mueven en sentidos contrarios al mismo tiempo: el cerdo <b>necesita menos lisina por kilo de dieta</b> según engorda, pero <b>come más kilos cada día</b>. Una sola dieta para todo el ciclo se queda corta al principio y se desperdicia al final.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 370" role="img" aria-label="Dos curvas cruzadas: la lisina que necesita la dieta baja con el peso mientras el consumo diario sube">' +
+      '<line class="nx-d-eje" x1="' + X0 + '" y1="' + Y0 + '" x2="' + X1 + '" y2="' + Y0 + '"/>' +
+      ejes +
+      '<text class="nx-d-s" x="' + ((X0 + X1) / 2) + '" y="' + (Y0 + 50) + '" text-anchor="middle">peso vivo (kg)</text>' +
+      '<path class="nx-d-lis" d="' + linea(yL, 1) + '" fill="none"/>' + pts(yL, 1, 'nx-d-plis') +
+      '<path class="nx-d-con" d="' + linea(yC, 2) + '" fill="none"/>' + pts(yC, 2, 'nx-d-pcon') +
+      '<text class="nx-d-rot1" x="' + (x(15) + 8) + '" y="' + (yL(1.35) - 14) + '">Lisina que debe llevar la dieta (%)</text>' +
+      '<text class="nx-d-rot2" x="' + (x(60)) + '" y="' + (yC(2.25) + 26) + '">Lo que come al día (kg)</text>' +
+      '<text class="nx-d-num" x="' + (x(7) + 6) + '" y="' + (yL(1.45) - 8) + '">1,45</text>' +
+      '<text class="nx-d-num" x="' + (x(115) - 34) + '" y="' + (yL(0.70) - 10) + '">0,70</text>' +
+      '<text class="nx-d-num" x="' + (x(115) - 34) + '" y="' + (yC(3.10) - 10) + '">3,1</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Los valores son de referencia para genética comercial: <b>el número exacto lo pone el catálogo de su línea genética</b>. Lo que no cambia es la forma de las dos curvas, y esa forma es la razón de que existan preinicio, inicio, crecimiento, engorde y finalización.</p>' +
+    '</div>', 'Los números del módulo, en una imagen');
+}
+
+/* ------------------------------------------------------------
+   M04 · EL CUADRADO DE PEARSON
+   La herramienta de lápiz y papel para mezclar dos ingredientes y
+   caer en una proteína objetivo. Se usa en toda granja pequeña.
+   ------------------------------------------------------------ */
+function nxDiagPearson(){
+  /* ejemplo: maiz 8% PC + soya 46% PC -> 18% PC */
+  var A = 8, B = 46, O = 18;
+  var pA = (B - O), pB = (O - A), tot = pA + pB;
+  var f = function(v){ return (v / tot * 100).toFixed(1).replace('.', ','); };
+  return agSec('El cuadrado de Pearson, paso a paso',
+    '<p>Es la cuenta más vieja y más útil de la formulación: con <b>dos ingredientes</b> y un objetivo de proteína, dice en qué proporción mezclarlos. No sustituye a una formulación completa por aminoácidos, pero saca de apuros y se hace en una servilleta.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 340" role="img" aria-label="Cuadrado de Pearson con maíz al 8 por ciento y soya al 46 por ciento para obtener una dieta al 18 por ciento">' +
+      '<line class="nx-d-cruz" x1="300" y1="80" x2="620" y2="250"/>' +
+      '<line class="nx-d-cruz" x1="300" y1="250" x2="620" y2="80"/>' +
+      /* esquinas */
+      '<rect class="nx-d-caja" x="150" y="58" width="150" height="46" rx="9"/>' +
+      '<text class="nx-d-ct2" x="225" y="80" text-anchor="middle">Maíz</text>' +
+      '<text class="nx-d-cs2" x="225" y="97" text-anchor="middle">8 % proteína</text>' +
+      '<rect class="nx-d-caja" x="150" y="228" width="150" height="46" rx="9"/>' +
+      '<text class="nx-d-ct2" x="225" y="250" text-anchor="middle">Soya</text>' +
+      '<text class="nx-d-cs2" x="225" y="267" text-anchor="middle">46 % proteína</text>' +
+      /* centro */
+      '<circle class="nx-d-obj" cx="460" cy="165" r="46"/>' +
+      '<text class="nx-d-ot" x="460" y="160" text-anchor="middle">18 %</text>' +
+      '<text class="nx-d-os" x="460" y="180" text-anchor="middle">lo que quiero</text>' +
+      /* resultados */
+      '<rect class="nx-d-res" x="620" y="58" width="180" height="46" rx="9"/>' +
+      '<text class="nx-d-ct2" x="710" y="80" text-anchor="middle">46 − 18 = ' + pA + '</text>' +
+      '<text class="nx-d-cs2" x="710" y="97" text-anchor="middle">partes de MAÍZ</text>' +
+      '<rect class="nx-d-res" x="620" y="228" width="180" height="46" rx="9"/>' +
+      '<text class="nx-d-ct2" x="710" y="250" text-anchor="middle">18 − 8 = ' + pB + '</text>' +
+      '<text class="nx-d-cs2" x="710" y="267" text-anchor="middle">partes de SOYA</text>' +
+      '<text class="nx-d-t" x="150" y="315">' + pA + ' + ' + pB + ' = ' + tot + ' partes  →  maíz ' + f(pA) + ' %   ·   soya ' + f(pB) + ' %</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Se resta en diagonal y siempre <b>el número mayor menos el menor</b>. El resultado son partes, y las partes se pasan a porcentaje dividiendo entre el total. Para 500 kg de mezcla: ' +
+      '<b>' + Math.round(pA / tot * 500) + ' kg de maíz y ' + Math.round(pB / tot * 500) + ' kg de soya</b>.</p>' +
+    '</div>' +
+    agNota('ojo', 'Dónde NO sirve',
+      'El cuadrado solo cuadra <b>una</b> cosa: la proteína. No le dice nada de la energía, del calcio, del fósforo ni de los aminoácidos, y sin corregir esos la dieta puede salir alta en proteína y aun así funcionar mal. Úselo para entender la lógica y para ajustar sobre la marcha; para la dieta del lote, use las fórmulas del módulo 04.'),
+    'La cuenta de la servilleta');
+}
+
+/* ------------------------------------------------------------
+   M07 · EL FLUJO DEL MOLINO
+   ------------------------------------------------------------ */
+function nxDiagMolino(){
+  var pasos = [
+    ['Recepción',   'Se pesa y se revisa\nantes de bajarlo', '#2F7D4F'],
+    ['Molienda',    'Criba de 3 a 4 mm\npara cerdos', '#C08A12'],
+    ['Pesado',      'Cada ingrediente\npor separado', '#2B7A8F'],
+    ['Mezclado',    'Reloj en mano:\nde 6 a 10 minutos', '#A83E63'],
+    ['Ensacado',    'Identificado\ny con fecha', '#6B4E9E']
+  ];
+  var W = 152, G = 26, X0 = 40;
+  var caj = pasos.map(function(p, i){
+    var x = X0 + i * (W + G);
+    var ls = p[1].split('\n').map(function(t, k){
+      return '<text class="nx-d-cs2" x="' + (x + W / 2) + '" y="' + (150 + k * 17) + '" text-anchor="middle">' + t + '</text>';
+    }).join('');
+    return '<rect class="nx-d-paso" x="' + x + '" y="' + 82 + '" width="' + W + '" height="96" rx="12" style="stroke:' + p[2] + '"/>' +
+      '<circle cx="' + (x + W / 2) + '" cy="' + 82 + '" r="16" style="fill:' + p[2] + '"/>' +
+      '<text class="nx-d-nn" x="' + (x + W / 2) + '" y="' + 88 + '" text-anchor="middle">' + (i + 1) + '</text>' +
+      '<text class="nx-d-ct2" x="' + (x + W / 2) + '" y="' + 126 + '" text-anchor="middle">' + p[0] + '</text>' + ls +
+      (i < pasos.length - 1 ? '<path class="nx-d-flecha" d="M' + (x + W + 5) + ',130 L' + (x + W + G - 5) + ',130"/>' : '');
+  }).join('');
+  var fallos = [
+    [0, 'Recibir sin pesar'], [1, 'Moler muy fino: úlceras'], [2, 'Pesar «a ojo» la premezcla'],
+    [3, 'Mezclar 2 minutos'], [4, 'Sacos sin identificar']
+  ].map(function(f){
+    var x = X0 + f[0] * (W + G) + W / 2;
+    return '<line class="nx-d-mal" x1="' + x + '" y1="186" x2="' + x + '" y2="212"/>' +
+      '<text class="nx-d-malt" x="' + x + '" y="232" text-anchor="middle">' + f[1] + '</text>';
+  }).join('');
+  return agSec('Los cinco puntos donde se arruina una fórmula buena',
+    '<p>La fórmula sale bien del papel y llega mal al comedero. Casi siempre por uno de estos cinco puntos, y casi siempre por el cuarto.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 260" role="img" aria-label="Flujo de fabricación en cinco pasos con el error más común debajo de cada uno">' +
+      '<text class="nx-d-t" x="' + X0 + '" y="42">Del camión al comedero</text>' +
+      '<text class="nx-d-leg" x="' + X0 + '" y="62">debajo de cada paso, el error que más se ve en granja</text>' +
+      caj + fallos +
+    '</svg>' +
+    '<p class="rp-esq-pie">El mezclado es el único paso que <b>no se nota al mirar el saco</b>: un alimento mal mezclado se ve exactamente igual que uno bien mezclado. Por eso hay que medirlo con reloj y no por sensación, y por eso es el error que más dinero cuesta sin que nadie lo vea.</p>' +
+    '</div>', 'El módulo en una imagen');
+}
+
+/* ------------------------------------------------------------
+   M08 · DE DÓNDE SALE EL COSTO DEL KILO
+   ------------------------------------------------------------ */
+function nxDiagCosto(){
+  var part = [
+    ['Maíz',            52, '#C08A12'],
+    ['Soya',            28, '#2F7D4F'],
+    ['Afrecho / otros',  8, '#2B7A8F'],
+    ['Premezcla',        5, '#A83E63'],
+    ['Molienda y mano de obra', 4, '#6B4E9E'],
+    ['Mermas y flete',   3, '#CC5A24']
+  ];
+  var X0 = 60, ANCHO = 780, Y = 96, ALTO = 58;
+  var acc = 0;
+  var barras = part.map(function(p){
+    var w = p[1] / 100 * ANCHO, x = X0 + acc / 100 * ANCHO;
+    acc += p[1];
+    return '<rect x="' + x + '" y="' + Y + '" width="' + w + '" height="' + ALTO + '" style="fill:' + p[2] + '" class="nx-d-seg"/>' +
+      (w > 52 ? '<text class="nx-d-pct" x="' + (x + w / 2) + '" y="' + (Y + 36) + '" text-anchor="middle">' + p[1] + '%</text>' : '');
+  }).join('');
+  var leg = part.map(function(p, i){
+    var col = i % 3, fil = Math.floor(i / 3);
+    var x = X0 + col * 268, y = 205 + fil * 32;
+    return '<rect x="' + x + '" y="' + (y - 12) + '" width="14" height="14" rx="3" style="fill:' + p[2] + '"/>' +
+      '<text class="nx-d-legi" x="' + (x + 22) + '" y="' + y + '">' + p[0] + ' · ' + p[1] + '%</text>';
+  }).join('');
+  return agSec('Cada peso del kilo de alimento, en qué se va',
+    '<p>Esta es la razón de que el precio del maíz mande en su granja: <b>ocho de cada diez pesos del alimento son maíz y soya</b>. Todo lo demás —premezcla, molienda, flete— junto no llega a la quinta parte.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 270" role="img" aria-label="Reparto del costo de un kilo de alimento entre sus componentes">' +
+      '<text class="nx-d-t" x="' + X0 + '" y="42">Reparto típico del costo de un kilo de alimento de engorde</text>' +
+      '<text class="nx-d-leg" x="' + X0 + '" y="62">proporciones de referencia · los pesos exactos los pone SU factura</text>' +
+      barras +
+      '<line class="nx-d-llave" x1="' + X0 + '" y1="' + (Y + ALTO + 12) + '" x2="' + (X0 + 80 / 100 * ANCHO) + '" y2="' + (Y + ALTO + 12) + '"/>' +
+      '<text class="nx-d-llavet" x="' + (X0 + 40 / 100 * ANCHO) + '" y="' + (Y + ALTO + 32) + '" text-anchor="middle">80 % son solo dos ingredientes</text>' +
+      leg +
+    '</svg>' +
+    '<p class="rp-esq-pie">Mire lo que enseña el dibujo antes de negociar: <b>regatear la premezcla mueve el 5 %</b>; conseguir dos pesos menos en el quintal de maíz mueve el 52 %. La misma hora de gestión no rinde igual en un sitio que en el otro.</p>' +
+    '</div>' +
+    agNota('dato', 'No copie estos porcentajes: calcule los suyos',
+      'El reparto cambia con su fórmula y con el precio de la semana. La calculadora de este módulo hace la cuenta con SUS precios; este dibujo solo enseña dónde mirar primero.'),
+    'Dónde está de verdad el dinero');
+}
+
+/* ------------------------------------------------------------
+   COLOCAR: fotos y diagramas, módulo por módulo
+   ------------------------------------------------------------ */
+var NXVIS = [
+  /* M01 */
+  {m:1, i:1, tipo:'fig', f:'nutri-m01-alimento-peletizado',
+   t:'Esto ya es una fórmula, no una mezcla',
+   p:'Un pélet terminado: cada bocado lleva exactamente la misma proporción de todo. Ese es el objetivo de todo el curso — que el último cerdo del corral coma lo mismo que el primero.'},
+  {m:1, i:5, tipo:'diag', k:'nxideal'},
+  /* M02 */
+  {m:2, i:1, tipo:'figs', l:[
+    {f:'nutri-m02-maiz-grano', t:'Maíz · la energía',
+     p:'Barato por caloría y la base de casi toda fórmula del país. Aporta poco más del 8 % de proteína y de mala calidad: solo, no sostiene a nadie.'},
+    {f:'nutri-s04-soya', t:'Soya · la proteína',
+     p:'Cara, pero es la que trae la lisina. La torta de 46-48 % es el estándar; si le ofrecen una de 44 %, no es la misma cosa aunque el saco se parezca.'},
+    {f:'nutri-s09-sorgo', t:'Sorgo · el sustituto',
+     p:'Reemplaza al maíz cuando el maíz se dispara, con un 95 % de su energía. Ojo con los taninos: el sorgo de grano oscuro baja el consumo.'}
+  ]},
+  {m:2, i:6, tipo:'diag', k:'nxtopes'},
+  /* M03 */
+  {m:3, i:2, tipo:'diag', k:'nxcurva'},
+  {m:3, i:6, tipo:'fig', f:'nutri-m03-cerdos-crecimiento',
+   t:'El mismo corral, tres necesidades distintas',
+   p:'Un lote nunca es homogéneo. Por eso las etapas se cambian <b>por peso promedio</b> y no por fecha del calendario: la fecha es cómoda para el papel, el peso es lo que come el animal.'},
+  /* M04 */
+  {m:4, i:3, tipo:'diag', k:'nxpearson'},
+  {m:4, i:7, tipo:'fig', f:'nutri-m04-pesando-batch',
+   t:'La balanza es parte de la fórmula',
+   p:'Una fórmula es una lista de porcentajes hasta que alguien la pesa. Si la premezcla se echa «a ojo», la fórmula que usted calculó no es la que come el cerdo.'},
+  /* M05 */
+  {m:5, i:1, tipo:'fig', f:'nutri-m05-lechones-destete',
+   t:'La semana en la que todo se decide',
+   p:'Al destete el lechón pierde la leche, la madre y el corral el mismo día. Lo que come esa semana marca el resto del ciclo, y es el único momento del ciclo en que la dieta más cara es la más barata.',
+   alta:true},
+  {m:5, i:5, tipo:'diag', k:'nxdestete'},
+  /* M06 */
+  {m:6, i:2, tipo:'diag', k:'nxreparto'},
+  {m:6, i:6, tipo:'fig', f:'nutri-m06-nave-engorde',
+   t:'Aquí se come el 75 % del alimento del ciclo',
+   p:'Crecimiento y engorde son pocos meses, pero se llevan tres de cada cuatro kilos de alimento de toda la vida del cerdo. Un peso de ahorro aquí vale por cuatro en cualquier otra etapa.'},
+  /* M07 */
+  {m:7, i:1, tipo:'diag', k:'nxmolino'},
+  {m:7, i:5, tipo:'fig', f:'nutri-m07-molino',
+   t:'El molino de la granja, ni bueno ni malo por sí solo',
+   p:'Fabricar en casa baja el costo del kilo <b>solo si se hace bien</b>. Mal hecho sale más caro que comprar comercial, porque al precio del ingrediente se le suma la conversión que se pierde.'},
+  /* M08 */
+  {m:8, i:1, tipo:'diag', k:'nxcosto'},
+  {m:8, i:4, tipo:'fig', f:'nutri-m08-mercado-granos',
+   t:'El precio que ve el lunes no es el que pagó el lote',
+   p:'El costo del kilo se calcula con lo que USTED pagó por cada ingrediente, no con el precio de referencia del mercado. Guarde la factura: es el dato de entrada de todas las cuentas de este módulo.'},
+  /* M09 */
+  {m:9, i:2, tipo:'diag', k:'nxsust'},
+  {m:9, i:7, tipo:'fig', f:'nutri-m09-granos-variados',
+   t:'Sustituir no es cambiar un saco por otro',
+   p:'Dos ingredientes se sustituyen cuando aportan lo mismo por peso, no cuando cuestan parecido. Compare siempre <b>por lo que aporta</b>: pesos por megacaloría y pesos por punto de lisina.'},
+  /* M10 */
+  {m:10, i:2, tipo:'diag', k:'nxcadena'},
+  {m:10, i:7, tipo:'fig', f:'nutri-m10-corrales-comedero',
+   t:'El comedero es donde se mide todo lo anterior',
+   p:'La conversión no se calcula con lo que usted fabricó: se calcula con lo que <b>desapareció del comedero</b>. Lo que se cae al piso también se pagó, y también cuenta.'}
+];
+
+(function nxColocaVisuales(){
+  if(typeof NXMOD === 'undefined') return;
+  /* de atrás hacia delante dentro de cada módulo, para no correr índices */
+  var porMod = {};
+  NXVIS.forEach(function(v){ (porMod[v.m] = porMod[v.m] || []).push(v); });
+  Object.keys(porMod).forEach(function(n){
+    var m = NXMOD[parseInt(n, 10) - 1];
+    if(!m) return;
+    porMod[n].sort(function(a, b){ return b.i - a.i; }).forEach(function(v){
+      var clave = 'vis:' + (v.k || v.f || v.tipo + v.i);
+      if(m.sec.some(function(s){ return s.__vis === clave; })) return;
+      var sec;
+      if(v.tipo === 'diag') sec = {k:v.k};
+      else if(v.tipo === 'figs') sec = {k:'nxfigs', l:v.l};
+      else sec = {k:'nxfig', f:v.f, t:v.t, p:v.p, alta:v.alta};
+      sec.__vis = clave;
+      m.sec.splice(Math.min(v.i, m.sec.length), 0, sec);
+    });
+  });
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecVis = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(!s) return _nxSecVis.apply(this, arguments);
+    switch(s.k){
+      case 'nxfig':   return '<section class="nx-b nx-full">' + agFig(s) + '</section>';
+      case 'nxfigs':  return '<section class="nx-b nx-full">' + agFigs(s.l) + '</section>';
+      case 'nxideal':   return nxDiagIdeal();
+      case 'nxcurva':   return nxDiagCurva();
+      case 'nxpearson': return nxDiagPearson();
+      case 'nxmolino':  return nxDiagMolino();
+      case 'nxcosto':   return nxDiagCosto();
+    }
+    return _nxSecVis.apply(this, arguments);
+  };
+}
+
+
+/* ---------- ag-nutricion2.js ---------- */
+/* ============================================================
+   FORMULACIÓN · LOS CINCO DIAGRAMAS RESTANTES
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   M02 · HASTA DÓNDE SE PUEDE METER CADA INGREDIENTE
+   ------------------------------------------------------------ */
+function nxDiagTopes(){
+  var ing = [
+    ['Maíz',                  70, '#C08A12', 'sin tope práctico: es la base'],
+    ['Torta de soya 46 %',    30, '#2F7D4F', 'más arriba encarece sin aportar'],
+    ['Sorgo',                 50, '#A9631B', 'vigile taninos si el grano es oscuro'],
+    ['Afrecho de trigo',      20, '#2B7A8F', 'sube fibra y baja energía'],
+    ['Harina de arroz',       15, '#6B4E9E', 'se enrancia: úsela fresca'],
+    ['Aceite o grasa',         5, '#CC5A24', 'más de 5 % ensucia la mezcladora'],
+    ['Premezcla',              1, '#A83E63', 'lo que diga la etiqueta, ni más ni menos']
+  ];
+  var X0 = 250, ANCHO = 470, H = 42;
+  var barras = ing.map(function(g, i){
+    var y = 76 + i * H;
+    var w = g[1] / 70 * ANCHO;
+    return '<text class="nx-d-et" x="' + (X0 - 14) + '" y="' + (y + 18) + '" text-anchor="end">' + g[0] + '</text>' +
+      '<rect class="nx-d-pista" x="' + X0 + '" y="' + y + '" width="' + ANCHO + '" height="24" rx="5"/>' +
+      '<rect x="' + X0 + '" y="' + y + '" width="' + w + '" height="24" rx="5" style="fill:' + g[2] + '" class="nx-d-seg"/>' +
+      '<text class="nx-d-num" x="' + (X0 + w + 11) + '" y="' + (y + 18) + '">' + g[1] + ' %</text>' +
+      '<text class="nx-d-cs2" x="' + (X0 + ANCHO + 62) + '" y="' + (y + 18) + '">' + g[3] + '</text>';
+  }).join('');
+  return agSec('Hasta dónde se puede meter cada cosa',
+    '<p>Ningún ingrediente es bueno o malo por sí mismo: lo que existe es un <b>tope práctico</b>. Pasado ese tope deja de ayudar y empieza a estorbar, aunque el precio invite a seguir subiéndolo.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 1180 400" role="img" aria-label="Tope práctico de inclusión de cada materia prima en una dieta de engorde">' +
+      '<text class="nx-d-t" x="' + X0 + '" y="42">Inclusión máxima orientativa en dieta de engorde</text>' +
+      '<text class="nx-d-leg" x="' + X0 + '" y="62">la barra es el techo, no la recomendación</text>' +
+      barras +
+    '</svg>' +
+    '<p class="rp-esq-pie">Son <b>referencias de trabajo</b>, no una norma: cambian con la etapa, con la calidad del lote y con el resto de la fórmula. El tope de la premezcla es el único que no se discute — ese lo fija el fabricante en la etiqueta, y salirse de ahí es un problema sanitario, no de costo.</p>' +
+    '</div>', 'La regla que evita la mayoría de los errores');
+}
+
+/* ------------------------------------------------------------
+   M05 · LA CAÍDA DEL DESTETE
+   ------------------------------------------------------------ */
+function nxDiagDestete(){
+  var dias  = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 10, 14];
+  var buena = [0.32, 0.34, 0.36, 0.10, 0.14, 0.22, 0.31, 0.40, 0.48, 0.55, 0.62, 0.78, 0.95];
+  var mala  = [0.32, 0.34, 0.36, 0.04, 0.06, 0.09, 0.14, 0.20, 0.27, 0.34, 0.41, 0.58, 0.76];
+  var X0 = 90, X1 = 840, Y0 = 290, Y1 = 70;
+  var x = function(d){ return X0 + (X1 - X0) * ((d + 3) / 17); };
+  var y = function(v){ return Y0 - (Y0 - Y1) * (v / 1.0); };
+  var linea = function(a){ return dias.map(function(d, i){ return (i ? 'L' : 'M') + x(d) + ',' + y(a[i]); }).join(' '); };
+  var tic = [-3, 0, 3, 7, 14].map(function(d){
+    return '<line class="nx-d-tic" x1="' + x(d) + '" y1="' + Y0 + '" x2="' + x(d) + '" y2="' + (Y0 + 7) + '"/>' +
+      '<text class="nx-d-s" x="' + x(d) + '" y="' + (Y0 + 26) + '" text-anchor="middle">' +
+      (d === 0 ? 'destete' : (d > 0 ? '+' + d : String(d))) + '</text>';
+  }).join('');
+  return agSec('El bache del destete, y cuánto dura',
+    '<p>El día del destete el consumo se cae en picado: el lechón pierde la leche de golpe y todavía no sabe comer sólido. Lo que decide el resto del ciclo no es la caída —esa ocurre siempre— sino <b>cuántos días tarda en recuperarse</b>.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 350" role="img" aria-label="Consumo diario antes y después del destete, con una dieta adecuada y con una inadecuada">' +
+      '<line class="nx-d-eje" x1="' + X0 + '" y1="' + Y0 + '" x2="' + X1 + '" y2="' + Y0 + '"/>' + tic +
+      '<line class="nx-d-serv" x1="' + x(0) + '" y1="' + Y1 + '" x2="' + x(0) + '" y2="' + Y0 + '"/>' +
+      '<text class="nx-d-s" x="' + ((X0 + X1) / 2) + '" y="' + (Y0 + 50) + '" text-anchor="middle">días respecto al destete</text>' +
+      '<path class="nx-d-lis" d="' + linea(buena) + '" fill="none"/>' +
+      '<path class="nx-d-mala" d="' + linea(mala) + '" fill="none"/>' +
+      '<text class="nx-d-rot1" x="' + (x(9)) + '" y="' + (y(0.78) - 16) + '">Con preiniciador bueno</text>' +
+      '<text class="nx-d-rot3" x="' + (x(9)) + '" y="' + (y(0.58) + 28) + '">Con una dieta que no corresponde</text>' +
+      '<text class="nx-d-num" x="' + (x(0) + 10) + '" y="' + (y(0.10) - 12) + '">se cae a un tercio</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Las dos curvas parten del mismo sitio y terminan muy separadas. Esa separación son <b>días de más en la granja</b> para llegar al mismo peso, y esos días se pagan en alimento, en espacio y en el lote que no entra porque el corral sigue ocupado.</p>' +
+    '</div>', 'Por qué el preiniciador caro sale barato');
+}
+
+/* ------------------------------------------------------------
+   M06 · DÓNDE SE VA EL ALIMENTO DEL CICLO
+   ------------------------------------------------------------ */
+function nxDiagReparto(){
+  var et = [
+    ['Preinicio',     6,  20,  3, '#C56A34'],
+    ['Inicio',       20,  30,  9, '#C08A12'],
+    ['Crecimiento',  30,  60, 27, '#2F7D4F'],
+    ['Engorde',      60,  90, 37, '#2B7A8F'],
+    ['Finalización', 90, 115, 24, '#6B4E9E']
+  ];
+  var X0 = 60, ANCHO = 780, Y = 112, ALTO = 66;
+  var acc = 0;
+  var seg = et.map(function(e){
+    var w = e[3] / 100 * ANCHO, x = X0 + acc / 100 * ANCHO;
+    acc += e[3];
+    return '<rect x="' + x + '" y="' + Y + '" width="' + w + '" height="' + ALTO + '" style="fill:' + e[4] + '" class="nx-d-seg"/>' +
+      '<text class="nx-d-pct" x="' + (x + w / 2) + '" y="' + (Y + 32) + '" text-anchor="middle">' + e[3] + '%</text>' +
+      '<text class="nx-d-pct2" x="' + (x + w / 2) + '" y="' + (Y + 52) + '" text-anchor="middle">' + e[1] + '–' + e[2] + ' kg</text>' +
+      '<text class="nx-d-et2" x="' + (x + w / 2) + '" y="' + (Y - 14) + '" text-anchor="middle">' + e[0] + '</text>';
+  }).join('');
+  return agSec('Los kilos de todo el ciclo, repartidos por etapa',
+    '<p>Esta es la imagen que cambia dónde pone usted la atención. No todas las etapas pesan igual en la factura: <b>crecimiento, engorde y finalización se llevan casi el 90 % del alimento</b> de toda la vida del cerdo.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 320" role="img" aria-label="Porcentaje del alimento total del ciclo que consume cada etapa">' +
+      '<text class="nx-d-t" x="' + X0 + '" y="42">Del total de kilos que come un cerdo desde el destete hasta el mercado</text>' +
+      '<text class="nx-d-leg" x="' + X0 + '" y="62">referencia para un ciclo de 6 a 115 kg · su granja puede variar</text>' +
+      seg +
+      '<line class="nx-d-llave" x1="' + (X0 + 12 / 100 * ANCHO) + '" y1="' + (Y + ALTO + 14) + '" x2="' + (X0 + ANCHO) + '" y2="' + (Y + ALTO + 14) + '"/>' +
+      '<text class="nx-d-llavet" x="' + (X0 + 56 / 100 * ANCHO) + '" y="' + (Y + ALTO + 36) + '" text-anchor="middle">88 % del alimento del ciclo está aquí</text>' +
+      '<text class="nx-d-cs2" x="' + X0 + '" y="' + (Y + ALTO + 78) + '">Un peso ahorrado por kilo en engorde vale doce veces lo mismo ahorrado en preinicio.</text>' +
+      '<text class="nx-d-cs2" x="' + X0 + '" y="' + (Y + ALTO + 98) + '">Pero el preinicio decide si el animal llega a engorde en la fecha o veinte días tarde.</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Las dos frases de abajo parecen contradecirse y no se contradicen: <b>en preinicio se compra tiempo, en engorde se compra margen</b>. Recortar en la primera para ahorrar es el error más caro que se comete en las granjas pequeñas del país.</p>' +
+    '</div>', 'Dónde pesa de verdad cada etapa');
+}
+
+/* ------------------------------------------------------------
+   M09 · QUÉ SUSTITUYE A QUÉ
+   ------------------------------------------------------------ */
+function nxDiagSust(){
+  return agSec('Qué puede reemplazar a qué, y hasta dónde',
+    '<p>Cuando un ingrediente sube de precio la pregunta no es «¿con qué lo cambio?» sino <b>«¿qué estaba aportando, y quién más aporta eso?»</b>. Un ingrediente aporta energía, o proteína, o las dos: solo se sustituye dentro de su función.</p>' +
+    agTabla(
+      ['Si sube…', 'Aporta sobre todo', 'Se reemplaza con', 'Hasta', 'Lo que hay que vigilar'],
+      [
+        ['<b>Maíz</b>',   'Energía',           'Sorgo',                    '100 % del maíz',    'Taninos en grano oscuro: baja el consumo'],
+        ['<b>Maíz</b>',   'Energía',           'Harina de arroz',          '15 % de la dieta',  'Se enrancia rápido: huélala antes de usarla'],
+        ['<b>Maíz</b>',   'Energía',           'Aceite o grasa',           '5 % de la dieta',   'Más ensucia la mezcladora y se pone rancio'],
+        ['<b>Soya</b>',   'Proteína y lisina', 'Soya integral tostada',    'según el tostado',  'Mal tostada bloquea la proteína: pida el análisis'],
+        ['<b>Soya</b>',   'Proteína y lisina', 'Lisina sintética + maíz',  'corrige el limitante', 'Solo corrige lisina: treonina y triptófano quedan cortos'],
+        ['<b>Afrecho</b>','Fibra y volumen',   'Afrechillo de arroz',      '15 % de la dieta',  'Sube fibra y baja la energía de toda la fórmula']
+      ],
+      'Antes de cambiar nada, compare por lo que aporta: pesos por megacaloría si sustituye energía, pesos por punto de lisina si sustituye proteína. La calculadora de este módulo hace las dos cuentas con sus precios.') +
+    agComp(
+      'Sustitución que sí funciona',
+      ['Reemplaza la <b>misma función</b>: energía por energía, proteína por proteína',
+       'Se compara por aporte, no por el precio del saco',
+       'Se hace por pasos — 25 %, luego 50 % — mirando el consumo',
+       'Se anota la fecha del cambio, para poder culparlo después'],
+      'Sustitución que sale cara',
+      ['Cambiar soya por maíz «porque estaba más barato»',
+       'Comparar precios de saco sin mirar qué trae dentro',
+       'Cambiar el 100 % de un día para otro',
+       'Cambiar dos cosas a la vez: ya no se sabe cuál falló']),
+    'La decisión de cada semana');
+}
+
+/* ------------------------------------------------------------
+   M10 · DE LOS KILOS A LOS PESOS
+   ------------------------------------------------------------ */
+function nxDiagCadena(){
+  var pasos = [
+    ['280 kg',     'de alimento',  'lo que se comió el cerdo en todo el ciclo', '#C08A12', 100],
+    ['2,8',        'de conversión','kilos de alimento por cada kilo ganado',    '#2F7D4F',  82],
+    ['100 kg',     'de peso vivo', 'lo que se lleva el comprador',              '#2B7A8F',  64],
+    ['RD$ 25/kg',  'de costo',     'solo de alimento, por kilo vivo',           '#A83E63',  46],
+    ['su margen',  'lo que queda', 'precio de venta menos todo lo anterior',    '#6D4CA6',  30]
+  ];
+  var X0 = 70, ANCHO = 760, Y0 = 88, H = 52;
+  var caj = pasos.map(function(p, i){
+    var w = p[4] / 100 * ANCHO;
+    var x = X0 + (ANCHO - w) / 2;
+    var y = Y0 + i * (H + 12);
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + H + '" rx="10" style="fill:' + p[3] + '" class="nx-d-seg"/>' +
+      '<text class="nx-d-emb" x="' + (x + w / 2) + '" y="' + (y + 23) + '" text-anchor="middle">' + p[0] +
+        ' <tspan class="nx-d-embs">' + p[1] + '</tspan></text>' +
+      '<text class="nx-d-embp" x="' + (x + w / 2) + '" y="' + (y + 41) + '" text-anchor="middle">' + p[2] + '</text>' +
+      (i < pasos.length - 1 ? '<path class="nx-d-flecha" d="M' + (X0 + ANCHO / 2) + ',' + (y + H + 1) +
+        ' L' + (X0 + ANCHO / 2) + ',' + (y + H + 11) + '"/>' : '');
+  }).join('');
+  return agSec('De los kilos de alimento a los pesos del bolsillo',
+    '<p>Todo el curso termina en esta cadena. Cada escalón se calcula con el anterior, y por eso <b>un error arriba se arrastra hasta abajo</b>: si usted no sabe cuánto comió el lote, no sabe su conversión, y entonces tampoco sabe su costo ni su margen.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 400" role="img" aria-label="Cadena que va del alimento consumido hasta el margen, paso a paso">' +
+      '<text class="nx-d-t" x="' + X0 + '" y="42">Un cerdo de ejemplo, del comedero a la cuenta</text>' +
+      '<text class="nx-d-leg" x="' + X0 + '" y="62">los números son de ejemplo · el proyecto final usa los de SU granja</text>' +
+      caj +
+    '</svg>' +
+    '<p class="rp-esq-pie">Fíjese dónde está el único dato que nadie puede calcularle: <b>los kilos que se comió el lote</b>. Ese hay que anotarlo en la granja, saco por saco. Todo lo demás sale de ahí, y por eso el módulo insiste tanto con la libreta.</p>' +
+    '</div>', 'El curso entero, en cinco escalones');
+}
+
+/* engancharlos al pintor */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecVis2 = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(!s) return _nxSecVis2.apply(this, arguments);
+    switch(s.k){
+      case 'nxtopes':   return nxDiagTopes();
+      case 'nxdestete': return nxDiagDestete();
+      case 'nxreparto': return nxDiagReparto();
+      case 'nxsust':    return nxDiagSust();
+      case 'nxcadena':  return nxDiagCadena();
+    }
+    return _nxSecVis2.apply(this, arguments);
+  };
+}
+
 </script>
+
+
 
 
 
