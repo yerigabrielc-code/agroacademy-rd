@@ -20379,7 +20379,9 @@ if(typeof window.abrirCursos === 'function'){
     if(!esEstudiante()) return;
     if(typeof abrirCursos !== 'function') return;
     if(document.body.getAttribute('data-screen') !== 'curso') return;
-    if(document.getElementById('csOv')) { visto = true; return; }
+    /* si ya esta abierto no hay nada que hacer, pero NO se marca como
+       visto: si se marcara, al cerrarlo no volveria a abrirse nunca */
+    if(document.getElementById('csOv')) return;
     /* si ya está dentro de un curso complementario, no se le interrumpe */
     if(document.getElementById('nxOv') || document.getElementById('rpOv') || document.getElementById('sbOv')) return;
     visto = true;
@@ -20421,7 +20423,217 @@ if(typeof window.abrirCursos === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-portal.js ---------- */
+/* ============================================================
+   EL PORTAL · «Mis cursos» como casa del estudiante
+   ------------------------------------------------------------
+   Lo que pidió:
+   · que al entrar se quede aquí hasta que elija curso,
+   · fondo con vida, color y algo de movimiento,
+   · iconos más grandes,
+   · los bloqueados todos iguales, con «requiere pago adicional»,
+   · y en gris, para que se distingan del que sí puede abrir.
+
+   Se trabaja sobre la pantalla que ya existe: no se duplica nada.
+   El movimiento respeta prefers-reduced-motion, y si el sistema
+   pide menos animación el fondo se queda quieto.
+   ============================================================ */
+
+/* ---------- 1 · el fondo ---------- */
+function agPortalFondo(){
+  var ov = document.getElementById('csOv');
+  if(!ov || ov.querySelector('.ag-portal-bg')) return;
+  var bg = document.createElement('div');
+  bg.className = 'ag-portal-bg';
+  bg.setAttribute('aria-hidden', 'true');
+  bg.innerHTML = '<i class="ag-bl ag-bl1"></i><i class="ag-bl ag-bl2"></i>' +
+                 '<i class="ag-bl ag-bl3"></i><i class="ag-bl ag-bl4"></i>' +
+                 '<div class="ag-grano"></div>';
+  ov.insertBefore(bg, ov.firstChild);
+}
+
+/* ---------- 2 · el encabezado, con el nombre ---------- */
+function agPortalCabecera(){
+  var ov = document.getElementById('csOv');
+  if(!ov) return;
+  var h = ov.querySelector('.cs-h');
+  if(!h || h.querySelector('.ag-hola')) return;
+  var nombre = '';
+  try{
+    if(typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'STUDENT'){
+      var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === SESSION.id; })[0];
+      nombre = s ? String(s.name || '').split(' ')[0] : '';
+    }
+  }catch(e){}
+  var hora = new Date().getHours();
+  var saludo = hora < 12 ? 'Buenos días' : (hora < 19 ? 'Buenas tardes' : 'Buenas noches');
+  var t = h.querySelector('h2');
+  if(t && nombre){
+    var sp = document.createElement('span');
+    sp.className = 'ag-hola';
+    sp.textContent = saludo + ', ' + nombre;
+    t.parentNode.insertBefore(sp, t);
+  }
+}
+
+/* ---------- 3 · abiertos, bloqueados, y todos iguales ---------- */
+function agPortalTarjetas(){
+  var cards = document.querySelectorAll('#csOv .cs-c');
+  if(!cards.length) return;
+  [].forEach.call(cards, function(card){
+    var bloqueada = card.classList.contains('pago') || card.classList.contains('off');
+    card.classList.toggle('ag-abierta', !bloqueada);
+    card.classList.toggle('ag-bloqueada', bloqueada);
+    if(bloqueada && !card.querySelector('.ag-cinta')){
+      var curso = (typeof agCursoDeTarjeta === 'function') ? agCursoDeTarjeta(card) : null;
+      var p = (curso && typeof AGPRECIOS !== 'undefined') ? AGPRECIOS[curso] : null;
+      var cinta = document.createElement('div');
+      cinta.className = 'ag-cinta';
+      cinta.innerHTML = '<span class="ag-cinta-l">🔒</span>' +
+        '<b>Requiere pago adicional</b>' +
+        (p ? '<em>US$ ' + p.usd + '</em>' : '');
+      var cover = card.querySelector('.agp-cover');
+      if(cover) cover.appendChild(cinta);
+      else card.insertBefore(cinta, card.firstChild);
+    }
+    /* el chip de arriba repetia lo mismo que la cinta: con tres avisos
+       distintos en una tarjeta ya no hay estandar que valga */
+    var viejo = card.querySelector('.agp-candado');
+    if(bloqueada && viejo) viejo.remove();
+    if(!bloqueada && !card.querySelector('.ag-listo')){
+      var ok = document.createElement('div');
+      ok.className = 'ag-listo';
+      ok.innerHTML = '<span>✓</span><b>Disponible</b>';
+      var cov = card.querySelector('.agp-cover');
+      if(cov) cov.appendChild(ok);
+    }
+  });
+}
+
+/* ---------- 4 · que no se salga sin elegir ---------- */
+function agPortalSalida(){
+  var ov = document.getElementById('csOv');
+  if(!ov) return;
+  var esEstudiante = typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'STUDENT' &&
+                     !(typeof PREVIEW !== 'undefined' && PREVIEW);
+  var x = ov.querySelector('.cs-x');
+  if(!x) return;
+  /* Al estudiante la X se le esconde: detrás no hay a dónde ir, y para
+     salir ya tiene el botón «Cerrar sesión» al lado. Al instructor se le
+     deja, porque él sí vuelve a su panel. */
+  x.style.display = esEstudiante ? 'none' : '';
+}
+
+function agPortal(){
+  agPortalFondo();
+  agPortalCabecera();
+  agPortalTarjetas();
+  agPortalSalida();
+}
+window.agPortal = agPortal;
+
+if(typeof window.abrirCursos === 'function'){
+  var _abrirCursosPortal = window.abrirCursos;
+  window.abrirCursos = function(){
+    var r = _abrirCursosPortal.apply(this, arguments);
+    [0, 120, 320, 600].forEach(function(t){ setTimeout(agPortal, t); });
+    return r;
+  };
+}
+
+/* ---------- 5 · estilos ---------- */
+(function agCssPortal(){
+  if(document.getElementById('agCssPortal')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssPortal';
+  s.textContent = `
+/* NO se toca position: #csOv es fixed y ponerlo en relative lo saca de
+   su capa y lo esconde detras de la pantalla del curso. isolation basta
+   para que el fondo con z-index negativo se quede dentro. */
+#csOv{ isolation:isolate }
+.ag-portal-bg{ position:absolute; inset:0; overflow:hidden; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb,var(--green) 12%,transparent), transparent 60%),
+    var(--bg); }
+.ag-bl{ position:absolute; display:block; border-radius:50%; filter:blur(64px); opacity:.72 }
+.ag-bl1{ width:46vw; height:46vw; left:-12vw; top:-14vw;
+  background:radial-gradient(circle, color-mix(in srgb,#2F7D4F 58%,transparent), transparent 70%);
+  animation:agFlota1 26s ease-in-out infinite }
+.ag-bl2{ width:40vw; height:40vw; right:-10vw; top:6vh;
+  background:radial-gradient(circle, color-mix(in srgb,#C08A12 52%,transparent), transparent 70%);
+  animation:agFlota2 31s ease-in-out infinite }
+.ag-bl3{ width:38vw; height:38vw; left:16vw; bottom:-16vw;
+  background:radial-gradient(circle, color-mix(in srgb,#2B7A8F 50%,transparent), transparent 70%);
+  animation:agFlota3 35s ease-in-out infinite }
+.ag-bl4{ width:30vw; height:30vw; right:8vw; bottom:-10vw;
+  background:radial-gradient(circle, color-mix(in srgb,#B03A2E 42%,transparent), transparent 70%);
+  animation:agFlota4 29s ease-in-out infinite }
+@keyframes agFlota1{ 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(6vw,4vh) scale(1.12)} }
+@keyframes agFlota2{ 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-5vw,6vh) scale(1.08)} }
+@keyframes agFlota3{ 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(4vw,-5vh) scale(1.1)} }
+@keyframes agFlota4{ 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-4vw,-4vh) scale(1.14)} }
+.ag-grano{ position:absolute; inset:0; opacity:.4; mix-blend-mode:overlay;
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.5) 1px, transparent 0);
+  background-size:3px 3px }
+@media(prefers-reduced-motion:reduce){ .ag-bl{ animation:none !important } }
+
+/* el saludo */
+.ag-hola{ display:block; font-family:var(--mono); font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--green); margin-bottom:6px }
+
+/* iconos mas grandes y con mas presencia */
+#csOv .agp-ico{ width:74px !important; height:74px !important; border-radius:22px !important;
+  font-size:38px !important; bottom:-26px !important; right:22px !important;
+  box-shadow:0 14px 34px rgba(0,0,0,.34) !important;
+  /* por encima de la cinta de pago: si no, la cinta se la come */
+  z-index:5 !important }
+#csOv .cs-c h3{ margin-top:22px }
+@media(max-width:720px){ #csOv .agp-ico{ width:60px !important; height:60px !important;
+  font-size:31px !important; bottom:-21px !important } }
+
+/* el que puede abrir: a todo color y con vida */
+#csOv .cs-c.ag-abierta{ transition:transform .22s cubic-bezier(.2,.7,.3,1), box-shadow .22s }
+#csOv .cs-c.ag-abierta:hover{ transform:translateY(-4px); box-shadow:0 22px 48px rgba(0,0,0,.24) }
+.ag-listo{ position:absolute; left:18px; top:16px; display:flex; align-items:center; gap:7px;
+  padding:6px 13px; border-radius:20px; z-index:3;
+  background:color-mix(in srgb,#2F7D4F 88%,transparent); border:1px solid rgba(255,255,255,.28);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
+.ag-listo span{ color:#fff; font-size:12px; line-height:1 }
+.ag-listo b{ color:#fff; font-family:var(--sans); font-size:11.5px; font-weight:700; letter-spacing:.04em }
+
+/* los bloqueados: en gris, todos iguales */
+#csOv .cs-c.ag-bloqueada{ opacity:.88 }
+#csOv .cs-c.ag-bloqueada .agp-cover img{ filter:grayscale(.85) brightness(.62) contrast(1.05) }
+#csOv .cs-c.ag-bloqueada h3, #csOv .cs-c.ag-bloqueada p{ color:var(--muted) }
+#csOv .cs-c.ag-bloqueada .agp-ico{ filter:grayscale(.7); opacity:.9 }
+#csOv .cs-c.ag-bloqueada:hover{ opacity:1 }
+#csOv .cs-c.ag-bloqueada:hover .agp-cover img{ filter:grayscale(.45) brightness(.74) }
+.ag-cinta{ position:absolute; left:0; right:0; bottom:0; z-index:3;
+  display:flex; align-items:center; gap:10px; padding:11px 112px 11px 18px;
+  background:linear-gradient(to right, color-mix(in srgb,#C08A12 92%,transparent), color-mix(in srgb,#A8710E 92%,transparent));
+  border-top:1px solid rgba(255,255,255,.24) }
+.ag-cinta-l{ font-size:15px; line-height:1 }
+.ag-cinta b{ flex:1; color:#fff; font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:.01em }
+.ag-cinta em{ position:absolute; right:104px; font-style:normal; font-family:var(--mono);
+  font-size:15px; font-weight:700; color:#fff; background:rgba(0,0,0,.26);
+  border-radius:8px; padding:3px 10px; white-space:nowrap }
+@media(max-width:520px){ .ag-cinta{ padding:9px 13px; gap:7px } .ag-cinta b{ font-size:12px } }
+
+/* la rejilla, con mas aire */
+#csOv .cs-g{ gap:20px }
+#csOv .cs-w{ position:relative; z-index:1 }
+`;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
+
 
 
 
@@ -23367,6 +23579,11 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
+
+
 
 
 
