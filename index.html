@@ -20877,6 +20877,12 @@ if(typeof window.abrirCursos === 'function'){
 
 /* ===== elegibilidad en el panel ===== */
 .sb-eleg{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:5px}
+
+/* ===== credito obligatorio de las fotos con licencia CC ===== */
+.sb-credito{display:block !important;margin-top:11px;padding-top:10px;
+  border-top:1px solid var(--border);font-size:12px !important;line-height:1.5;color:var(--muted) !important}
+.sb-credito a{color:var(--muted);text-decoration:underline}
+.sb-credito a:hover{color:var(--text-2)}
 .sb-eleg.on{color:var(--good)}
 
 /* ===== planillas impresas ===== */
@@ -22838,6 +22844,83 @@ if(typeof window.nxSeccion === 'function'){
 }
 
 
+/* ---------- sb-fotos.js ---------- */
+/* ============================================================
+   CURSO 4 · FOTOGRAFÍAS REALES
+   ------------------------------------------------------------
+   Hasta ahora el curso era todo diagramas dibujados: no tenía una
+   sola fotografía. Estas cuatro son reales y con licencia que
+   permite usarlas, incluida la parte comercial.
+
+   Dos de dominio público y dos con CC BY-SA 4.0. Las segundas
+   OBLIGAN a dar crédito visible, y eso se hace en el pie de cada
+   una — no en una página de créditos escondida. Por eso el pie de
+   foto lleva autor y licencia: es un requisito, no un adorno.
+   ============================================================ */
+
+var SBFOTO = {
+  epp: {
+    f:'sb-f-epp',
+    t:'Esto es bioseguridad, y no hace falta una granja grande',
+    p:'Traje desechable, guantes, botas y una hidrolavadora. Lo que hace que funcione no es el equipo: es que <b>todos lo usen siempre</b>, también el día que hay prisa. Sin eso, el equipo es decoración.',
+    cr:'Foto: Danwycz · <a href="https://commons.wikimedia.org/wiki/File:Bioasekuracja_fermy1.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0'
+  },
+  arco: {
+    f:'sb-f-arco',
+    t:'El vehículo, antes de entrar',
+    p:'Un arco de desinfección en la entrada de una granja. Fíjese en el camión: <b>espera fuera</b>. Si su granja no tiene arco, la versión que sí puede tener es la misma idea — que el vehículo descargue antes del portón y no llegue hasta los corrales.',
+    cr:'Foto: Danwycz · <a href="https://commons.wikimedia.org/wiki/File:Brama_Bioasekuracyjna.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0'
+  },
+  lab: {
+    f:'sb-f-lab',
+    t:'Aquí es donde se confirma, y solo aquí',
+    p:'Un laboratorio oficial trabajando con muestras de Peste Porcina Africana. <b>Esto es lo que usted no puede hacer desde el corral</b>, y es exactamente por eso que su trabajo es sospechar rápido y avisar, no diagnosticar.',
+    cr:'Foto: USDA Agricultural Research Service · <a href="https://commons.wikimedia.org/wiki/File:Research_on_Plum_Island_fights_African_Swine_Fever_(20191113-ARS-LSC-0429).jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · dominio público'
+  },
+  cerca: {
+    f:'sb-f-cerca',
+    t:'Una medida oficial de contención, en la vida real',
+    p:'Cerca instalada para frenar el paso de jabalíes durante un brote de PPA, con el aviso de mantener el paso cerrado. No es una ilustración: <b>así se ve una zona bajo control sanitario</b> cuando la enfermedad ya está circulando.',
+    cr:'Foto: Trio3D · <a href="https://commons.wikimedia.org/wiki/File:Klein_Gaglow,_African_swine_fever_barrier_(2_of_2).jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0'
+  }
+};
+
+function sbSecFoto(id){
+  var x = SBFOTO[id];
+  if(!x) return '';
+  return '<section class="nx-b nx-full">' +
+    '<figure class="ag-fig rv">' +
+      '<img src="images/' + x.f + '.jpg" alt="' + agEsc(x.t) + '" loading="lazy">' +
+      '<figcaption><b>' + x.t + '</b><span>' + x.p + '</span>' +
+        '<span class="sb-credito">' + x.cr + '</span>' +
+      '</figcaption>' +
+    '</figure></section>';
+}
+
+/* ---------- colocar ---------- */
+(function sbColocaFotos(){
+  if(typeof SBMOD === 'undefined') return;
+  var poner = function(mod, pos, id){
+    var m = SBMOD.find(function(q){ return q.n === mod; });
+    if(!m || m.sec.some(function(s){ return s.k === 'sbfoto' && s.id === id; })) return;
+    m.sec.splice(Math.min(pos, m.sec.length), 0, {k:'sbfoto', id:id});
+  };
+  /* de atrás hacia delante */
+  poner(6, 3, 'epp');
+  poner(4, 5, 'arco');
+  poner(3, 5, 'cerca');
+  poner(2, 6, 'lab');
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecSbFoto = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'sbfoto') return sbSecFoto(s.id);
+    return _nxSecSbFoto.apply(this, arguments);
+  };
+}
+
+
 /* ---------- sb-quiz.js ---------- */
 /* ============================================================
    CURSO 4 · EVALUACIONES · 10 por módulo
@@ -23475,8 +23558,8 @@ document.addEventListener('keydown', function(e){
   if(!ov || ov.style.display === 'none') return;
   if(document.getElementById('nxAtOv') || document.getElementById('rpAtOv')) return;
   if(document.getElementById('sbPago') || document.getElementById('sbPagoCert')) return;
-  var _cs = document.getElementById('csOv');
-  if(_cs && _cs.offsetParent !== null) return;   /* solo si el catalogo esta a la vista */
+  var _sbCs = document.getElementById('csOv');
+  if(_sbCs && _sbCs.offsetParent !== null) return;   /* solo si el catalogo esta a la vista */
   if(typeof agEscribiendo === 'function' && agEscribiendo(e)) return;
   if(e.ctrlKey || e.metaKey || e.altKey) return;
   var k = e.key;
@@ -23579,6 +23662,8 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
 
 
 
