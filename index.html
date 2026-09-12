@@ -17334,8 +17334,9 @@ function rpTecla(e){
   if(!ov || ov.style.display === 'none') return;
 
   /* si hay un modal encima, solo se atiende Escape */
+  var _cs = document.getElementById('csOv');
   var encima = document.getElementById('rpPago') || document.getElementById('nxPagoOv') ||
-               document.getElementById('csOv') || document.querySelector('.cq-ov');
+               (_cs && _cs.offsetParent !== null ? _cs : null) || document.querySelector('.cq-ov');
   if(encima){
     if(e.key === 'Escape'){
       e.preventDefault();
@@ -17650,6 +17651,7 @@ window.agOtraVez = function(){
 };
 
 </script>
+
 
 
 
@@ -19144,6 +19146,142 @@ addEventListener('resize', function(){
   }, true);
 })();
 
+/* ============================================================
+   PASAR DE UN MÓDULO A OTRO CON EL TECLADO
+   ------------------------------------------------------------
+   Hasta ahora las flechas movían diapositivas, y solo al llegar al
+   final de la última se pasaba de módulo — y en el curso 4 ni eso,
+   porque agPasa no lo conocía. Aquí se añaden dos cosas:
+
+   · agPasa aprende el curso 4.
+   · Mayúsculas + flecha salta de módulo directamente, desde donde
+     esté. Mismo atajo en los cuatro cursos.
+   ============================================================ */
+
+/* qué curso está abierto ahora mismo */
+function agCursoActivo(){
+  if(document.getElementById('sbOv')) return 'sanidad';
+  if(document.getElementById('rpOv')) return 'reproduccion';
+  if(document.getElementById('nxOv')) return 'nutricion';
+  if(document.body.getAttribute('data-screen') === 'curso') return 'porcicultura';
+  return null;
+}
+window.agCursoActivo = agCursoActivo;
+
+/* saltar de módulo, en el curso que esté abierto */
+function agModulo(d){
+  var c = agCursoActivo();
+  if(!c) return false;
+  try{
+    if(c === 'sanidad' && typeof sbIr === 'function'){
+      var n = SBCUR + d;
+      if(n < 0 || n > SBMOD.length) return false;
+      sbIr(n); return true;
+    }
+    if(c === 'reproduccion' && typeof rpIr === 'function'){
+      var n2 = RPCUR + d;
+      if(n2 < 0 || n2 > RPMOD.length) return false;
+      rpIr(n2); return true;
+    }
+    if(c === 'nutricion' && typeof nxIr === 'function'){
+      var n3 = NXCUR + d;
+      if(n3 < 0 || n3 > NXMOD.length) return false;
+      nxIr(n3); return true;
+    }
+    if(c === 'porcicultura' && typeof goto === 'function' && typeof current !== 'undefined'){
+      var n4 = current + d;
+      if(n4 < 0 || n4 > 12) return false;
+      goto(n4); return true;
+    }
+  }catch(e){}
+  return false;
+}
+window.agModulo = agModulo;
+
+/* agPasa: que al acabar las diapositivas del curso 4 también avance */
+if(typeof window.agPasa === 'function'){
+  var _agPasaSb = window.agPasa;
+  window.agPasa = function(curso, d){
+    if(curso !== 'sanidad') return _agPasaSb.apply(this, arguments);
+    var g = AGGRP.sanidad || agRecalcula('sanidad');
+    var i = (AGPAG.sanidad || 0) + d;
+    if(i < 0){ if(typeof SBCUR !== 'undefined' && SBCUR > 1) sbIr(SBCUR - 1); return; }
+    if(i >= g.length){ if(typeof SBCUR !== 'undefined' && SBCUR < SBMOD.length) sbIr(SBCUR + 1); return; }
+    agMuestra('sanidad', i);
+  };
+}
+
+/* Mayúsculas + flecha = módulo anterior / siguiente, en los cuatro */
+document.addEventListener('keydown', function(e){
+  if(!e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return;
+  if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+  if(typeof agEscribiendo === 'function' && agEscribiendo(e)) return;
+  if(document.getElementById('nxAtOv') || document.getElementById('rpAtOv')) return;
+  /* el catalogo solo estorba si esta a la vista: comprobar que existe
+     bastaba para matar el atajo si quedaba un resto en el DOM */
+  var cs = document.getElementById('csOv');
+  if(cs && cs.offsetParent !== null) return;
+  var ok = agModulo(e.key === 'ArrowRight' ? 1 : -1);
+  if(ok){ e.preventDefault(); e.stopImmediatePropagation(); }
+  else if(typeof toast === 'function'){
+    toast(e.key === 'ArrowRight' ? 'Ya está en el último módulo' : 'Ya está en el primero', '📘');
+  }
+}, true);
+
+/* que aparezca en la ayuda de atajos */
+['rpAtajos', 'nxAtajos'].forEach(function(fn){
+  if(typeof window[fn] !== 'function') return;
+  var _f = window[fn];
+  window[fn] = function(){
+    var r = _f.apply(this, arguments);
+    var ov = document.getElementById(fn === 'rpAtajos' ? 'rpAtOv' : 'nxAtOv');
+    var l = ov && ov.querySelector('.nxat-l');
+    if(l && !/Mayús/.test(l.textContent)){
+      var d = document.createElement('div');
+      d.innerHTML = '<kbd>Mayús</kbd> <kbd>→</kbd> <kbd>←</kbd><span>Módulo siguiente o anterior</span>';
+      l.insertBefore(d, l.children[2] || null);
+    }
+    return r;
+  };
+});
+
+/* ============================================================
+   EL CATÁLOGO QUE SE QUEDABA COLGADO
+   ------------------------------------------------------------
+   Los manejadores de teclado de los cuatro cursos comprueban si
+   está abierto el catálogo («Mis cursos») para no robarle las
+   teclas, y lo hacían con document.getElementById('csOv'). Si ese
+   elemento se quedaba en el DOM sin verse —y se quedaba—, el
+   teclado moría en los cuatro cursos a la vez.
+
+   En los bloques que controlo la guarda ya comprueba visibilidad.
+   El del curso 2 vive en el código original y no se puede editar,
+   así que aquí se ataca la causa: si el catálogo está en el DOM
+   pero no se ve, se retira.
+   ============================================================ */
+(function agLimpiaCatalogo(){
+  var limpia = function(){
+    var cs = document.getElementById('csOv');
+    if(!cs) return;
+    if(cs.offsetParent === null || getComputedStyle(cs).display === 'none'){
+      cs.remove();
+      document.body.style.overflow = '';
+    }
+  };
+  /* al abrir cualquiera de los cuatro cursos y cada vez que algo lo cierra */
+  ['openReproduccion', 'openNutricion', 'openSanidad'].forEach(function(fn){
+    if(typeof window[fn] !== 'function') return;
+    var _f = window[fn];
+    window[fn] = function(){ var r = _f.apply(this, arguments); setTimeout(limpia, 60); return r; };
+  });
+  if(typeof window.cerrarCursos === 'function'){
+    var _cc = window.cerrarCursos;
+    window.cerrarCursos = function(){ var r = _cc.apply(this, arguments); limpia(); return r; };
+  }
+  addEventListener('hashchange', function(){ setTimeout(limpia, 60); });
+  setInterval(limpia, 4000);
+})();
+
 
 /* ---------- ag-diagcss.js ---------- */
 /* Estilos de los diagramas de Formulación */
@@ -19853,6 +19991,13 @@ var AGCSS8 = `
 
 
 
+
+
+
+
+
+
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -20131,7 +20276,7 @@ function sbEsInstructor(){
    en el mismo sitio y con las mismas reglas que los demás para que
    el panel de administración los trate igual.
    ============================================================ */
-var SBPRECIO = { curso: 38, certificado: 15, moneda: 'US$' };
+var SBPRECIO = { curso: 45, certificado: 15, moneda: 'US$' };
 try{
   var _sp = JSON.parse(localStorage.getItem('sb_precio') || 'null');
   if(_sp) SBPRECIO = Object.assign(SBPRECIO, _sp);
@@ -20330,67 +20475,73 @@ function sbAbrirPago(){
 }
 window.sbAbrirPago = sbAbrirPago;
 
-/* ---------- examen ---------- */
+/* ---------- examen ----------
+   Mismo marcado que el curso 3, clase por clase. La primera versión usó
+   .nx-o y radios: esas clases no existen en la hoja de estilos, así que
+   las opciones salían en display:inline y se amontonaban en un párrafo.
+   Las de verdad son .nx-opts (columna) y .nx-opt (botón), y la selección
+   la maneja nxSel(). ---------- */
 function sbExamen(id){
-  var q = (typeof SBQUIZ !== 'undefined' && SBQUIZ[id]) ? SBQUIZ[id] : null;
-  if(!q || !q.length) return '';
-  var m = SBMOD[id - 1];
-  var h = '<section class="nx-b nx-ex nx-solo"><h3 class="rv">Evaluación del módulo</h3>' +
-    '<p class="nx-cap rv">Nota mínima: <b>' + SBPASS + ' %</b> · ' + q.length + ' preguntas. ' +
-    'Si no la aprueba puede volver a intentarlo: su avance no se pierde.</p>' +
-    '<div class="nx-exq" id="sbEx' + id + '">' +
-    q.map(function(x, i){
-      return '<div class="nx-q" data-c="' + x.c + '"><p><b>' + (i + 1) + '.</b> ' + x.q + '</p>' +
-        x.o.map(function(o, j){
-          return '<label class="nx-o"><input type="radio" name="sbq' + id + '_' + i + '" value="' + j + '"><span>' + o + '</span></label>';
-        }).join('') +
-        '<div class="nx-fb">' + (x.fb || '') + '</div></div>';
-    }).join('') +
-    '</div>' +
-    '<div class="nx-exa"><button class="btn btn-primary" onclick="sbEnviar(' + id + ')">Calificar</button>' +
-    '<button class="btn btn-ghost" onclick="sbReset(' + id + ')">Limpiar</button>' +
-    '<span id="sbRes' + id + '" class="nx-exr"></span></div></section>';
+  var qs = (typeof SBQUIZ !== 'undefined' && SBQUIZ[id]) || [];
+  if(!qs.length) return '';
+  var r = sbRec(id);
+  var h = '<section class="nx-b nx-solo"><h3 class="rv">Evaluación del módulo</h3>' +
+    '<div class="nx-ex" id="sbex-' + id + '"><div class="nx-ex-h rv">' +
+    '<span>Nota mínima: <b>' + SBPASS + ' %</b> · ' + qs.length + ' preguntas · si no la aprueba puede repetirla</span>' +
+    (r ? '<span class="nx-ex-best' + (r.passed ? ' pass' : '') + '">Mejor: ' + r.best + ' %' +
+         (r.passed ? ' · APROBADO ✓' : '') + '</span>' : '') + '</div>';
+  h += qs.map(function(q, i){
+    return '<div class="nx-q rv" data-c="' + q.c + '"><p><b>' + (i + 1) + '.</b> ' + esc(q.q) + '</p><div class="nx-opts">' +
+      q.o.map(function(o){ return '<button class="nx-opt" onclick="nxSel(this)">' + esc(o) + '</button>'; }).join('') +
+      '</div><div class="nx-fb">' + esc(q.fb || '') + '</div></div>';
+  }).join('');
+  h += '<div class="nx-ex-a rv"><button class="btn btn-primary" onclick="sbEnviar(' + id + ')">Enviar respuestas</button>' +
+    '<button class="btn btn-ghost" onclick="sbReset(' + id + ')">Reiniciar</button></div>' +
+    '<div class="nx-ex-r" id="sbexr-' + id + '"></div></div></section>';
   return h;
 }
 
 function sbEnviar(id){
-  var caja = document.getElementById('sbEx' + id); if(!caja) return;
-  if(typeof exArmar === 'function') try{ exArmar('sanidad', id, caja); }catch(e){}
-  var qs = [].slice.call(caja.querySelectorAll('.nx-q'));
-  var bien = 0, sinResponder = 0, fallos = [];
-  qs.forEach(function(qd, i){
-    var sel = qd.querySelector('input:checked');
-    var c = parseInt(qd.getAttribute('data-c'), 10);
-    if(!sel){ sinResponder++; fallos.push(i); return; }
-    if(parseInt(sel.value, 10) === c) bien++;
-    else fallos.push(i);
-  });
-  if(sinResponder){
-    if(typeof toast === 'function') toast('Le faltan ' + sinResponder + ' preguntas por responder', '✋');
-    if(typeof exDesarmar === 'function') try{ exTapar('sanidad', id, caja, []); }catch(e){}
+  var ex = document.getElementById('sbex-' + id); if(!ex) return;
+  if(typeof exArmar === 'function') try{ exArmar('sanidad', id, ex); }catch(e){}
+  var qs = [].slice.call(ex.querySelectorAll('.nx-q'));
+  if(!qs.every(function(q){ return q.querySelector('.nx-opt.sel'); })){
+    if(typeof toast === 'function') toast('Responda todas las preguntas', '✍️');
+    if(typeof exTapar === 'function') try{ exTapar('sanidad', id, ex, []); }catch(e){}
     return;
   }
-  var nota = Math.round(bien / qs.length * 100);
-  var pasa = nota >= SBPASS;
+  var ok = 0, fallos = [];
+  qs.forEach(function(q, i){
+    var ci = +q.dataset.c, ops = [].slice.call(q.querySelectorAll('.nx-opt'));
+    var sel = ops.findIndex(function(o){ return o.classList.contains('sel'); });
+    ops.forEach(function(o, j){ if(j === ci) o.classList.add('ok'); if(j === sel && j !== ci) o.classList.add('bad'); });
+    if(sel === ci) ok++; else fallos.push(i);
+    q.classList.add('rev');
+  });
+  ex.classList.add('cal');
+  var nota = Math.round(ok / qs.length * 100), pasa = nota >= SBPASS;
   sbGuardarNota(id, nota, pasa);
-  var r = document.getElementById('sbRes' + id);
-  if(r){
-    r.className = 'nx-exr ' + (pasa ? 'ok' : 'no');
-    r.innerHTML = pasa
-      ? '✓ Aprobado con ' + nota + ' % (' + bien + ' de ' + qs.length + ')'
-      : '✕ ' + nota + ' % — necesita ' + SBPASS + ' %. Puede volver a intentarlo.';
+  var res = document.getElementById('sbexr-' + id);
+  if(res){
+    res.className = 'nx-ex-r ' + (pasa ? 'pass' : 'fail');
+    res.innerHTML = '<b>' + nota + ' %</b><span>' + ok + ' de ' + qs.length + ' correctas · ' +
+      (pasa ? 'Aprobado. Módulo siguiente desbloqueado.' : 'No aprobado. Puede volver a intentarlo: su avance no se pierde.') + '</span>';
   }
-  if(typeof exTapar === 'function') try{ exTapar('sanidad', id, caja, fallos); }catch(e){}
+  if(typeof exTapar === 'function') try{ exTapar('sanidad', id, ex, fallos); }catch(e){}
   sbNav();
-  if(pasa && typeof sbRevisarLogros === 'function') sbRevisarLogros();
-  if(typeof toast === 'function') toast(pasa ? 'Módulo ' + id + ' aprobado' : 'Repase y vuelva a intentarlo', pasa ? '✓' : '📘');
+  if(pasa){
+    if(typeof toast === 'function') toast('Módulo ' + id + ' aprobado', '🎓');
+    if(typeof sbRevisarLogros === 'function') sbRevisarLogros();
+  }
 }
 
 function sbReset(id){
-  var caja = document.getElementById('sbEx' + id); if(!caja) return;
-  [].forEach.call(caja.querySelectorAll('input[type=radio]'), function(i){ i.checked = false; });
-  [].forEach.call(caja.querySelectorAll('.nx-q'), function(q){ q.className = 'nx-q'; });
-  var r = document.getElementById('sbRes' + id); if(r){ r.className = 'nx-exr'; r.textContent = ''; }
+  var ex = document.getElementById('sbex-' + id); if(!ex) return;
+  [].forEach.call(ex.querySelectorAll('.nx-opt'), function(o){ o.classList.remove('sel', 'ok', 'bad'); });
+  [].forEach.call(ex.querySelectorAll('.nx-q'), function(q){ q.classList.remove('rev'); });
+  ex.classList.remove('cal');
+  var res = document.getElementById('sbexr-' + id);
+  if(res){ res.className = 'nx-ex-r'; res.innerHTML = ''; }
 }
 
 /* ---------- certificado: elegible Y pagado ---------- */
@@ -21717,6 +21868,327 @@ if(typeof window.nxSeccion === 'function'){
 }
 
 
+/* ---------- sb-info.js ---------- */
+/* ============================================================
+   CURSO 4 · INFOGRAFÍAS Y EL CASO DOCUMENTADO
+   ------------------------------------------------------------
+   Los diagramas son dibujados, no fotos: lo que este curso tiene
+   que enseñar —el plano de una granja, la carga que baja en cada
+   paso de limpieza, el reloj de las primeras horas— no existe en
+   ninguna fotografía.
+
+   El caso del brote de 2021 en el país va con fuente y solo con
+   lo verificable. Nada de cifras redondeadas de memoria.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   M02 · EL CASO DOCUMENTADO: RD, JULIO DE 2021
+   ------------------------------------------------------------ */
+function sbSecCasoReal(){
+  return agSec('Lo que pasó aquí, en 2021',
+    '<p>Esto no es un ejemplo inventado para un curso. La PPA entró a República Dominicana y fue <b>el primer caso confirmado en el hemisferio occidental desde los años ochenta</b>. Conviene conocer los hechos, porque son los que explican por qué este curso existe.</p>' +
+    agLinea([
+      ['28 de julio de 2021 · se detecta',
+       'Se descubre el primer caso en cerdos domésticos en el país.', 'detección'],
+      ['29 de julio de 2021 · se notifica',
+       'El caso se notifica a la Organización Mundial de Sanidad Animal. Un día. Ese es el estándar con el que hay que comparar cualquier demora.', 'notificación'],
+      ['Agosto de 2021 · se extiende',
+       'Las autoridades reportan presencia en múltiples provincias del país. Se establecen cordones sanitarios y se aplica el sacrificio sanitario, que es la única medida de control disponible porque no hay vacuna.', 'respuesta'],
+      ['Lo que recomendó la FAO a la región',
+       'Reforzar los controles fronterizos, aumentar la vigilancia y la notificación de animales enfermos o muertos, reforzar la bioseguridad en las explotaciones, y <b>desaconsejar la alimentación con sobras de comida</b>.', 'prevención']
+    ]) +
+    agNota('dato', 'Fíjese en la última línea',
+      'De las cuatro recomendaciones de la FAO, <b>tres las puede aplicar usted mañana en su granja</b> sin depender de nadie: vigilar y notificar, reforzar la bioseguridad, y dejar de dar sobras de comida. Eso es exactamente el contenido de los módulos 03 a 09 de este curso.') +
+    '<p class="sb-fuente rv"><b>Fuentes de este bloque:</b> ' +
+    '<a href="https://news.un.org/es/story/2021/08/1495042" target="_blank" rel="noopener">Noticias ONU · agosto 2021</a> · ' +
+    '<a href="https://cnnespanol.cnn.com/2021/08/03/republica-dominicana-peste-porcina-africana-orix/" target="_blank" rel="noopener">CNN en Español · agosto 2021</a>. ' +
+    'Se recogen únicamente los hechos publicados por esas fuentes. Para la situación sanitaria vigente y las medidas oficiales en curso, consulte a la autoridad veterinaria competente.</p>',
+    'El caso que nos toca de cerca');
+}
+
+/* ------------------------------------------------------------
+   M01 · PREVENIR CONTRA PERDER
+   ------------------------------------------------------------ */
+function sbInfoCosto(){
+  var barras = [
+    ['Botas exclusivas por persona',        3,  '#2F7D4F', 'prevenir'],
+    ['Cadena, candado y cartel',            2,  '#2F7D4F', 'prevenir'],
+    ['Pediluvio y desinfectante del año',   6,  '#2F7D4F', 'prevenir'],
+    ['Libreta y planillas',                 1,  '#2F7D4F', 'prevenir'],
+    ['Corral de cuarentena improvisado',    8,  '#2F7D4F', 'prevenir'],
+    ['UN brote: animales perdidos',        72, '#B03A2E', 'perder'],
+    ['UN brote: meses sin vender',         46, '#B03A2E', 'perder'],
+    ['UN brote: repoblar de cero',         38, '#B03A2E', 'perder']
+  ];
+  var X0 = 300, ANCHO = 540, H = 40;
+  var max = 80;
+  var filas = barras.map(function(b, i){
+    var y = 92 + i * H;
+    var w = b[1] / max * ANCHO;
+    return '<text class="sb-i-et" x="' + (X0 - 14) + '" y="' + (y + 18) + '" text-anchor="end">' + b[0] + '</text>' +
+      '<rect class="sb-i-pista" x="' + X0 + '" y="' + y + '" width="' + ANCHO + '" height="25" rx="5"/>' +
+      '<rect x="' + X0 + '" y="' + y + '" width="' + Math.max(w, 4) + '" height="25" rx="5" style="fill:' + b[2] + '"/>' +
+      (i === 4 ? '<line class="sb-i-corte" x1="' + (X0 - 250) + '" y1="' + (y + 34) + '" x2="' + (X0 + ANCHO) + '" y2="' + (y + 34) + '"/>' : '');
+  }).join('');
+  return agSec('Lo que cuesta prevenir, al lado de lo que cuesta perder',
+    '<p>Las barras están en la misma escala. No hacen falta cifras exactas para ver la diferencia: <b>las cinco de arriba juntas no llegan a la quinta parte de cualquiera de las tres de abajo</b>.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 440" role="img" aria-label="Comparación en la misma escala entre el costo de las medidas de prevención y las pérdidas de un brote">' +
+      '<text class="sb-i-t" x="40" y="42">Todo en la misma escala · granja de 20 madres</text>' +
+      '<text class="sb-i-leg" x="40" y="64">verde: lo que cuesta prevenir   ·   rojo: lo que cuesta un solo brote</text>' +
+      filas +
+      '<text class="sb-i-nota" x="' + (X0 - 250) + '" y="' + (92 + 5 * H + 22) + '">↑ arriba: gasto de una vez   ·   ↓ abajo: pérdida de una vez</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Las proporciones son de referencia para una granja pequeña, no cifras de su caso. <b>Haga la suya</b>: sume el valor de los animales que tiene hoy y compárelo con lo que cuesta un par de botas y un candado. En casi todas las granjas del país la respuesta es la misma.</p>' +
+    '</div>', 'La cuenta que decide todo lo demás');
+}
+
+/* ------------------------------------------------------------
+   M03 · MATRIZ DE RIESGO
+   ------------------------------------------------------------ */
+function sbInfoMatriz(){
+  /* [etiqueta, probabilidad 1-3, gravedad 1-3] */
+  var v = [
+    ['Vehículos que entran',      3, 3], ['Sobras con carne de cerdo', 2, 3],
+    ['Animales sin cuarentena',   2, 3], ['Visitantes de otra granja', 3, 2],
+    ['Botas y ropa propias',      3, 2], ['Equipos prestados',         2, 2],
+    ['Jaulas de transporte',      2, 2], ['Roedores y plagas',         3, 1],
+    ['Perros, gatos, aves',       3, 1], ['Cerdos asilvestrados',      1, 3]
+  ];
+  var X0 = 210, Y0 = 320, CEL = 150;
+  var cx = function(p){ return X0 + (p - 1) * CEL + CEL / 2; };
+  var cy = function(g){ return Y0 - (g - 1) * CEL - CEL / 2; };
+  var celdas = '';
+  for(var p = 1; p <= 3; p++) for(var g = 1; g <= 3; g++){
+    var n = p * g;
+    var cls = n >= 6 ? 'sb-m-alto' : (n >= 3 ? 'sb-m-medio' : 'sb-m-bajo');
+    celdas += '<rect class="' + cls + '" x="' + (X0 + (p - 1) * CEL) + '" y="' + (Y0 - g * CEL) +
+      '" width="' + CEL + '" height="' + CEL + '"/>';
+  }
+  /* repartir los puntos dentro de su celda para que no se pisen */
+  var usados = {};
+  var puntos = v.map(function(x){
+    var k = x[1] + ',' + x[2];
+    usados[k] = (usados[k] || 0) + 1;
+    var i = usados[k] - 1;
+    var dx = (i % 2 ? 34 : -34), dy = (Math.floor(i / 2) * 34) - 20;
+    return '<circle class="sb-m-p" cx="' + (cx(x[1]) + dx) + '" cy="' + (cy(x[2]) + dy) + '" r="7"/>' +
+      '<text class="sb-m-l" x="' + (cx(x[1]) + dx) + '" y="' + (cy(x[2]) + dy + 22) + '" text-anchor="middle">' + x[0] + '</text>';
+  }).join('');
+  return agSec('Qué mirar primero: probabilidad por gravedad',
+    '<p>El riesgo no es «lo que más miedo da»: es <b>lo probable multiplicado por lo grave</b>. Lo de la esquina superior derecha es lo que se cierra primero, aunque parezca menos dramático.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 400" role="img" aria-label="Matriz de riesgo que cruza probabilidad y gravedad para las diez vías de entrada">' +
+      celdas +
+      '<line class="sb-i-eje" x1="' + X0 + '" y1="' + Y0 + '" x2="' + (X0 + 3 * CEL) + '" y2="' + Y0 + '"/>' +
+      '<line class="sb-i-eje" x1="' + X0 + '" y1="' + Y0 + '" x2="' + X0 + '" y2="' + (Y0 - 3 * CEL) + '"/>' +
+      ['Poco común', 'Común', 'Muy común'].map(function(t, i){
+        return '<text class="sb-i-s" x="' + cx(i + 1) + '" y="' + (Y0 + 26) + '" text-anchor="middle">' + t + '</text>';
+      }).join('') +
+      ['Moderada', 'Grave', 'Muy grave'].map(function(t, i){
+        return '<text class="sb-i-s" x="' + (X0 - 14) + '" y="' + (cy(i + 1) + 5) + '" text-anchor="end">' + t + '</text>';
+      }).join('') +
+      '<text class="sb-i-s" x="' + (X0 + 1.5 * CEL) + '" y="' + (Y0 + 52) + '" text-anchor="middle">qué tan común es</text>' +
+      '<text class="sb-i-s" transform="translate(' + (X0 - 120) + ',' + (Y0 - 1.5 * CEL) + ') rotate(-90)" text-anchor="middle">qué tan grave</text>' +
+      puntos +
+      '<text class="sb-i-t" x="' + (X0 + 3 * CEL - 120) + '" y="' + (Y0 - 3 * CEL - 18) + '">cerrar primero →</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Los <b>vehículos que entran al patio</b> están solos en la esquina peor: muy comunes y muy graves. Y es de las vías que se cierran sin gastar un peso — basta con decidir que el camión descarga afuera.</p>' +
+    '</div>', 'Dónde poner la atención');
+}
+
+/* ------------------------------------------------------------
+   M04 · EL PLANO DE LA GRANJA
+   ------------------------------------------------------------ */
+function sbInfoPlano(){
+  return agSec('El plano: dónde va cada cosa',
+    '<p>Una granja pequeña bien ordenada no necesita obra. Necesita que <b>cada cosa esté del lado correcto de la línea</b> y que el recorrido vaya en un solo sentido.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 470" role="img" aria-label="Plano esquemático de una granja con la zona sucia, la línea de cambio y la zona limpia">' +
+      /* zona sucia */
+      '<rect class="sb-pl-sucia" x="30" y="60" width="230" height="370" rx="14"/>' +
+      '<text class="sb-pl-z" x="145" y="88" text-anchor="middle">ZONA SUCIA</text>' +
+      '<rect class="sb-pl-caja" x="55" y="108" width="180" height="52" rx="9"/>' +
+      '<text class="sb-pl-c" x="145" y="132" text-anchor="middle">🚛 Parada de vehículos</text>' +
+      '<text class="sb-pl-s" x="145" y="150" text-anchor="middle">aquí se descarga, no más adentro</text>' +
+      '<rect class="sb-pl-caja" x="55" y="176" width="180" height="52" rx="9"/>' +
+      '<text class="sb-pl-c" x="145" y="200" text-anchor="middle">📝 Portón y registro</text>' +
+      '<text class="sb-pl-s" x="145" y="218" text-anchor="middle">quién entra y de dónde viene</text>' +
+      '<rect class="sb-pl-caja" x="55" y="244" width="180" height="52" rx="9"/>' +
+      '<text class="sb-pl-c" x="145" y="268" text-anchor="middle">📦 Muelle de carga</text>' +
+      '<text class="sb-pl-s" x="145" y="286" text-anchor="middle">los cerdos salen por aquí</text>' +
+      '<rect class="sb-pl-caja" x="55" y="312" width="180" height="52" rx="9"/>' +
+      '<text class="sb-pl-c" x="145" y="336" text-anchor="middle">⚰️ Acopio de cadáveres</text>' +
+      '<text class="sb-pl-s" x="145" y="354" text-anchor="middle">cerrado, sin acceso de animales</text>' +
+      /* la línea */
+      '<line class="sb-pl-linea" x1="292" y1="55" x2="292" y2="435"/>' +
+      '<rect class="sb-pl-vest" x="262" y="180" width="62" height="110" rx="11"/>' +
+      '<text class="sb-pl-vt" x="293" y="212" text-anchor="middle">🥾</text>' +
+      '<text class="sb-pl-vs" x="293" y="236" text-anchor="middle">cambio</text>' +
+      '<text class="sb-pl-vs" x="293" y="252" text-anchor="middle">de botas</text>' +
+      '<text class="sb-pl-vs" x="293" y="268" text-anchor="middle">y ropa</text>' +
+      '<text class="sb-pl-lt" transform="translate(293,110) rotate(-90)" text-anchor="middle">LA LÍNEA</text>' +
+      /* zona limpia */
+      '<rect class="sb-pl-limpia" x="352" y="60" width="518" height="370" rx="14"/>' +
+      '<text class="sb-pl-z2" x="611" y="88" text-anchor="middle">ZONA LIMPIA · el recorrido va en un solo sentido →</text>' +
+      [['🐖 Gestación', 380, 110, '#2F7D4F', '1.º'],
+       ['🍼 Maternidad', 380, 200, '#2B7A8F', '2.º'],
+       ['🐷 Destete', 380, 290, '#C08A12', '3.º'],
+       ['🥓 Engorde', 620, 110, '#C56A34', '4.º'],
+       ['🏥 Enfermería', 620, 200, '#B03A2E', '5.º'],
+       ['🚪 Cuarentena', 620, 290, '#8E2C2C', 'último']
+      ].map(function(x){
+        return '<rect class="sb-pl-nave" x="' + x[1] + '" y="' + x[2] + '" width="220" height="70" rx="11" style="stroke:' + x[3] + '"/>' +
+          '<text class="sb-pl-n" x="' + (x[1] + 110) + '" y="' + (x[2] + 32) + '" text-anchor="middle">' + x[0] + '</text>' +
+          '<text class="sb-pl-o" x="' + (x[1] + 110) + '" y="' + (x[2] + 53) + '" text-anchor="middle" style="fill:' + x[3] + '">' + x[4] + ' del recorrido</text>';
+      }).join('') +
+      '<rect class="sb-pl-alm" x="380" y="380" width="460" height="40" rx="9"/>' +
+      '<text class="sb-pl-c" x="610" y="405" text-anchor="middle">🌾 Almacén de alimento — cerrado, elevado, sin acceso de roedores ni aves</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Note dónde están las dos cajas rojas: <b>enfermería y cuarentena al final del recorrido y lo más lejos posible</b> de gestación y maternidad. Si su granja no permite esa distribución, el orden de trabajo hace el mismo papel que la distancia.</p>' +
+    '</div>', 'Cómo se ordena una granja');
+}
+
+/* ------------------------------------------------------------
+   M06 · LA CARGA QUE BAJA EN CADA PASO
+   ------------------------------------------------------------ */
+function sbInfoCarga(){
+  var pasos = [
+    ['Corral sucio', 100, '#8E2C2C'],
+    ['Retirar en seco', 40, '#C56A34'],
+    ['Remojar y lavar', 12, '#C08A12'],
+    ['Enjuagar y secar', 8, '#2B7A8F'],
+    ['Desinfectar con tiempo de contacto', 1, '#2F7D4F']
+  ];
+  var X0 = 90, X1 = 850, Y0 = 300, Y1 = 70;
+  var x = function(i){ return X0 + (X1 - X0) * (i / (pasos.length - 1)); };
+  var y = function(v){ return Y1 + (Y0 - Y1) * (1 - Math.log10(Math.max(v, 0.5)) / Math.log10(100)); };
+  var linea = pasos.map(function(p, i){ return (i ? 'L' : 'M') + x(i) + ',' + y(p[1]); }).join(' ');
+  var area = 'M' + x(0) + ',' + Y0 + ' ' + pasos.map(function(p, i){ return 'L' + x(i) + ',' + y(p[1]); }).join(' ') +
+             ' L' + x(pasos.length - 1) + ',' + Y0 + ' Z';
+  var pts = pasos.map(function(p, i){
+    return '<circle class="sb-c-p" cx="' + x(i) + '" cy="' + y(p[1]) + '" r="7" style="fill:' + p[2] + '"/>' +
+      '<text class="sb-c-v" x="' + x(i) + '" y="' + (y(p[1]) - 16) + '" text-anchor="middle" style="fill:' + p[2] + '">' + p[1] + '%</text>' +
+      '<text class="sb-c-e" x="' + x(i) + '" y="' + (Y0 + 26) + '" text-anchor="middle">' + p[0].split(' ').slice(0, 2).join(' ') + '</text>' +
+      (p[0].split(' ').length > 2 ? '<text class="sb-c-e" x="' + x(i) + '" y="' + (Y0 + 42) + '" text-anchor="middle">' + p[0].split(' ').slice(2).join(' ') + '</text>' : '');
+  }).join('');
+  return agSec('Lo que queda después de cada paso',
+    '<p>Cada paso se lleva una parte de lo que había. <b>El que más rinde no es el desinfectante: es retirar la suciedad en seco</b>, que solo él quita más de la mitad. Y el desinfectante sin los pasos previos se queda en el 40 %, no en el 1 %.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 380" role="img" aria-label="Curva descendente de la carga que queda en la superficie después de cada paso de limpieza">' +
+      '<path class="sb-c-area" d="' + area + '"/>' +
+      '<line class="sb-i-eje" x1="' + X0 + '" y1="' + Y0 + '" x2="' + X1 + '" y2="' + Y0 + '"/>' +
+      '<path class="sb-c-linea" d="' + linea + '" fill="none"/>' + pts +
+      '<text class="sb-i-t" x="' + X0 + '" y="42">Lo que queda en la superficie (escala relativa)</text>' +
+      '<text class="sb-i-leg" x="' + X0 + '" y="62">proporciones orientativas para explicar el orden, no una medición de laboratorio</text>' +
+      '<line class="sb-c-salto" x1="' + x(1) + '" y1="' + (y(40) + 12) + '" x2="' + x(1) + '" y2="' + (Y0 - 8) + '"/>' +
+      '<text class="sb-c-nota" x="' + (x(1) + 12) + '" y="' + (Y0 - 20) + '">si salta de aquí al desinfectante, se queda en el 40 %</text>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">Los porcentajes son <b>orientativos y sirven para explicar el orden</b>, no son una medición de su granja. Lo que sí es cierto siempre es la forma de la curva: el trabajo mecánico —retirar, remojar, lavar— hace la mayor parte, y el desinfectante remata.</p>' +
+    '</div>', 'Por qué el orden no es negociable');
+}
+
+/* ------------------------------------------------------------
+   M07 · EL CALENDARIO DE 30 DÍAS
+   ------------------------------------------------------------ */
+function sbInfoCalendario(){
+  var dias = '';
+  for(var d = 1; d <= 30; d++){
+    var col = (d - 1) % 10, fil = Math.floor((d - 1) / 10);
+    var x = 60 + col * 78, y = 110 + fil * 78;
+    var cls = d <= 7 ? 'sb-k-alta' : (d <= 21 ? 'sb-k-media' : 'sb-k-baja');
+    dias += '<rect class="' + cls + '" x="' + x + '" y="' + y + '" width="66" height="66" rx="10"/>' +
+      '<text class="sb-k-n" x="' + (x + 33) + '" y="' + (y + 32) + '" text-anchor="middle">' + d + '</text>' +
+      '<text class="sb-k-i" x="' + (x + 33) + '" y="' + (y + 51) + '" text-anchor="middle">' +
+      (d <= 7 ? '👁️👁️' : (d <= 21 ? '👁️' : '👁️')) + '</text>';
+  }
+  return agSec('Los 30 días, día por día',
+    '<p>La observación no es igual todos los días. La primera semana es la que más rinde, pero <b>la guardia se baja el día 31, no el día 8</b>.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 340" role="img" aria-label="Calendario de los treinta días de cuarentena con la intensidad de observación de cada tramo">' +
+      '<text class="sb-i-t" x="60" y="42">Cuarentena · observación diaria anotada</text>' +
+      '<text class="sb-i-leg" x="60" y="62">el mínimo práctico son 30 días · el período exacto lo indica su veterinario</text>' +
+      dias +
+      '<g class="sb-k-leg">' +
+        '<rect class="sb-k-alta"  x="60"  y="286" width="16" height="16" rx="4"/><text x="84"  y="299">días 1–7: observación dos veces al día</text>' +
+        '<rect class="sb-k-media" x="360" y="286" width="16" height="16" rx="4"/><text x="384" y="299">días 8–21: una vez al día</text>' +
+        '<rect class="sb-k-baja"  x="620" y="286" width="16" height="16" rx="4"/><text x="644" y="299">días 22–30: una vez al día + revisión final</text>' +
+      '</g>' +
+    '</svg>' +
+    '<p class="rp-esq-pie">En los tres tramos se <b>anota</b>, incluso cuando todo está normal: ese registro es el que permite notar el cambio del día 22. La planilla de seguimiento de cuarentena del módulo 09 tiene los 31 renglones.</p>' +
+    '</div>', 'La cuarentena en una imagen');
+}
+
+/* ------------------------------------------------------------
+   M10 · EL RELOJ DE LAS PRIMERAS HORAS
+   ------------------------------------------------------------ */
+function sbInfoReloj(){
+  var pasos = [
+    ['0 h', 'Usted ve algo que no cuadra', '#C08A12'],
+    ['+0 h', 'Para el movimiento. Ni un animal entra ni sale.', '#B03A2E'],
+    ['+1 h', 'Cierra el acceso y aparta los afectados donde están', '#B03A2E'],
+    ['El mismo día', 'Llama al veterinario y a la autoridad competente', '#2B7A8F'],
+    ['El mismo día', 'Anota todo: fechas, corrales, cuántos, quién entró', '#2F7D4F'],
+    ['Después', 'Hace lo que le indiquen, tal como se lo indiquen', '#2F7D4F']
+  ];
+  var X0 = 70, ANCHO = 780;
+  var paso = ANCHO / (pasos.length - 1);
+  var items = pasos.map(function(p, i){
+    var x = X0 + i * paso;
+    var arriba = i % 2 === 0;
+    var yl = arriba ? 118 : 222;
+    var yt = arriba ? 82 : 262;
+    return '<line class="sb-r-tallo" x1="' + x + '" y1="170" x2="' + x + '" y2="' + yl + '"/>' +
+      '<circle class="sb-r-p" cx="' + x + '" cy="170" r="11" style="fill:' + p[2] + '"/>' +
+      '<text class="sb-r-h" x="' + x + '" y="' + (arriba ? yl - 10 : yl + 22) + '" text-anchor="middle" style="fill:' + p[2] + '">' + p[0] + '</text>' +
+      p[1].split(' ').reduce(function(ac, w){
+        var l = ac[ac.length - 1];
+        if((l + ' ' + w).length > 24) ac.push(w); else ac[ac.length - 1] = l + ' ' + w;
+        return ac;
+      }, ['']).map(function(l, k){
+        return '<text class="sb-r-x" x="' + x + '" y="' + (yt + (arriba ? -(0) : 0) + k * 17 - (arriba ? 34 : 0)) + '" text-anchor="middle">' + l.trim() + '</text>';
+      }).join('');
+  }).join('');
+  return agSec('Las primeras horas, en orden',
+    '<p>Lo que decide el desenlace no es lo que usted sepa de la enfermedad: es <b>lo rápido que para el movimiento</b>. Todo lo de esta línea cabe en un día.</p>' +
+    '<div class="rp-esq rv"><svg viewBox="0 0 900 320" role="img" aria-label="Línea de tiempo de las primeras horas tras detectar algo que no cuadra">' +
+      '<line class="sb-r-eje" x1="' + X0 + '" y1="170" x2="' + (X0 + ANCHO) + '" y2="170"/>' +
+      items +
+    '</svg>' +
+    '<p class="rp-esq-pie">Los dos puntos rojos son los que no pueden esperar a mañana. Si de todo este curso le queda una sola cosa, que sea esta: <b>primero se para, después se avisa, y los dos el mismo día</b>.</p>' +
+    '</div>', 'Lo que cabe en un día');
+}
+
+/* ---------- colocar ---------- */
+(function sbColocarInfo(){
+  if(typeof SBMOD === 'undefined') return;
+  var poner = function(mod, pos, k){
+    var m = SBMOD.find(function(q){ return q.n === mod; });
+    if(!m || m.sec.some(function(s){ return s.k === k; })) return;
+    m.sec.splice(Math.min(pos, m.sec.length), 0, {k:k});
+  };
+  poner(10, 2, 'sbreloj');
+  poner(7,  4, 'sbcalendario');
+  poner(6,  4, 'sbcarga');
+  poner(4,  3, 'sbplano');
+  poner(3,  3, 'sbmatriz');
+  poner(2,  4, 'sbcasoreal');
+  poner(1,  6, 'sbcosto');
+})();
+
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecInfo = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(!s) return _nxSecInfo.apply(this, arguments);
+    switch(s.k){
+      case 'sbcasoreal':    return sbSecCasoReal();
+      case 'sbcosto':       return sbInfoCosto();
+      case 'sbmatriz':      return sbInfoMatriz();
+      case 'sbplano':       return sbInfoPlano();
+      case 'sbcarga':       return sbInfoCarga();
+      case 'sbcalendario':  return sbInfoCalendario();
+      case 'sbreloj':       return sbInfoReloj();
+    }
+    return _nxSecInfo.apply(this, arguments);
+  };
+}
+
+
 /* ---------- sb-quiz.js ---------- */
 /* ============================================================
    CURSO 4 · EVALUACIONES · 10 por módulo
@@ -22009,18 +22481,40 @@ if(typeof AGCERTDEF !== 'undefined' && !AGCERTDEF.sanidad){
   };
   if(typeof agCertCfg === 'function') try{ agCertCfg('sanidad'); }catch(e){}
 }
+/* El contador de módulos aprobados del panel unificado solo conocía los
+   tres cursos anteriores: para «sanidad» devolvía 0, y por eso el
+   certificado se bloqueaba aunque el estudiante lo tuviera aprobado y
+   pagado. Se le enseña el cuarto. */
+if(typeof window.agCertAprobados === 'function'){
+  var _agCertAprobSb = window.agCertAprobados;
+  window.agCertAprobados = function(curso, id){
+    if(curso === 'sanidad') return sbProgreso(id);
+    return _agCertAprobSb.apply(this, arguments);
+  };
+}
+if(typeof window.agAprobadosDe === 'function'){
+  var _agAprobDeSb = window.agAprobadosDe;
+  window.agAprobadosDe = function(curso, id){
+    if(curso === 'sanidad') return sbProgreso(id);
+    return _agAprobDeSb.apply(this, arguments);
+  };
+}
+
 /* el certificado de este curso se paga aparte: el impresor lo respeta */
 if(typeof window.agCertImprimir === 'function'){
   var _agCertSb = window.agCertImprimir;
   window.agCertImprimir = function(curso, nombre, aprob){
-    if(curso === 'sanidad' && !sbEsInstructor()){
+    if(curso !== 'sanidad') return _agCertSb.apply(this, arguments);
+    if(!sbEsInstructor()){
       if(!sbCertElegible()){
         if(typeof toast === 'function') toast('Apruebe los ' + SBMOD.length + ' módulos para optar al certificado', '🔒');
         return;
       }
       if(!sbCertPagado()){ sbAbrirPagoCert(); return; }
     }
-    return _agCertSb.apply(this, arguments);
+    /* se le pasa el conteo hecho: el impresor no sabe contar este curso */
+    var n = (aprob != null) ? aprob : (sbEsInstructor() ? SBMOD.length : sbProgreso());
+    return _agCertSb.call(this, curso, nombre, n);
   };
 }
 
@@ -22277,7 +22771,9 @@ document.addEventListener('keydown', function(e){
   var ov = document.getElementById('sbOv');
   if(!ov || ov.style.display === 'none') return;
   if(document.getElementById('nxAtOv') || document.getElementById('rpAtOv')) return;
-  if(document.getElementById('sbPago') || document.getElementById('sbPagoCert') || document.getElementById('csOv')) return;
+  if(document.getElementById('sbPago') || document.getElementById('sbPagoCert')) return;
+  var _cs = document.getElementById('csOv');
+  if(_cs && _cs.offsetParent !== null) return;   /* solo si el catalogo esta a la vista */
   if(typeof agEscribiendo === 'function' && agEscribiendo(e)) return;
   if(e.ctrlKey || e.metaKey || e.altKey) return;
   var k = e.key;
@@ -22300,6 +22796,16 @@ document.addEventListener('keydown', function(e){
 });
 
 </script>
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>
