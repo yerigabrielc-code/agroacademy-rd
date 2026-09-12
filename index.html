@@ -19757,7 +19757,87 @@ if(typeof window.nxSeccion === 'function'){
   };
 }
 
+
+/* ---------- ag-ancho.js ---------- */
+/* ============================================================
+   QUE LA DIAPOSITIVA USE EL ANCHO QUE TIENE
+   ------------------------------------------------------------
+   Medido en pantalla: el contenedor de la diapositiva medía 1709 px
+   pero la sección de dentro solo 641, y la rejilla de la biblioteca de
+   materias primas se quedaba en DOS columnas. De ahí las dos quejas a
+   la vez: «muy vertical» (12 tarjetas en 6 filas) y «media pantalla en
+   negro» (1068 px sin usar a los lados).
+
+   La causa es mía: al centrar la diapositiva verticalmente puse el
+   contenedor en flex, y sus hijos pasaron a medirse por su contenido
+   en vez de ocupar el ancho. Aquí se fija la dirección y el estirado
+   de forma explícita, y se sube el tamaño de letra dentro de las
+   tarjetas, que se había quedado en 10,5 px.
+   ============================================================ */
+var AGCSS8 = `
+/* el contenedor de la diapositiva: columna, y los hijos a lo ancho */
+.nx-ov.nx-leccion .nx-wrap{
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+.nx-ov.nx-leccion .nx-wrap > section.nx-b{
+  width: 100% !important;
+  align-self: stretch !important;
+  max-width: none !important;
+}
+.nx-ov.nx-leccion .nx-wrap > section.nx-b > *{ width:100% }
+/* la barra de abajo tambien: es hija del mismo contenedor flex */
+.nx-ov.nx-leccion .nx-wrap > .nx-lnav{ width:100% !important; align-self:stretch !important }
+/* la prosa sigue midiendo: es el bloque el que se ensancha, no la línea */
+.nx-ov.nx-leccion .nx-b > p,
+.nx-ov.nx-leccion .nx-b > ul,
+.nx-ov.nx-leccion .nx-b > ol,
+.nx-ov.nx-leccion .nx-b > .nx-cap{ width:auto !important; max-width:var(--ag-medida) }
+.nx-ov.nx-leccion .nx-b > h3, .nx-ov.nx-leccion .nx-b > h4{ width:auto !important }
+
+/* ---------- la biblioteca de materias primas ---------- */
+.nx-ings{
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr)) !important;
+  gap:14px !important;
+}
+.nx-ing, .nx-ing-c{ min-height:216px !important }
+.nx-ing-a, .nx-ing-b{ padding:17px 18px }
+.nx-ing-ico{ font-size:27px; margin-bottom:9px }
+.nx-ing-a b{ font-size:17px !important; line-height:1.22; margin-bottom:5px }
+.nx-ing-rol{ font-size:11.5px !important; padding:4px 10px; margin-bottom:12px }
+.nx-ing-kpi{ gap:6px }
+.nx-ing-kpi i{ font-size:12.5px !important; padding:4px 9px }
+.nx-ing-mas{ font-size:12.5px !important; left:18px; bottom:14px }
+.nx-ing-b p{ font-size:13.5px !important; line-height:1.5; margin:0 0 9px }
+
+/* las demás rejillas del curso, con el mismo criterio */
+.nx-b > .nx-cards{ grid-template-columns:repeat(auto-fill,minmax(270px,1fr)) }
+.nx-b .nx-card p{ font-size:15.5px }
+.nx-b .nx-card b{ font-size:16.5px }
+
+@media(max-width:760px){
+  .nx-ings{ grid-template-columns:1fr !important }
+  .nx-ing, .nx-ing-c{ min-height:0 !important }
+  .nx-ing-a, .nx-ing-b{ position:relative; inset:auto }
+  .nx-ing-b{ display:none }
+  .nx-ing.on .nx-ing-a{ display:none }
+  .nx-ing.on .nx-ing-b{ display:block }
+  .nx-ing-c{ transform:none !important }
+  .nx-ing-mas{ position:relative; left:0; bottom:0; display:block; margin-top:12px }
+}
+`;
+(function agInyectaCss8(){
+  if(document.getElementById('agCss8')) return;
+  var s = document.createElement('style');
+  s.id = 'agCss8';
+  s.textContent = AGCSS8;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
 
 
 
