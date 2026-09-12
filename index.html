@@ -20135,7 +20135,298 @@ if(typeof window.agCertImprimir === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-acceso.js ---------- */
+/* ============================================================
+   EL CANDADO DE LA CUENTA PENDIENTE
+   ------------------------------------------------------------
+   Lo que se encontró midiendo, no suponiendo:
+
+   nxCondicionOk(id) decide si una cuenta puede estudiar el curso
+   base. Se le llama TRES veces sin argumento. Con id indefinido
+   ningún estudiante coincide en la lista, y la función termina en
+   «if(!s) return true», así que devolvía SIEMPRE que sí. Resultado:
+   la tarjeta del curso base salía abierta para cualquier cuenta,
+   incluida una recién registrada que el instructor todavía no ha
+   activado — que es justo lo que no debía pasar.
+
+   Se arregla en dos sitios, porque cerrar solo uno no basta:
+
+   1 · La función resuelve el id de la sesión cuando no se lo dan.
+   2 · El contenido del curso no se pinta si la cuenta no está
+       activa, aunque alguien llegue escribiendo #/curso en la URL.
+
+   El instructor y la vista previa nunca se ven afectados.
+   ============================================================ */
+
+/* ---------- 1 · que la pregunta sepa por quién pregunta ---------- */
+if(typeof window.nxCondicionOk === 'function'){
+  var _nxCondAg = window.nxCondicionOk;
+  window.nxCondicionOk = function(id){
+    if(id == null){
+      if(typeof SESSION === 'undefined' || !SESSION) return true;   /* sin sesión decide el login */
+      if(SESSION.role === 'ADMIN') return true;
+      if(typeof PREVIEW !== 'undefined' && PREVIEW) return true;
+      id = SESSION.id;
+      if(id == null) return true;
+    }
+    return _nxCondAg.call(this, id);
+  };
+}
+
+/* ---------- 2 · ¿esta cuenta puede estudiar? ---------- */
+function agCuentaActiva(){
+  if(typeof SESSION === 'undefined' || !SESSION) return false;
+  if(SESSION.role === 'ADMIN') return true;
+  if(typeof PREVIEW !== 'undefined' && PREVIEW) return true;
+  if(typeof nxCondicionOk !== 'function') return true;
+  return !!nxCondicionOk(SESSION.id);
+}
+function agEstadoCuenta(){
+  if(typeof SESSION === 'undefined' || !SESSION || !SESSION.id) return '';
+  if(typeof STUDENTS === 'undefined') return '';
+  var s = STUDENTS.filter(function(x){ return x.id === SESSION.id; })[0];
+  return s ? (s.status || '') : '';
+}
+window.agCuentaActiva = agCuentaActiva;
+
+/* ---------- 3 · lo que ve quien todavía no está activo ---------- */
+function agPanelPendiente(){
+  var est = agEstadoCuenta();
+  var nombre = '';
+  try{
+    var s = STUDENTS.filter(function(x){ return x.id === SESSION.id; })[0];
+    nombre = s ? (s.name || '') : '';
+  }catch(e){}
+  var titulo, texto;
+  if(est === 'inactivo' || est === 'retirado'){
+    titulo = 'Su acceso está ' + est;
+    texto = 'Escríbale al instructor para saber cómo reactivarlo. Su avance sigue guardado.';
+  } else {
+    titulo = 'Su cuenta está registrada, falta activarla';
+    texto = 'La cuenta se crea al registrarse, pero el <b>contenido se abre cuando el instructor la activa</b>, ' +
+            'normalmente después de confirmar el pago. Escríbale para coordinarlo: entra con este mismo correo y ' +
+            'contraseña, no hay que volver a registrarse.';
+  }
+  return '<div class="module active" style="--accent:#C08A12"><div class="wrap">' +
+    '<section class="block"><div class="ag-pend rv">' +
+      '<div class="ag-pend-i">🔒</div>' +
+      '<b>' + titulo + '</b>' +
+      (nombre ? '<span class="ag-pend-n">' + nombre + '</span>' : '') +
+      '<p>' + texto + '</p>' +
+      '<div class="ag-pend-acc">' +
+        '<button class="btn btn-primary" onclick="abrirCursos()">Ver mis cursos</button>' +
+        '<button class="btn btn-ghost" onclick="logout()">Cerrar sesión</button>' +
+      '</div>' +
+      '<p class="ag-pend-pie">Si ya pagó y sigue viendo esto, avísele al instructor: se activa en un momento ' +
+      'desde el panel, en <b>Estudiantes</b>.</p>' +
+    '</div></section></div></div>';
+}
+
+/* ---------- 4 · no se pinta el módulo si la cuenta no está activa ---------- */
+if(typeof window.mount === 'function'){
+  var _mountAg = window.mount;
+  window.mount = function(id){
+    if(!agCuentaActiva()){
+      var main = document.getElementById('main');
+      if(main) main.innerHTML = agPanelPendiente();
+      return;
+    }
+    return _mountAg.apply(this, arguments);
+  };
+}
+if(typeof window.goto === 'function'){
+  var _gotoAg = window.goto;
+  window.goto = function(id, silencioso){
+    if(!agCuentaActiva()){
+      var main = document.getElementById('main');
+      if(main) main.innerHTML = agPanelPendiente();
+      if(!silencioso && typeof toast === 'function') toast('Su cuenta todavía no está activa', '🔒');
+      return;
+    }
+    return _gotoAg.apply(this, arguments);
+  };
+}
+
+/* ---------- 5 · estilos ---------- */
+(function agCssPend(){
+  if(document.getElementById('agCssPend')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssPend';
+  s.textContent =
+    '.ag-pend{max-width:640px;margin:clamp(30px,6vh,80px) auto;text-align:center;' +
+      'border:1px solid var(--border);border-radius:20px;padding:clamp(28px,4vw,44px);' +
+      'background:color-mix(in srgb,var(--amber) 7%,var(--panel))}' +
+    '.ag-pend-i{font-size:44px;line-height:1;margin-bottom:16px}' +
+    '.ag-pend > b{display:block;font-family:var(--display);font-size:clamp(21px,2.6vw,28px);' +
+      'font-weight:800;line-height:1.18;color:var(--text);margin-bottom:8px}' +
+    '.ag-pend-n{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.08em;' +
+      'text-transform:uppercase;color:var(--amber-d);margin-bottom:16px}' +
+    '.ag-pend > p{margin:0 auto 22px;max-width:56ch;font-size:16.5px;line-height:1.68;color:var(--text-2)}' +
+    '.ag-pend > p b{color:var(--text)}' +
+    '.ag-pend-acc{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}' +
+    '.ag-pend-pie{margin:22px auto 0 !important;max-width:54ch;font-size:13.5px !important;' +
+      'line-height:1.6;color:var(--muted) !important}';
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-home.js ---------- */
+/* ============================================================
+   EL HOME DEL ESTUDIANTE
+   ------------------------------------------------------------
+   Lo que pidió: que al entrar vea TODOS los cursos, pueda abrir
+   solo el que tenga habilitado, y los demás salgan con candado,
+   con el precio y con la nota de que se pagan aparte.
+
+   No se inventa una pantalla nueva: «Mis cursos» ya existe y ya
+   hace lo primero. Aquí se le añaden dos cosas y se pone delante:
+
+   1 · El precio en el candado de cada curso que se paga aparte,
+       leído de una tabla única para que el instructor lo cambie
+       en un sitio y cambie en todas partes.
+   2 · Se abre solo al entrar, en vez de caer directo al curso.
+   ============================================================ */
+
+/* ---------- la tabla de precios, única y editable ---------- */
+var AGPRECIOS = {
+  porcicultura: {usd:75, nota:'Curso base · incluye el acceso a la plataforma'},
+  nutricion:    {usd:58, nota:'Se adquiere aparte'},
+  reproduccion: {usd:41, nota:'Se adquiere aparte'},
+  sanidad:      {usd:45, nota:'Se adquiere aparte'}
+};
+try{
+  var _ap = JSON.parse(localStorage.getItem('ag_precios') || 'null');
+  if(_ap) Object.keys(_ap).forEach(function(k){ AGPRECIOS[k] = Object.assign(AGPRECIOS[k] || {}, _ap[k]); });
+}catch(e){}
+function agGuardarPrecios(){ try{ localStorage.setItem('ag_precios', JSON.stringify(AGPRECIOS)); }catch(e){} }
+window.agPrecio = function(curso){
+  var p = AGPRECIOS[curso];
+  return p ? ('US$ ' + p.usd) : '';
+};
+window.agGuardarPrecios = agGuardarPrecios;
+/* si el curso 4 trae el suyo, manda el suyo */
+setTimeout(function(){
+  try{ if(typeof SBPRECIO !== 'undefined' && SBPRECIO.curso) AGPRECIOS.sanidad.usd = SBPRECIO.curso; }catch(e){}
+}, 400);
+
+/* ---------- qué clase de card corresponde a cada curso ---------- */
+function agCursoDeTarjeta(card){
+  if(card.classList.contains('cs-c4')) return 'sanidad';
+  if(card.classList.contains('cs-c3')) return 'reproduccion';
+  if(card.classList.contains('c2')) return 'nutricion';
+  if(card.classList.contains('c1')) return 'porcicultura';
+  return null;
+}
+
+/* ---------- el precio y la nota en las tarjetas bloqueadas ---------- */
+function agPrecioEnTarjetas(){
+  var cards = document.querySelectorAll('#csOv .cs-c');
+  if(!cards.length) return;
+  [].forEach.call(cards, function(card){
+    if(card.querySelector('.ag-precio')) return;
+    var curso = agCursoDeTarjeta(card);
+    if(!curso) return;
+    var p = AGPRECIOS[curso];
+    if(!p) return;
+    var bloqueada = card.classList.contains('pago') || card.classList.contains('off');
+    if(!bloqueada) return;                    /* si ya lo tiene, no se le enseña el precio */
+    /* y si la tarjeta ya trae el precio en su llamada a la accion, no se
+       repite: dos veces el mismo numero se lee como un error */
+    if(card.textContent && card.textContent.indexOf('US$') >= 0) return;
+
+    var chip = document.createElement('div');
+    chip.className = 'ag-precio';
+    chip.innerHTML =
+      '<b>🔒 US$ ' + p.usd + '</b>' +
+      '<span>' + (card.classList.contains('off') && curso === 'porcicultura'
+        ? 'Su cuenta todavía no está activa'
+        : 'Requiere pago adicional') + '</span>';
+    /* debajo del texto, antes de la llamada a la acción */
+    var cta = card.querySelector('.cs-go') || card.querySelector('.cs-meta');
+    if(cta) card.insertBefore(chip, cta);
+    else card.appendChild(chip);
+  });
+}
+window.agPrecioEnTarjetas = agPrecioEnTarjetas;
+
+if(typeof window.abrirCursos === 'function'){
+  var _abrirCursosPrecio = window.abrirCursos;
+  window.abrirCursos = function(){
+    var r = _abrirCursosPrecio.apply(this, arguments);
+    /* tres pasadas: las tarjetas de los cursos 3 y 4 y el estado
+       bloqueado los ponen otros envoltorios después del primero */
+    setTimeout(agPrecioEnTarjetas, 30);
+    setTimeout(agPrecioEnTarjetas, 200);
+    setTimeout(agPrecioEnTarjetas, 500);
+    return r;
+  };
+}
+
+/* ---------- que sea lo primero que ve el estudiante ----------
+   No se engancha a showScreen: ese punto lo envuelven tres bloques
+   distintos y el orden decide quién gana. Se comprueba el estado real
+   de la pantalla, que no depende de quién envolvió a quién. */
+(function agHomeAlEntrar(){
+  var visto = false;
+  var esEstudiante = function(){
+    return typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'STUDENT' &&
+           !(typeof PREVIEW !== 'undefined' && PREVIEW);
+  };
+  var quizaAbrir = function(){
+    if(visto) return;
+    if(!esEstudiante()) return;
+    if(typeof abrirCursos !== 'function') return;
+    if(document.body.getAttribute('data-screen') !== 'curso') return;
+    if(document.getElementById('csOv')) { visto = true; return; }
+    /* si ya está dentro de un curso complementario, no se le interrumpe */
+    if(document.getElementById('nxOv') || document.getElementById('rpOv') || document.getElementById('sbOv')) return;
+    visto = true;
+    abrirCursos();
+  };
+  window.__agHomeReset = function(){ visto = false; };
+  addEventListener('hashchange', function(){ setTimeout(quizaAbrir, 220); });
+  setInterval(quizaAbrir, 500);
+  setTimeout(quizaAbrir, 700);
+
+  /* al cerrar sesión, que la próxima entrada vuelva a abrirlo */
+  if(typeof window.logout === 'function'){
+    var _logoutHome = window.logout;
+    window.logout = function(){ visto = false; return _logoutHome.apply(this, arguments); };
+  }
+  /* volver al home desde cualquier sitio */
+  window.agHome = function(){
+    visto = true;
+    if(typeof cerrarCursos === 'function') cerrarCursos();
+    abrirCursos();
+  };
+})();
+
+/* ---------- estilos ---------- */
+(function agCssHome(){
+  if(document.getElementById('agCssHome')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssHome';
+  s.textContent =
+    '.ag-precio{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px;' +
+      'padding:12px 15px;border-radius:12px;' +
+      'background:color-mix(in srgb,var(--amber) 13%,var(--panel));' +
+      'border:1px solid color-mix(in srgb,var(--amber) 45%,var(--border))}' +
+    '.ag-precio b{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--amber-d);' +
+      'letter-spacing:-.01em;white-space:nowrap}' +
+    '.ag-precio span{font-size:13px;line-height:1.4;color:var(--text-2)}' +
+    '@media(max-width:520px){ .ag-precio{gap:6px} .ag-precio b{font-size:16px} }';
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
+
 
 
 
@@ -23076,6 +23367,11 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
+
+
 
 
 
