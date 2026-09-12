@@ -19973,7 +19973,171 @@ var AGCSS8 = `
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-certcolor.js ---------- */
+/* ============================================================
+   COLOR DEL CERTIFICADO, INDEPENDIENTE POR CURSO
+   ------------------------------------------------------------
+   Cada curso ya tenía su color de acento, pero los cuatro salían
+   pareciéndose porque certInner() lleva DOS colores más fijos en
+   el código: el dorado de los filetes y el sello (#C9A227) y la
+   tinta de los textos (#221F1A). Al ser los mismos en los cuatro,
+   el acento solo cambiaba un detalle y el conjunto se veía igual.
+
+   Aquí esos dos colores pasan a ser del curso, editables en el
+   panel junto al acento. No se toca certInner: se sustituyen sus
+   valores fijos en el HTML que devuelve, que es lo único que se
+   puede hacer sin reescribir una función que usan los cuatro.
+   ============================================================ */
+
+var AGCERTORO = '#C9A227';     /* el dorado que trae certInner fijo */
+var AGCERTINK = '#221F1A';     /* la tinta que trae certInner fija  */
+
+/* paleta de fábrica por curso: acento, dorado y tinta */
+var AGCERTPAL = {
+  porcicultura: {accent:'#215B3A', gold:'#C9A227', ink:'#221F1A'},
+  nutricion:    {accent:'#A85B10', gold:'#D9A441', ink:'#2A2118'},
+  reproduccion: {accent:'#5B3FA8', gold:'#B79AE0', ink:'#221C2E'},
+  sanidad:      {accent:'#B03A2E', gold:'#D98C6A', ink:'#2A1C19'}
+};
+
+/* sembrar los nuevos campos sin pisar lo que el usuario ya guardó */
+(function agSiembraPaleta(){
+  if(typeof AGCERTDEF === 'undefined') return;
+  Object.keys(AGCERTPAL).forEach(function(c){
+    if(!AGCERTDEF[c]) return;
+    var p = AGCERTPAL[c];
+    if(AGCERTDEF[c].accent == null) AGCERTDEF[c].accent = p.accent;
+    if(AGCERTDEF[c].gold   == null) AGCERTDEF[c].gold   = p.gold;
+    if(AGCERTDEF[c].ink    == null) AGCERTDEF[c].ink    = p.ink;
+  });
+  /* y a las plantillas ya cargadas, para que el panel los muestre */
+  if(typeof AGCERT !== 'undefined'){
+    Object.keys(AGCERT).forEach(function(c){
+      var p = AGCERTPAL[c];
+      if(!p) return;
+      if(AGCERT[c].gold == null) AGCERT[c].gold = p.gold;
+      if(AGCERT[c].ink  == null) AGCERT[c].ink  = p.ink;
+    });
+  }
+})();
+
+/* El curso 4 se registra DESPUES que este archivo, asi que la siembra de
+   arriba no lo alcanza. En vez de depender del orden de carga, se rellena
+   al leer: cualquier curso que no tenga sello o tinta recibe los suyos la
+   primera vez que alguien le pregunta. */
+if(typeof window.agCertCfg === "function"){
+  var _agCertCfgColor = window.agCertCfg;
+  window.agCertCfg = function(curso){
+    var c = _agCertCfgColor.apply(this, arguments);
+    var p = AGCERTPAL[curso];
+    if(c && p){
+      if(c.gold == null) c.gold = p.gold;
+      if(c.ink  == null) c.ink  = p.ink;
+    } else if(c){
+      if(c.gold == null) c.gold = AGCERTORO;
+      if(c.ink  == null) c.ink  = AGCERTINK;
+    }
+    return c;
+  };
+}
+
+/* ---------- aplicar los colores al certificado ---------- */
+if(typeof window.certInner === 'function'){
+  var _certInnerColor = window.certInner;
+  window.certInner = function(nm, pc, code){
+    var h = _certInnerColor.apply(this, arguments);
+    if(typeof h !== 'string' || typeof CERTCFG === 'undefined') return h;
+    var oro = CERTCFG.gold, tinta = CERTCFG.ink;
+    if(oro && oro.toLowerCase() !== AGCERTORO.toLowerCase()){
+      h = h.split(AGCERTORO).join(oro).split(AGCERTORO.toLowerCase()).join(oro);
+    }
+    if(tinta && tinta.toLowerCase() !== AGCERTINK.toLowerCase()){
+      h = h.split(AGCERTINK).join(tinta).split(AGCERTINK.toLowerCase()).join(tinta);
+    }
+    return h;
+  };
+}
+
+/* ---------- los campos nuevos en el panel ---------- */
+if(typeof AGCAMPOS !== 'undefined' && typeof window.agAdmCertificados === 'function'){
+  var _agAdmCertColor = window.agAdmCertificados;
+  window.agAdmCertificados = function(){
+    var html = _agAdmCertColor.apply(this, arguments);
+    try{
+      var d = document.createElement('div');
+      d.innerHTML = html;
+      var fila = d.querySelector('#agc_accent');
+      if(!fila) return html;
+      var cont = fila.closest('.agc-f');
+      if(!cont) return html;
+      var c = agCertCfg(AGCERTTAB);
+      var mk = function(k, et, val, ayuda){
+        return '<div class="agc-f agc-fila"><label>' + et + '</label>' +
+          '<input id="agc_' + k + '" type="color" value="' + (val || '#000000') + '" oninput="agCertLive()">' +
+          '</div>' + (ayuda ? '<p class="agc-ayuda">' + ayuda + '</p>' : '');
+      };
+      var frag = document.createElement('div');
+      frag.innerHTML =
+        mk('gold', 'Color del sello y los filetes', c.gold || AGCERTORO) +
+        mk('ink', 'Color de la tinta del texto', c.ink || AGCERTINK,
+           'Los tres colores son propios de este certificado: cambie de curso arriba y verá que cada uno guarda los suyos.');
+      while(frag.firstChild) cont.parentNode.insertBefore(frag.firstChild, cont.nextSibling);
+      return d.innerHTML;
+    }catch(e){ return html; }
+  };
+}
+
+/* que agCertRecoge los lea */
+if(typeof window.agCertLive === 'function'){
+  var _agCertLiveColor = window.agCertLive;
+  window.agCertLive = function(){
+    try{
+      var c = agCertCfg(AGCERTTAB);
+      var g = document.getElementById('agc_gold'); if(g) c.gold = g.value;
+      var k = document.getElementById('agc_ink');  if(k) c.ink  = k.value;
+    }catch(e){}
+    return _agCertLiveColor.apply(this, arguments);
+  };
+}
+if(typeof window.agCertSalvar === 'function'){
+  var _agCertSalvarColor = window.agCertSalvar;
+  window.agCertSalvar = function(){
+    try{
+      var c = agCertCfg(AGCERTTAB);
+      var g = document.getElementById('agc_gold'); if(g) c.gold = g.value;
+      var k = document.getElementById('agc_ink');  if(k) c.ink  = k.value;
+    }catch(e){}
+    return _agCertSalvarColor.apply(this, arguments);
+  };
+}
+/* y que el impresor los lleve puestos */
+if(typeof window.agCertImprimir === 'function'){
+  var _agCertImpColor = window.agCertImprimir;
+  window.agCertImprimir = function(curso, nombre, aprob){
+    try{
+      var c = agCertCfg(curso);
+      if(c.gold == null && AGCERTPAL[curso]) c.gold = AGCERTPAL[curso].gold;
+      if(c.ink  == null && AGCERTPAL[curso]) c.ink  = AGCERTPAL[curso].ink;
+    }catch(e){}
+    return _agCertImpColor.apply(this, arguments);
+  };
+}
+
+/* ---------- estilos de la ayuda ---------- */
+(function agCssCertColor(){
+  if(document.getElementById('agCssCC')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssCC';
+  s.textContent = '.agc-ayuda{margin:-4px 0 14px;font-size:12.5px;line-height:1.5;color:var(--muted)}' +
+    '.agc-f.agc-fila input[type=color]{max-width:90px}';
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
 
 
 
@@ -20276,7 +20440,7 @@ function sbEsInstructor(){
    en el mismo sitio y con las mismas reglas que los demás para que
    el panel de administración los trate igual.
    ============================================================ */
-var SBPRECIO = { curso: 45, certificado: 15, moneda: 'US$' };
+var SBPRECIO = { curso: 45, moneda: 'US$' };
 try{
   var _sp = JSON.parse(localStorage.getItem('sb_precio') || 'null');
   if(_sp) SBPRECIO = Object.assign(SBPRECIO, _sp);
@@ -20284,26 +20448,23 @@ try{
 function sbGuardarPrecio(){ try{ localStorage.setItem('sb_precio', JSON.stringify(SBPRECIO)); }catch(e){} }
 
 var SBACCESO = {};     /* id de estudiante -> true  ·  compró el CURSO */
-var SBCERT   = {};     /* id de estudiante -> true  ·  compró el CERTIFICADO */
 try{ SBACCESO = JSON.parse(localStorage.getItem('sb_acceso') || '{}') || {}; }catch(e){}
-try{ SBCERT   = JSON.parse(localStorage.getItem('sb_cert_pago') || '{}') || {}; }catch(e){}
 function sbGuardarAcceso(){ try{ localStorage.setItem('sb_acceso', JSON.stringify(SBACCESO)); }catch(e){} }
-function sbGuardarCertPago(){ try{ localStorage.setItem('sb_cert_pago', JSON.stringify(SBCERT)); }catch(e){} }
 
-/* las cuatro preguntas que el resto del código le hace al curso */
-function sbTieneAcceso(id){                       /* coursePurchased / courseAccess */
+/* Lo que el resto del código le pregunta al curso.
+   El certificado NO se vende aparte: se gana. Se habilita solo cuando el
+   estudiante aprueba los 10 módulos, igual que en los otros tres cursos,
+   y los módulos se desbloquean uno a uno con cada evaluación aprobada. */
+function sbTieneAcceso(id){
   if(sbEsInstructor()) return true;
   return !!SBACCESO[id || sbYo()];
 }
-function sbCertPagado(id){                        /* certificatePurchased */
-  if(sbEsInstructor()) return true;
-  return !!SBCERT[id || sbYo()];
-}
-function sbCertElegible(id){                      /* certificateEligibility */
-  return sbProgreso(id) >= SBMOD.length;          /* aprobó los 10 módulos */
+function sbCertElegible(id){
+  return sbProgreso(id) >= SBMOD.length;
 }
 function sbPuedeCertificado(id){
-  return sbCertElegible(id) && sbCertPagado(id);
+  if(sbEsInstructor()) return true;
+  return sbCertElegible(id);
 }
 
 var SBPUB = true;
@@ -20464,8 +20625,8 @@ function sbAbrirPago(){
     '<b>Sanidad y bioseguridad porcina</b></div>' +
     '<p>Este curso <b>se adquiere por separado</b>. Es el más práctico de los cuatro: se lleva el plan de bioseguridad de su granja escrito, las planillas de registro y el protocolo de qué hacer ante una sospecha de PPA.</p>' +
     '<div class="nx-pay-p"><b>' + SBPRECIO.moneda + ' ' + SBPRECIO.curso + '</b><span>acceso permanente al curso</span></div>' +
-    '<p class="nx-pay-n">El <b>certificado se adquiere aparte</b> (' + SBPRECIO.moneda + ' ' + SBPRECIO.certificado +
-      '), y solo después de aprobar los ' + SBMOD.length + ' módulos. Puede hacer el curso completo sin comprarlo.</p>' +
+    '<p class="nx-pay-n">El <b>certificado va incluido</b>: se habilita solo cuando apruebe los ' + SBMOD.length +
+      ' módulos, sin pagar nada más. Los módulos se abren uno a uno según vaya aprobando cada evaluación.</p>' +
     '<p>Escriba al instructor para coordinar el pago. Una vez confirmado, se le habilita con la misma cuenta que ya tiene.</p>' +
     '<div class="nx-pay-acc">' +
       '<button class="btn btn-ghost" onclick="document.getElementById(\'sbPago\').remove()">Cerrar</button>' +
@@ -20544,35 +20705,20 @@ function sbReset(id){
   if(res){ res.className = 'nx-ex-r'; res.innerHTML = ''; }
 }
 
-/* ---------- certificado: elegible Y pagado ---------- */
+/* ---------- certificado: se gana aprobando los módulos ---------- */
 function sbCertificado(){
   if(!sbCertElegible() && !sbEsInstructor()){
-    if(typeof toast === 'function') toast('Apruebe los ' + SBMOD.length + ' módulos para optar al certificado', '🔒');
+    var faltan = SBMOD.length - sbProgreso();
+    if(typeof toast === 'function') toast('Le falta' + (faltan === 1 ? '' : 'n') + ' ' + faltan +
+      ' módulo' + (faltan === 1 ? '' : 's') + ' para su certificado', '🔒');
     return;
   }
-  if(!sbCertPagado()){ sbAbrirPagoCert(); return; }
   if(typeof agCertImprimir === 'function') return agCertImprimir('sanidad', null, SBMOD.length);
   if(typeof toast === 'function') toast('El generador de certificados no está disponible', '⚠️');
 }
 window.sbCertificado = sbCertificado;
 
-function sbAbrirPagoCert(){
-  var o = document.getElementById('sbPagoCert');
-  if(o) o.remove();
-  o = document.createElement('div'); o.id = 'sbPagoCert'; o.className = 'nx-pay';
-  o.innerHTML = '<div class="nx-pay-c">' +
-    '<div class="nx-pay-h"><span>Ya cumplió el requisito</span><b>Su certificado está listo para emitirse</b></div>' +
-    '<p>Aprobó los <b>' + SBMOD.length + ' módulos</b>. El certificado de este curso <b>se adquiere aparte</b>: lleva su nombre, el nombre completo del curso, la fecha de emisión y un código único de verificación.</p>' +
-    '<div class="nx-pay-p"><b>' + SBPRECIO.moneda + ' ' + SBPRECIO.certificado + '</b><span>emisión del certificado</span></div>' +
-    '<p class="nx-pay-n">Su avance y el acceso al curso <b>no dependen de esto</b>: puede seguir consultando el material y usando las herramientas aunque no lo emita.</p>' +
-    '<p>Escriba al instructor para coordinar el pago. Una vez confirmado se habilita la descarga.</p>' +
-    '<div class="nx-pay-acc">' +
-      '<button class="btn btn-ghost" onclick="document.getElementById(\'sbPagoCert\').remove()">Cerrar</button>' +
-    '</div></div>';
-  o.onclick = function(e){ if(e.target === o) o.remove(); };
-  document.body.appendChild(o);
-}
-window.sbAbrirPagoCert = sbAbrirPagoCert;
+
 
 
 /* ---------- sb-datos.js ---------- */
@@ -22445,13 +22591,86 @@ if(typeof NXPUB !== 'undefined' && NXPUB.sanidad === undefined){
   NXPUB.sanidad = SBPUB;
   if(typeof nxGuardarPub === 'function') try{ nxGuardarPub(); }catch(e){}
 }
+/* El registro tiene un contrato: el conmutador del panel llama a
+   C.icon, C.label, C.published() y C.n. La primera versión usó otros
+   nombres (ico, nombre, modulos) y por eso el botón no salía. */
 if(typeof window.COURSES !== 'undefined' && !COURSES.sanidad){
   COURSES.sanidad = {
-    id:'sanidad', nombre:'Sanidad y bioseguridad porcina',
-    sub:'Prevención, control y respuesta ante la Peste Porcina Africana (PPA)',
-    ico:'🛡️', modulos:10, abrir:'openSanidad()', color:'#B03A2E'
+    id:'sanidad', icon:'🛡️', label:'Sanidad',
+    name:'Sanidad y bioseguridad porcina · PPA',
+    hasFormulas:false, sellsSeparately:true,
+    modules: function(){
+      return (typeof SBMOD !== 'undefined') ? SBMOD.map(function(m){
+        return {n:m.n, num:m.num, title:m.t, ac:m.ac};
+      }) : [];
+    },
+    get n(){ return (typeof SBMOD !== 'undefined') ? SBMOD.length : 10; },
+    rec: function(uid, n){
+      if(typeof cloudRec === 'function'){ var c = cloudRec(uid, n, 'sanidad'); if(c) return c; }
+      try{ return JSON.parse(localStorage.getItem('sb::' + uid + '::exam_m' + n)); }catch(e){ return null; }
+    },
+    passed: function(uid, n){ var r = this.rec(uid, n); return !!(r && r.passed); },
+    count: function(uid){
+      var c = 0, ms = this.modules();
+      for(var i = 0; i < ms.length; i++) if(this.passed(uid, ms[i].n)) c++;
+      return c;
+    },
+    quiz: function(n){ return (typeof SBQUIZ !== 'undefined' && SBQUIZ[n]) ? SBQUIZ[n].map(function(q){
+      return [q.q, q.o.map(function(o, i){ return [o, i === q.c]; }), q.fb || ''];
+    }) : []; },
+    get cfg(){ return {passing:(typeof SBPASS !== 'undefined' ? SBPASS : 80),
+                       gating:(typeof SBGATE !== 'undefined' ? !!SBGATE : true)}; },
+    setCfg: function(p){
+      if(p.passing != null && typeof sbSetPass === 'function') sbSetPass(p.passing);
+      if(p.gating  != null && typeof sbSetGate === 'function') sbSetGate(p.gating);
+    },
+    published: function(){
+      if(typeof NXPUB !== 'undefined' && NXPUB.sanidad !== undefined) return !!NXPUB.sanidad;
+      return (typeof SBPUB !== 'undefined') ? !!SBPUB : true;
+    },
+    /* se paga aparte: solo los que lo compraron */
+    enrolled: function(s){ return s && s.status !== 'borrado' &&
+      (typeof SBACCESO !== 'undefined') && !!SBACCESO[s.id]; },
+    certLabel:'rojo · 10/10'
   };
 }
+
+/* El conmutador de «Gestión de cursos» se monta UNA sola vez, y lo hacía
+   antes de que los cursos 3 y 4 se registraran: por eso solo salían dos
+   botones. Su función de montaje vive dentro de un closure y no está
+   expuesta, así que no se puede llamar desde aquí; la que sí lo está es
+   nxSetCourse(), que vuelve a montarlo como parte de su trabajo. Se le
+   pide el curso que YA estaba seleccionado: repinta sin cambiar nada. */
+(function sbRefrescaConmutador(){
+  var faltan = function(){
+    var sw = document.getElementById('ucsw');
+    if(!sw) return true;
+    return sw.querySelectorAll('.ucsw-b').length < Object.keys(COURSES).length;
+  };
+  var refresca = function(){
+    if(typeof nxSetCourse !== 'function' || typeof ADM === 'undefined') return;
+    if(!document.getElementById('ucsw')) return;
+    if(!faltan()) return;
+    try{ nxSetCourse(ADM.course || 'porcicultura'); }catch(e){}
+  };
+  var intentos = 0;
+  var esperar = function(){
+    intentos++;
+    if(document.getElementById('ucsw')){ refresca(); return; }
+    if(intentos < 80) setTimeout(esperar, 250);
+  };
+  setTimeout(esperar, 400);
+  /* y cada vez que se entra o se repinta el panel */
+  ['renderAdmin', 'nxAdmin', 'showScreen'].forEach(function(fn){
+    if(typeof window[fn] !== 'function') return;
+    var _f = window[fn];
+    window[fn] = function(){
+      var r = _f.apply(this, arguments);
+      setTimeout(refresca, 60);
+      return r;
+    };
+  });
+})();
 /* que el interruptor de publicar del panel lo reconozca */
 if(typeof window.nxPublicar === 'function'){
   var _nxPubSb = window.nxPublicar;
@@ -22510,7 +22729,6 @@ if(typeof window.agCertImprimir === 'function'){
         if(typeof toast === 'function') toast('Apruebe los ' + SBMOD.length + ' módulos para optar al certificado', '🔒');
         return;
       }
-      if(!sbCertPagado()){ sbAbrirPagoCert(); return; }
     }
     /* se le pasa el conteo hecho: el impresor no sabe contar este curso */
     var n = (aprob != null) ? aprob : (sbEsInstructor() ? SBMOD.length : sbProgreso());
@@ -22538,8 +22756,8 @@ function sbTarjeta(){
   if(!pub && !esAdmin) return;                       /* oculto mientras no se publica */
   var tiene = sbTieneAcceso();
   var p = sbProgreso();
-  var cert = sbCertPagado() ? 'Certificado adquirido'
-           : (sbCertElegible() ? 'Certificado disponible por separado' : 'Certificado por separado');
+  var cert = sbCertElegible() ? 'Certificado disponible'
+           : 'Certificado incluido al aprobar los ' + SBMOD.length + ' módulos';
 
   var b = document.createElement('button');
   b.className = 'cs-c cs-c4' + (tiene ? '' : ' pago');
@@ -22580,15 +22798,6 @@ window.sbDarAcceso = function(id, v){
   if(typeof toast === 'function') toast(v ? 'Sanidad habilitada' : 'Sanidad bloqueada', v ? '🔓' : '🔒');
   if(typeof nxAdmin === 'function') try{ nxAdmin(); }catch(e){}
 };
-window.sbDarCert = function(id, v){
-  if(v) SBCERT[id] = true; else delete SBCERT[id];
-  sbGuardarCertPago();
-  if(window.SB && typeof SB.from === 'function'){
-    try{ SB.from('profiles').update({cert_sanidad: !!v}).eq('id', id).then(function(){}, function(){}); }catch(e){}
-  }
-  if(typeof toast === 'function') toast(v ? 'Certificado habilitado' : 'Certificado bloqueado', v ? '🎓' : '🔒');
-  if(typeof nxAdmin === 'function') try{ nxAdmin(); }catch(e){}
-};
 window.sbAccesoTodos = function(v){
   var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
   if(!alum.length) return;
@@ -22617,11 +22826,9 @@ function sbColumnasAcceso(html){
   var ths = tabla.querySelectorAll('thead th');
   if(!ths.length) return html;
   var ult = ths[ths.length - 1];
-  ['🛡️ Sanidad', '🎓 Cert. Sanidad'].forEach(function(t){
-    var th = document.createElement('th');
-    th.innerHTML = t;
-    ult.parentNode.insertBefore(th, ult);
-  });
+  var th = document.createElement('th');
+  th.innerHTML = '🛡️ Sanidad';
+  ult.parentNode.insertBefore(th, ult);
 
   [].forEach.call(tabla.querySelectorAll('tbody tr'), function(tr, i){
     var a = alum[i];
@@ -22631,20 +22838,16 @@ function sbColumnasAcceso(html){
     var ultTd = tds[tds.length - 1];
 
     var on = !!SBACCESO[a.id];
+    var hechos = sbProgreso(a.id);
+    var eleg = hechos >= SBMOD.length;
     var td1 = document.createElement('td');
     td1.innerHTML = '<label class="nxa-sw"><input type="checkbox"' + (on ? ' checked' : '') +
       ' onchange="sbDarAcceso(\'' + a.id + '\',this.checked)"><span></span>' +
-      '<em>' + (on ? 'Habilitado' : 'Bloqueado') + '</em></label>';
+      '<em>' + (on ? 'Habilitado' : 'Bloqueado') + '</em></label>' +
+      '<span class="sb-eleg' + (eleg ? ' on' : '') + '">' +
+      (on ? (eleg ? '🎓 certificado disponible' : hechos + ' / ' + SBMOD.length + ' módulos') : '—') + '</span>';
     ultTd.parentNode.insertBefore(td1, ultTd);
 
-    var eleg = sbProgreso(a.id) >= SBMOD.length;
-    var oc = !!SBCERT[a.id];
-    var td2 = document.createElement('td');
-    td2.innerHTML = '<label class="nxa-sw"><input type="checkbox"' + (oc ? ' checked' : '') +
-      ' onchange="sbDarCert(\'' + a.id + '\',this.checked)"><span></span>' +
-      '<em>' + (oc ? 'Pagado' : 'No pagado') + '</em></label>' +
-      '<span class="sb-eleg' + (eleg ? ' on' : '') + '">' + (eleg ? '✓ cumple requisito' : sbProgreso(a.id) + '/' + SBMOD.length + ' módulos') + '</span>';
-    ultTd.parentNode.insertBefore(td2, ultTd);
   });
 
   var res = d.querySelector('.nxa-res');
@@ -22658,9 +22861,9 @@ function sbColumnasAcceso(html){
   if(notas.length){
     var n = document.createElement('p');
     n.className = 'adm-note';
-    n.innerHTML = 'En <b>sanidad</b> hay dos productos independientes: el <b>curso</b> y el <b>certificado</b>. ' +
-      'Un estudiante puede tener el curso y no el certificado. El certificado además exige haber aprobado los ' + SBMOD.length + ' módulos: ' +
-      'la columna muestra si ya cumple ese requisito.';
+    n.innerHTML = '<b>Sanidad</b> se paga aparte y se habilita aquí, uno por uno, cuando le confirmen el pago. ' +
+      'El <b>certificado va incluido</b>: se le habilita solo al estudiante cuando apruebe los ' + SBMOD.length + ' módulos. ' +
+      'Debajo de cada interruptor se ve por dónde va.';
     notas[notas.length - 1].parentNode.insertBefore(n, notas[notas.length - 1].nextSibling);
   }
   var pie = d.querySelector('div[style*="margin-top:14px"][style*="display:flex"]');
@@ -22685,13 +22888,10 @@ function sbColumnasAcceso(html){
   setTimeout(function(){
     if(!window.SB || typeof SB.from !== 'function') return;
     try{
-      SB.from('profiles').select('id,acceso_sanidad,cert_sanidad').then(function(r){
+      SB.from('profiles').select('id,acceso_sanidad').then(function(r){
         if(!r || !r.data) return;
-        r.data.forEach(function(p){
-          if(p.acceso_sanidad) SBACCESO[p.id] = true;
-          if(p.cert_sanidad) SBCERT[p.id] = true;
-        });
-        sbGuardarAcceso(); sbGuardarCertPago();
+        r.data.forEach(function(p){ if(p.acceso_sanidad) SBACCESO[p.id] = true; });
+        sbGuardarAcceso();
       }, function(){});
     }catch(e){}
   }, 2600);
@@ -22795,7 +22995,94 @@ document.addEventListener('keydown', function(e){
   }
 });
 
+
+/* ---------- sb-columnas.js ---------- */
+/* ============================================================
+   LA TABLA DE ACCESOS, SOLO CON LO QUE SE ESTÁ GESTIONANDO
+   ------------------------------------------------------------
+   Con cuatro cursos la tabla llegó a tener cuatro columnas de
+   interruptores, iguales en todos los botones del conmutador: se
+   leía peor y no aportaba nada, porque uno gestiona un curso a la
+   vez.
+
+   Ahora se queda el curso base —que es el que dice si la cuenta
+   está viva— más el que esté seleccionado arriba. Este envoltorio
+   va el último de todos, así que recorta lo que hayan añadido los
+   demás bloques sin que ninguno tenga que enterarse.
+   ============================================================ */
+
+/* qué texto de encabezado corresponde a cada curso */
+var SBCOL = {
+  porcicultura: /porcicultura/i,
+  nutricion:    /formulaci/i,
+  reproduccion: /reproducci/i,
+  sanidad:      /sanidad/i
+};
+
+function sbFiltraColumnas(html){
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  var tabla = d.querySelector('table.nx-t');
+  if(!tabla) return html;
+
+  var gestionando = (typeof ADM !== 'undefined' && ADM.course) ? ADM.course : 'porcicultura';
+  var ths = [].slice.call(tabla.querySelectorAll('thead th'));
+  if(ths.length < 4) return html;
+
+  /* qué columnas son de curso, y cuáles sobran */
+  var sobran = [];
+  ths.forEach(function(th, i){
+    var t = (th.textContent || '').trim();
+    Object.keys(SBCOL).forEach(function(c){
+      if(!SBCOL[c].test(t)) return;
+      if(c === 'porcicultura') return;        /* el curso base se queda siempre */
+      if(c === gestionando) return;           /* el que se está gestionando, también */
+      sobran.push(i);
+    });
+  });
+  if(!sobran.length) return html;
+
+  /* de atrás hacia delante, para no correr los índices */
+  sobran.sort(function(a, b){ return b - a; }).forEach(function(i){
+    if(ths[i]) ths[i].remove();
+    [].forEach.call(tabla.querySelectorAll('tbody tr'), function(tr){
+      var tds = tr.querySelectorAll('td');
+      if(tds[i]) tds[i].remove();
+    });
+  });
+
+  /* decir de qué curso son los interruptores que quedan */
+  var nom = {porcicultura:'Porcicultura', nutricion:'Formulación',
+             reproduccion:'Reproducción', sanidad:'Sanidad'}[gestionando] || gestionando;
+  var nota = d.querySelector('.adm-note');
+  if(nota && gestionando !== 'porcicultura'){
+    var av = document.createElement('p');
+    av.className = 'adm-note sb-col-nota';
+    av.innerHTML = 'Está viendo los accesos de <b>' + nom + '</b>. Los de los otros cursos se gestionan ' +
+      'cambiando de curso en el conmutador de arriba: así cada uno se habilita por separado.';
+    nota.parentNode.insertBefore(av, nota);
+  }
+  return d.innerHTML;
+}
+window.sbFiltraColumnas = sbFiltraColumnas;
+
+/* el último envoltorio de todos: recorta lo que añadieron los demás */
+if(typeof window.nxAdmAcceso === 'function'){
+  var _nxAdmAccFiltro = window.nxAdmAcceso;
+  window.nxAdmAcceso = function(){
+    var html = _nxAdmAccFiltro.apply(this, arguments);
+    try{ return sbFiltraColumnas(html); }catch(e){ return html; }
+  };
+}
+
 </script>
+
+
+
+
+
+
+
 
 
 
