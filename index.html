@@ -19211,6 +19211,37 @@ if(typeof window.agPasa === 'function'){
   };
 }
 
+/* ------------------------------------------------------------
+   ¿ESTE ELEMENTO SE VE DE VERDAD?
+   offsetParent NO sirve para esto. Por especificación devuelve null
+   siempre que la posición calculada es "fixed", y #csOv es fixed. Con
+   esa comprobación el catálogo se daba por invisible estando a la
+   vista, y el limpiador de más abajo lo borraba cada 4 segundos: el
+   estudiante veía desaparecer su pantalla de cursos sola.
+   Se mide el rectángulo, que sí distingue lo visible de lo que no.
+   ------------------------------------------------------------ */
+function agALaVista(el){
+  if(!el || !el.isConnected) return false;
+  var cs = getComputedStyle(el);
+  if(cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false;
+  var r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+}
+window.agALaVista = agALaVista;
+
+/* ¿Y está DELANTE? Un catálogo que se quedó colgado detrás de la
+   pantalla de un curso sigue midiendo, sigue teniendo display:block y
+   sigue siendo 'visible' — pero el usuario está en el curso. Se mira
+   qué elemento hay realmente en el centro de la pantalla. */
+function agEnFrente(el){
+  if(!agALaVista(el)) return false;
+  try{
+    var t = document.elementFromPoint(Math.round(innerWidth / 2), Math.round(innerHeight / 2));
+    return !!(t && (t === el || el.contains(t)));
+  }catch(e){ return true; }
+}
+window.agEnFrente = agEnFrente;
+
 /* Mayúsculas + flecha = módulo anterior / siguiente, en los cuatro */
 document.addEventListener('keydown', function(e){
   if(!e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -19220,7 +19251,7 @@ document.addEventListener('keydown', function(e){
   /* el catalogo solo estorba si esta a la vista: comprobar que existe
      bastaba para matar el atajo si quedaba un resto en el DOM */
   var cs = document.getElementById('csOv');
-  if(cs && cs.offsetParent !== null) return;
+  if(agEnFrente(cs)) return;
   var ok = agModulo(e.key === 'ArrowRight' ? 1 : -1);
   if(ok){ e.preventDefault(); e.stopImmediatePropagation(); }
   else if(typeof toast === 'function'){
@@ -19263,17 +19294,38 @@ document.addEventListener('keydown', function(e){
   var limpia = function(){
     var cs = document.getElementById('csOv');
     if(!cs) return;
-    if(cs.offsetParent === null || getComputedStyle(cs).display === 'none'){
+    if(!agALaVista(cs)){
       cs.remove();
       document.body.style.overflow = '';
     }
   };
-  /* al abrir cualquiera de los cuatro cursos y cada vez que algo lo cierra */
+  /* Al abrir un curso el catálogo sobra SIEMPRE, se vea o no: su
+     z-index es 9300 y el de los cursos 9200, así que un resto colgando
+     se queda literalmente por delante del curso, y además el manejador
+     de teclado del curso 2 —que vive en el código original— se limita a
+     comprobar que #csOv exista y suelta las flechas. Un catálogo que el
+     estudiante abra DESPUÉS (agHome) no pasa por aquí y sobrevive. */
+  var fuera = function(){
+    var cs = document.getElementById('csOv');
+    if(!cs) return;
+    cs.remove();
+    document.body.style.overflow = '';
+  };
   ['openReproduccion', 'openNutricion', 'openSanidad'].forEach(function(fn){
     if(typeof window[fn] !== 'function') return;
     var _f = window[fn];
-    window[fn] = function(){ var r = _f.apply(this, arguments); setTimeout(limpia, 60); return r; };
+    window[fn] = function(){ fuera(); var r = _f.apply(this, arguments); setTimeout(fuera, 60); return r; };
   });
+  /* El curso base no tiene overlay propio: se entra con goto(n). Un
+     módulo (n >= 1) es contenido, así que el catálogo sobra igual. La
+     portada, goto(0), se deja en paz: ahí sí tiene sentido verlo. */
+  if(typeof window.goto === 'function'){
+    var _gotoLimpia = window.goto;
+    window.goto = function(n){
+      if(Number(n) >= 1) fuera();
+      return _gotoLimpia.apply(this, arguments);
+    };
+  }
   if(typeof window.cerrarCursos === 'function'){
     var _cc = window.cerrarCursos;
     window.cerrarCursos = function(){ var r = _cc.apply(this, arguments); limpia(); return r; };
@@ -20136,6 +20188,399 @@ if(typeof window.agCertImprimir === 'function'){
 })();
 
 
+/* ---------- ag-certadm.js ---------- */
+/* ============================================================
+   CERTIFICADOS · LA RELACIÓN CURSO → CERTIFICADO, DIRECTA
+   ------------------------------------------------------------
+   Lo que estaba mal, mirándolo en vivo:
+
+   1. El panel unificado (agAdmCertificados) solo se alcanzaba
+      gestionando Formulación. Con Porcicultura, Reproducción o
+      Sanidad seleccionados, la pestaña «Certificados» seguía
+      pintando el editor ORIGINAL, que solo sabe de un curso. Por
+      eso el certificado de porcicultura y el de reproducción
+      salían iguales: los editaba el mismo formulario.
+
+   2. Había dos selectores de curso compitiendo: el «GESTIONANDO»
+      de arriba y las pestañas propias del panel. Dos mandos para
+      lo mismo es una forma segura de equivocarse.
+
+   3. El código de verificación se generaba con Date.now(): cada
+      impresión daba uno distinto. Un código que cambia cada vez
+      no se puede verificar — no verifica nada.
+
+   Aquí: un solo panel para los cuatro cursos, mandado por el
+   conmutador de arriba; lo esencial a la vista y lo técnico
+   plegado; y un código que se calcula siempre igual a partir del
+   curso y del estudiante, así que se puede comprobar.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · EL CÓDIGO, CALCULADO — NO SORTEADO
+   Mismo curso + mismo estudiante = siempre el mismo código, sin
+   guardar nada. Es djb2 sobre la cadena; no es criptografía y no
+   pretende serlo: sirve para que dos impresiones coincidan y para
+   que el instructor pueda comprobar de quién es un código.
+   ------------------------------------------------------------ */
+function agCertCodigo(curso, uid){
+  var c = agCursoCert(curso);
+  var pref = (agCertCfg(curso).codigoPref || c.pref);
+  var base = curso + '|' + String(uid == null ? '' : uid);
+  var h = 5381;
+  for(var i = 0; i < base.length; i++) h = (((h * 33) ^ base.charCodeAt(i)) >>> 0);
+  var s = h.toString(36).toUpperCase();
+  while(s.length < 7) s = '0' + s;
+  return pref + '-' + s.slice(0, 7);
+}
+window.agCertCodigo = agCertCodigo;
+
+/* de quién es un código: se recalcula para cada estudiante y curso */
+function agCertDeQuien(codigo){
+  var q = String(codigo || '').trim().toUpperCase();
+  if(!q) return null;
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []);
+  for(var i = 0; i < AGCURSOSCERT.length; i++){
+    for(var j = 0; j < alum.length; j++){
+      if(agCertCodigo(AGCURSOSCERT[i].id, alum[j].id) === q){
+        return {curso: AGCURSOSCERT[i], alumno: alum[j]};
+      }
+    }
+  }
+  return null;
+}
+window.agCertDeQuien = agCertDeQuien;
+
+/* ------------------------------------------------------------
+   2 · ACTIVO / INACTIVO
+   Un curso puede estar publicado y su certificado todavía no.
+   ------------------------------------------------------------ */
+function agCertActivo(curso){ return agCertCfg(curso).activo !== false; }
+window.agCertActivo = agCertActivo;
+
+/* a quién se le está imprimiendo, y con qué código */
+var AGCERTPARA = null;
+var AGCERTQUIEN = null;
+
+/* El impresor original calcula el código con Date.now(), así que
+   siempre llega uno nuevo. Este envoltorio pisa ese valor con el
+   código fijo del estudiante. La vista previa no lo toca: allí
+   AGCERTQUIEN vale null y se respeta el «-EJEMPLO». */
+if(typeof window.certInner === 'function'){
+  var _certInnerCod = window.certInner;
+  window.certInner = function(nm, pc, code){
+    if(AGCERTQUIEN) code = AGCERTQUIEN;
+    return _certInnerCod.call(this, nm, pc, code);
+  };
+}
+
+if(typeof window.agCertImprimir === 'function'){
+  var _agCertImprimirAdm = window.agCertImprimir;
+  window.agCertImprimir = function(curso, nombre, aprob){
+    var esAdmin = (typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN') ||
+                  (typeof PREVIEW !== 'undefined' && PREVIEW);
+    if(!agCertActivo(curso) && !esAdmin){
+      if(typeof toast === 'function')
+        toast('El certificado de este curso todavía no está habilitado', '🔒');
+      return;
+    }
+    /* el estudiante de la sesión, o aquel al que el instructor pulsó */
+    var uid = null;
+    try{
+      if(AGCERTPARA) uid = AGCERTPARA;
+      else if(typeof SESSION !== 'undefined' && SESSION && SESSION.role !== 'ADMIN') uid = SESSION.id;
+    }catch(e){}
+    AGCERTQUIEN = uid ? agCertCodigo(curso, uid) : null;
+    try{ return _agCertImprimirAdm.apply(this, arguments); }
+    finally{ AGCERTQUIEN = null; }
+  };
+}
+window.agCertPara = function(curso, uid, nombre, aprob){
+  AGCERTPARA = uid;
+  try{ agCertImprimir(curso, nombre, aprob); }
+  finally{ AGCERTPARA = null; }
+};
+
+/* ------------------------------------------------------------
+   3 · EL PANEL SIGUE AL CONMUTADOR «GESTIONANDO»
+   ------------------------------------------------------------ */
+function agCertCursoGestionado(){
+  var id = null;
+  try{ id = (typeof ADM !== 'undefined' && ADM) ? ADM.course : null; }catch(e){}
+  if(!id) id = 'porcicultura';
+  /* solo vale si ese curso tiene certificado declarado */
+  for(var i = 0; i < AGCURSOSCERT.length; i++) if(AGCURSOSCERT[i].id === id) return id;
+  return AGCURSOSCERT[0].id;
+}
+
+/* ------------------------------------------------------------
+   4 · EL PANEL, REESCRITO: LO ESENCIAL A LA VISTA
+   ------------------------------------------------------------ */
+var AGCERTESENCIAL = ['course', 'title', 'org', 'signName', 'signer', 'signName2', 'signer2'];
+
+function agAdmCert2(){
+  AGCERTTAB = agCertCursoGestionado();
+  var curso = agCursoCert(AGCERTTAB);
+  var c = agCertCfg(AGCERTTAB);
+  var v = function(k){
+    return String(c[k] == null ? '' : c[k]).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  };
+  var campo = function(f){
+    return '<div class="agk-f' + (f.larga || f.area ? ' agk-ancha' : '') + '"><label for="agc_' + f.k + '">' + f.e + '</label>' +
+      (f.area
+        ? '<textarea rows="4" id="agc_' + f.k + '" oninput="agCertLive()" placeholder="' + f.a + '">' + v(f.k) + '</textarea>'
+        : '<input id="agc_' + f.k + '" value="' + v(f.k) + '" oninput="agCertLive()" placeholder="' + f.a + '">') +
+      '</div>';
+  };
+  var de = function(k){
+    for(var i = 0; i < AGCAMPOS.length; i++) if(AGCAMPOS[i].k === k) return AGCAMPOS[i];
+    return null;
+  };
+
+  /* --- la cabecera: qué curso otorga qué certificado --- */
+  var h = '<div class="agk-rel">' +
+    '<div class="agk-rel-c"><span>Curso</span><b>' + curso.ico + ' ' + curso.n + '</b>' +
+      '<em>' + curso.mods + ' módulos</em></div>' +
+    '<div class="agk-rel-fl">otorga<br><i>↓</i></div>' +
+    '<div class="agk-rel-c agk-rel-cert"><span>Certificado</span><b>' + (v('title') || 'Certificado') + '</b>' +
+      '<em>uno por estudiante, automático</em></div>' +
+    '<label class="agk-onoff"><span class="switch"><input id="agc_activo" type="checkbox"' +
+      (agCertActivo(AGCERTTAB) ? ' checked' : '') + ' onchange="agCertActivoCambia()"><span></span></span>' +
+      '<b id="agcActivoTxt">' + (agCertActivo(AGCERTTAB) ? 'Activo' : 'Inactivo') + '</b></label>' +
+  '</div>' +
+  '<p class="adm-note">Se emite solo, sin que usted intervenga, en cuanto el estudiante aprueba los ' +
+    curso.mods + ' módulos de este curso. Para cambiar de curso use el conmutador <b>Gestionando</b> de arriba.</p>';
+
+  h += '<div class="agk-cols"><div class="agk-form">';
+
+  /* --- lo esencial --- */
+  h += '<div class="adm-card"><h4>Lo que lleva escrito</h4>';
+  h += campo(de('course'));
+  h += campo(de('title'));
+  h += campo(de('org'));
+  h += '<div class="agk-par">' + campo(de('signName')) + campo(de('signer')) + '</div>';
+  h += '<div class="agk-par">' + campo(de('signName2')) + campo(de('signer2')) + '</div>';
+  h += '<div class="agk-f agk-fila"><label for="agc_accent">Color de acento</label>' +
+       '<input id="agc_accent" type="color" value="' + (c.accent || '#215B3A') + '" oninput="agCertLive()"></div>';
+  h += '</div>';
+
+  /* --- lo que se pone solo: se dice, no se edita --- */
+  h += '<div class="adm-card agk-auto"><h4>Lo que se pone solo</h4><ul>' +
+    '<li><b>El nombre del estudiante</b> — el que tenga registrado.</li>' +
+    '<li><b>La fecha</b> — el día en que se emite.</li>' +
+    '<li><b>El código de verificación</b> — <code>' + (c.codigoPref || curso.pref) +
+      '-XXXXXXX</code>, uno por estudiante y curso. Se calcula siempre igual, así que dos impresiones del mismo certificado traen el mismo código.</li>' +
+    '<li><b>Los módulos aprobados</b> — ' + curso.mods + ' de ' + curso.mods + '.</li>' +
+    '</ul></div>';
+
+  /* --- lo técnico, plegado --- */
+  h += '<details class="agk-mas"><summary>Ajustes avanzados</summary><div class="adm-card">';
+  ['intro', 'body', 'place', 'note', 'seal', 'dur'].forEach(function(k){ var f = de(k); if(f) h += campo(f); });
+  h += '<div class="agk-f agk-fila"><label for="agc_showCode">Imprimir el código de verificación</label>' +
+       '<span class="switch"><input id="agc_showCode" type="checkbox"' + (c.showCode !== false ? ' checked' : '') +
+       ' onchange="agCertLive()"><span></span></span></div>' +
+       '<div class="agk-f agk-fila"><label for="agc_codigoPref">Prefijo del código</label>' +
+       '<input id="agc_codigoPref" value="' + (v('codigoPref') || curso.pref) + '" oninput="agCertLive()" style="max-width:170px"></div>';
+  if(typeof AGCERTORO !== 'undefined'){
+    h += '<div class="agk-f agk-fila"><label for="agc_gold">Color del filete dorado</label>' +
+         '<input id="agc_gold" type="color" value="' + (c.gold || AGCERTORO) + '" oninput="agCertLive()"></div>' +
+         '<div class="agk-f agk-fila"><label for="agc_ink">Color del texto</label>' +
+         '<input id="agc_ink" type="color" value="' + (c.ink || AGCERTINK) + '" oninput="agCertLive()"></div>';
+  }
+  h += '<div class="agk-copiar"><label for="agCertDesde">Copiar el diseño de otro curso</label>' +
+      '<div><select id="agCertDesde">' + AGCURSOSCERT.filter(function(x){ return x.id !== AGCERTTAB; })
+        .map(function(x){ return '<option value="' + x.id + '">' + x.ico + ' ' + x.n + '</option>'; }).join('') +
+      '</select><button class="nxa-btn" onclick="agCertCopiar()">Copiar</button></div>' +
+      '<em>Trae el encabezado, las firmas, el lugar y los colores. El nombre del curso y el cuerpo no se copian: son propios de cada certificado.</em>' +
+    '</div>' +
+    '<button class="nxa-btn" onclick="agCertRestaurar(\'' + AGCERTTAB + '\')">↩ Restaurar de fábrica</button>' +
+    '</div></details>';
+
+  h += '<div class="agk-acc">' +
+    '<button class="nxa-btn on" onclick="agCertSalvar()">💾 Guardar</button>' +
+    '<button class="nxa-btn" onclick="agCertImprimir(\'' + AGCERTTAB + '\',\'Nombre del Participante\',' + curso.mods + ')">🖨️ Ver un ejemplo</button>' +
+    '</div>';
+  h += '</div>';
+
+  /* --- columna derecha --- */
+  h += '<div class="agk-prev"><div class="adm-card"><h4>Así queda</h4>' +
+    '<div id="agCertPrev" class="agc-marco"></div></div>' +
+    agCertVerificador() +
+    agCertListos2(AGCERTTAB) + '</div></div>';
+
+  setTimeout(agCertPintaPrev, 50);
+  return h;
+}
+window.agAdmCertificados = agAdmCert2;
+
+/* --- el interruptor activo/inactivo --- */
+window.agCertActivoCambia = function(){
+  var el = document.getElementById('agc_activo');
+  if(!el) return;
+  var c = agCertCfg(AGCERTTAB);
+  c.activo = el.checked;
+  agCertGuardar(AGCERTTAB);
+  var t = document.getElementById('agcActivoTxt');
+  if(t) t.textContent = el.checked ? 'Activo' : 'Inactivo';
+  if(typeof toast === 'function'){
+    toast(el.checked
+      ? 'El certificado de ' + agCursoCert(AGCERTTAB).n + ' ya se entrega'
+      : 'El certificado de ' + agCursoCert(AGCERTTAB).n + ' queda retenido', el.checked ? '🎓' : '🔒');
+  }
+};
+
+/* --- comprobar un código --- */
+function agCertVerificador(){
+  return '<div class="adm-card agk-verif" style="margin-top:14px"><h4>Comprobar un código</h4>' +
+    '<p>Pegue el código que aparece al pie de un certificado y le digo de quién es.</p>' +
+    '<div class="agk-verif-r"><input id="agcVerif" placeholder="AGRO-RD-XXXXXXX" ' +
+      'onkeydown="if(event.key===\'Enter\')agCertVerifica()">' +
+      '<button class="nxa-btn on" onclick="agCertVerifica()">Comprobar</button></div>' +
+    '<div id="agcVerifR" class="agk-verif-x"></div></div>';
+}
+window.agCertVerifica = function(){
+  var i = document.getElementById('agcVerif');
+  var o = document.getElementById('agcVerifR');
+  if(!i || !o) return;
+  var q = String(i.value || '').trim();
+  if(!q){ o.className = 'agk-verif-x'; o.textContent = ''; return; }
+  var r = agCertDeQuien(q);
+  if(!r){
+    o.className = 'agk-verif-x mal';
+    o.innerHTML = '✖ Ningún certificado emitido por AgroAcademy RD lleva ese código.';
+    return;
+  }
+  var n = agAprobadosDe(r.curso.id, r.alumno.id);
+  var ok = n >= r.curso.mods;
+  o.className = 'agk-verif-x ' + (ok ? 'bien' : 'medio');
+  o.innerHTML = (ok ? '✔ ' : '⚠ ') +
+    '<b>' + (typeof esc === 'function' ? esc(r.alumno.name) : r.alumno.name) + '</b><br>' +
+    r.curso.ico + ' ' + r.curso.n + ' · ' + n + ' de ' + r.curso.mods + ' módulos aprobados' +
+    (ok ? '' : '<br><em>El código es de esta persona, pero todavía no ha completado el curso.</em>');
+};
+
+/* --- generar para un alumno concreto, con SU código --- */
+function agCertListos2(curso){
+  var c = agCursoCert(curso);
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+  var listos = alum.filter(function(a){ return agAprobadosDe(curso, a.id) >= c.mods; });
+  var h = '<div class="adm-card" style="margin-top:14px"><h4>Ya lo tienen ganado ' +
+    '<span style="font-weight:400;color:var(--muted);font-size:12px">' + c.mods + ' de ' + c.mods + ' módulos</span></h4>';
+  if(!alum.length) return h + '<div class="adm-empty">Todavía no hay estudiantes registrados.</div></div>';
+  if(!listos.length) return h + '<div class="adm-empty">Todavía nadie ha completado los ' + c.mods + ' módulos de este curso.</div></div>';
+  h += '<div class="nx-tw"><table class="nx-t"><tbody>' + listos.map(function(a){
+    var nm = String(a.name).replace(/'/g, '&#39;');
+    return '<tr><td><b>' + (typeof esc === 'function' ? esc(a.name) : a.name) + '</b>' +
+      '<span style="display:block;font-size:11.5px;color:var(--muted)">' +
+        '<code>' + agCertCodigo(curso, a.id) + '</code></span></td>' +
+      '<td style="text-align:right"><button class="nxa-btn on" style="margin:0;padding:7px 14px;font-size:12.5px" ' +
+      'onclick="agCertPara(\'' + curso + '\',\'' + a.id + '\',\'' + nm + '\',' + c.mods + ')">🎓 Generar</button></td></tr>';
+  }).join('') + '</tbody></table></div>';
+  return h + '</div>';
+}
+window.agCertListos = agCertListos2;
+
+/* ------------------------------------------------------------
+   5 · QUE LA PESTAÑA «CERTIFICADOS» USE ESTE PANEL SIEMPRE
+   Antes solo lo usaba gestionando Formulación.
+   ------------------------------------------------------------ */
+if(typeof window.certsView === 'function'){
+  var _certsViewAg = window.certsView;
+  window.certsView = function(){
+    try{ return agAdmCertificados(); }
+    catch(e){ return _certsViewAg.apply(this, arguments); }
+  };
+}
+/* al cambiar de curso en «Gestionando», el panel se repinta solo */
+if(typeof window.nxSetCourse === 'function'){
+  var _nxSetCourseCert = window.nxSetCourse;
+  window.nxSetCourse = function(id){
+    var r = _nxSetCourseCert.apply(this, arguments);
+    try{
+      if(typeof ADM !== 'undefined' && ADM && ADM.tab === 'certs' && typeof renderAdmin === 'function') renderAdmin();
+    }catch(e){}
+    return r;
+  };
+}
+
+/* ------------------------------------------------------------
+   6 · ESTILOS
+   ------------------------------------------------------------ */
+(function agCssCertAdm(){
+  if(document.getElementById('agCssCertAdm')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssCertAdm';
+  s.textContent = `
+.agk-rel{ display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:16px 18px; margin:0 0 12px; border:1px solid var(--border); border-radius:16px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--green) 7%,var(--panel)),var(--panel)); }
+.agk-rel-c{ display:flex; flex-direction:column; gap:2px; min-width:200px }
+.agk-rel-c > span{ font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted) }
+.agk-rel-c > b{ font-family:var(--display); font-size:17px; font-weight:700; color:var(--text); line-height:1.25 }
+.agk-rel-c > em{ font-style:normal; font-size:12.5px; color:var(--muted) }
+.agk-rel-fl{ font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); text-align:center; line-height:1.5 }
+.agk-rel-fl i{ font-style:normal; font-size:19px; color:var(--green) }
+.agk-onoff{ margin-left:auto; display:flex; align-items:center; gap:9px; cursor:pointer }
+.agk-onoff b{ font-size:13.5px; color:var(--text-2) }
+
+.agk-cols{ display:grid; gap:16px; grid-template-columns:minmax(320px,1fr) minmax(340px,1.15fr); align-items:start }
+.agk-form{ min-width:0 } .agk-prev{ min-width:0 }
+.agk-f{ margin:0 0 13px; display:flex; flex-direction:column; gap:5px }
+.agk-f label{ font-size:12.5px; font-weight:600; color:var(--text-2) }
+.agk-f input, .agk-f textarea, .agk-f select{ width:100%; padding:9px 11px; font-size:14px;
+  border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:var(--body) }
+.agk-f input[type=color]{ padding:2px; height:36px; max-width:72px; cursor:pointer }
+.agk-f textarea{ resize:vertical; line-height:1.55 }
+.agk-fila{ flex-direction:row; align-items:center; justify-content:space-between; gap:12px }
+.agk-fila label{ flex:1 }
+.agk-par{ display:grid; gap:0 13px; grid-template-columns:1fr 1fr }
+
+.agk-auto ul{ margin:0; padding-left:20px; display:flex; flex-direction:column; gap:7px }
+.agk-auto li{ font-size:13.5px; line-height:1.55; color:var(--text-2) }
+.agk-auto code{ font-family:var(--mono); font-size:12.5px; padding:1px 6px; border-radius:5px;
+  background:color-mix(in srgb,var(--text) 8%,transparent) }
+
+.agk-mas{ margin:0 0 14px; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--panel) }
+.agk-mas > summary{ cursor:pointer; padding:13px 16px; font-size:13.5px; font-weight:700; color:var(--text-2);
+  list-style:none; display:flex; align-items:center; gap:9px }
+.agk-mas > summary::-webkit-details-marker{ display:none }
+.agk-mas > summary::before{ content:'▸'; color:var(--green); font-size:13px; transition:transform .18s }
+.agk-mas[open] > summary::before{ transform:rotate(90deg) }
+.agk-mas > summary:hover{ background:color-mix(in srgb,var(--text) 4%,transparent) }
+.agk-mas .adm-card{ border:0; border-top:1px solid var(--border); border-radius:0; margin:0 }
+
+.agk-copiar{ margin-top:8px; padding-top:13px; border-top:1px dashed var(--border) }
+.agk-copiar > label{ display:block; font-size:12.5px; font-weight:600; color:var(--text-2); margin-bottom:6px }
+.agk-copiar > div{ display:flex; gap:9px; flex-wrap:wrap }
+.agk-copiar select{ flex:1; min-width:180px; padding:9px 11px; font-size:13.5px;
+  border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text) }
+.agk-copiar em{ display:block; margin-top:7px; font-style:normal; font-size:12px; color:var(--muted); line-height:1.5 }
+
+.agk-acc{ display:flex; gap:10px; flex-wrap:wrap; margin:0 0 14px }
+
+.agk-verif p{ margin:0 0 10px; font-size:13px; color:var(--muted); line-height:1.55 }
+.agk-verif-r{ display:flex; gap:9px; flex-wrap:wrap }
+.agk-verif-r input{ flex:1; min-width:180px; padding:9px 11px; font-family:var(--mono); font-size:13.5px;
+  letter-spacing:.05em; text-transform:uppercase;
+  border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text) }
+.agk-verif-x{ margin-top:11px; font-size:13.5px; line-height:1.6 }
+.agk-verif-x:empty{ display:none }
+.agk-verif-x.bien{ color:var(--green) }
+.agk-verif-x.medio{ color:#A85B10 }
+.agk-verif-x.mal{ color:#B3261E }
+.agk-verif-x em{ font-style:normal; color:var(--muted); font-size:12.5px }
+
+@media (max-width:900px){
+  .agk-cols{ grid-template-columns:1fr }
+  .agk-par{ grid-template-columns:1fr }
+  .agk-onoff{ margin-left:0 }
+}
+`;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
 /* ---------- ag-acceso.js ---------- */
 /* ============================================================
    EL CANDADO DE LA CUENTA PENDIENTE
@@ -20628,7 +21073,1080 @@ if(typeof window.abrirCursos === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-campuscss.js ---------- */
+/* Estilos del campus del estudiante */
+var AGCAMPUSCSS = `
+/* ---------- lienzo ---------- */
+.agc-w{ max-width:1320px !important; padding:clamp(22px,3vw,44px) clamp(16px,3vw,34px) 64px !important }
+.agc-w *{ box-sizing:border-box }
+
+/* ---------- cabecera ---------- */
+.agc-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
+  flex-wrap:wrap; margin-bottom:clamp(22px,3vw,34px) }
+.agc-eyebrow{ display:block; font-family:var(--mono); font-size:11.5px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--green); margin-bottom:10px }
+.agc-head h1{ margin:0 0 8px; font-family:var(--display); font-size:clamp(28px,4.2vw,46px);
+  font-weight:800; letter-spacing:-.028em; line-height:1.06; color:var(--text) }
+.agc-head h1 b{ font-weight:800;
+  background:linear-gradient(100deg,var(--green),#5BBE86 40%,var(--amber));
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent }
+.agc-head p{ margin:0; font-size:16.5px; color:var(--text-2) }
+.agc-salir{ font-family:var(--sans); font-size:13.5px; font-weight:600; color:var(--text-2);
+  background:color-mix(in srgb,var(--panel) 70%,transparent); cursor:pointer;
+  border:1px solid var(--border); border-radius:11px; padding:10px 17px;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); transition:all .18s }
+.agc-salir:hover{ border-color:var(--crit); color:var(--crit) }
+
+/* ---------- estadisticas ---------- */
+.agc-stats{ display:grid; gap:14px; margin-bottom:clamp(26px,3.4vw,42px);
+  grid-template-columns:repeat(auto-fit,minmax(178px,1fr)) }
+.agc-stat{ position:relative; overflow:hidden; padding:20px 22px 18px; border-radius:18px;
+  background:linear-gradient(150deg, color-mix(in srgb,var(--panel) 82%,transparent),
+    color-mix(in srgb,var(--panel) 58%,transparent));
+  border:1px solid var(--border); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px) }
+.agc-stat::before{ content:''; position:absolute; left:0; right:0; top:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent); opacity:.8 }
+.agc-stat b{ display:block; font-family:var(--mono); font-size:clamp(30px,3.4vw,42px);
+  font-weight:700; line-height:1; letter-spacing:-.03em; color:var(--text);
+  font-variant-numeric:tabular-nums }
+.agc-stat span{ display:block; font-size:13.5px; font-weight:600; color:var(--text-2); margin-top:9px }
+.agc-stat em{ display:block; font-style:normal; font-size:12px; color:var(--muted); margin-top:3px }
+
+/* ---------- secciones ---------- */
+.agc-sec{ margin-bottom:clamp(30px,3.6vw,48px) }
+.agc-h2{ margin:0 0 6px; font-family:var(--display); font-size:clamp(19px,2.1vw,25px);
+  font-weight:700; letter-spacing:-.018em; color:var(--text) }
+.agc-sub{ margin:0 0 18px; font-size:15px; color:var(--muted); max-width:70ch }
+
+/* ---------- continuar aprendiendo ---------- */
+.agc-cont{ position:relative; overflow:hidden; border-radius:22px; border:1px solid var(--border);
+  min-height:210px; transform:perspective(900px) rotateX(var(--rx,0)) rotateY(var(--ry,0));
+  transition:transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s }
+.agc-cont::after{ content:''; position:absolute; inset:0; pointer-events:none;
+  background:var(--cov) center/cover no-repeat; opacity:.5; z-index:0 }
+.agc-cont-velo{ position:absolute; inset:0; z-index:1;
+  background:linear-gradient(100deg, color-mix(in srgb,var(--bg) 94%,transparent) 28%,
+    color-mix(in srgb,var(--bg) 60%,transparent) 72%, transparent) }
+.agc-cont-c{ position:relative; z-index:2; display:flex; align-items:center; gap:22px;
+  padding:clamp(22px,2.6vw,32px); flex-wrap:wrap }
+.agc-cont-ico{ flex:0 0 auto; width:74px; height:74px; border-radius:22px; font-size:38px;
+  display:flex; align-items:center; justify-content:center; background:var(--panel);
+  border:1px solid var(--border); box-shadow:0 12px 30px rgba(0,0,0,.26) }
+.agc-cont-t{ flex:1 1 320px; min-width:0 }
+.agc-cat{ display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--green); border:1px solid color-mix(in srgb,var(--green) 42%,transparent);
+  border-radius:20px; padding:3px 11px; margin-bottom:9px }
+.agc-cont-t b{ display:block; font-family:var(--display); font-size:clamp(19px,2.2vw,26px);
+  font-weight:700; line-height:1.18; color:var(--text); margin-bottom:6px }
+.agc-cont-t p{ margin:0 0 14px; font-size:15px; color:var(--text-2) }
+.agc-cta{ flex:0 0 auto; font-family:var(--sans); font-size:15px; font-weight:700; color:#fff;
+  cursor:pointer; border:0; border-radius:14px; padding:15px 26px;
+  background:linear-gradient(135deg,var(--green),#1F6B43);
+  box-shadow:0 12px 28px color-mix(in srgb,var(--green) 38%,transparent);
+  transition:transform .18s, box-shadow .18s }
+.agc-cta:hover{ transform:translateY(-2px); box-shadow:0 18px 36px color-mix(in srgb,var(--green) 46%,transparent) }
+.agc-cta:active{ transform:translateY(0) }
+
+/* ---------- barras ---------- */
+.agc-bar{ height:8px; border-radius:6px; overflow:hidden; background:color-mix(in srgb,var(--text) 12%,transparent);
+  border:1px solid var(--border); max-width:440px }
+.agc-bar.sm{ height:6px; margin:12px 0 0 }
+.agc-bar i{ display:block; height:100%; width:0;
+  background:linear-gradient(90deg,var(--green),#5BBE86); border-radius:6px }
+.agc-bar-n{ display:block; font-family:var(--mono); font-size:12px; color:var(--muted); margin-top:7px }
+
+/* ---------- rejilla de cursos ---------- */
+.agc-rejilla{ display:grid; gap:18px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)) }
+.agc-card{ display:flex; flex-direction:column; overflow:hidden; border-radius:20px;
+  background:color-mix(in srgb,var(--panel) 86%,transparent); border:1px solid var(--border);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  transform:perspective(900px) rotateX(var(--rx,0)) rotateY(var(--ry,0));
+  transition:transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s, border-color .3s }
+.agc-card:hover{ box-shadow:0 26px 54px rgba(0,0,0,.28); border-color:color-mix(in srgb,var(--green) 40%,var(--border)) }
+.agc-card-cov{ position:relative; aspect-ratio:16/9; overflow:hidden;
+  background:color-mix(in srgb,var(--text) 8%,var(--panel)) }
+.agc-card-cov img{ display:block; width:100%; height:100%; object-fit:cover;
+  transition:transform .5s cubic-bezier(.2,.7,.3,1), filter .35s }
+.agc-card:hover .agc-card-cov img{ transform:scale(1.05) }
+.agc-card-velo{ position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(10,9,8,.78), rgba(10,9,8,.14) 52%, transparent) }
+.agc-card-cat{ position:absolute; left:15px; top:14px; z-index:2;
+  font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:#fff;
+  background:rgba(255,255,255,.17); border:1px solid rgba(255,255,255,.3); border-radius:20px;
+  padding:4px 11px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
+.agc-card-ico{ position:absolute; right:15px; bottom:-24px; z-index:3;
+  width:64px; height:64px; border-radius:19px; font-size:32px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--panel); border:1px solid var(--border); box-shadow:0 12px 28px rgba(0,0,0,.3) }
+.agc-card-c{ flex:1; display:flex; flex-direction:column; padding:34px 20px 20px }
+.agc-card-c h3{ margin:0 0 7px; font-family:var(--display); font-size:17.5px; font-weight:700;
+  line-height:1.24; color:var(--text); padding-right:52px }
+.agc-card-c p{ margin:0 0 14px; font-size:14.5px; line-height:1.55; color:var(--text-2); flex:1 }
+.agc-card-meta{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  font-family:var(--mono); font-size:12px; color:var(--muted) }
+.agc-precio{ color:var(--amber-d); font-weight:700 }
+.agc-card-cta{ margin-top:16px; font-family:var(--sans); font-size:14px; font-weight:700;
+  cursor:pointer; border-radius:12px; padding:12px 18px; width:100%;
+  color:#fff; border:0; background:linear-gradient(135deg,var(--green),#1F6B43);
+  transition:transform .16s, box-shadow .16s, filter .16s }
+.agc-card-cta:hover{ transform:translateY(-2px); box-shadow:0 12px 26px color-mix(in srgb,var(--green) 36%,transparent) }
+.agc-card-cta.lock{ background:linear-gradient(135deg,#C08A12,#96690B);
+  box-shadow:none }
+.agc-card-cta.lock:hover{ box-shadow:0 12px 26px color-mix(in srgb,var(--amber) 40%,transparent) }
+
+/* ---------- bloqueado: premium, no deshabilitado ---------- */
+.agc-card.agc-lock .agc-card-cov img{ filter:grayscale(.8) brightness(.5) contrast(1.06) }
+.agc-card.agc-lock:hover .agc-card-cov img{ filter:grayscale(.4) brightness(.66) }
+.agc-card.agc-lock .agc-card-velo{
+  background:linear-gradient(to top, rgba(8,7,6,.9), rgba(8,7,6,.5) 55%, rgba(8,7,6,.22)) }
+.agc-card.agc-lock:hover{ border-color:color-mix(in srgb,var(--amber) 46%,var(--border)) }
+.agc-candado{ position:absolute; inset:0; z-index:2; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:9px; text-align:center; padding:0 16px }
+.agc-candado span{ font-size:32px; line-height:1;
+  filter:drop-shadow(0 0 14px color-mix(in srgb,var(--amber) 70%,transparent));
+  animation:agGlow 3.4s ease-in-out infinite }
+.agc-candado b{ font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:.02em;
+  color:#fff; background:rgba(0,0,0,.42); border:1px solid rgba(255,255,255,.22);
+  border-radius:20px; padding:6px 14px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
+@keyframes agGlow{ 0%,100%{ filter:drop-shadow(0 0 10px color-mix(in srgb,var(--amber) 55%,transparent)) }
+  50%{ filter:drop-shadow(0 0 20px color-mix(in srgb,var(--amber) 92%,transparent)) } }
+.agc-hecho{ position:absolute; left:15px; bottom:14px; z-index:2; display:flex; align-items:center; gap:7px;
+  padding:5px 12px; border-radius:20px; background:color-mix(in srgb,var(--green) 88%,transparent);
+  border:1px solid rgba(255,255,255,.26) }
+.agc-hecho span, .agc-hecho b{ color:#fff; font-size:11.5px; font-weight:700 }
+
+/* ---------- certificados ---------- */
+.agc-certs{ display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)) }
+.agc-cert{ border-radius:18px; padding:20px; border:1px solid var(--border);
+  background:linear-gradient(150deg, color-mix(in srgb,var(--ac) 13%,var(--panel)),
+    color-mix(in srgb,var(--panel) 88%,transparent)) }
+.agc-cert-h{ display:flex; gap:14px; align-items:flex-start; margin-bottom:14px }
+.agc-cert-h > span{ flex:0 0 auto; width:50px; height:50px; border-radius:15px; font-size:26px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--panel); border:1px solid var(--border) }
+.agc-cert-h b{ display:block; font-family:var(--display); font-size:16px; font-weight:700;
+  line-height:1.26; color:var(--text); margin-bottom:4px }
+.agc-cert-h em{ display:block; font-style:normal; font-size:12.5px; color:var(--muted) }
+.agc-cert-m{ display:flex; gap:14px; flex-wrap:wrap; padding:11px 0; margin-bottom:14px;
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  font-family:var(--mono); font-size:12.5px; color:var(--text-2) }
+.agc-cert-m span:first-child{ color:var(--green) }
+.agc-cert-cod{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin:0 0 13px }
+.agc-cert-cod > span{ flex:1 1 100%; font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted) }
+.agc-cert-cod code{ font-family:var(--mono); font-size:13px; letter-spacing:.04em; color:var(--text);
+  padding:5px 10px; border-radius:8px; border:1px dashed color-mix(in srgb,var(--ac) 40%,var(--border));
+  background:color-mix(in srgb,var(--ac) 7%,transparent) }
+.agc-cert-cp{ font-family:var(--sans); font-size:12px; font-weight:600; cursor:pointer;
+  padding:5px 11px; border-radius:8px; color:var(--text-2);
+  border:1px solid var(--border); background:transparent; transition:all .16s }
+.agc-cert-cp:hover{ color:var(--text); border-color:color-mix(in srgb,var(--ac) 55%,var(--border));
+  background:color-mix(in srgb,var(--ac) 9%,transparent) }
+.agc-cert-a .agc-card-cta{ margin-top:0; background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 70%,#000)) }
+.agc-vacio{ text-align:center; padding:40px 24px; border-radius:18px;
+  border:1px dashed var(--border); background:color-mix(in srgb,var(--panel) 50%,transparent) }
+.agc-vacio span{ display:block; font-size:38px; margin-bottom:12px; opacity:.6 }
+.agc-vacio b{ display:block; font-family:var(--display); font-size:18px; color:var(--text); margin-bottom:7px }
+.agc-vacio p{ margin:0 auto; max-width:52ch; font-size:14.5px; line-height:1.6; color:var(--muted) }
+.agc-nota{ margin:16px 0 0; font-size:13px; line-height:1.6; color:var(--muted); max-width:76ch }
+
+/* ---------- entrada: nada parpadea antes de animarse ---------- */
+.agc-w .agc-head-t > *, .agc-w .agc-stat, .agc-w .agc-cont,
+.agc-w .agc-card, .agc-w .agc-cert{ opacity:0 }
+.agc-w.agc-listo .agc-head-t > *, .agc-w.agc-listo .agc-stat, .agc-w.agc-listo .agc-cont,
+.agc-w.agc-listo .agc-card, .agc-w.agc-listo .agc-cert{ opacity:1 }
+
+@media(prefers-reduced-motion:reduce){
+  .agc-candado span{ animation:none }
+  .agc-card, .agc-cont{ transform:none !important; transition:none }
+  .agc-w .agc-head-t > *, .agc-w .agc-stat, .agc-w .agc-cont,
+  .agc-w .agc-card, .agc-w .agc-cert{ opacity:1 }
+}
+@media(max-width:720px){
+  .agc-head{ flex-direction:column; gap:14px }
+  .agc-cont-c{ gap:16px }
+  .agc-cont-ico{ width:58px; height:58px; font-size:30px; border-radius:18px }
+  .agc-cta{ width:100%; text-align:center }
+  .agc-rejilla{ grid-template-columns:1fr }
+  .agc-card-ico{ width:54px; height:54px; font-size:27px; bottom:-20px }
+  .agc-card-c{ padding:30px 17px 18px }
+}
+`;
+(function agCssCampus(){
+  if(document.getElementById('agCssCampus')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssCampus';
+  s.textContent = AGCAMPUSCSS;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-campus.js ---------- */
+/* ============================================================
+   AGROACADEMY · EL CAMPUS DEL ESTUDIANTE
+   ------------------------------------------------------------
+   Sustituye el interior de «Mis cursos» por un campus de verdad:
+   bienvenida, progreso, lo que está estudiando, todo el catálogo
+   y sus certificados. Todo en una sola pantalla.
+
+   Se construye ENTERO desde COURSES, que es el registro que ya
+   usa el panel de administración. Eso significa que un curso 5
+   aparece aquí solo con registrarse allí: no hay que tocar esta
+   pantalla. Lo único que este archivo aporta por curso es la
+   portada, la descripción y cómo se abre — y si faltan, hay
+   valores por defecto para que igual salga.
+
+   El overlay, su apertura y su cierre no se tocan. Al instructor
+   se le deja el catálogo de siempre: él tiene su propio panel.
+   ============================================================ */
+
+/* ---------- lo que COURSES no sabe de cada curso ---------- */
+var AGCAT = {
+  porcicultura: {
+    cover:'nutri-portada', cat:'Curso base',
+    desc:'De la instalación al proyecto final: manejo, sanidad, registros, economía y comercialización.',
+    abrir:function(){ cerrarCursos(); location.hash = '#/curso'; if(typeof router === 'function') router(); }
+  },
+  nutricion: {
+    cover:'nutri-m02-maiz-grano', cat:'Complementario',
+    desc:'12 fórmulas verificadas, escalado a batch, costo por kilo y simulador de formulación.',
+    abrir:function(){ cerrarCursos(); openNutricion(); },
+    pagar:function(){ if(typeof nxAbrirPago === 'function') nxAbrirPago(); }
+  },
+  reproduccion: {
+    cover:'rp-b-lactancia', cat:'Complementario',
+    desc:'Detección del celo, momento del servicio, diagnóstico de fallas y 11 calculadoras.',
+    abrir:function(){ cerrarCursos(); openReproduccion(); },
+    pagar:function(){ if(typeof rpAbrirPago === 'function') rpAbrirPago(); }
+  },
+  sanidad: {
+    cover:'sb-portada', cat:'Complementario',
+    desc:'Prevención, control y respuesta ante la PPA. Plan de bioseguridad de su granja y 6 planillas.',
+    abrir:function(){ cerrarCursos(); openSanidad(); },
+    pagar:function(){ if(typeof sbAbrirPago === 'function') sbAbrirPago(); }
+  }
+};
+function agCatDe(id){
+  var C = COURSES[id] || {};
+  var x = AGCAT[id] || {};
+  return {
+    id: id,
+    icon: C.icon || '📘',
+    nombre: C.name || C.label || id,
+    corto: C.label || id,
+    desc: x.desc || (C.n ? C.n + ' módulos' : ''),
+    cat: x.cat || (C.sellsSeparately ? 'Complementario' : 'Curso base'),
+    cover: x.cover || null,
+    n: C.n || 0,
+    abrir: x.abrir || function(){ cerrarCursos(); },
+    pagar: x.pagar || null,
+    precio: (typeof AGPRECIOS !== 'undefined' && AGPRECIOS[id]) ? AGPRECIOS[id].usd : null
+  };
+}
+
+/* ---------- estado del estudiante en cada curso ---------- */
+function agEstadoCurso(id){
+  var C = COURSES[id];
+  if(!C) return null;
+  var uid = (typeof SESSION !== 'undefined' && SESSION) ? SESSION.id : null;
+  var publicado = true;
+  try{ publicado = C.published(); }catch(e){}
+  var tiene = false;
+  try{ tiene = !!C.enrolled({id:uid, status:(agEstadoDeCuenta() || 'activo')}); }catch(e){}
+  /* el curso base depende del estado de la cuenta, no de una compra */
+  if(!C.sellsSeparately){
+    try{ tiene = (typeof nxCondicionOk === 'function') ? !!nxCondicionOk(uid) : true; }catch(e){ tiene = true; }
+  }
+  var hechos = 0;
+  try{ hechos = C.count(uid) || 0; }catch(e){}
+  var total = C.n || 0;
+  return {
+    id:id, publicado:publicado, tiene:tiene, hechos:hechos, total:total,
+    pct: total ? Math.round(hechos / total * 100) : 0,
+    completo: total > 0 && hechos >= total,
+    empezado: hechos > 0
+  };
+}
+function agEstadoDeCuenta(){
+  try{
+    if(typeof SESSION === 'undefined' || !SESSION || !SESSION.id) return '';
+    var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === SESSION.id; })[0];
+    return s ? (s.status || '') : '';
+  }catch(e){ return ''; }
+}
+function agCursosVisibles(){
+  return Object.keys(COURSES).filter(function(id){
+    var e = agEstadoCurso(id);
+    return e && (e.publicado || e.tiene);
+  });
+}
+
+/* ---------- las piezas ---------- */
+function agCampusCabecera(){
+  var nombre = '';
+  try{
+    var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === SESSION.id; })[0];
+    nombre = s ? String(s.name || '').split(' ')[0] : '';
+  }catch(e){}
+  return '<header class="agc-head">' +
+    '<div class="agc-head-t">' +
+      '<span class="agc-eyebrow">AgroAcademy RD · Campus</span>' +
+      '<h1>Hola de nuevo' + (nombre ? ', <b>' + agEsc(nombre) + '</b>' : '') + '</h1>' +
+      '<p>Continúe desarrollando sus conocimientos.</p>' +
+    '</div>' +
+    '<button class="agc-salir" onclick="if(confirm(\'¿Cerrar sesión?\')) logout();">Cerrar sesión</button>' +
+  '</header>';
+}
+
+function agCampusStats(){
+  var ids = agCursosVisibles();
+  var act = 0, comp = 0, cert = 0, mods = 0, modsTot = 0;
+  ids.forEach(function(id){
+    var e = agEstadoCurso(id);
+    if(!e.tiene) return;
+    mods += e.hechos; modsTot += e.total;
+    if(e.completo){ comp++; cert++; }
+    else if(e.empezado) act++;
+  });
+  var d = [
+    [act,  'en curso',     'módulos por delante'],
+    [comp, 'completados',  'de principio a fin'],
+    [cert, 'certificados', 'listos para descargar'],
+    [mods, 'módulos aprobados', modsTot ? 'de ' + modsTot + ' disponibles' : '']
+  ];
+  return '<section class="agc-stats">' + d.map(function(x, i){
+    return '<div class="agc-stat" style="--i:' + i + '">' +
+      '<b data-n="' + x[0] + '">0</b><span>' + x[1] + '</span>' +
+      (x[2] ? '<em>' + x[2] + '</em>' : '') + '</div>';
+  }).join('') + '</section>';
+}
+
+function agCampusContinuar(){
+  var ids = agCursosVisibles();
+  var cand = null;
+  ids.forEach(function(id){
+    var e = agEstadoCurso(id);
+    if(!e.tiene || e.completo) return;
+    if(!cand || e.hechos > cand.hechos) cand = e;
+  });
+  if(!cand){
+    /* nada empezado: se ofrece el primero al que sí tiene acceso */
+    for(var i = 0; i < ids.length; i++){
+      var e = agEstadoCurso(ids[i]);
+      if(e.tiene && !e.completo){ cand = e; break; }
+    }
+  }
+  if(!cand) return '';
+  var c = agCatDe(cand.id);
+  var titulo = cand.empezado ? 'Continuar aprendiendo' : 'Empiece por aquí';
+  return '<section class="agc-sec"><h2 class="agc-h2">' + titulo + '</h2>' +
+    '<article class="agc-cont"' + (c.cover ? ' style="--cov:url(&quot;images/' + c.cover + '.jpg&quot;)"' : '') + '>' +
+      '<div class="agc-cont-velo"></div>' +
+      '<div class="agc-cont-c">' +
+        '<span class="agc-cont-ico">' + c.icon + '</span>' +
+        '<div class="agc-cont-t">' +
+          '<span class="agc-cat">' + c.cat + '</span>' +
+          '<b>' + agEsc(c.nombre) + '</b>' +
+          '<p>' + (cand.empezado
+            ? 'Va por el módulo ' + (cand.hechos + 1) + ' de ' + cand.total + '. Siga donde lo dejó.'
+            : 'Todavía no lo ha empezado. El primer módulo lo espera.') + '</p>' +
+          '<div class="agc-bar"><i data-w="' + cand.pct + '"></i></div>' +
+          '<span class="agc-bar-n">' + cand.pct + ' % · ' + cand.hechos + ' de ' + cand.total + ' módulos</span>' +
+        '</div>' +
+        '<button class="agc-cta" onclick="agAbrirCurso(\'' + cand.id + '\')">' +
+          (cand.empezado ? 'Continuar estudiando' : 'Empezar el curso') + ' →</button>' +
+      '</div>' +
+    '</article></section>';
+}
+
+function agCampusTarjeta(id, i){
+  var c = agCatDe(id);
+  var e = agEstadoCurso(id);
+  var bloqueado = !e.tiene;
+  return '<article class="agc-card' + (bloqueado ? ' agc-lock' : '') + '" style="--i:' + i + '" data-curso="' + id + '">' +
+    '<div class="agc-card-cov">' +
+      (c.cover ? '<img src="images/' + c.cover + '.jpg" alt="" loading="lazy">' : '<div class="agc-card-sin"></div>') +
+      '<div class="agc-card-velo"></div>' +
+      '<span class="agc-card-cat">' + c.cat + '</span>' +
+      (bloqueado
+        ? '<div class="agc-candado"><span>🔒</span><b>Disponible mediante inscripción</b></div>'
+        : (e.completo ? '<div class="agc-hecho"><span>✓</span><b>Completado</b></div>' : '')) +
+      '<span class="agc-card-ico">' + c.icon + '</span>' +
+    '</div>' +
+    '<div class="agc-card-c">' +
+      '<h3>' + agEsc(c.nombre) + '</h3>' +
+      '<p>' + c.desc + '</p>' +
+      '<div class="agc-card-meta"><span>' + c.n + ' módulos</span>' +
+        (bloqueado
+          ? (c.precio ? '<span class="agc-precio">US$ ' + c.precio + '</span>' : '')
+          : '<span>' + e.hechos + ' de ' + e.total + ' aprobados</span>') +
+      '</div>' +
+      (bloqueado ? '' : '<div class="agc-bar sm"><i data-w="' + e.pct + '"></i></div>') +
+      '<button class="agc-card-cta' + (bloqueado ? ' lock' : '') + '" onclick="' +
+        (bloqueado ? 'agDesbloquear(\'' + id + '\')' : 'agAbrirCurso(\'' + id + '\')') + '">' +
+        (bloqueado ? '🔓 Desbloquear curso' : (e.completo ? 'Repasar el curso' : (e.empezado ? 'Continuar' : 'Empezar'))) +
+      '</button>' +
+    '</div>' +
+  '</article>';
+}
+
+function agCampusCatalogo(){
+  var ids = agCursosVisibles();
+  return '<section class="agc-sec"><h2 class="agc-h2">Explorar AgroAcademy</h2>' +
+    '<p class="agc-sub">Los cursos que ya tiene y los que puede adquirir. Su avance se guarda por separado en cada uno.</p>' +
+    '<div class="agc-rejilla">' + ids.map(function(id, i){ return agCampusTarjeta(id, i); }).join('') + '</div>' +
+  '</section>';
+}
+
+function agCampusCertificados(){
+  var ids = agCursosVisibles().filter(function(id){
+    var e = agEstadoCurso(id);
+    return e.tiene && e.completo;
+  });
+  if(!ids.length){
+    return '<section class="agc-sec"><h2 class="agc-h2">Certificados</h2>' +
+      '<div class="agc-vacio"><span>🎓</span>' +
+      '<b>Todavía no tiene certificados</b>' +
+      '<p>Cada curso entrega el suyo cuando aprueba todos sus módulos. Aparecerán aquí automáticamente.</p>' +
+      '</div></section>';
+  }
+  return '<section class="agc-sec"><h2 class="agc-h2">🏆 Certificados obtenidos</h2>' +
+    '<div class="agc-certs">' + ids.map(function(id, i){
+      var c = agCatDe(id);
+      var cfg = {}; try{ cfg = agCertCfg(id) || {}; }catch(e){}
+      var fecha = agFechaFin(id);
+      var codigo = '—';
+      try{
+        if(typeof agCertCodigo === 'function' && typeof SESSION !== 'undefined' && SESSION && SESSION.id)
+          codigo = agCertCodigo(id, (typeof agCampusUid === 'function') ? agCampusUid() : SESSION.id);
+      }catch(e){}
+      return '<article class="agc-cert" style="--i:' + i + ';--ac:' + (cfg.accent || '#2F7D4F') + '">' +
+        '<div class="agc-cert-h"><span>' + c.icon + '</span>' +
+          '<div><b>' + agEsc(c.nombre) + '</b>' +
+          '<em>' + (cfg.title || 'Certificado de finalización') + '</em></div></div>' +
+        '<div class="agc-cert-m">' +
+          '<span>✓ Completado</span>' +
+          (fecha ? '<span>' + fecha + '</span>' : '') +
+        '</div>' +
+        '<div class="agc-cert-cod"><span>Código de verificación</span>' +
+          '<code id="agcc_' + id + '">' + codigo + '</code>' +
+          (codigo !== '—' ? '<button class="agc-cert-cp" onclick="agCopiarCodigo(&#39;' + id + '&#39;)">Copiar</button>' : '') +
+        '</div>' +
+        '<div class="agc-cert-a">' +
+          '<button class="agc-card-cta" onclick="agCert(\'' + id + '\')">Ver y descargar</button>' +
+        '</div>' +
+      '</article>';
+    }).join('') + '</div>' +
+    '<p class="agc-nota">El certificado se abre en una ventana lista para imprimir o guardar como PDF. Lleva su nombre, la fecha y su código de verificación, que es siempre el mismo: quien lo reciba puede pedirle a AgroAcademy RD que lo compruebe.</p>' +
+  '</section>';
+}
+function agFechaFin(id){
+  var C = COURSES[id];
+  var uid = (typeof SESSION !== 'undefined' && SESSION) ? SESSION.id : null;
+  if(!C || !uid) return '';
+  var ult = 0;
+  try{
+    var ms = C.modules();
+    ms.forEach(function(m){
+      var r = C.rec(uid, m.n);
+      if(r && r.date && r.date > ult) ult = r.date;
+    });
+  }catch(e){}
+  if(!ult) return '';
+  try{ return new Date(ult).toLocaleDateString('es-DO', {day:'2-digit', month:'2-digit', year:'numeric'}); }
+  catch(e){ return ''; }
+}
+
+/* ---------- acciones ---------- */
+window.agAbrirCurso = function(id){
+  var c = agCatDe(id);
+  /* el catalogo se cierra ANTES: si se queda en el DOM detras del curso,
+     los manejadores de teclado lo dan por abierto y sueltan las flechas */
+  try{ if(typeof cerrarCursos === 'function') cerrarCursos(); }catch(e){}
+  try{ c.abrir(); }catch(e){ if(typeof toast === 'function') toast('No se pudo abrir el curso', '⚠️'); }
+};
+window.agDesbloquear = function(id){
+  var c = agCatDe(id);
+  if(c.pagar){ try{ c.pagar(); return; }catch(e){} }
+  /* el curso base no se compra: depende del estado de la cuenta */
+  if(typeof nxAbrirPago1 === 'function'){ try{ nxAbrirPago1(); return; }catch(e){} }
+  if(typeof toast === 'function') toast('Escríbale al instructor para habilitar este curso', '🔒');
+};
+
+/* ---------- montar ---------- */
+function agCampusEsEstudiante(){
+  return typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'STUDENT' &&
+         !(typeof PREVIEW !== 'undefined' && PREVIEW);
+}
+function agCampus(){
+  if(!agCampusEsEstudiante()) return;
+  var ov = document.getElementById('csOv');
+  if(!ov) return;
+  var w = ov.querySelector('.cs-w');
+  if(!w || w.dataset.agCampus === '1') return;
+  w.dataset.agCampus = '1';
+  w.classList.add('agc-w');
+  w.innerHTML =
+    agCampusCabecera() +
+    agCampusStats() +
+    agCampusContinuar() +
+    agCampusCatalogo() +
+    agCampusCertificados();
+  agCampusAnima(w);
+}
+window.agCampus = agCampus;
+
+/* ---------- animaciones ---------- */
+function agCampusAnima(w){
+  var reduce = false;
+  try{ reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  var A = (typeof anime === 'function') ? anime : null;
+
+  if(reduce || !A){
+    [].forEach.call(w.querySelectorAll('.agc-stat b'), function(b){ b.textContent = b.dataset.n; });
+    [].forEach.call(w.querySelectorAll('.agc-bar i'), function(i){ i.style.width = i.dataset.w + '%'; });
+    w.classList.add('agc-listo');
+    return;
+  }
+
+  A({targets: w.querySelectorAll('.agc-head-t > *'), opacity:[0,1], translateY:[14,0],
+     delay: A.stagger(70), duration:560, easing:'easeOutCubic'});
+  A({targets: w.querySelectorAll('.agc-stat'), opacity:[0,1], translateY:[16,0], scale:[.97,1],
+     delay: A.stagger(80, {start:140}), duration:560, easing:'easeOutCubic'});
+  /* los números suben contando */
+  [].forEach.call(w.querySelectorAll('.agc-stat b'), function(b, i){
+    var fin = parseInt(b.dataset.n, 10) || 0;
+    var o = {v:0};
+    A({targets:o, v:fin, duration: 900 + i * 90, delay: 260 + i * 80, easing:'easeOutExpo',
+       update:function(){ b.textContent = Math.round(o.v); }});
+  });
+  A({targets: w.querySelectorAll('.agc-cont'), opacity:[0,1], translateY:[20,0],
+     duration:640, delay:300, easing:'easeOutCubic'});
+  A({targets: w.querySelectorAll('.agc-card'), opacity:[0,1], translateY:[26,0],
+     delay: A.stagger(75, {start:420}), duration:620, easing:'easeOutCubic'});
+  A({targets: w.querySelectorAll('.agc-cert'), opacity:[0,1], translateY:[18,0],
+     delay: A.stagger(80, {start:560}), duration:560, easing:'easeOutCubic'});
+  /* las barras se llenan */
+  [].forEach.call(w.querySelectorAll('.agc-bar i'), function(i, k){
+    A({targets:i, width:['0%', (i.dataset.w || 0) + '%'], duration:1000,
+       delay: 520 + k * 90, easing:'easeOutQuart'});
+  });
+  setTimeout(function(){ w.classList.add('agc-listo'); }, 900);
+
+  /* las tarjetas siguen un poco al ratón, muy poco */
+  [].forEach.call(w.querySelectorAll('.agc-card, .agc-cont'), function(card){
+    card.addEventListener('pointermove', function(ev){
+      var r = card.getBoundingClientRect();
+      var x = (ev.clientX - r.left) / r.width - .5;
+      var y = (ev.clientY - r.top) / r.height - .5;
+      card.style.setProperty('--rx', (-y * 3).toFixed(2) + 'deg');
+      card.style.setProperty('--ry', (x * 3).toFixed(2) + 'deg');
+      card.style.setProperty('--mx', ((x + .5) * 100).toFixed(1) + '%');
+      card.style.setProperty('--my', ((y + .5) * 100).toFixed(1) + '%');
+    });
+    card.addEventListener('pointerleave', function(){
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
+    });
+  });
+}
+
+/* ---------- engancharlo ---------- */
+if(typeof window.abrirCursos === 'function'){
+  var _abrirCursosCampus = window.abrirCursos;
+  window.abrirCursos = function(){
+    var r = _abrirCursosCampus.apply(this, arguments);
+    [0, 90, 260, 520].forEach(function(t){ setTimeout(agCampus, t); });
+    return r;
+  };
+}
+
+/* ---------- copiar el código de verificación ---------- */
+window.agCopiarCodigo = function(id){
+  var el = document.getElementById('agcc_' + id);
+  if(!el) return;
+  var txt = el.textContent.trim();
+  var listo = function(){ if(typeof toast === 'function') toast('Código copiado: ' + txt, '📋'); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(listo, function(){ agSeleccionaTexto(el); });
+  } else agSeleccionaTexto(el);
+};
+/* si el navegador no deja copiar, al menos se deja seleccionado */
+function agSeleccionaTexto(el){
+  try{
+    var r = document.createRange(); r.selectNodeContents(el);
+    var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    if(typeof toast === 'function') toast('Seleccionado: use Ctrl+C para copiarlo', '📋');
+  }catch(e){}
+}
+
+
+/* ---------- ag-campus2.js ---------- */
+/* ============================================================
+   EL CAMPUS, SEGUNDA PASADA
+   ------------------------------------------------------------
+   Dos cosas que se vieron al usarlo de verdad:
+
+   1. «Ver como estudiante» NO llevaba al campus. Ese modo pone
+      PREVIEW=true y deja SESSION en ADMIN, y el campus se
+      excluía justamente por eso — así que el instructor seguía
+      viendo el catálogo viejo, donde además todo aparece
+      disponible porque él es el dueño. Nunca llegaba a ver los
+      cursos bloqueados, que es lo que quería enseñar.
+
+      Aquí el campus también se monta en modo vista previa, y el
+      estado de cada curso se calcula con el estudiante simulado
+      (STU = '__preview__'), que no ha comprado nada. Resultado:
+      el curso base abierto y los tres de pago bloqueados, que es
+      exactamente lo que ve alguien que acaba de registrarse.
+
+   2. Los bloqueados solo ofrecían «Desbloquear». Si la idea es
+      que sirvan de catálogo, el estudiante necesita poder mirar
+      antes de decidir: se añade «Ver qué incluye», que abre el
+      temario real del curso — no un texto de venta inventado,
+      sino los módulos que COURSES ya declara.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · QUIÉN ES EL ESTUDIANTE AQUÍ
+   ------------------------------------------------------------ */
+function agCampusUid(){
+  try{
+    if(typeof PREVIEW !== 'undefined' && PREVIEW){
+      return (typeof STU !== 'undefined' && STU) ? STU : '__preview__';
+    }
+  }catch(e){}
+  return (typeof SESSION !== 'undefined' && SESSION) ? SESSION.id : null;
+}
+window.agCampusUid = agCampusUid;
+
+function agCampusEsVistaPrevia(){
+  try{ return !!(typeof PREVIEW !== 'undefined' && PREVIEW); }catch(e){ return false; }
+}
+
+/* el campus también vale para la vista previa del instructor */
+if(typeof window.agCampusEsEstudiante === 'function' || typeof agCampusEsEstudiante === 'function'){
+  window.agCampusEsEstudiante = function(){
+    if(agCampusEsVistaPrevia()) return true;
+    return typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'STUDENT';
+  };
+}
+
+/* ------------------------------------------------------------
+   2 · EL ESTADO DE CADA CURSO, CON EL ESTUDIANTE CORRECTO
+   El original leía SESSION.id, que en vista previa es el del
+   instructor: todo le salía comprado.
+   ------------------------------------------------------------ */
+if(typeof window.agEstadoCurso === 'function' || typeof agEstadoCurso === 'function'){
+  window.agEstadoCurso = function(id){
+    var C = COURSES[id];
+    if(!C) return null;
+    var uid = agCampusUid();
+    var vista = agCampusEsVistaPrevia();
+    var publicado = true;
+    try{ publicado = C.published(); }catch(e){}
+    var tiene = false;
+    try{ tiene = !!C.enrolled({id:uid, status:'activo'}); }catch(e){}
+    if(!C.sellsSeparately){
+      /* el curso base no se compra: depende del estado de la cuenta.
+         En vista previa se da por activa, que es el caso normal. */
+      if(vista) tiene = true;
+      else {
+        try{ tiene = (typeof nxCondicionOk === 'function') ? !!nxCondicionOk(uid) : true; }
+        catch(e){ tiene = true; }
+      }
+    }
+    var hechos = 0;
+    try{ hechos = C.count(uid) || 0; }catch(e){}
+    var total = C.n || 0;
+    return {
+      id:id, publicado:publicado, tiene:tiene, hechos:hechos, total:total,
+      pct: total ? Math.round(hechos / total * 100) : 0,
+      completo: total > 0 && hechos >= total,
+      empezado: hechos > 0
+    };
+  };
+}
+
+/* ------------------------------------------------------------
+   3 · LA TARJETA BLOQUEADA TAMBIÉN DEJA MIRAR
+   ------------------------------------------------------------ */
+if(typeof window.agCampusTarjeta === 'function' || typeof agCampusTarjeta === 'function'){
+  var _agCampusTarjeta = window.agCampusTarjeta;
+  window.agCampusTarjeta = function(id, i){
+    var html = _agCampusTarjeta.call(this, id, i);
+    var e = agEstadoCurso(id);
+    if(!e || e.tiene) return html;
+    /* el segundo botón va justo detrás del de desbloquear */
+    var ver = '<button class="agc-card-ver" onclick="agVerCurso(&#39;' + id + '&#39;)">Ver qué incluye →</button>';
+    var corte = html.lastIndexOf('</button>');
+    if(corte < 0) return html;
+    corte += '</button>'.length;
+    return html.slice(0, corte) + ver + html.slice(corte);
+  };
+}
+
+/* ------------------------------------------------------------
+   4 · LA FICHA DEL CURSO: EL TEMARIO REAL
+   ------------------------------------------------------------ */
+window.agVerCurso = function(id){
+  var C = COURSES[id];
+  if(!C) return;
+  var c = agCatDe(id);
+  var e = agEstadoCurso(id);
+  var mods = [];
+  try{ mods = C.modules() || []; }catch(err){}
+
+  var vieja = document.getElementById('agFicha');
+  if(vieja) vieja.remove();
+
+  var d = document.createElement('div');
+  d.id = 'agFicha';
+  d.className = 'agf-ov';
+  d.innerHTML =
+    '<div class="agf-caja" role="dialog" aria-label="' + agEsc(c.nombre) + '">' +
+      '<button class="agf-x" onclick="agCerrarFicha()" aria-label="Cerrar">✕</button>' +
+      '<div class="agf-top"' + (c.cover ? ' style="--cov:url(&quot;images/' + c.cover + '.jpg&quot;)"' : '') + '>' +
+        '<div class="agf-velo"></div>' +
+        '<div class="agf-top-c">' +
+          '<span class="agf-cat">' + c.cat + '</span>' +
+          '<h2>' + c.icon + ' ' + agEsc(c.nombre) + '</h2>' +
+          '<p>' + c.desc + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="agf-cuerpo">' +
+        '<div class="agf-datos">' +
+          '<div><b>' + (e ? e.total : mods.length) + '</b><span>módulos</span></div>' +
+          '<div><b>' + agCuentaEvaluaciones(id) + '</b><span>evaluaciones</span></div>' +
+          '<div><b>1</b><span>certificado</span></div>' +
+          (c.precio ? '<div class="agf-precio"><b>US$ ' + c.precio + '</b><span>pago único</span></div>' : '') +
+        '</div>' +
+        '<h3>Lo que va a estudiar</h3>' +
+        '<ol class="agf-mods">' + mods.map(function(m){
+          return '<li><span>' + (m.num || '') + '</span><div><b>' + agEsc(m.t || m.title || '') + '</b>' +
+            (m.sub ? '<em>' + agEsc(m.sub) + '</em>' : '') + '</div></li>';
+        }).join('') + '</ol>' +
+        '<div class="agf-pie">' +
+          '<button class="agc-card-cta lock" onclick="agCerrarFicha();agDesbloquear(\'' + id + '\')">🔓 Desbloquear curso</button>' +
+          '<span>El acceso se habilita al confirmarse el pago. El avance y el certificado quedan a su nombre.</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  d.addEventListener('click', function(ev){ if(ev.target === d) agCerrarFicha(); });
+  document.body.appendChild(d);
+  document.addEventListener('keydown', agFichaTecla);
+  if(typeof anime === 'function'){
+    anime({targets:'#agFicha .agf-caja', translateY:[26,0], opacity:[0,1], duration:420, easing:'easeOutCubic'});
+  }
+};
+window.agCerrarFicha = function(){
+  var d = document.getElementById('agFicha');
+  if(d) d.remove();
+  document.removeEventListener('keydown', agFichaTecla);
+};
+function agFichaTecla(e){ if(e.key === 'Escape'){ e.stopPropagation(); agCerrarFicha(); } }
+
+/* cuántas preguntas trae, sin inventarse el número */
+function agCuentaEvaluaciones(id){
+  var C = COURSES[id], n = 0;
+  try{
+    for(var i = 1; i <= (C.n || 0); i++){
+      var q = C.quiz(i);
+      if(q && q.length) n += q.length;
+    }
+  }catch(e){}
+  return n || (C.n || 0);
+}
+
+/* ------------------------------------------------------------
+   5 · AVISO EN VISTA PREVIA
+   Para que el instructor sepa por qué le sale todo bloqueado.
+   ------------------------------------------------------------ */
+if(typeof window.agCampusCabecera === 'function' || typeof agCampusCabecera === 'function'){
+  var _agCampusCabecera = window.agCampusCabecera;
+  window.agCampusCabecera = function(){
+    var h = _agCampusCabecera.apply(this, arguments);
+    if(!agCampusEsVistaPrevia()) return h;
+    return h + '<div class="agf-aviso">👁️ <b>Vista de estudiante.</b> Así ve el campus alguien que acaba de ' +
+      'registrarse: con el curso base abierto y los demás bloqueados. Para volver a su panel, use ' +
+      '<b>Salir de la vista</b>.</div>';
+  };
+}
+
+/* ------------------------------------------------------------
+   6 · ESTILOS
+   ------------------------------------------------------------ */
+(function agCssFicha(){
+  if(document.getElementById('agCssFicha')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssFicha';
+  s.textContent = `
+.agc-card-ver{ margin-top:9px; width:100%; cursor:pointer;
+  font-family:var(--sans); font-size:13.5px; font-weight:600; color:var(--text-2);
+  padding:10px 14px; border-radius:12px; background:transparent;
+  border:1px solid var(--border); transition:all .18s }
+.agc-card-ver:hover{ color:var(--text); border-color:color-mix(in srgb,var(--amber) 50%,var(--border));
+  background:color-mix(in srgb,var(--amber) 9%,transparent) }
+
+.agf-aviso{ margin:0 0 22px; padding:13px 17px; border-radius:14px; font-size:13.5px; line-height:1.6;
+  color:var(--text-2); border:1px solid color-mix(in srgb,var(--amber) 34%,var(--border));
+  background:color-mix(in srgb,var(--amber) 9%,transparent) }
+.agf-aviso b{ color:var(--text) }
+
+.agf-ov{ position:fixed; inset:0; z-index:9700; display:flex; align-items:center; justify-content:center;
+  padding:24px; overflow:auto; background:rgba(10,14,11,.62); backdrop-filter:blur(7px) }
+.agf-caja{ position:relative; width:min(680px,100%); max-height:92vh; overflow:auto;
+  border-radius:22px; background:var(--panel); border:1px solid var(--border);
+  box-shadow:0 40px 90px rgba(0,0,0,.45) }
+.agf-x{ position:absolute; right:14px; top:14px; z-index:3; width:36px; height:36px; border-radius:50%;
+  cursor:pointer; font-size:15px; color:#fff; border:1px solid rgba(255,255,255,.3);
+  background:rgba(0,0,0,.42); backdrop-filter:blur(6px) }
+.agf-x:hover{ background:rgba(0,0,0,.62) }
+.agf-top{ position:relative; padding:30px 26px 24px; min-height:190px; display:flex; align-items:flex-end;
+  background-image:var(--cov,none); background-color:#1a2a1f; background-size:cover; background-position:center }
+.agf-velo{ position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(8,12,9,.42) 0%,rgba(8,12,9,.86) 74%,rgba(8,12,9,.95) 100%) }
+.agf-top-c{ position:relative; z-index:2 }
+.agf-cat{ display:inline-block; margin-bottom:10px; padding:5px 12px; border-radius:999px;
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+  color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.26) }
+.agf-top h2{ margin:0 0 7px; font-family:var(--display); font-size:23px; font-weight:700;
+  line-height:1.25; color:#fff; text-wrap:balance }
+.agf-top p{ margin:0; font-size:14px; line-height:1.6; color:rgba(255,255,255,.82); max-width:52ch }
+.agf-cuerpo{ padding:24px 26px 26px }
+.agf-datos{ display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); margin-bottom:24px }
+.agf-datos > div{ padding:13px 15px; border-radius:14px; border:1px solid var(--border); background:var(--bg) }
+.agf-datos b{ display:block; font-family:var(--display); font-size:21px; font-weight:700; color:var(--text);
+  font-variant-numeric:tabular-nums; line-height:1.1 }
+.agf-datos span{ display:block; margin-top:3px; font-size:12px; color:var(--muted) }
+.agf-precio{ border-color:color-mix(in srgb,var(--amber) 44%,var(--border)) !important;
+  background:color-mix(in srgb,var(--amber) 10%,transparent) !important }
+.agf-precio b{ color:#C08A12 }
+.agf-cuerpo h3{ margin:0 0 13px; font-family:var(--display); font-size:16px; font-weight:700; color:var(--text) }
+.agf-mods{ list-style:none; margin:0 0 24px; padding:0; display:flex; flex-direction:column; gap:2px }
+.agf-mods li{ display:flex; gap:14px; align-items:flex-start; padding:11px 13px; border-radius:11px }
+.agf-mods li:nth-child(odd){ background:color-mix(in srgb,var(--text) 4%,transparent) }
+.agf-mods li > span{ flex:0 0 auto; font-family:var(--mono); font-size:12px; font-weight:700;
+  color:var(--green); padding-top:2px }
+.agf-mods b{ display:block; font-size:14px; font-weight:600; color:var(--text); line-height:1.45 }
+.agf-mods em{ display:block; margin-top:2px; font-style:normal; font-size:12.5px; color:var(--muted); line-height:1.5 }
+.agf-pie{ padding-top:19px; border-top:1px solid var(--border) }
+.agf-pie .agc-card-cta{ margin-top:0 }
+.agf-pie > span{ display:block; margin-top:11px; font-size:12.5px; color:var(--muted); line-height:1.55 }
+
+@media (max-width:720px){
+  .agf-ov{ padding:0 }
+  .agf-caja{ width:100%; max-height:100vh; border-radius:0 }
+  .agf-top{ min-height:160px; padding:26px 20px 20px }
+  .agf-cuerpo{ padding:20px }
+}
+@media (prefers-reduced-motion:reduce){
+  .agc-card-ver{ transition:none }
+}
+`;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+/* ------------------------------------------------------------
+   7 · ENTRAR AL CURSO BASE DESDE LA VISTA PREVIA
+   ------------------------------------------------------------
+   El curso base no tiene overlay propio: se entra cambiando el
+   hash a #/curso y dejando que el router pinte la pantalla. Pero
+   el router mira el ROL, y en vista previa el rol sigue siendo
+   ADMIN — así que rebotaba a #/admin y el instructor acababa en
+   su panel en vez de en el contenido.
+
+   enterPreview() ya resuelve esto llamando a showScreen('curso')
+   sin pasar por el router. Aquí se hace igual.
+   ------------------------------------------------------------ */
+if(typeof window.agAbrirCurso === 'function'){
+  var _agAbrirCursoVP = window.agAbrirCurso;
+  window.agAbrirCurso = function(id){
+    var C = COURSES[id];
+    var esBase = C && !C.sellsSeparately;
+    if(agCampusEsVistaPrevia() && esBase){
+      try{ if(typeof cerrarCursos === 'function') cerrarCursos(); }catch(e){}
+      try{ if(typeof showScreen === 'function') showScreen('curso'); }catch(e){}
+      return;
+    }
+    return _agAbrirCursoVP.apply(this, arguments);
+  };
+}
+
+
+/* ---------- ag-secciones.js ---------- */
+/* ============================================================
+   SECCIONES · DE CUATRO TARJETONES A UNA LISTA QUE SE LEE
+   ------------------------------------------------------------
+   Estaban como tarjetas de 240 px de ancho mínimo. Con nombres
+   largos —«Curso completo de porcicultura», «Formulación y
+   fabricación de alimentos balanceados»— el título se partía en
+   cuatro líneas, cada tarjeta acababa con una altura distinta y
+   los botones quedaban a alturas distintas también. Y como la
+   rejilla se rellena por ancho, en una pantalla grande quedaban
+   cuatro bloques arriba y el 80 % de la página vacía.
+
+   Una sección es un registro: nombre, cuántos estudiantes tiene,
+   una nota y dos acciones. Eso se lee mucho mejor en filas de
+   altura fija que en tarjetas. Además así siguen cabiendo veinte
+   secciones sin que la pantalla se convierta en un mosaico.
+
+   No cambia ni el modelo ni las acciones: editSection,
+   deleteSection y saveSectionForm son los mismos de siempre.
+   ============================================================ */
+
+function agSeccionesVista(){
+  var secs = (typeof SECTIONS !== 'undefined' ? SECTIONS : []);
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []);
+  var E = (typeof esc === 'function') ? esc : function(x){ return String(x == null ? '' : x); };
+  var J = (typeof jsq === 'function') ? jsq : function(x){ return "'" + String(x).replace(/'/g, "\\'") + "'"; };
+
+  var total = 0;
+  var filas = secs.map(function(s, i){
+    var n = alum.filter(function(x){ return x.section === s.id; }).length;
+    total += n;
+    var ini = String(s.name || '?').trim().charAt(0).toUpperCase() || '?';
+    return '<li class="agx-row" style="--i:' + (i % 6) + '">' +
+      '<span class="agx-ini">' + E(ini) + '</span>' +
+      '<div class="agx-t">' +
+        '<b>' + E(s.name) + '</b>' +
+        (s.notes ? '<em>' + E(s.notes) + '</em>' : '') +
+      '</div>' +
+      '<span class="agx-n' + (n ? '' : ' cero') + '">' +
+        '<b>' + n + '</b><span>estudiante' + (n === 1 ? '' : 's') + '</span>' +
+      '</span>' +
+      '<div class="agx-a">' +
+        '<button onclick="editSection(' + J(s.id) + ')" title="Cambiar el nombre o las notas">✎<span>Editar</span></button>' +
+        (secs.length > 1
+          ? '<button class="del" onclick="deleteSection(' + J(s.id) + ')" title="Eliminar la sección">🗑<span>Eliminar</span></button>'
+          : '') +
+      '</div>' +
+    '</li>';
+  }).join('');
+
+  var resumen = secs.length + (secs.length === 1 ? ' sección' : ' secciones') +
+                ' · ' + total + ' estudiante' + (total === 1 ? '' : 's');
+
+  return '<div class="agx-w">' +
+    '<div class="agx-bar">' +
+      '<button class="agx-add" onclick="editSection()">＋ Crear sección</button>' +
+      '<span class="agx-res">' + resumen + '</span>' +
+    '</div>' +
+    (secs.length
+      ? '<ul class="agx-list">' + filas + '</ul>'
+      : '<div class="adm-empty">Todavía no hay ninguna sección. Cree la primera para poder agrupar a los estudiantes.</div>') +
+    '<p class="agx-pie">Las secciones agrupan estudiantes; no limitan a qué curso entran. ' +
+      'El acceso de cada curso se gestiona en <b>Cursos → Acceso</b>.</p>' +
+  '</div>';
+}
+
+/* la pestaña usa esta vista */
+if(typeof window.sectionsView === 'function'){
+  var _sectionsViewAg = window.sectionsView;
+  window.sectionsView = function(){
+    try{ return agSeccionesVista(); }
+    catch(e){ return _sectionsViewAg.apply(this, arguments); }
+  };
+}
+
+/* ---------- estilos ---------- */
+(function agCssSecciones(){
+  if(document.getElementById('agCssSecciones')) return;
+  var s = document.createElement('style');
+  s.id = 'agCssSecciones';
+  s.textContent = `
+/* la lista no se estira a lo ancho de un monitor de 1900 px */
+.agx-w{ max-width:880px }
+.agx-bar{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin:0 0 14px }
+.agx-add{ cursor:pointer; font-family:var(--sans); font-size:13.5px; font-weight:700; color:#fff;
+  padding:10px 18px; border-radius:11px; border:0;
+  background:linear-gradient(135deg,var(--green),color-mix(in srgb,var(--green) 72%,#000));
+  transition:transform .16s, box-shadow .16s }
+.agx-add:hover{ transform:translateY(-1px); box-shadow:0 10px 22px color-mix(in srgb,var(--green) 34%,transparent) }
+.agx-res{ font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums }
+
+.agx-list{ list-style:none; margin:0; padding:0;
+  border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--panel) }
+.agx-row{ display:flex; align-items:center; gap:14px; padding:11px 15px;
+  border-top:1px solid var(--border); transition:background .14s }
+.agx-row:first-child{ border-top:0 }
+.agx-row:hover{ background:color-mix(in srgb,var(--text) 4%,transparent) }
+
+.agx-ini{ flex:0 0 auto; width:34px; height:34px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--display); font-size:15px; font-weight:700; color:#fff;
+  background:hsl(calc(var(--i) * 57 + 138) 38% 38%) }
+
+/* Se reserva sitio para la nota la lleve o no: si no, las filas con
+   nota miden una línea más y la lista queda dentada. */
+.agx-t{ flex:1 1 auto; min-width:0; min-height:40px;
+  display:flex; flex-direction:column; justify-content:center }
+.agx-t b{ display:block; font-size:14.5px; font-weight:600; color:var(--text);
+  text-transform:none; line-height:1.35;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.agx-t em{ display:block; margin-top:2px; font-style:normal; font-size:12.5px; color:var(--muted);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+
+.agx-n{ flex:0 0 auto; display:flex; align-items:baseline; gap:5px; color:var(--text-2) }
+.agx-n b{ font-family:var(--display); font-size:16px; font-weight:700; color:var(--text);
+  font-variant-numeric:tabular-nums }
+.agx-n > span{ font-size:12px; color:var(--muted) }
+.agx-n.cero b, .agx-n.cero > span{ color:var(--muted); opacity:.7 }
+
+.agx-a{ flex:0 0 auto; display:flex; gap:7px }
+.agx-a button{ cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--text-2);
+  padding:7px 11px; border-radius:9px; border:1px solid var(--border);
+  background:transparent; transition:all .15s }
+.agx-a button:hover{ color:var(--text); border-color:color-mix(in srgb,var(--green) 48%,var(--border));
+  background:color-mix(in srgb,var(--green) 9%,transparent) }
+.agx-a button.del:hover{ color:#B3261E; border-color:color-mix(in srgb,#B3261E 46%,var(--border));
+  background:color-mix(in srgb,#B3261E 9%,transparent) }
+
+.agx-pie{ margin:13px 0 0; font-size:12.5px; line-height:1.6; color:var(--muted) }
+.agx-pie b{ color:var(--text-2) }
+
+@media (max-width:720px){
+  .agx-row{ flex-wrap:wrap; gap:8px 11px; padding:10px 13px }
+  .agx-ini{ order:1 }
+  .agx-t{ order:2; flex:1 1 0; min-height:0 }
+  .agx-t b{ white-space:normal; display:-webkit-box;
+    -webkit-line-clamp:2; -webkit-box-orient:vertical }
+  /* el contador y los botones comparten línea: antes cada uno ocupaba
+     la suya y la fila se iba a 155 px */
+  .agx-n{ order:3; margin-left:48px }
+  .agx-a{ order:4; margin-left:auto }
+  .agx-a button span{ display:none }
+  .agx-a button{ padding:9px 14px; font-size:15px }
+}
+@media (prefers-reduced-motion:reduce){
+  .agx-add, .agx-row, .agx-a button{ transition:none }
+  .agx-add:hover{ transform:none }
+}
+`;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23325,6 +24843,26 @@ if(typeof window.agCertImprimir === 'function'){
 /* ------------------------------------------------------------
    2 · LA TARJETA EN «MIS CURSOS»
    ------------------------------------------------------------ */
+/* El limpiador del bloque de diseño envuelve openReproduccion,
+   openNutricion y openSanidad — pero ese bloque se inserta ANTES que
+   éste, así que cuando corre, openSanidad todavía no existe y el
+   envoltorio se lo salta. Se hace aquí, donde ya está definida. */
+if(typeof window.openSanidad === 'function'){
+  var _openSanidadLimpia = window.openSanidad;
+  window.openSanidad = function(){
+    var fuera = function(){
+      var cs = document.getElementById('csOv');
+      if(!cs) return;
+      cs.remove();
+      document.body.style.overflow = '';
+    };
+    fuera();
+    var r = _openSanidadLimpia.apply(this, arguments);
+    setTimeout(fuera, 60);
+    return r;
+  };
+}
+
 if(typeof window.abrirCursos === 'function'){
   var _abrirCursosSb = window.abrirCursos;
   window.abrirCursos = function(){
@@ -23559,7 +25097,8 @@ document.addEventListener('keydown', function(e){
   if(document.getElementById('nxAtOv') || document.getElementById('rpAtOv')) return;
   if(document.getElementById('sbPago') || document.getElementById('sbPagoCert')) return;
   var _sbCs = document.getElementById('csOv');
-  if(_sbCs && _sbCs.offsetParent !== null) return;   /* solo si el catalogo esta a la vista */
+  /* el catalogo solo estorba si de verdad esta DELANTE del curso */
+  if(_sbCs && typeof agEnFrente === 'function' && agEnFrente(_sbCs)) return;
   if(typeof agEscribiendo === 'function' && agEscribiendo(e)) return;
   if(e.ctrlKey || e.metaKey || e.altKey) return;
   var k = e.key;
@@ -23662,6 +25201,20 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
