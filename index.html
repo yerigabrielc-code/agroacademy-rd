@@ -22546,16 +22546,16 @@ if(typeof window.nxAbrirPago1 === 'function'){
 
    POR QUÉ SE HACE SOBRE EL DOM Y NO EN switchHTML():
 
-   switchHTML() es una función local dentro de un cierre ajeno:
-   no está en window, así que no hay manera de envolverla. Y
-   mountCourseSwitch es una de las funciones que los insertadores
+   Quien construye esa barra es una función local dentro de un
+   cierre ajeno: no está en window, así que no hay manera de
+   envolverla. Y la que la monta es de las que los insertadores
    vigilan para abortar si alguien las toca — con razón. Así que
    este bloque no modifica nada de eso: espera a que la barra
    exista, le reordena los botones y le engancha el arrastre.
 
-   La barra se rehace entera cada vez que se cambia de curso
-   (ex.outerHTML = switchHTML()), de modo que hace falta un
-   observador: sin él, el orden se pierde al primer clic.
+   La barra se rehace ENTERA cada vez que se cambia de curso, de
+   modo que hace falta un observador: sin él, el orden se pierde
+   al primer clic.
 
    El orden se guarda en 'ag_orden_cursos' y es del equipo, no de
    la cuenta: es una preferencia de trabajo del instructor.
@@ -22575,8 +22575,18 @@ function agOrdenGuardar(){
 /* El orden efectivo: lo guardado primero, y detrás cualquier curso que
    se haya añadido después de la última vez que se ordenó. Un curso
    nuevo nunca desaparece por no estar en la lista. */
+/* El orden de fabrica: el curso gratuito va PRIMERO. Es la puerta de
+   entrada de la academia y es el que mas se toca; que saliera el ultimo
+   era herencia de haberlo construido el ultimo, no una decision. */
+var AGORDEN_DEF = ['ruta', 'porcicultura', 'nutricion', 'reproduccion', 'sanidad', 'engorde'];
+
 function agOrdenDe(ids){
-  if(!AGORDEN || !AGORDEN.length) return ids.slice();
+  if(!AGORDEN || !AGORDEN.length){
+    var d = [];
+    AGORDEN_DEF.forEach(function(id){ if(ids.indexOf(id) >= 0) d.push(id); });
+    ids.forEach(function(id){ if(d.indexOf(id) < 0) d.push(id); });
+    return d;
+  }
   var puestos = [];
   AGORDEN.forEach(function(id){ if(ids.indexOf(id) >= 0 && puestos.indexOf(id) < 0) puestos.push(id); });
   ids.forEach(function(id){ if(puestos.indexOf(id) < 0) puestos.push(id); });
@@ -22634,64 +22644,114 @@ function agOrdenAplicar(){
       var b = porId[id];
       if(!b || b.dataset.arrastre === '1') return;
       b.dataset.arrastre = '1';
-      b.draggable = true;
       b.title = (b.title ? b.title + ' · ' : '') + 'Arrástrelo para cambiar el orden';
-      b.addEventListener('dragstart', agOrdenEmpieza);
-      b.addEventListener('dragover',  agOrdenEncima);
-      b.addEventListener('dragleave', agOrdenSale);
-      b.addEventListener('drop',      agOrdenSuelta);
-      b.addEventListener('dragend',   agOrdenTermina);
+      b.addEventListener('pointerdown', agOrdenPulsa);
+      b.addEventListener('click', agOrdenClic, true);
     });
     agOrdenCss();
   } finally { AGOREN = false; }
 }
 window.agOrdenAplicar = agOrdenAplicar;
 
-var AGARRASTRADO = null;
+/* ============================================================
+   EL ARRASTRE, CON EVENTOS DE PUNTERO
+   ------------------------------------------------------------
+   ESTO ESTABA HECHO CON ARRASTRE HTML5 Y NO FUNCIONABA. Queda
+   escrito porque el motivo no es evidente y cuesta media tarde:
 
-function agOrdenEmpieza(e){
-  AGARRASTRADO = this;
-  this.classList.add('ag-ord-yendo');
-  try{
-    e.dataTransfer.effectAllowed = 'move';
-    /* Firefox no inicia el arrastre si no se escribe algo en dataTransfer */
-    e.dataTransfer.setData('text/plain', this.dataset.curso || '');
-  }catch(err){}
+   Sobre un <button draggable="true">, el navegador dispara
+   dragstart y hasta algun dragover, pero NUNCA llega el drop: el
+   arrastre se cancela solo. Los controles de formulario no son
+   buenos origenes de arrastre nativo, y ningun manejador puede
+   arreglar un drop que no ocurre.
+
+   Y lo peor: se me escapo porque lo verifique disparando eventos
+   DragEvent sintéticos, que ejercitan MIS manejadores pero no el
+   arrastre del navegador. Pasaba la prueba y no funcionaba. Con
+   Input.dispatchMouseEvent —raton de verdad— salio a la primera.
+
+   Los eventos de puntero no tienen ese problema, funcionan igual
+   sobre un boton, y ademas valen para el dedo en movil, que con
+   HTML5 no valian.
+
+   El detalle fino: un arrastre termina en un click, y ese click
+   cambiaria de curso. Se marca el boton y se traga el click
+   siguiente — pero solo si de verdad hubo arrastre, porque pulsar
+   sin mover tiene que seguir cambiando de curso.
+   ============================================================ */
+var AGARR = null;   /* {b, x0, y0, movido, bar} */
+var AGUMBRAL = 6;   /* px que hay que mover para que cuente como arrastre */
+
+/* ------------------------------------------------------------
+   POR QUE LOS OYENTES VAN EN document Y NO EN EL BOTON
+   ------------------------------------------------------------
+   Segundo intento fallido, y este si que no era evidente:
+   setPointerCapture sobre el boton y oyentes en el propio boton.
+
+   Mover un nodo con insertBefore es, por dentro, QUITARLO del
+   documento y volver a ponerlo. Y la captura del puntero se
+   libera en cuanto el elemento capturado sale del documento. Asi
+   que al primer reordenamiento —incluso a uno que no cambiaba
+   nada de sitio— se perdia la captura, dejaban de llegar los
+   pointermove y el pointerup nunca alcanzaba al boton: no se
+   llamaba a agOrdenSuelta y por eso no se guardaba nada.
+
+   Sintoma visto: el gesto entero se recibia, movido pasaba a
+   true, elementFromPoint acertaba el destino... y el orden no
+   cambiaba ni se guardaba. Todo correcto salvo que el segundo
+   evento ya no llegaba a quien lo esperaba.
+
+   Con los oyentes en document da igual cuantas veces se mueva el
+   nodo: el gesto se sigue completo hasta que se suelta.
+   ------------------------------------------------------------ */
+function agOrdenPulsa(e){
+  if(e.button != null && e.button !== 0) return;   /* solo boton principal */
+  AGARR = { b:this, x0:e.clientX, y0:e.clientY, movido:false, bar:this.parentNode };
+  document.addEventListener("pointermove", agOrdenMueve, true);
+  document.addEventListener("pointerup", agOrdenSuelta, true);
+  document.addEventListener("pointercancel", agOrdenSuelta, true);
 }
-function agOrdenEncima(e){
-  if(!AGARRASTRADO || AGARRASTRADO === this) return;
+
+function agOrdenMueve(e){
+  if(!AGARR) return;
+  var b = AGARR.b;
+  var dx = e.clientX - AGARR.x0, dy = e.clientY - AGARR.y0;
+  if(!AGARR.movido){
+    if(Math.abs(dx) + Math.abs(dy) < AGUMBRAL) return;
+    AGARR.movido = true;
+    b.classList.add("ag-ord-yendo");
+  }
   e.preventDefault();
-  try{ e.dataTransfer.dropEffect = 'move'; }catch(err){}
-  /* la marca va del lado por el que entra el cursor, para que se vea
-     dónde va a caer antes de soltar */
-  var r = this.getBoundingClientRect();
-  var izq = (e.clientX - r.left) < r.width / 2;
-  this.classList.toggle('ag-ord-antes', izq);
-  this.classList.toggle('ag-ord-despues', !izq);
-}
-function agOrdenSale(){
-  this.classList.remove('ag-ord-antes', 'ag-ord-despues');
-}
-function agOrdenSuelta(e){
-  e.preventDefault();
-  e.stopPropagation();
-  var antes = this.classList.contains('ag-ord-antes');
-  this.classList.remove('ag-ord-antes', 'ag-ord-despues');
-  if(!AGARRASTRADO || AGARRASTRADO === this) return;
-  var bar = this.parentNode;
-  if(!bar) return;
+  var bajo = document.elementFromPoint(e.clientX, e.clientY);
+  var otro = bajo && bajo.closest ? bajo.closest(".ucsw-b") : null;
+  if(!otro || otro === b || otro.parentNode !== AGARR.bar) return;
+  var r = otro.getBoundingClientRect();
+  var ref = ((e.clientX - r.left) < r.width / 2) ? otro : otro.nextSibling;
+  if(ref === b || b.nextSibling === ref) return;   /* ya esta donde iria */
   AGOREN = true;
-  try{ bar.insertBefore(AGARRASTRADO, antes ? this : this.nextSibling); }
+  try{ AGARR.bar.insertBefore(b, ref); }
   finally { AGOREN = false; }
+}
+
+function agOrdenSuelta(){
+  if(!AGARR) return;
+  document.removeEventListener("pointermove", agOrdenMueve, true);
+  document.removeEventListener("pointerup", agOrdenSuelta, true);
+  document.removeEventListener("pointercancel", agOrdenSuelta, true);
+  var b = AGARR.b, hubo = AGARR.movido, bar = AGARR.bar;
+  b.classList.remove("ag-ord-yendo");
+  AGARR = null;
+  if(!hubo) return;            /* fue un clic normal: que cambie de curso */
+  b.dataset.tragarClic = "1";  /* hubo arrastre: el clic que viene no cuenta */
   agOrdenLeerYGuardar(bar);
 }
-function agOrdenTermina(){
-  this.classList.remove('ag-ord-yendo');
-  var bar = document.getElementById('ucsw');
-  if(bar) [].forEach.call(bar.querySelectorAll('.ucsw-b'), function(b){
-    b.classList.remove('ag-ord-antes', 'ag-ord-despues');
-  });
-  AGARRASTRADO = null;
+
+function agOrdenClic(e){
+  if(this.dataset.tragarClic !== "1") return;
+  delete this.dataset.tragarClic;
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
 }
 
 function agOrdenLeerYGuardar(bar){
@@ -22739,7 +22799,14 @@ window.agOrdenReiniciar = function(){
   var arrancar = function(){
     try{
       var obs = new MutationObserver(function(muts){
-        if(AGOREN) return;
+        /* AGOREN se pone y se quita de forma sincrona alrededor de cada
+           insertBefore, pero el observador corre DESPUES, en microtarea:
+           cuando llega, AGOREN ya volvio a false. Mientras se arrastra eso
+           hacia que el observador reaplicara el orden guardado y devolviera
+           el boton a su sitio a mitad del gesto — que es exactamente lo que
+           se veia: el arrastre funcionaba y no se movia nada.
+           Por eso se mira tambien AGARR, que si dura todo el gesto. */
+        if(AGOREN || AGARR) return;
         for(var i = 0; i < muts.length; i++){
           var m = muts[i];
           if(m.type !== 'childList') continue;
@@ -22766,23 +22833,29 @@ function agOrdenCss(){
   var s = document.createElement('style');
   s.id = 'agOrdenCss';
   s.textContent =
-    '.ucsw-b[draggable="true"]{cursor:grab;position:relative;' +
+    '.ucsw-b[data-arrastre="1"]{cursor:grab;position:relative;' +
       'transition:transform .12s ease,opacity .12s ease,box-shadow .12s ease}' +
-    '.ucsw-b[draggable="true"]:active{cursor:grabbing}' +
+    '.ucsw-b[data-arrastre="1"]:active{cursor:grabbing}' +
     '.ucsw-b.ag-ord-yendo{opacity:.4;transform:scale(.96)}' +
     /* la marca de donde va a caer: una barra vertical del color de acento */
     '.ucsw-b.ag-ord-antes{box-shadow:-3px 0 0 0 var(--green,#2F7D4F)}' +
     '.ucsw-b.ag-ord-despues{box-shadow:3px 0 0 0 var(--green,#2F7D4F)}' +
     /* el asa aparece al pasar por encima: si no se ve nada, nadie
        descubre que la pieza se puede mover */
-    '.ucsw-b[draggable="true"]::before{content:"⠿";opacity:0;margin-right:-2px;' +
+    '.ucsw-b[data-arrastre="1"]::before{content:"⠿";opacity:0;margin-right:-2px;' +
       'font-size:11px;line-height:1;transition:opacity .12s ease}' +
-    '.ucsw-b[draggable="true"]:hover::before{opacity:.55}' +
-    '.ucsw-b.on[draggable="true"]:hover::before{opacity:.75}';
+    '.ucsw-b[data-arrastre="1"]:hover::before{opacity:.55}' +
+    '.ucsw-b.on[data-arrastre="1"]:hover::before{opacity:.75}' +
+    /* touch-action:none es lo que deja que el dedo arrastre el boton en
+       vez de desplazar la pagina; sin esto, en movil no hay arrastre */
+    '.ucsw-b[data-arrastre="1"]{touch-action:none;user-select:none;-webkit-user-select:none}';
   (document.body || document.documentElement).appendChild(s);
 }
 
 </script>
+
+
+
 
 
 
@@ -25858,6 +25931,11 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
+
+
 
 
 
@@ -30271,6 +30349,11 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
+
+
+
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -32391,6 +32474,14 @@ function rtPlanHTML(){
   background:color-mix(in srgb,var(--text) 6%,transparent) !important }
 .rt-nl-fin .nx-nn{ font-size:13px }
 
+/* Un modulo cerrado por el candado tiene que LEERSE como cerrado de un
+   vistazo, no solo por el icono: se le baja la luz y se le cambia el
+   cursor. El que sigue —el primero abierto— se queda a plena luz, que es
+   justo donde debe ir el ojo. */
+.nx-nl.rt-nl-lock{ opacity:.42; cursor:not-allowed }
+.nx-nl.rt-nl-lock:hover{ opacity:.6; background:transparent }
+.nx-nl.rt-nl-lock .nx-nn{ background:transparent; border:1px dashed currentColor }
+
 /* ---------- responsive ---------- */
 @media (max-width:900px){
   .rt-idea{ grid-template-columns:1fr }
@@ -33710,6 +33801,12 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
+
+
+
+
+
 
 
 
