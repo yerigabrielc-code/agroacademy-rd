@@ -21839,10 +21839,7 @@ window.agVerCurso = function(id){
           return '<li><span>' + (m.num || '') + '</span><div><b>' + agEsc(m.t || m.title || '') + '</b>' +
             (m.sub ? '<em>' + agEsc(m.sub) + '</em>' : '') + '</div></li>';
         }).join('') + '</ol>' +
-        '<div class="agf-pie">' +
-          '<button class="agc-card-cta lock" onclick="agCerrarFicha();agDesbloquear(\'' + id + '\')">🔓 Desbloquear curso</button>' +
-          '<span>El acceso se habilita al confirmarse el pago. El avance y el certificado quedan a su nombre.</span>' +
-        '</div>' +
+        agFichaPie(id, e) +
       '</div>' +
     '</div>';
   d.addEventListener('click', function(ev){ if(ev.target === d) agCerrarFicha(); });
@@ -21852,6 +21849,64 @@ window.agVerCurso = function(id){
     anime({targets:'#agFicha .agf-caja', translateY:[26,0], opacity:[0,1], duration:420, easing:'easeOutCubic'});
   }
 };
+/* ------------------------------------------------------------
+   EL PIE DE LA FICHA DEPENDE DEL ESTADO, NO ES FIJO
+   ------------------------------------------------------------
+   Estaba escrito a fuego: la ficha ofrecia SIEMPRE «Desbloquear
+   curso», tuviera el estudiante el curso o no. Quien ya lo habia
+   pagado pulsaba «Ver este curso» desde el curso gratuito, veia el temario
+   y el unico boton que le daba la aplicacion era el de volver a
+   pagarlo. Nunca habia manera de entrar desde ahi, y eso es lo
+   que se siente —con razon— como un boton que no funciona.
+
+   Ahora el pie dice lo mismo que dice la tarjeta del campus para
+   ese curso, que es la unica fuente de verdad que ya existia:
+   Empezar / Continuar / Repasar cuando el curso es suyo,
+   Desbloquear cuando no lo es, y Proximamente si no esta
+   publicado.
+   ------------------------------------------------------------ */
+function agFichaPie(id, e){
+  var publicado = e ? e.publicado : true;
+  var tiene = e ? e.tiene : false;
+
+  if(!publicado && !agEsInstructorReal()){
+    return '<div class="agf-pie">' +
+      '<button class="agc-card-cta lock" disabled>Próximamente</button>' +
+      '<span>Este curso todavía no está abierto. Le avisaremos cuando lo esté.</span>' +
+    '</div>';
+  }
+
+  if(tiene){
+    var rot = (e && e.completo) ? 'Repasar el curso'
+            : ((e && e.empezado) ? 'Continuar donde lo dejó' : 'Empezar el curso');
+    var nota = (e && e.total)
+      ? 'Ya tiene este curso: lleva ' + e.hechos + ' de ' + e.total + ' módulos aprobados.'
+      : 'Ya tiene este curso.';
+    return '<div class="agf-pie">' +
+      '<button class="agc-card-cta" onclick="agIrAlCurso(\'' + id + '\')">▶ ' + rot + '</button>' +
+      '<span>' + nota + '</span>' +
+    '</div>';
+  }
+
+  return '<div class="agf-pie">' +
+    '<button class="agc-card-cta lock" onclick="agCerrarFicha();agDesbloquear(\'' + id + '\')">🔓 Desbloquear curso</button>' +
+    '<span>El acceso se habilita al confirmarse el pago. El avance y el certificado quedan a su nombre.</span>' +
+  '</div>';
+}
+
+/* Entrar a un curso DESDE dentro de otro. Hay que cerrar el que esta
+   abierto: dos overlays de curso comparten z-index, asi que el segundo
+   se pinta encima pero el primero sigue debajo capturando el teclado —
+   es el mismo fallo que ya dio el catalogo con las flechas. */
+window.agIrAlCurso = function(id){
+  agCerrarFicha();
+  ['rtCerrar', 'nxCerrar', 'rpCerrar', 'sbCerrar', 'egCerrar'].forEach(function(f){
+    try{ if(typeof window[f] === 'function') window[f](); }catch(e){}
+  });
+  try{ if(typeof cerrarCursos === 'function') cerrarCursos(); }catch(e){}
+  setTimeout(function(){ try{ agAbrirCurso(id); }catch(e){} }, 60);
+};
+
 window.agCerrarFicha = function(){
   var d = document.getElementById('agFicha');
   if(d) d.remove();
@@ -22479,7 +22534,257 @@ if(typeof window.nxAbrirPago1 === 'function'){
   }catch(e){}
 })();
 
+
+/* ---------- ag-orden.js ---------- */
+/* ============================================================
+   EL ORDEN DE LOS CURSOS SE REORGANIZA ARRASTRANDO
+   ------------------------------------------------------------
+   La barra «Gestionando» del panel salía en el orden en que los
+   cursos se declararon en COURSES, que es el orden en que se
+   fueron construyendo — no el orden en que el instructor los
+   usa. Con seis cursos ya molesta.
+
+   POR QUÉ SE HACE SOBRE EL DOM Y NO EN switchHTML():
+
+   switchHTML() es una función local dentro de un cierre ajeno:
+   no está en window, así que no hay manera de envolverla. Y
+   mountCourseSwitch es una de las funciones que los insertadores
+   vigilan para abortar si alguien las toca — con razón. Así que
+   este bloque no modifica nada de eso: espera a que la barra
+   exista, le reordena los botones y le engancha el arrastre.
+
+   La barra se rehace entera cada vez que se cambia de curso
+   (ex.outerHTML = switchHTML()), de modo que hace falta un
+   observador: sin él, el orden se pierde al primer clic.
+
+   El orden se guarda en 'ag_orden_cursos' y es del equipo, no de
+   la cuenta: es una preferencia de trabajo del instructor.
+   ============================================================ */
+
+var AGORDEN = null;
+(function agOrdenCargar(){
+  try{
+    var v = JSON.parse(localStorage.getItem('ag_orden_cursos') || 'null');
+    if(Array.isArray(v) && v.length) AGORDEN = v;
+  }catch(e){ AGORDEN = null; }
+})();
+function agOrdenGuardar(){
+  try{ localStorage.setItem('ag_orden_cursos', JSON.stringify(AGORDEN || [])); }catch(e){}
+}
+
+/* El orden efectivo: lo guardado primero, y detrás cualquier curso que
+   se haya añadido después de la última vez que se ordenó. Un curso
+   nuevo nunca desaparece por no estar en la lista. */
+function agOrdenDe(ids){
+  if(!AGORDEN || !AGORDEN.length) return ids.slice();
+  var puestos = [];
+  AGORDEN.forEach(function(id){ if(ids.indexOf(id) >= 0 && puestos.indexOf(id) < 0) puestos.push(id); });
+  ids.forEach(function(id){ if(puestos.indexOf(id) < 0) puestos.push(id); });
+  return puestos;
+}
+window.agOrdenDe = agOrdenDe;
+
+/* ------------------------------------------------------------
+   QUÉ CURSO ES CADA BOTÓN
+   El botón no lleva el id: lo lleva su onclick, nxSetCourse('x').
+   ------------------------------------------------------------ */
+function agOrdenIdDe(b){
+  if(!b) return null;
+  if(b.dataset && b.dataset.curso) return b.dataset.curso;
+  var a = b.getAttribute('onclick') || '';
+  var m = a.match(/nxSetCourse\(\s*['"]([^'"]+)['"]/);
+  return m ? m[1] : null;
+}
+
+/* ------------------------------------------------------------
+   APLICAR EL ORDEN Y ENGANCHAR EL ARRASTRE
+   ------------------------------------------------------------ */
+var AGOREN = false;   /* reentrada: reordenar dispara al observador */
+
+function agOrdenAplicar(){
+  var bar = document.getElementById('ucsw');
+  if(!bar || AGOREN) return;
+  var bts = [].slice.call(bar.querySelectorAll('.ucsw-b'));
+  if(bts.length < 2) return;
+
+  AGOREN = true;
+  try{
+    var porId = {};
+    var ids = [];
+    bts.forEach(function(b){
+      var id = agOrdenIdDe(b);
+      if(!id) return;
+      b.dataset.curso = id;
+      porId[id] = b;
+      ids.push(id);
+    });
+    if(ids.length < 2) return;
+
+    /* 1 · colocarlos en su sitio.
+       Un solo recorrido basta: se van insertando en orden justo delante
+       del contador de módulos (.ucsw-n), que es lo primero que va
+       después de los botones. insertBefore mueve el nodo si ya está en
+       el documento, así que no hace falta sacarlos antes. */
+    var orden = agOrdenDe(ids);
+    var tope = bar.querySelector('.ucsw-n') || null;
+    orden.forEach(function(id){ if(porId[id]) bar.insertBefore(porId[id], tope); });
+
+    /* 2 · engancharles el arrastre, una sola vez por botón */
+    orden.forEach(function(id){
+      var b = porId[id];
+      if(!b || b.dataset.arrastre === '1') return;
+      b.dataset.arrastre = '1';
+      b.draggable = true;
+      b.title = (b.title ? b.title + ' · ' : '') + 'Arrástrelo para cambiar el orden';
+      b.addEventListener('dragstart', agOrdenEmpieza);
+      b.addEventListener('dragover',  agOrdenEncima);
+      b.addEventListener('dragleave', agOrdenSale);
+      b.addEventListener('drop',      agOrdenSuelta);
+      b.addEventListener('dragend',   agOrdenTermina);
+    });
+    agOrdenCss();
+  } finally { AGOREN = false; }
+}
+window.agOrdenAplicar = agOrdenAplicar;
+
+var AGARRASTRADO = null;
+
+function agOrdenEmpieza(e){
+  AGARRASTRADO = this;
+  this.classList.add('ag-ord-yendo');
+  try{
+    e.dataTransfer.effectAllowed = 'move';
+    /* Firefox no inicia el arrastre si no se escribe algo en dataTransfer */
+    e.dataTransfer.setData('text/plain', this.dataset.curso || '');
+  }catch(err){}
+}
+function agOrdenEncima(e){
+  if(!AGARRASTRADO || AGARRASTRADO === this) return;
+  e.preventDefault();
+  try{ e.dataTransfer.dropEffect = 'move'; }catch(err){}
+  /* la marca va del lado por el que entra el cursor, para que se vea
+     dónde va a caer antes de soltar */
+  var r = this.getBoundingClientRect();
+  var izq = (e.clientX - r.left) < r.width / 2;
+  this.classList.toggle('ag-ord-antes', izq);
+  this.classList.toggle('ag-ord-despues', !izq);
+}
+function agOrdenSale(){
+  this.classList.remove('ag-ord-antes', 'ag-ord-despues');
+}
+function agOrdenSuelta(e){
+  e.preventDefault();
+  e.stopPropagation();
+  var antes = this.classList.contains('ag-ord-antes');
+  this.classList.remove('ag-ord-antes', 'ag-ord-despues');
+  if(!AGARRASTRADO || AGARRASTRADO === this) return;
+  var bar = this.parentNode;
+  if(!bar) return;
+  AGOREN = true;
+  try{ bar.insertBefore(AGARRASTRADO, antes ? this : this.nextSibling); }
+  finally { AGOREN = false; }
+  agOrdenLeerYGuardar(bar);
+}
+function agOrdenTermina(){
+  this.classList.remove('ag-ord-yendo');
+  var bar = document.getElementById('ucsw');
+  if(bar) [].forEach.call(bar.querySelectorAll('.ucsw-b'), function(b){
+    b.classList.remove('ag-ord-antes', 'ag-ord-despues');
+  });
+  AGARRASTRADO = null;
+}
+
+function agOrdenLeerYGuardar(bar){
+  var ids = [].map.call(bar.querySelectorAll('.ucsw-b'), function(b){ return b.dataset.curso; })
+    .filter(Boolean);
+  if(ids.length < 2) return;
+  AGORDEN = ids;
+  agOrdenGuardar();
+  if(typeof toast === 'function'){
+    var C = (typeof COURSES !== 'undefined') ? COURSES[ids[0]] : null;
+    toast('Orden guardado · empieza por ' + (C ? C.label : ids[0]), '↕️');
+  }
+}
+
+/* devolver el orden de fábrica */
+window.agOrdenReiniciar = function(){
+  AGORDEN = null;
+  try{ localStorage.removeItem('ag_orden_cursos'); }catch(e){}
+  var bar = document.getElementById('ucsw');
+  if(bar && typeof COURSES !== 'undefined'){
+    var tope = bar.querySelector('.ucsw-n') || null;
+    AGOREN = true;
+    try{
+      Object.keys(COURSES).forEach(function(id){
+        var b = bar.querySelector('.ucsw-b[data-curso="' + id + '"]');
+        if(b) bar.insertBefore(b, tope);
+      });
+    } finally { AGOREN = false; }
+  }
+  if(typeof toast === 'function') toast('Orden original restaurado', '↺');
+};
+
+/* ------------------------------------------------------------
+   VIGILAR LOS REPINTADOS
+   La barra se reemplaza entera al cambiar de curso, así que hay
+   que volver a aplicar el orden y a enganchar el arrastre.
+   ------------------------------------------------------------ */
+(function agOrdenVigila(){
+  var pendiente = false;
+  var pasar = function(){
+    if(pendiente) return;
+    pendiente = true;
+    setTimeout(function(){ pendiente = false; try{ agOrdenAplicar(); }catch(e){} }, 40);
+  };
+  var arrancar = function(){
+    try{
+      var obs = new MutationObserver(function(muts){
+        if(AGOREN) return;
+        for(var i = 0; i < muts.length; i++){
+          var m = muts[i];
+          if(m.type !== 'childList') continue;
+          var toca = [].some.call(m.addedNodes, function(nd){
+            return nd.nodeType === 1 && (nd.id === 'ucsw' || (nd.querySelector && nd.querySelector('.ucsw-b')));
+          });
+          if(toca || (m.target && m.target.id === 'ucsw')){ pasar(); return; }
+        }
+      });
+      obs.observe(document.body, {childList:true, subtree:true});
+    }catch(e){}
+    pasar();
+    /* la barra tarda en montarse (tryMount reintenta hasta 40 veces) */
+    [200, 600, 1400, 2600].forEach(function(t){ setTimeout(pasar, t); });
+  };
+  if(document.body) arrancar(); else addEventListener('DOMContentLoaded', arrancar);
+})();
+
+/* ------------------------------------------------------------
+   ESTILOS
+   ------------------------------------------------------------ */
+function agOrdenCss(){
+  if(document.getElementById('agOrdenCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agOrdenCss';
+  s.textContent =
+    '.ucsw-b[draggable="true"]{cursor:grab;position:relative;' +
+      'transition:transform .12s ease,opacity .12s ease,box-shadow .12s ease}' +
+    '.ucsw-b[draggable="true"]:active{cursor:grabbing}' +
+    '.ucsw-b.ag-ord-yendo{opacity:.4;transform:scale(.96)}' +
+    /* la marca de donde va a caer: una barra vertical del color de acento */
+    '.ucsw-b.ag-ord-antes{box-shadow:-3px 0 0 0 var(--green,#2F7D4F)}' +
+    '.ucsw-b.ag-ord-despues{box-shadow:3px 0 0 0 var(--green,#2F7D4F)}' +
+    /* el asa aparece al pasar por encima: si no se ve nada, nadie
+       descubre que la pieza se puede mover */
+    '.ucsw-b[draggable="true"]::before{content:"⠿";opacity:0;margin-right:-2px;' +
+      'font-size:11px;line-height:1;transition:opacity .12s ease}' +
+    '.ucsw-b[draggable="true"]:hover::before{opacity:.55}' +
+    '.ucsw-b.on[draggable="true"]:hover::before{opacity:.75}';
+  (document.body || document.documentElement).appendChild(s);
+}
+
 </script>
+
+
 
 
 
@@ -25553,6 +25858,8 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
 
 
 
@@ -29962,6 +30269,8 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -29971,7 +30280,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 /* ---------- rt-shell.js ---------- */
 /* ============================================================
-   CURSO 0 · RUTA DEL PORCICULTOR — armazón
+   CURSO 0 · INTRODUCCIÓN A LA PORCICULTURA RENTABLE — armazón
    ------------------------------------------------------------
    Tu primera clase en AgroAcademy. Gratis, corto y visual: está
    pensado para durar 15–20 minutos y terminar con el estudiante
@@ -30050,7 +30359,7 @@ function rtPortada(){
     '<div class="nx-port-velo"></div>' +
     '<div class="nx-cover">' +
       '<span class="rt-libre">🟢 Gratis · sin pagar nada</span>' +
-      '<h1>Ruta del porcicultor</h1>' +
+      '<h1>Introducción a la Porcicultura Rentable</h1>' +
       '<p class="nx-cover-s">Tu primera clase en AgroAcademy. Cinco módulos cortos para entender de qué depende ' +
       'de verdad el dinero de una granja de cerdos — y para descubrir qué le toca aprender a usted.</p>' +
       '<div class="nx-cover-kpis">' +
@@ -30088,13 +30397,13 @@ function rtPinta(){
     '</div></section>';
   }
 
-  /* marcar como completada */
-  var visto = rtVista(m.n);
-  h += '<section class="nx-b nx-full"><div class="rt-check rv' + (visto ? ' on' : '') + '">' +
-    '<label><input type="checkbox"' + (visto ? ' checked' : '') +
-      ' onchange="rtMarcar(' + m.n + ', this.checked)">' +
-      '<span>' + (visto ? 'Módulo completado' : 'Marcar este módulo como completado') + '</span></label>' +
-    '<em>' + rtProgreso() + ' de ' + RTMOD.length + ' módulos</em>' +
+  /* La evaluacion del modulo. Sustituye a la casilla de «ya lo vi», que
+     no probaba nada: ahora el avance se aprueba, igual que en los otros
+     cinco cursos. rtExamen() ya entrega el examen sin la clave a la vista. */
+  try{ h += rtExamen(m.n) || ''; }catch(e){}
+  h += '<section class="nx-b nx-full"><div class="rt-check rv' + (rtAprob(m.n) ? ' on' : '') + '">' +
+    '<span>' + (rtAprob(m.n) ? '✅ Módulo aprobado' : 'Responda la evaluación para aprobar este módulo') + '</span>' +
+    '<em>' + rtProgreso() + ' de ' + RTMOD.length + ' módulos aprobados</em>' +
   '</div></section>';
 
   h += '<div class="nx-navb">' +
@@ -30150,16 +30459,24 @@ function rtNav(){
     '<div class="nx-pgb"><i style="width:' + (p / RTMOD.length * 100) + '%"></i></div></div>' +
     '<button class="nx-nl' + (RTCUR === 0 ? ' on' : '') + '" onclick="rtIr(0)"><span class="nx-nn">◆</span> Portada</button>' +
     RTMOD.map(function(m){
-      var v = rtVista(m.n);
-      return '<button class="nx-nl' + (RTCUR === m.n ? ' on' : '') + '" onclick="rtIr(' + m.n + ')">' +
+      var v = (typeof rtAprob === 'function') ? rtAprob(m.n) : false;
+      var abierto = (typeof rtDesbloq === 'function') ? rtDesbloq(m.n) : true;
+      return '<button class="nx-nl' + (RTCUR === m.n ? ' on' : '') + (abierto ? '' : ' rt-nl-lock') +
+        '" onclick="rtIr(' + m.n + ')"' + (abierto ? '' : ' title="Apruebe antes el módulo anterior"') + '>' +
         '<span class="nx-nn" style="' + (RTCUR === m.n ? 'background:' + m.ac + ';color:#fff' : '') + '">' +
-        (v ? '✓' : m.num) + '</span> ' + esc(m.t) + '</button>';
+        (v ? '✓' : (abierto ? m.num : '🔒')) + '</span> ' + esc(m.t) + '</button>';
     }).join('') +
     '<button class="nx-nl rt-nl-fin' + (RTCUR > RTMOD.length ? ' on' : '') + '" onclick="rtIr(' + (RTMOD.length + 1) + ')">' +
       '<span class="nx-nn">🚀</span> Esto es solo el comienzo</button>';
 }
 
 function rtIr(id){
+  /* El candado solo muerde si el instructor lo encendio (RTGATE). De
+     fabrica esta apagado y esta guarda no hace nada. */
+  if(typeof rtDesbloq === 'function' && id >= 1 && id <= RTMOD.length && !rtDesbloq(id)){
+    if(typeof toast === 'function') toast('Apruebe antes el módulo ' + (id - 1), '🔒');
+    return;
+  }
   RTCUR = id; rtPinta(); rtNav();
   try{ localStorage.setItem('rt_pos', String(id)); }catch(e){}
   var m = document.getElementById('rtMain'); if(m) m.scrollTop = 0;
@@ -30201,7 +30518,7 @@ window.openRuta = function(){
   if(!ov){
     ov = document.createElement('div'); ov.id = 'rtOv'; ov.className = 'nx-ov rt-ov';
     ov.innerHTML = '<aside class="nx-side"><div class="nx-side-h"><div class="nx-logo">🐖</div>' +
-      '<div><b>Ruta del porcicultor</b><span>Gratis · su primera clase</span></div></div>' +
+      '<div><b>Introducción a la Porcicultura Rentable</b><span>Gratis · su primera clase</span></div></div>' +
       '<nav class="nx-nav" id="rtNav"></nav>' +
       '<div class="nx-side-f">' +
         '<button class="btn btn-ghost" onclick="rtCerrar()">← Volver a mis cursos</button>' +
@@ -30235,7 +30552,7 @@ window.rtVerCurso = function(id){
 
 /* ---------- rt-datos.js ---------- */
 /* ============================================================
-   RUTA DEL PORCICULTOR · LOS CINCO MÓDULOS
+   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · LOS CINCO MÓDULOS
    ------------------------------------------------------------
    Hilo conductor: ¿cuánto dinero puede generar realmente una
    granja porcina? Y la respuesta incómoda que el curso entero
@@ -30365,7 +30682,7 @@ var RTMOD = [
     {k:'rtcta'},
     {k:'rtplan'},
     {k:'agnota', tipo:'campo', nt:'Cómo se adquieren', p:
-      'La <b>Ruta del porcicultor</b> que acaba de hacer es gratis y lo seguirá siendo. ' +
+      'La <b>Introducción a la Porcicultura Rentable</b> que acaba de hacer es gratis y lo seguirá siendo. ' +
       'Los demás cursos se adquieren por separado: al pulsar «Ver curso» encontrará el precio, el temario completo y las cuentas para transferir. ' +
       'Cuando el instructor confirme el pago, el curso se le desbloquea con <b>la misma cuenta que ya tiene</b> — no hay que registrarse de nuevo.'}
   ]
@@ -30772,7 +31089,7 @@ if(typeof window.rtPinta === 'function'){
 
 /* ---------- rt-visual.js ---------- */
 /* ============================================================
-   RUTA DEL PORCICULTOR · PIEZAS VISUALES INTERACTIVAS
+   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · PIEZAS VISUALES INTERACTIVAS
    ------------------------------------------------------------
    Tres piezas que el estudiante TOCA, no lee:
 
@@ -31136,7 +31453,7 @@ RTREG.rtfugas = rtSecFugas;
 
 /* ---------- rt-simu.js ---------- */
 /* ============================================================
-   RUTA DEL PORCICULTOR · EL SIMULADOR ECONÓMICO
+   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · EL SIMULADOR ECONÓMICO
    ------------------------------------------------------------
    El corazón del curso. El estudiante pone los números de SU
    granja —o los de ejemplo— y ve en el momento qué queda.
@@ -31420,7 +31737,7 @@ RTREG.rtquepasa = rtSecQuePasa;
 
 /* ---------- rt-diag.js ---------- */
 /* ============================================================
-   RUTA DEL PORCICULTOR · EL DIAGNÓSTICO
+   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · EL DIAGNÓSTICO
    ------------------------------------------------------------
    «Descubre tu principal reto». Una pregunta para elegir el área
    y tres más dentro de ella. Al final, un resultado escrito con
@@ -32107,7 +32424,7 @@ function rtPlanHTML(){
 
 /* ---------- rt-css2.js ---------- */
 /* ============================================================
-   RUTA DEL PORCICULTOR · ESTILOS DE LAS PIEZAS INTERACTIVAS
+   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · ESTILOS DE LAS PIEZAS INTERACTIVAS
    ------------------------------------------------------------
    Reglas que se siguieron en todo el bloque:
 
@@ -32487,7 +32804,7 @@ function rtPlanHTML(){
    1 · REGISTRO EN COURSES, con el mismo contrato de siempre
    ------------------------------------------------------------ */
 if(typeof NXCURSOS !== 'undefined' && !NXCURSOS.some(function(c){ return c.id === 'ruta'; })){
-  NXCURSOS.push({id:'ruta', ico:'🐖', n:'Ruta del porcicultor',
+  NXCURSOS.push({id:'ruta', ico:'🐖', n:'Introducción a la Porcicultura Rentable',
     sub:'4 módulos · gratis · su primera clase', mods:4, base:false});
 }
 if(typeof NXPUB !== 'undefined' && NXPUB.ruta === undefined){
@@ -32497,36 +32814,44 @@ if(typeof NXPUB !== 'undefined' && NXPUB.ruta === undefined){
 
 if(typeof window.COURSES !== 'undefined' && !COURSES.ruta){
   COURSES.ruta = {
-    id:'ruta', icon:'🐖', label:'Ruta',
-    name:'Ruta del porcicultor',
+    id:'ruta', icon:'🐖', label:'Introducción',
+    name:'Introducción a la Porcicultura Rentable',
     hasFormulas:false,
     /* no se vende: es gratis */
     sellsSeparately:false,
     /* la marca que usan los envoltorios de abajo para tratarlo distinto */
     gratis:true,
-    sinCertificado:true,
     modules: function(){
       return (typeof RTMOD !== 'undefined') ? RTMOD.map(function(m){
         return {n:m.n, num:m.num, title:m.t, t:m.t, sub:m.sub, ac:m.ac};
       }) : [];
     },
     get n(){ return (typeof RTMOD !== 'undefined') ? RTMOD.length : 4; },
-    /* el avance es por lección vista, no por nota */
+    /* El avance se aprueba, como en los otros cinco cursos. Estas
+       funciones se llaman al pintar, no ahora, asi que pueden apoyarse
+       en rt-examen.js aunque ese fichero se cargue despues. */
     rec: function(uid, n){
-      return rtVista(n, uid) ? {passed:true, best:100, tries:1} : null;
+      if(typeof cloudRec === 'function'){ try{ var c = cloudRec(uid, n, 'ruta'); if(c) return c; }catch(e){} }
+      return (typeof rtRecEx === 'function') ? rtRecEx(n, uid) : null;
     },
-    passed: function(uid, n){ return rtVista(n, uid); },
+    passed: function(uid, n){ return (typeof rtAprob === 'function') ? rtAprob(n, uid) : false; },
     count: function(uid){ return rtProgreso(uid); },
-    quiz: function(){ return []; },
-    get cfg(){ return {passing:0, gating:false}; },
-    setCfg: function(){ /* no hay examen que configurar */ },
+    quiz: function(n){ return (typeof RTQUIZ !== 'undefined' && RTQUIZ[n]) || []; },
+    get cfg(){
+      return {passing:(typeof RTPASS !== 'undefined' ? RTPASS : 70),
+              gating: (typeof RTGATE !== 'undefined' ? !!RTGATE : false)};
+    },
+    setCfg: function(p){
+      if(p.passing != null && typeof rtSetPass === 'function') rtSetPass(p.passing);
+      if(p.gating  != null && typeof rtSetGate === 'function') rtSetGate(p.gating);
+    },
     published: function(){
       if(typeof NXPUB !== 'undefined' && NXPUB.ruta !== undefined) return !!NXPUB.ruta;
       return (typeof RTPUB !== 'undefined') ? !!RTPUB : true;
     },
     /* gratis: lo tiene cualquier cuenta que exista */
     enrolled: function(s){ return !!(s && s.status !== 'borrado'); },
-    certLabel:''
+    certLabel:'Introducción a la Porcicultura Rentable'
   };
 }
 
@@ -32602,29 +32927,18 @@ if(typeof window.agCursosVisibles === 'function'){
 }
 
 /* ------------------------------------------------------------
-   4 · SIN CERTIFICADO
-   Se pidió expresamente que este curso no lo tuviera. Se excluye
-   de la sección de certificados del campus para que, al
-   completarlo, no aparezca un certificado que no existe.
+   4 · EL CERTIFICADO
+   ------------------------------------------------------------
+   Este curso nacio sin certificado y aqui habia un envoltorio que
+   lo excluia a mano de la seccion del campus. Con evaluaciones por
+   modulo ya no tiene sentido: se aprueba como los demas, asi que se
+   certifica como los demas. El envoltorio se retira entero en vez de
+   dejarlo desactivado — codigo que no hace nada es codigo que alguien
+   vuelve a encender por error.
+
+   La definicion del certificado (prefijo AGRO-INTRO, titulo y texto)
+   esta en rt-examen.js, junto a lo que decide quien lo gana.
    ------------------------------------------------------------ */
-if(typeof window.agCampusCertificados === 'function'){
-  var _agCampusCertRt = window.agCampusCertificados;
-  window.agCampusCertificados = function(){
-    var guardar = null;
-    try{
-      guardar = window.agCursosVisibles;
-      window.agCursosVisibles = function(){
-        return (guardar() || []).filter(function(id){
-          var C = (typeof COURSES !== 'undefined') ? COURSES[id] : null;
-          return !(C && C.sinCertificado);
-        });
-      };
-      return _agCampusCertRt.apply(this, arguments);
-    } finally {
-      if(guardar) window.agCursosVisibles = guardar;
-    }
-  };
-}
 
 /* ------------------------------------------------------------
    5 · TARJETA EN EL CATÁLOGO ANTIGUO (el del instructor)
@@ -32641,7 +32955,7 @@ function rtTarjeta(){
   b.setAttribute('onclick', 'cerrarCursos(); openRuta();');
   b.innerHTML =
     '<div class="cs-ico">🐖</div><span class="cs-tag">🟢 Gratis · empiece aquí</span>' +
-    '<h3>Ruta del porcicultor</h3>' +
+    '<h3>Introducción a la Porcicultura Rentable</h3>' +
     '<p>Su primera clase en AgroAcademy. Cuatro módulos cortos sobre qué hace rentable una granja. 15 minutos, sin pagar nada.</p>' +
     '<div class="cs-pg"><div class="cs-pgb"><i style="width:' + (p / RTMOD.length * 100) + '%"></i></div>' +
       '<span>' + p + ' de ' + RTMOD.length + ' módulos</span></div>' +
@@ -32729,6 +33043,351 @@ if(typeof window.agCursoActivo === 'function'){
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
+
+
+/* ---------- rt-examen.js ---------- */
+/* ============================================================
+   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · LAS EVALUACIONES
+   ------------------------------------------------------------
+   Este curso dejaba de ser una excepción. Antes el avance se
+   marcaba con una casilla de «ya lo vi», que no prueba nada y
+   que no se parecía a lo que hacen los otros cinco cursos.
+
+   Ahora sigue exactamente el mismo método: tres preguntas al
+   final de cada módulo, clave fuera de la vista (exDesarmar),
+   nota guardada por módulo, se puede repetir las veces que haga
+   falta y el avance alimenta el certificado.
+
+   DOS DECISIONES QUE CONVIENE DEJAR ESCRITAS:
+
+   1 · La nota mínima es 70 %, no 80 % como en los cursos de
+       pago. Con tres preguntas, 80 % obliga a acertar las tres;
+       70 % deja pasar con dos de tres. Este es un curso de
+       entrada de veinte minutos: frenar ahí a alguien que
+       todavía no ha pagado nada es perderlo, no evaluarlo.
+
+   2 · EL CANDADO ENTRE MÓDULOS EXISTE PERO VIENE APAGADO.
+       Se pidieron las dos cosas —«que se desbloquee módulo tras
+       módulo» y, al elegir, la opción sin bloqueo—, así que se
+       implementan las dos: RTGATE está en false de fábrica y el
+       instructor lo enciende desde el panel con un interruptor,
+       igual que en Formulación, Reproducción, Sanidad y Engorde.
+       Encendido, el módulo N+1 no abre hasta aprobar el N.
+
+   AVISO SOBRE EL AVANCE VIEJO: quien tuviera módulos marcados
+   con la casilla antigua ('rt::<alumno>::lec<N>') no los ve
+   contados como aprobados, porque no lo están: ahora hay que
+   responder. Esas claves se dejan intactas y sin uso.
+   ============================================================ */
+
+/* ---------- configuración, como la de los demás ---------- */
+var RTPASS = 70, RTGATE = false;
+(function rtCargarCfg(){
+  try{
+    var c = JSON.parse(localStorage.getItem('rt_cfg') || '{}') || {};
+    if(c.passing != null) RTPASS = +c.passing;
+    if(c.gating  != null) RTGATE = !!c.gating;
+  }catch(e){}
+})();
+function rtGuardarCfg(){ try{ localStorage.setItem('rt_cfg', JSON.stringify({passing:RTPASS, gating:RTGATE})); }catch(e){} }
+function rtSetPass(v){ RTPASS = Math.max(1, Math.min(100, +v || 70)); rtGuardarCfg(); }
+function rtSetGate(v){ RTGATE = !!v; rtGuardarCfg(); }
+window.rtSetPass = rtSetPass;
+window.rtSetGate = rtSetGate;
+
+/* ============================================================
+   LAS PREGUNTAS
+   ------------------------------------------------------------
+   Tres por módulo, y las quince se responden con lo que el
+   estudiante acaba de ver en ese módulo — no con conocimiento
+   previo ni con nada que se explique más adelante.
+   ============================================================ */
+var RTQUIZ = {
+
+1: [
+  { q:'¿De qué depende que una granja porcina sea rentable?', c:1,
+    o:['Del tamaño: cuantos más cerdos tenga, más gana',
+       'De seis variables que se controlan a la vez',
+       'Solo del precio de venta que haya ese día'],
+    fb:'De las seis juntas. El tamaño no aparece en la lista: una granja de 30 cerdos bien llevada puede dejar más que una de 100 mal llevada.' },
+  { q:'De esas seis variables, ¿cuál es la única que usted NO controla?', c:1,
+    o:['La conversión alimenticia', 'El precio de venta', 'La mortalidad del lote'],
+    fb:'El precio lo pone el mercado. Precisamente por eso hay que controlar bien las otras cinco, que sí dependen de la granja.' },
+  { q:'¿Cuánto del costo del engorde se va en alimento?', c:1,
+    o:['Entre 20 y 30 de cada 100 pesos',
+       'Entre 65 y 75 de cada 100 pesos',
+       'Menos de la mitad, casi siempre'],
+    fb:'Entre 65 y 75 %. Es con diferencia el gasto más grande, y por eso la conversión pesa tanto en el resultado.' }
+],
+
+2: [
+  { q:'El punto de equilibrio de un lote es…', c:1,
+    o:['El peso al que conviene vender el cerdo',
+       'El precio por libra por debajo del cual el lote pierde dinero',
+       'La cantidad de cerdos que caben en el corral'],
+    fb:'Es el precio mínimo al que puede vender sin perder. Si su costo por libra producida es RD$ 51.6, vender por debajo de eso es perder.' },
+  { q:'Dos granjas venden cerdos de 100 kg el mismo día y al mismo precio, pero una gana bastante más. ¿Por qué?', c:1,
+    o:['Porque tiene más cerdos en total',
+       'Porque gastó menos alimento por kilo y le llegaron más animales a la venta',
+       'Porque le vendió a un comprador distinto'],
+    fb:'Conversión y supervivencia. Son las dos cosas que separan a dos granjas que venden el mismo cerdo al mismo precio.' },
+  { q:'En la cuenta de un lote, los cerdos que se mueren…', c:1,
+    o:['No cuentan, porque no se vendieron',
+       'Ya se comieron su alimento, y esa pérdida la pagan los que sí llegaron',
+       'Se descuentan del costo del lechón'],
+    fb:'Comieron y no se vendieron. Esa pérdida no desaparece: se reparte entre los animales que sí llegaron, y les sube el costo a todos.' }
+],
+
+3: [
+  { q:'De las seis fugas de dinero, ¿cuál no cuesta dinero cerrar?', c:1,
+    o:['La genética', 'Los registros', 'La sanidad'],
+    fb:'Los registros. Cuatro columnas —qué entró, qué comió, qué murió, qué salió— y es además la que permite ver las otras cinco.' },
+  { q:'La conversión alimenticia mide…', c:0,
+    o:['Cuántos kilos de alimento hacen falta para producir un kilo de cerdo',
+       'Cuántos sacos de alimento compra usted al mes',
+       'Cuánto pesa el lechón al nacer'],
+    fb:'Kilos de alimento por kilo de cerdo producido. No es cuánto compra: es cuánto rinde lo que compra.' },
+  { q:'Un cerdo que se muere a los 80 kg…', c:1,
+    o:['Cuesta solo lo que se pagó por el lechón',
+       'Se lleva el lechón más todo el alimento que ya se comió',
+       'No afecta al costo por kilo del lote'],
+    fb:'Se lleva unos RD$ 12,000 de alimento ya comido, más el lechón. Cuanto más tarde muere, más caro sale.' }
+],
+
+4: [
+  { q:'¿Por qué el diagnóstico pregunta antes de recomendar un curso?', c:1,
+    o:['Porque todas las granjas tienen el mismo problema',
+       'Porque no todas las granjas necesitan lo mismo',
+       'Porque así el curso dura un poco más'],
+    fb:'Un productor que no mide nada no necesita lo mismo que uno que ya calcula su conversión. Recomendar sin preguntar es adivinar.' },
+  { q:'Un productor no lleva ningún registro y quiere mejorar la alimentación. ¿Por dónde le conviene empezar?', c:1,
+    o:['Por el curso técnico de formulación, directo',
+       'Por las bases: sin medir nada, un curso técnico no tiene sobre qué apoyarse',
+       'Por comprar mejor genética'],
+    fb:'Por las bases. Una fórmula perfecta no sirve de nada si nadie sabe cuánto come el lote ni cuántos animales llegan.' },
+  { q:'¿Qué indicador resume si la reproducción va bien?', c:0,
+    o:['Lechones destetados por cerda al año',
+       'El peso del verraco',
+       'El número de corrales de la granja'],
+    fb:'Lechones destetados por cerda al año. Junta en un solo número la fertilidad, los días vacíos y la mortalidad de lactancia.' }
+],
+
+5: [
+  { q:'¿Cuál es el curso base de AgroAcademy?', c:1,
+    o:['Engorde porcino',
+       'Porcicultura aplicada a República Dominicana',
+       'Formulación y fabricación de alimentos balanceados'],
+    fb:'Porcicultura aplicada a RD. Es el que da el manejo completo de la granja; los otros cuatro entran a fondo en una parte.' },
+  { q:'¿Qué curso entra a fondo en la conversión, la ganancia diaria y el costo por kilo?', c:0,
+    o:['Engorde porcino', 'Reproducción porcina', 'Sanidad y bioseguridad'],
+    fb:'Engorde porcino: del destete al peso de mercado, que es donde se gasta la mayor parte del alimento del ciclo.' },
+  { q:'Los cursos especializados de AgroAcademy…', c:1,
+    o:['Hay que tomarlos todos y en orden',
+       'Se adquieren por separado y se abren con la misma cuenta que ya tiene',
+       'Vienen incluidos con este curso gratuito'],
+    fb:'Por separado y sin registrarse de nuevo. Empiece por donde más le duela hoy: no hace falta tomarlos todos ni en orden.' }
+]
+
+};
+
+/* ============================================================
+   AVANCE: AHORA SE APRUEBA, NO SE MARCA
+   ------------------------------------------------------------
+   La clave usa el mismo formato que los demas cursos
+   ('<pre>::<alumno>::exam_m<N>') para que readRec y la nube la
+   entiendan sin tratarla como un caso aparte.
+   ============================================================ */
+function rtKEx(n, id){ return 'rt::' + (id || rtYo()) + '::exam_m' + n; }
+function rtRecEx(n, id){ try{ return JSON.parse(localStorage.getItem(rtKEx(n, id))); }catch(e){ return null; } }
+function rtAprob(n, id){
+  if(typeof cloudRec === 'function'){
+    try{ var c = cloudRec(id || rtYo(), n, 'ruta'); if(c) return !!c.passed; }catch(e){}
+  }
+  var r = rtRecEx(n, id);
+  return !!(r && r.passed);
+}
+window.rtAprob = rtAprob;
+
+/* sustituye a la cuenta de casillas vistas */
+window.rtProgreso = function(id){
+  var c = 0;
+  for(var i = 1; i <= RTMOD.length; i++) if(rtAprob(i, id)) c++;
+  return c;
+};
+window.rtCompleto = function(id){ return rtProgreso(id) >= RTMOD.length; };
+
+function rtDesbloq(n){
+  if(rtEsInstructor()) return true;
+  if(!RTGATE) return true;
+  return n <= 1 || rtAprob(n - 1);
+}
+window.rtDesbloq = rtDesbloq;
+
+function rtGuardarNota(n, nota, pasa){
+  var r = rtRecEx(n) || {best:0, attempts:0, passed:false};
+  r.attempts = (r.attempts || 0) + 1;
+  r.last = nota;
+  r.best = Math.max(r.best || 0, nota);
+  r.passed = r.passed || pasa;
+  r.at = Date.now();
+  try{ localStorage.setItem(rtKEx(n), JSON.stringify(r)); }catch(e){}
+  if(typeof cloudSaveRec === 'function'){ try{ cloudSaveRec(rtYo(), n, 'ruta', r); }catch(e){} }
+}
+
+/* ============================================================
+   LA PIEZA DEL EXAMEN
+   Misma marca que los otros cursos (.nx-ex, .nx-q, .nx-opt),
+   asi que hereda su estilo y su comportamiento sin CSS nuevo.
+   ============================================================ */
+function rtExamen(id){
+  var qs = RTQUIZ[id] || [];
+  if(!qs.length) return '';
+  var r = rtRecEx(id);
+  var h = '<section class="nx-b nx-solo"><h3 class="rv">Evaluación del módulo</h3>' +
+    '<div class="nx-ex" id="rtex-' + id + '"><div class="nx-ex-h rv">' +
+    '<span>Nota mínima: <b>' + RTPASS + ' %</b> · ' + qs.length + ' preguntas · si no la aprueba puede repetirla</span>' +
+    (r ? '<span class="nx-ex-best' + (r.passed ? ' pass' : '') + '">Mejor: ' + r.best + ' %' +
+         (r.passed ? ' · APROBADO ✓' : '') + '</span>' : '') + '</div>';
+  h += qs.map(function(q, i){
+    return '<div class="nx-q rv" data-c="' + q.c + '"><p><b>' + (i + 1) + '.</b> ' + agEsc(q.q) + '</p><div class="nx-opts">' +
+      q.o.map(function(o){ return '<button class="nx-opt" onclick="nxSel(this)">' + agEsc(o) + '</button>'; }).join('') +
+      '</div><div class="nx-fb">' + agEsc(q.fb || '') + '</div></div>';
+  }).join('');
+  h += '<div class="nx-ex-a rv"><button class="btn btn-primary" onclick="rtEnviar(' + id + ')">Enviar respuestas</button>' +
+    '<button class="btn btn-ghost" onclick="rtResetEx(' + id + ')">Reiniciar</button></div>' +
+    '<div class="nx-ex-r" id="rtexr-' + id + '"></div></div></section>';
+  return h;
+}
+
+window.rtEnviar = function(id){
+  var ex = document.getElementById('rtex-' + id); if(!ex) return;
+  /* la clave vuelve a su sitio ANTES de corregir. El orden y el numero de
+     argumentos importan: el contenedor va primero y son seis. Equivocarlo
+     deja el examen imposible de aprobar, que ya paso una vez. */
+  if(typeof exArmar === 'function') try{ exArmar(ex, 'ruta', id, '.nx-q', 'data-c', '.nx-fb'); }catch(e){}
+  var qs = [].slice.call(ex.querySelectorAll('.nx-q'));
+  if(!qs.every(function(q){ return q.querySelector('.nx-opt.sel'); })){
+    if(typeof toast === 'function') toast('Responda las tres preguntas', '✍️');
+    if(typeof exTapar === 'function') try{ exTapar(ex, 'ruta', id, '.nx-q', 'data-c', '.nx-opt', '.nx-fb', 'ok', 'bad'); }catch(e){}
+    return;
+  }
+  var ok = 0;
+  qs.forEach(function(q){
+    var ci = +q.dataset.c, ops = [].slice.call(q.querySelectorAll('.nx-opt'));
+    var sel = ops.findIndex(function(o){ return o.classList.contains('sel'); });
+    ops.forEach(function(o, j){ if(j === ci) o.classList.add('ok'); if(j === sel && j !== ci) o.classList.add('bad'); });
+    if(sel === ci) ok++;
+    q.classList.add('rev');
+  });
+  ex.classList.add('cal');
+  var nota = Math.round(ok / qs.length * 100), pasa = nota >= RTPASS;
+  rtGuardarNota(id, nota, pasa);
+
+  var res = document.getElementById('rtexr-' + id);
+  if(res){
+    var sig = '';
+    if(pasa){
+      if(id < RTMOD.length) sig = RTGATE ? ' Módulo siguiente desbloqueado.' : ' Puede seguir al módulo siguiente.';
+      else if(rtCompleto()) sig = ' Ha terminado el curso: su certificado ya está disponible.';
+    }
+    res.className = 'nx-ex-r ' + (pasa ? 'pass' : 'fail');
+    res.innerHTML = '<b>' + nota + ' %</b><span>' + ok + ' de ' + qs.length + ' correctas · ' +
+      (pasa ? 'Aprobado.' + sig : 'No aprobado. Puede volver a intentarlo: no se pierde nada.') + '</span>';
+  }
+  if(typeof exTapar === 'function') try{ exTapar(ex, 'ruta', id, '.nx-q', 'data-c', '.nx-opt', '.nx-fb', 'ok', 'bad'); }catch(e){}
+  try{ rtNav(); }catch(e){}
+  if(pasa && typeof toast === 'function'){
+    toast(rtCompleto() ? 'Curso completado 🎓' : 'Módulo ' + id + ' aprobado', pasa ? '✅' : '📘');
+  }
+};
+
+window.rtResetEx = function(id){
+  var ex = document.getElementById('rtex-' + id); if(!ex) return;
+  [].forEach.call(ex.querySelectorAll('.nx-opt'), function(o){ o.classList.remove('sel', 'ok', 'bad'); });
+  [].forEach.call(ex.querySelectorAll('.nx-q'), function(q){ q.classList.remove('rev'); });
+  ex.classList.remove('cal');
+  var res = document.getElementById('rtexr-' + id);
+  if(res){ res.className = 'nx-ex-r'; res.innerHTML = ''; }
+};
+
+/* la clave, fuera de la vista — igual que en los otros cinco cursos */
+if(typeof exDesarmar === 'function'){
+  var _rtExSinClave = rtExamen;
+  window.rtExamen = function(id){
+    var h = _rtExSinClave.apply(this, arguments);
+    if(!h) return h;
+    return exDesarmar(h, 'ruta', id, '.nx-q', 'data-c', '.nx-fb');
+  };
+} else {
+  window.rtExamen = rtExamen;
+}
+
+/* El contrato de COURSES.ruta vive en rt-panel.js, que es donde se
+   declara el curso. Se dejo alli a proposito: tener la definicion en
+   un sitio y la mitad de sus metodos en otro es como se desincronizan
+   las cosas. Aqui solo queda lo que es propio del examen. */
+
+/* ============================================================
+   EL CERTIFICADO
+   ------------------------------------------------------------
+   Se registra igual que lo hicieron Sanidad y Engorde, y por los
+   mismos tres sitios — que son tres y no uno, cosa que no es
+   evidente hasta que falla:
+
+   · AGCURSOSCERT  da el prefijo del codigo. Sin entrar aqui,
+     agCursoCert() cae en AGCURSOSCERT[0] y el codigo sale con el
+     prefijo del curso base (AGRO-RD). Paso: se vio midiendo.
+   · AGCERTDEF     da el texto impreso, con SUS nombres de campo
+     (title, org, intro, course, body, seal, accent, dur) — no
+     con los que uno se invente.
+   · agCertAprobados / agAprobadosDe cuentan los modulos que lleva
+     el estudiante; sin envolverlas devuelven 0 y el certificado
+     queda bloqueado aunque este aprobado.
+   ============================================================ */
+if(typeof AGCURSOSCERT !== 'undefined' && !AGCURSOSCERT.some(function(c){ return c.id === 'ruta'; })){
+  AGCURSOSCERT.push({id:'ruta', ico:'🐖', n:'Introducción a la Porcicultura Rentable', mods:5, pref:'AGRO-INTRO'});
+}
+if(typeof AGCERTDEF !== 'undefined' && !AGCERTDEF.ruta){
+  AGCERTDEF.ruta = {
+    title:'Certificado de Finalización',
+    org:'AgroAcademy RD · Formación agropecuaria profesional',
+    intro:'Certificamos que',
+    course:'INTRODUCCIÓN A LA PORCICULTURA RENTABLE',
+    body:'Ha completado satisfactoriamente el {curso}, compuesto por 5 módulos con evaluación por módulo, ' +
+         'sobre las variables que determinan la rentabilidad de una granja porcina, el cálculo de ingresos, ' +
+         'costos, margen y punto de equilibrio, el control de las fugas de dinero y el diagnóstico de sus ' +
+         'propias necesidades de formación.',
+    seal:'Curso Completado',
+    accent:'#2F7D4F',
+    dur:'5 módulos'
+  };
+  if(typeof agCertCfg === 'function') try{ agCertCfg('ruta'); }catch(e){}
+}
+if(typeof AGCERTPAL !== 'undefined' && !AGCERTPAL.ruta){
+  AGCERTPAL.ruta = {gold:'#9C7A1E', ink:'#1B2A20'};
+}
+/* que el contador de aprobados sepa de este curso */
+if(typeof window.agCertAprobados === 'function'){
+  var _agCertAprobadosRt = window.agCertAprobados;
+  window.agCertAprobados = function(curso){
+    if(curso === 'ruta' && typeof rtProgreso === 'function') return rtProgreso();
+    return _agCertAprobadosRt.apply(this, arguments);
+  };
+}
+/* y que agAprobadosDe cuente las claves rt:: de cada estudiante */
+if(typeof window.agAprobadosDe === 'function'){
+  var _agAprobadosDeRt = window.agAprobadosDe;
+  window.agAprobadosDe = function(curso, id){
+    if(curso === 'ruta'){
+      var n = 0;
+      for(var i = 1; i <= (typeof RTMOD !== 'undefined' ? RTMOD.length : 5); i++){
+        try{ var r = JSON.parse(localStorage.getItem('rt::' + id + '::exam_m' + i)); if(r && r.passed) n++; }catch(e){}
+      }
+      return n;
+    }
+    return _agAprobadosDeRt.apply(this, arguments);
+  };
+}
 
 
 /* ---------- rt-base.js ---------- */
@@ -32850,10 +33509,10 @@ function pcPanelBloqueado(){
       '<b>Porcicultura aplicada a RD</b>' +
       '<span class="ag-pend-n">' + (precio || 'curso base') + '</span>' +
       '<p>Este es el <b>curso base</b> de AgroAcademy y se adquiere aparte. ' +
-      'Mientras tanto tiene abierta la <b>Ruta del porcicultor</b>, que es gratis y no le cuesta nada empezar.</p>' +
+      'Mientras tanto tiene abierta la <b>Introducción a la Porcicultura Rentable</b>, que es gratis y no le cuesta nada empezar.</p>' +
       '<div class="ag-pend-acc">' +
         '<button class="btn btn-primary" onclick="agAbrirPago(\'porcicultura\')">🔓 Desbloquear curso</button>' +
-        '<button class="btn btn-ghost" onclick="openRuta()">Empezar gratis la Ruta</button>' +
+        '<button class="btn btn-ghost" onclick="openRuta()">Empezar el curso gratuito</button>' +
       '</div>' +
       '<p class="ag-pend-pie">Si ya transfirió, envíe el comprobante al instructor: se habilita en un momento desde el panel.</p>' +
     '</div></section></div></div>';
@@ -32998,7 +33657,7 @@ function pcColumnaBase(html){
   var n = document.createElement('p');
   n.className = 'adm-note';
   n.innerHTML = '<b>Porcicultura</b> se habilita aquí, uno por uno, igual que los demás cursos. ' +
-    'Un usuario nuevo entra y solo encuentra abierta la <b>Ruta del porcicultor</b>, que es gratis; ' +
+    'Un usuario nuevo entra y solo encuentra abierta la <b>Introducción a la Porcicultura Rentable</b>, que es gratis; ' +
     'el resto se le va habilitando según vaya pagando. ' +
     'El <b>estado de la cuenta</b> sigue sirviendo para otra cosa: decide si la persona puede usar la plataforma.';
   if(notas.length) notas[0].parentNode.insertBefore(n, notas[0]);
@@ -33051,6 +33710,11 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
+
+
+
+
 
 
 
