@@ -30568,15 +30568,25 @@ function rtNav(){
         '<span class="nx-nn" style="' + (RTCUR === m.n ? 'background:' + m.ac + ';color:#fff' : '') + '">' +
         (v ? '✓' : (abierto ? m.num : '🔒')) + '</span> ' + esc(m.t) + '</button>';
     }).join('') +
-    '<button class="nx-nl rt-nl-fin' + (RTCUR > RTMOD.length ? ' on' : '') + '" onclick="rtIr(' + (RTMOD.length + 1) + ')">' +
-      '<span class="nx-nn">🚀</span> Esto es solo el comienzo</button>';
+    (function(){
+      var fin = RTMOD.length + 1;
+      var libre = (typeof rtDesbloq === 'function') ? rtDesbloq(fin) : true;
+      return '<button class="nx-nl rt-nl-fin' + (RTCUR > RTMOD.length ? ' on' : '') +
+        (libre ? '' : ' rt-nl-lock') + '" onclick="rtIr(' + fin + ')"' +
+        (libre ? '' : ' title="Apruebe los cinco módulos"') + '>' +
+        '<span class="nx-nn">' + (libre ? '🚀' : '🔒') + '</span> Esto es solo el comienzo</button>';
+    })();
 }
 
 function rtIr(id){
-  /* El candado solo muerde si el instructor lo encendio (RTGATE). De
-     fabrica esta apagado y esta guarda no hace nada. */
-  if(typeof rtDesbloq === 'function' && id >= 1 && id <= RTMOD.length && !rtDesbloq(id)){
-    if(typeof toast === 'function') toast('Apruebe antes el módulo ' + (id - 1), '🔒');
+  /* El curso avanza de uno en uno mientras RTGATE este encendido, que es
+     como viene. La portada (0) siempre esta abierta. */
+  if(typeof rtDesbloq === 'function' && id >= 1 && !rtDesbloq(id)){
+    if(typeof toast === 'function'){
+      toast(id > RTMOD.length
+        ? 'Apruebe los ' + RTMOD.length + ' módulos para llegar aquí'
+        : 'Apruebe antes el módulo ' + (id - 1), '🔒');
+    }
     return;
   }
   RTCUR = id; rtPinta(); rtNav();
@@ -30630,9 +30640,19 @@ window.openRuta = function(){
   }
   ov.classList.toggle('enfoque', RTENFOQUE);
   document.body.style.overflow = 'hidden';
+  /* Se vuelve a donde se dejo — pero PASANDO POR EL CANDADO. Esta linea
+     asignaba RTCUR directamente y se saltaba la guarda de rtIr: una
+     posicion guardada cuando el candado estaba apagado (o el avance
+     borrado despues) devolvia al estudiante a un modulo cerrado, y la
+     pantalla se quedaba en blanco. Si la guardada ya no esta permitida,
+     se baja al ultimo modulo que si lo este. */
   var pos = 0;
   try{ pos = parseInt(localStorage.getItem('rt_pos') || '0', 10) || 0; }catch(e){}
-  RTCUR = (pos >= 0 && pos <= RTMOD.length + 1) ? pos : 0;
+  if(!(pos >= 0 && pos <= RTMOD.length + 1)) pos = 0;
+  if(typeof rtDesbloq === 'function'){
+    while(pos >= 1 && !rtDesbloq(pos)) pos--;
+  }
+  RTCUR = pos;
   rtPinta(); rtNav();
   setTimeout(fuera, 60);
 };
@@ -33176,13 +33196,14 @@ if(typeof window.agCursoActivo === 'function'){
        entrada de veinte minutos: frenar ahí a alguien que
        todavía no ha pagado nada es perderlo, no evaluarlo.
 
-   2 · EL CANDADO ENTRE MÓDULOS EXISTE PERO VIENE APAGADO.
-       Se pidieron las dos cosas —«que se desbloquee módulo tras
-       módulo» y, al elegir, la opción sin bloqueo—, así que se
-       implementan las dos: RTGATE está en false de fábrica y el
-       instructor lo enciende desde el panel con un interruptor,
-       igual que en Formulación, Reproducción, Sanidad y Engorde.
-       Encendido, el módulo N+1 no abre hasta aprobar el N.
+   2 · EL CANDADO ENTRE MÓDULOS VIENE ENCENDIDO.
+       El curso avanza de uno en uno: el módulo N+1 no abre hasta
+       aprobar el N, y la pantalla final —donde está el
+       certificado— no abre hasta aprobar los cinco. El primero
+       siempre está abierto, que si no nadie empieza.
+       Sigue siendo un interruptor: el instructor puede apagarlo
+       desde el panel, igual que en los otros cursos, y entonces
+       los cinco módulos quedan libres.
 
    AVISO SOBRE EL AVANCE VIEJO: quien tuviera módulos marcados
    con la casilla antigua ('rt::<alumno>::lec<N>') no los ve
@@ -33191,7 +33212,7 @@ if(typeof window.agCursoActivo === 'function'){
    ============================================================ */
 
 /* ---------- configuración, como la de los demás ---------- */
-var RTPASS = 70, RTGATE = false;
+var RTPASS = 70, RTGATE = true;
 (function rtCargarCfg(){
   try{
     var c = JSON.parse(localStorage.getItem('rt_cfg') || '{}') || {};
@@ -33329,6 +33350,9 @@ window.rtCompleto = function(id){ return rtProgreso(id) >= RTMOD.length; };
 function rtDesbloq(n){
   if(rtEsInstructor()) return true;
   if(!RTGATE) return true;
+  /* La pantalla final (RTMOD.length + 1) es donde vive el certificado y
+     la recomendacion: se gana aprobando los cinco, no saltando. */
+  if(n > RTMOD.length) return rtProgreso() >= RTMOD.length;
   return n <= 1 || rtAprob(n - 1);
 }
 window.rtDesbloq = rtDesbloq;
@@ -33820,6 +33844,8 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
+
 
 
 
