@@ -21401,11 +21401,27 @@ function agCampusCabecera(){
     var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === SESSION.id; })[0];
     nombre = s ? String(s.name || '').split(' ')[0] : '';
   }catch(e){}
+  /* «Hola de nuevo» y «Continúe» a alguien que acaba de crear su cuenta y
+     no ha abierto nada suena a error, porque lo es: no hay nada que
+     continuar. Se mira si tiene algún módulo aprobado en cualquier curso
+     y se saluda en consecuencia. Es el primer texto que lee un usuario
+     nuevo, y es justo el que estaba mal. */
+  var estrena = true;
+  try{
+    var quien = agCampusUid();
+    estrena = !agCursosVisibles().some(function(id){
+      try{ return (COURSES[id].count(quien) || 0) > 0; }catch(e){ return false; }
+    });
+  }catch(e){ estrena = false; }
+
   return '<header class="agc-head">' +
     '<div class="agc-head-t">' +
       '<span class="agc-eyebrow">AgroAcademy RD · Campus</span>' +
-      '<h1>Hola de nuevo' + (nombre ? ', <b>' + agEsc(nombre) + '</b>' : '') + '</h1>' +
-      '<p>Continúe desarrollando sus conocimientos.</p>' +
+      '<h1>' + (estrena ? 'Bienvenido a AgroAcademy' : 'Hola de nuevo') +
+        (nombre ? ', <b>' + agEsc(nombre) + '</b>' : '') + '</h1>' +
+      '<p>' + (estrena
+        ? 'Empiece por el curso gratuito: veinte minutos y sabrá qué le toca aprender.'
+        : 'Continúe desarrollando sus conocimientos.') + '</p>' +
     '</div>' +
     '<button class="agc-salir" onclick="if(confirm(\'¿Cerrar sesión?\')) logout();">Cerrar sesión</button>' +
   '</header>';
@@ -22853,6 +22869,7 @@ function agOrdenCss(){
 }
 
 </script>
+
 
 
 
@@ -25931,6 +25948,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
 
 
 
@@ -30354,6 +30372,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -33801,6 +33820,7 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
 
 
 
