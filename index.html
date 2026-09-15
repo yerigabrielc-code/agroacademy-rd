@@ -21168,7 +21168,12 @@ var AGCAMPUSCSS = `
 .agc-bar-n{ display:block; font-family:var(--mono); font-size:12px; color:var(--muted); margin-top:7px }
 
 /* ---------- rejilla de cursos ---------- */
-.agc-rejilla{ display:grid; gap:18px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)) }
+.agc-rejilla{ display:grid; gap:18px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)) ;
+  /* Todas las filas del mismo alto. Por defecto cada fila se dimensiona
+     por su propio contenido, asi que la de arriba salia 24px mas alta que
+     la de abajo y las seis tarjetas no cuadraban entre si. Con 1fr todas
+     miden lo que la mas alta. */
+  grid-auto-rows:1fr }
 .agc-card{ display:flex; flex-direction:column; overflow:hidden; border-radius:20px;
   background:color-mix(in srgb,var(--panel) 86%,transparent); border:1px solid var(--border);
   -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
@@ -21195,7 +21200,31 @@ var AGCAMPUSCSS = `
   line-height:1.24; color:var(--text); padding-right:52px }
 .agc-card-c p{ margin:0 0 14px; font-size:14.5px; line-height:1.55; color:var(--text-2); flex:1 }
 .agc-card-meta{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
-  font-family:var(--mono); font-size:12px; color:var(--muted) }
+  font-family:var(--mono); font-size:12px; color:var(--muted);
+  /* DOS lineas reservadas, no una. La tarjeta del curso gratis mete aqui
+     tres cosas —el chip «Gratis», los modulos y los aprobados— y se le va
+     a dos lineas, mientras que a las demas les basta una. Eso desplazaba su
+     fila 34px respecto a la tarjeta de al lado. Reservando el mismo alto en
+     las seis, la linea de «módulos» cae a la misma altura en todas. */
+  min-height:40px; align-items:flex-start; align-content:flex-start }
+
+/* ---------- que las seis tarjetas cuadren entre si ----------
+   No cuadraban porque no tenian la misma anatomia: la abierta llevaba
+   barra de progreso y la bloqueada no, asi que la linea de «módulos» y
+   los botones caian a distinta altura en tarjetas vecinas.
+
+   Se resuelve reservando la fila de la barra SIEMPRE. En una tarjeta
+   bloqueada no hay progreso que enseñar —seria mentira pintar una barra
+   a cero— pero el hueco si tiene que estar, o la de al lado se descoloca.
+   La descripcion sigue con flex:1 y es la que absorbe el sobrante, de
+   modo que todo lo de abajo queda anclado al pie. */
+/* Dos lineas minimas para que una descripcion muy corta no encoja la
+   tarjeta. Reservar cuatro no servia de nada: el <p> lleva flex:1 y crece
+   solo; lo que decide el alto es la FILA de la rejilla, y eso se arregla
+   ahi abajo con grid-auto-rows. */
+.agc-card-c > p{ min-height:3.1em }
+.agc-card.agc-lock .agc-card-meta{ margin-bottom:calc(6px + 12px) }
+.agc-card-c h3{ min-height:2.48em }
 .agc-precio{ color:var(--amber-d); font-weight:700 }
 .agc-card-cta{ margin-top:16px; font-family:var(--sans); font-size:14px; font-weight:700;
   cursor:pointer; border-radius:12px; padding:12px 18px; width:100%;
@@ -21805,8 +21834,11 @@ if(typeof window.agCampusTarjeta === 'function' || typeof agCampusTarjeta === 'f
   window.agCampusTarjeta = function(id, i){
     var html = _agCampusTarjeta.call(this, id, i);
     var e = agEstadoCurso(id);
-    if(!e || e.tiene) return html;
-    /* el segundo botón va justo detrás del de desbloquear */
+    if(!e) return html;
+    /* Antes este boton solo salia en las tarjetas BLOQUEADAS, y por eso las
+       abiertas y las bloqueadas tenian distinta altura y no cuadraban entre
+       si. Va en todas: en una abierta tambien se quiere consultar el temario,
+       y ademas asi las seis tarjetas tienen la misma anatomia. */
     var ver = '<button class="agc-card-ver" onclick="agVerCurso(&#39;' + id + '&#39;)">Ver qué incluye →</button>';
     var corte = html.lastIndexOf('</button>');
     if(corte < 0) return html;
@@ -21951,11 +21983,42 @@ if(typeof window.agCampusCabecera === 'function' || typeof agCampusCabecera === 
   window.agCampusCabecera = function(){
     var h = _agCampusCabecera.apply(this, arguments);
     if(!agCampusEsVistaPrevia()) return h;
-    return h + '<div class="agf-aviso">👁️ <b>Vista de estudiante.</b> Así ve el campus alguien que acaba de ' +
-      'registrarse: con el curso base abierto y los demás bloqueados. Para volver a su panel, use ' +
-      '<b>Salir de la vista</b>.</div>';
+    /* El aviso decia «use Salir de la vista» pero en esta pantalla no habia
+       ningun control que hiciera eso: el unico boton visible era Cerrar
+       sesion, que es justo lo que no se quiere hacer. Ahora el aviso trae
+       el boton, y ademas se pone uno en la cabecera para tenerlo siempre a
+       mano sin bajar. exitPreview() ya existe: no se inventa nada. */
+    /* y uno arriba, junto a «Cerrar sesión»: es donde va el ojo, y ademas
+       evita que alguien cierre sesion por no encontrar la salida */
+    h = h.replace('<button class="agc-salir"',
+      '<button class="agc-volver-top" onclick="agVolverAlPanel()">← Volver al panel</button>' +
+      '<button class="agc-salir"');
+    return h + '<div class="agf-aviso agf-aviso-x">' +
+      '<span>👁️ <b>Vista de estudiante.</b> Así ve el campus alguien que acaba de ' +
+      'registrarse: con el curso gratuito abierto y los demás bloqueados.</span>' +
+      '<button class="agf-volver" onclick="agVolverAlPanel()">← Volver al panel</button>' +
+    '</div>';
   };
 }
+
+/* ------------------------------------------------------------
+   VOLVER AL PANEL SIN CERRAR SESION
+   ------------------------------------------------------------
+   exitPreview() ya existia; lo que faltaba era un boton que la
+   llamara desde el campus. Antes de salir se cierra cualquier
+   curso o ficha abierta: si no, el overlay se queda encima del
+   panel y parece que no ha pasado nada.
+   ------------------------------------------------------------ */
+window.agVolverAlPanel = function(){
+  ['rtCerrar','nxCerrar','rpCerrar','sbCerrar','egCerrar','agCerrarFicha','agCerrarPago','cerrarCursos']
+    .forEach(function(f){ try{ if(typeof window[f] === 'function') window[f](); }catch(e){} });
+  try{ document.body.style.overflow = ''; }catch(e){}
+  if(typeof exitPreview === 'function'){ try{ exitPreview(); return; }catch(e){} }
+  /* respaldo, por si exitPreview no estuviera: se sale a mano */
+  try{ if(typeof PREVIEW !== 'undefined') PREVIEW = false; }catch(e){}
+  try{ if(typeof showScreen === 'function') showScreen('admin'); }catch(e){}
+  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+};
 
 /* ------------------------------------------------------------
    6 · ESTILOS
@@ -21976,6 +22039,15 @@ if(typeof window.agCampusCabecera === 'function' || typeof agCampusCabecera === 
   color:var(--text-2); border:1px solid color-mix(in srgb,var(--amber) 34%,var(--border));
   background:color-mix(in srgb,var(--amber) 9%,transparent) }
 .agf-aviso b{ color:var(--text) }
+.agf-aviso-x{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:space-between }
+.agf-aviso-x > span{ flex:1 1 320px; min-width:0 }
+.agf-volver, .agc-volver-top{ flex:0 0 auto; cursor:pointer; font-family:var(--sans);
+  font-size:13px; font-weight:700; padding:9px 15px; border-radius:11px; white-space:nowrap;
+  color:var(--amber-d); background:color-mix(in srgb,var(--amber) 16%,transparent);
+  border:1px solid color-mix(in srgb,var(--amber) 46%,var(--border)); transition:all .16s }
+.agf-volver:hover, .agc-volver-top:hover{ background:var(--amber-d); color:#fff;
+  border-color:var(--amber-d); transform:translateY(-1px) }
+.agc-volver-top{ margin-right:9px }
 
 .agf-ov{ position:fixed; inset:0; z-index:9700; display:flex; align-items:center; justify-content:center;
   padding:24px; overflow:auto; background:rgba(10,14,11,.62); backdrop-filter:blur(7px) }
@@ -22128,7 +22200,9 @@ if(typeof window.agCampusTarjeta === 'function'){
     var html = _agCampusTarjetaAdm.apply(this, arguments);
     if(!agEsInstructorReal()) return html;
     var e = agEstadoCurso(id);
-    if(!e || e.tiene) return html;
+    if(!e) return html;
+    /* En todas las tarjetas, no solo en las bloqueadas: si aparece en unas si
+       y en otras no, al instructor se le descuadra la rejilla entera. */
     var boton = '<button class="agc-card-adm" onclick="agEntrarComoInstructor(&#39;' + id + '&#39;)" ' +
       'title="Solo el instructor ve este botón">🔑 Entrar como instructor</button>';
     var corte = html.lastIndexOf('</button>');
@@ -22868,7 +22942,450 @@ function agOrdenCss(){
   (document.body || document.documentElement).appendChild(s);
 }
 
+
+/* ---------- ag-admin.js ---------- */
+/* ============================================================
+   ACCESOS · UNA SOLA PANTALLA PARA GESTIONARLO TODO
+   ------------------------------------------------------------
+   LO QUE SE ENCONTRÓ AL AUDITAR, QUE ES LO QUE DECIDE EL DISEÑO:
+
+   · Los estudiantes YA son globales. Hay una sola lista STUDENTS
+     y NO existe ninguna lista paralela por curso. Nunca hizo
+     falta «crear un estudiante dentro de un curso»: lo único que
+     cambia de un curso a otro es el ACCESO.
+   · El acceso YA se concede con cinco funciones que existen:
+     pcDarAcceso, nxDarAcceso, rpDarAcceso, sbDarAcceso y
+     egDarAcceso, cada una sobre su propio mapa.
+   · El progreso YA se lee igual en los seis cursos:
+     COURSES[id].count(uid) sobre COURSES[id].n.
+   · El administrador NUNCA aprueba módulos. Las notas solo las
+     escriben los exámenes; el panel configura la regla (nota
+     mínima y bloqueo), no el resultado.
+
+   POR ESO ESTE BLOQUE NO CREA NINGÚN SISTEMA NUEVO. No inventa
+   un mapa de accesos, ni una tabla de inscripciones, ni un
+   estado paralelo. Es una PANTALLA que lee el contrato de
+   COURSES y escribe con las funciones que ya estaban. Si mañana
+   se añade un séptimo curso, aparece aquí solo.
+
+   Lo que sí cambia es la experiencia: donde había que pasar por
+   varias pestañas, ahora es
+       curso → lista de estudiantes → interruptor → progreso
+   en una sola vista.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · EL ADAPTADOR: LEER Y ESCRIBIR EL ACCESO DE CUALQUIER CURSO
+   ------------------------------------------------------------ */
+var AGDAR = {
+  porcicultura: 'pcDarAcceso',
+  nutricion:    'nxDarAcceso',
+  reproduccion: 'rpDarAcceso',
+  sanidad:      'sbDarAcceso',
+  engorde:      'egDarAcceso'
+};
+
+/* El curso gratuito no se concede: se tiene. Su enrolled() devuelve
+   true para cualquier cuenta que exista, así que un estudiante lo
+   tiene desde el segundo en que se registra, sin que nadie apruebe
+   nada. Es la única excepción y está marcada como tal. */
+function agAccAuto(curso){
+  try{ var C = COURSES[curso]; return !!(C && C.gratis); }catch(e){ return false; }
+}
+function agAccTiene(curso, s){
+  try{ return !!COURSES[curso].enrolled(s); }catch(e){ return false; }
+}
+function agAccPuede(curso){
+  return agAccAuto(curso) ? false : (typeof window[AGDAR[curso]] === 'function');
+}
+function agAccPon(curso, uid, v){
+  var f = AGDAR[curso];
+  if(!f || typeof window[f] !== 'function') return false;
+  try{ window[f](uid, !!v); return true; }catch(e){ return false; }
+}
+window.agAccPon = agAccPon;
+
+/* progreso, con el mismo contrato para los seis */
+function agAccAvance(curso, uid){
+  var hechos = 0, total = 0;
+  try{ hechos = COURSES[curso].count(uid) || 0; }catch(e){}
+  try{ total = COURSES[curso].n || 0; }catch(e){}
+  return {
+    hechos: hechos, total: total,
+    pct: total ? Math.round(hechos / total * 100) : 0,
+    completo: total > 0 && hechos >= total,
+    empezado: hechos > 0
+  };
+}
+window.agAccAvance = agAccAvance;
+
+/* ------------------------------------------------------------
+   2 · ESTADO DE LA PANTALLA (filtro y búsqueda)
+   ------------------------------------------------------------ */
+var AGACC = { filtro: 'todos', busca: '' };
+
+function agAccCurso(){
+  var id = null;
+  try{ id = (typeof ADM !== 'undefined' && ADM.course) ? ADM.course : null; }catch(e){}
+  if(id && typeof COURSES !== 'undefined' && COURSES[id]) return id;
+  return 'porcicultura';
+}
+function agAccAlumnos(){
+  var l = [];
+  try{ l = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s && s.status !== 'borrado'; }); }catch(e){}
+  return l;
+}
+
+/* ------------------------------------------------------------
+   3 · LA PANTALLA
+   ------------------------------------------------------------ */
+function agAdmAccesos(){
+  var curso = agAccCurso();
+  var C = null;
+  try{ C = COURSES[curso]; }catch(e){}
+  if(!C) return '<div class="adm-empty">No se pudo leer el curso seleccionado.</div>';
+
+  var auto = agAccAuto(curso);
+  var alum = agAccAlumnos();
+
+  /* el recuento se hace sobre TODOS, no sobre lo filtrado: si no, los
+     números bailan al escribir en el buscador y dejan de significar nada */
+  var con = 0, comp = 0, prog = 0;
+  alum.forEach(function(s){
+    var tiene = auto || agAccTiene(curso, s);
+    if(tiene) con++;
+    var a = agAccAvance(curso, s.id);
+    if(a.completo) comp++; else if(a.empezado) prog++;
+  });
+
+  var q = (AGACC.busca || '').toLowerCase();
+  var vista = alum.filter(function(s){
+    if(q){
+      var t = ((s.name || '') + ' ' + (s.email || '') + ' ' + (s.phone || '')).toLowerCase();
+      if(t.indexOf(q) < 0) return false;
+    }
+    var tiene = auto || agAccTiene(curso, s);
+    var a = agAccAvance(curso, s.id);
+    switch(AGACC.filtro){
+      case 'con':      return tiene;
+      case 'sin':      return !tiene;
+      case 'progreso': return a.empezado && !a.completo;
+      case 'completo': return a.completo;
+    }
+    return true;
+  });
+
+  return '<div class="aga">' +
+    agAccCabecera(C, curso, auto, alum.length, con, comp, prog) +
+    agAccBarra(curso, auto, alum.length, con) +
+    (alum.length
+      ? (vista.length
+          ? '<div class="aga-lista">' + vista.map(function(s){ return agAccFila(curso, s, auto); }).join('') + '</div>'
+          : '<div class="aga-nada">Ningún estudiante coincide con ese filtro.</div>')
+      : '<div class="aga-nada">Todavía no hay estudiantes registrados. En cuanto alguien cree su cuenta aparecerá aquí, ' +
+        'y podrá darle acceso a este curso desde esta misma pantalla.</div>') +
+  '</div>';
+}
+window.agAdmAccesos = agAdmAccesos;
+
+function agAccCabecera(C, curso, auto, total, con, comp, prog){
+  var precio = '';
+  try{ if(typeof AGPRECIOS !== 'undefined' && AGPRECIOS[curso] && AGPRECIOS[curso].usd != null) precio = 'US$ ' + AGPRECIOS[curso].usd; }catch(e){}
+  var publicado = true;
+  try{ publicado = C.published(); }catch(e){}
+
+  return '<header class="aga-cab">' +
+    '<div class="aga-cab-t">' +
+      '<span class="aga-ico">' + (C.icon || '📘') + '</span>' +
+      '<div>' +
+        '<b>' + agEsc(C.name || curso) + '</b>' +
+        '<span>' + C.n + ' módulos · ' +
+          (auto ? '<em class="aga-libre">🟢 Gratis · acceso automático</em>'
+                : (precio ? precio + ' · se habilita uno por uno' : 'se habilita uno por uno')) +
+          ' · ' + (publicado ? '🟢 Publicado' : '🔴 Oculto') +
+        '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="aga-kpis">' +
+      '<div><b>' + total + '</b><span>estudiantes</span></div>' +
+      '<div class="' + (auto ? 'ok' : (con ? 'ok' : '')) + '"><b>' + (auto ? total : con) + '</b><span>con acceso</span></div>' +
+      '<div><b>' + prog + '</b><span>⏳ en progreso</span></div>' +
+      '<div class="ok"><b>' + comp + '</b><span>✅ completados</span></div>' +
+    '</div>' +
+  '</header>';
+}
+
+function agAccBarra(curso, auto, total, con){
+  var f = [['todos', 'Todos'], ['con', '🔓 Con acceso'], ['sin', '🔒 Sin acceso'],
+           ['progreso', '⏳ En progreso'], ['completo', '✅ Completados']];
+  return '<div class="aga-barra">' +
+    '<input class="aga-buscar" type="search" placeholder="Buscar por nombre, correo o teléfono…" ' +
+      'value="' + agEsc(AGACC.busca) + '" oninput="agAccBusca(this.value)">' +
+    '<div class="aga-filtros">' + f.map(function(x){
+      return '<button class="aga-f' + (AGACC.filtro === x[0] ? ' on' : '') +
+        '" onclick="agAccFiltra(\'' + x[0] + '\')">' + x[1] + '</button>';
+    }).join('') + '</div>' +
+    (auto
+      ? '<p class="aga-nota">Este es el curso de entrada: <b>todo el que se registra lo tiene desde el primer momento</b>. ' +
+        'No hay nada que habilitar aquí — y por eso los interruptores salen fijos.</p>'
+      : (total
+          ? '<div class="aga-masa">' +
+              '<button class="aga-m" onclick="agAccTodos(true)">Dar acceso a los ' + total + '</button>' +
+              '<button class="aga-m alt" onclick="agAccTodos(false)">Quitárselo a todos</button>' +
+              '<span>' + con + ' de ' + total + ' lo tienen ahora</span>' +
+            '</div>'
+          : '')) +
+  '</div>';
+}
+
+function agAccFila(curso, s, auto){
+  var tiene = auto || agAccTiene(curso, s);
+  var a = agAccAvance(curso, s.id);
+  var activo = s.status === 'activo' || s.status === 'completado';
+
+  var estadoProg = a.completo ? '<span class="aga-ch ok">✅ Completado</span>'
+                 : (a.empezado ? '<span class="aga-ch prog">⏳ En progreso</span>'
+                               : '<span class="aga-ch">Sin empezar</span>');
+
+  /* el certificado no es un estado aparte: se gana completando */
+  var cert = '';
+  if(a.completo){
+    var sin = false;
+    try{ sin = !!COURSES[curso].sinCertificado; }catch(e){}
+    cert = sin ? '' : '<span class="aga-ch cert">🎓 Certificado disponible</span>';
+  }
+
+  var interruptor = auto
+    ? '<span class="aga-auto" title="El curso gratuito lo tiene todo el mundo">🟢 Automático</span>'
+    : (agAccPuede(curso)
+        ? '<label class="aga-sw"><input type="checkbox"' + (tiene ? ' checked' : '') +
+            ' onchange="agAccToggle(\'' + agEsc(s.id) + '\', this.checked)">' +
+            '<span></span><em>' + (tiene ? '🔓 Con acceso' : '🔒 Bloqueado') + '</em></label>'
+        : '<span class="aga-ch">' + (tiene ? '🔓 Con acceso' : '🔒 Bloqueado') + '</span>');
+
+  return '<article class="aga-fila' + (tiene ? ' tiene' : '') + '">' +
+    '<div class="aga-quien">' +
+      '<span class="aga-av">' + agEsc((s.name || '?').trim().charAt(0).toUpperCase()) + '</span>' +
+      '<div>' +
+        '<b>' + agEsc(s.name || s.id) + '</b>' +
+        '<span>' + agEsc(s.email || '') + (s.phone ? ' · ' + agEsc(s.phone) : '') + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="aga-cuenta">' +
+      (activo ? '<span class="aga-ch ok">🟢 Activo</span>' : '<span class="aga-ch mal">🔴 ' +
+        agEsc((s.status || 'inactivo').charAt(0).toUpperCase() + (s.status || 'inactivo').slice(1)) + '</span>') +
+    '</div>' +
+    '<div class="aga-acceso">' + interruptor + '</div>' +
+    '<div class="aga-prog">' +
+      '<div class="aga-bar"><i style="width:' + a.pct + '%"></i></div>' +
+      '<span class="aga-prog-n">' + a.hechos + ' de ' + a.total + ' módulos · ' + a.pct + ' %</span>' +
+      '<div class="aga-chips">' + estadoProg + cert + '</div>' +
+    '</div>' +
+  '</article>';
+}
+
+/* ------------------------------------------------------------
+   4 · ACCIONES
+   ------------------------------------------------------------ */
+window.agAccBusca = function(v){
+  AGACC.busca = v || '';
+  agAccRepinta(true);   /* true: conservar el foco y el cursor del buscador */
+};
+window.agAccFiltra = function(f){
+  AGACC.filtro = f;
+  agAccRepinta();
+};
+window.agAccToggle = function(uid, v){
+  var curso = agAccCurso();
+  if(!agAccPon(curso, uid, v)){
+    if(typeof toast === 'function') toast('No se pudo cambiar el acceso de este curso', '⚠️');
+  }
+  agAccRepinta();
+};
+window.agAccTodos = function(v){
+  var curso = agAccCurso();
+  var alum = agAccAlumnos();
+  if(!alum.length) return;
+  if(!confirm((v ? 'Dar acceso a ' : 'Quitar el acceso a ') + alum.length +
+              ' estudiante(s) en «' + (COURSES[curso].name || curso) + '»?')) return;
+  alum.forEach(function(s){ agAccPon(curso, s.id, v); });
+  agAccRepinta();
+};
+
+/* Repintar SOLO esta vista. Llamar a renderAdmin() entero perdería el
+   texto del buscador y el scroll en cada pulsación. */
+function agAccRepinta(conFoco){
+  var b = document.getElementById('adminBody');
+  if(!b) return;
+  var caja = b.querySelector('.aga');
+  if(!caja) return;
+  var campo = caja.querySelector('.aga-buscar');
+  var pos = campo ? campo.selectionStart : null;
+  var sc = b.scrollTop;
+  caja.outerHTML = agAdmAccesos();
+  b.scrollTop = sc;
+  if(conFoco){
+    var n = b.querySelector('.aga-buscar');
+    if(n){ n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} }
+  }
+}
+window.agAccRepinta = agAccRepinta;
+
+/* ------------------------------------------------------------
+   5 · ENGANCHARLA AL PANEL SIN TOCAR SU NÚCLEO
+   admTab/renderAdmin son del núcleo: se envuelven, no se editan.
+   ------------------------------------------------------------ */
+(function agAccMenu(){
+  var poner = function(){
+    var menu = document.getElementById('adminMenu');
+    if(!menu || menu.querySelector('[data-t="acceso"]')) return;
+    var b = document.createElement('button');
+    b.setAttribute('data-t', 'acceso');
+    b.innerHTML = '<span class="mi">🔑</span> Accesos';
+    b.setAttribute('onclick', "admTab('acceso')");
+    /* va justo debajo de Estudiantes: es su continuación natural */
+    var ref = menu.querySelector('[data-t="students"]');
+    if(ref && ref.nextSibling) menu.insertBefore(b, ref.nextSibling);
+    else menu.appendChild(b);
+  };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+  [200, 700, 1600].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminAg = window.renderAdmin;
+  window.renderAdmin = function(){
+    var esNuestra = false;
+    try{ esNuestra = (typeof ADM !== 'undefined' && ADM.tab === 'acceso'); }catch(e){}
+    if(!esNuestra) return _renderAdminAg.apply(this, arguments);
+    /* el núcleo no conoce esta pestaña y caería en el dashboard */
+    try{
+      document.querySelectorAll('#adminMenu button[data-t]').forEach(function(b){
+        b.classList.toggle('on', b.dataset.t === 'acceso');
+      });
+      var tt = document.getElementById('adminTitle');
+      if(tt) tt.textContent = 'Accesos y progreso';
+      var root = document.getElementById('adminBody');
+      if(root) root.innerHTML = agAdmAccesos();
+    }catch(e){
+      return _renderAdminAg.apply(this, arguments);
+    }
+  };
+}
+
+/* ------------------------------------------------------------
+   6 · ESTILOS
+   ------------------------------------------------------------ */
+(function agAccCss(){
+  if(document.getElementById('agAccCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agAccCss';
+  s.textContent = [
+    '.aga{display:grid;gap:16px}',
+
+    /* cabecera del curso */
+    '.aga-cab{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;',
+      'padding:16px 18px;border:1px solid var(--border,#3a3a3a);border-radius:14px;',
+      'background:color-mix(in srgb,var(--green,#2F7D4F) 6%,transparent)}',
+    '.aga-cab-t{display:flex;align-items:center;gap:13px;min-width:0}',
+    '.aga-ico{font-size:30px;line-height:1}',
+    '.aga-cab-t b{display:block;font-size:17px;font-weight:800;color:var(--text,#eee);line-height:1.25}',
+    '.aga-cab-t > div > span{display:block;font-size:12.5px;color:var(--muted,#8a8a8a);margin-top:3px}',
+    '.aga-libre{font-style:normal;color:#3FA86A;font-weight:700}',
+    '.aga-kpis{display:flex;gap:10px;flex-wrap:wrap}',
+    '.aga-kpis > div{min-width:88px;padding:9px 13px;border-radius:11px;text-align:center;',
+      'border:1px solid var(--border,#3a3a3a);background:color-mix(in srgb,var(--text,#fff) 4%,transparent)}',
+    '.aga-kpis b{display:block;font-size:21px;font-weight:800;color:var(--text,#eee);line-height:1}',
+    '.aga-kpis span{display:block;font-size:11px;color:var(--muted,#8a8a8a);margin-top:4px}',
+    '.aga-kpis .ok b{color:#3FA86A}',
+
+    /* barra de busqueda y filtros */
+    '.aga-barra{display:grid;gap:11px}',
+    '.aga-buscar{width:100%;padding:11px 14px;border-radius:11px;font:inherit;font-size:14px;',
+      'border:1px solid var(--border,#3a3a3a);background:transparent;color:var(--text,#eee)}',
+    '.aga-buscar:focus{outline:2px solid color-mix(in srgb,var(--green,#2F7D4F) 60%,transparent);outline-offset:1px}',
+    '.aga-filtros{display:flex;gap:7px;flex-wrap:wrap}',
+    '.aga-f{padding:7px 13px;border-radius:999px;font:inherit;font-size:12.5px;cursor:pointer;',
+      'border:1px solid var(--border,#3a3a3a);background:transparent;color:var(--text-2,#bbb)}',
+    '.aga-f:hover{color:var(--text,#eee);border-color:var(--text-2,#bbb)}',
+    '.aga-f.on{background:var(--green,#2F7D4F);border-color:var(--green,#2F7D4F);color:#fff;font-weight:700}',
+    '.aga-masa{display:flex;gap:9px;align-items:center;flex-wrap:wrap}',
+    '.aga-m{padding:9px 15px;border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;',
+      'border:1px solid var(--green,#2F7D4F);background:var(--green,#2F7D4F);color:#fff}',
+    '.aga-m.alt{background:transparent;color:var(--text-2,#bbb);border-color:var(--border,#3a3a3a)}',
+    '.aga-m.alt:hover{border-color:#B03A2E;color:#B03A2E}',
+    '.aga-masa > span{font-size:12.5px;color:var(--muted,#8a8a8a)}',
+    '.aga-nota{margin:0;padding:11px 14px;border-radius:11px;font-size:13px;line-height:1.6;',
+      'color:var(--text-2,#bbb);background:color-mix(in srgb,#3FA86A 10%,transparent);',
+      'border:1px solid color-mix(in srgb,#3FA86A 30%,transparent)}',
+
+    /* la lista */
+    '.aga-lista{display:grid;gap:9px}',
+    '.aga-fila{display:grid;gap:10px;align-items:center;padding:13px 15px;border-radius:13px;',
+      'border:1px solid var(--border,#3a3a3a);background:color-mix(in srgb,var(--text,#fff) 2%,transparent);',
+      'grid-template-columns:1fr}',
+    '@media(min-width:900px){.aga-fila{grid-template-columns:minmax(0,2.1fr) auto minmax(150px,auto) minmax(0,1.5fr)}}',
+    '.aga-fila.tiene{border-color:color-mix(in srgb,#3FA86A 34%,transparent)}',
+    '.aga-quien{display:flex;align-items:center;gap:11px;min-width:0}',
+    /* La inicial iba con color:var(--text) sobre un verde muy diluido. En el
+       panel claro --text no esta definido en ese ambito y caia al #eee de
+       respaldo: letra casi blanca sobre fondo casi blanco, ilegible. Se
+       resuelve con un par fijo que funciona en los dos temas. */
+    '.aga-av{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;',
+      'background:#2F7D4F;color:#fff;font-weight:800;font-size:14px;letter-spacing:.01em}',
+    /* OJO CON LA CASCADA: «.aga-quien span» es (0,1,1) y «.aga-av» es
+       (0,1,0), asi que la regla del correo le ganaba al avatar y le
+       imponia su color apagado y sus 12px — la inicial quedaba ilegible.
+       Se acota la regla a la linea de texto (que cuelga de un div) en vez
+       de subirle la especificidad al avatar, que solo habria movido la
+       pelea de sitio. */
+    '.aga-quien > div > b{display:block;font-size:14.5px;font-weight:700;color:var(--text,#eee);line-height:1.3}',
+    '.aga-quien > div > span{display:block;font-size:12px;color:var(--muted,#8a8a8a);',
+      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+
+    '.aga-ch{display:inline-block;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:999px;',
+      'background:color-mix(in srgb,var(--text,#fff) 7%,transparent);color:var(--text-2,#bbb);white-space:nowrap}',
+    '.aga-ch.ok{background:color-mix(in srgb,#2F7D4F 14%,transparent);color:#1F6B41}',
+    '.aga-ch.mal{background:color-mix(in srgb,#B03A2E 14%,transparent);color:#B03A2E}',
+    '.aga-ch.prog{background:color-mix(in srgb,#C08A12 18%,transparent);color:#8A6208}',
+    '.aga-ch.cert{background:color-mix(in srgb,#6B4FA0 16%,transparent);color:#6B4FA0}',
+
+    /* el interruptor */
+    '.aga-sw{display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none}',
+    '.aga-sw input{position:absolute;opacity:0;width:0;height:0}',
+    '.aga-sw > span{width:40px;height:22px;border-radius:999px;background:var(--border,#3a3a3a);',
+      'position:relative;transition:background .16s;flex:0 0 auto}',
+    '.aga-sw > span::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;',
+      'border-radius:50%;background:#fff;transition:transform .16s}',
+    '.aga-sw input:checked + span{background:#3FA86A}',
+    '.aga-sw input:checked + span::after{transform:translateX(18px)}',
+    '.aga-sw input:focus-visible + span{outline:2px solid #3FA86A;outline-offset:2px}',
+    '.aga-sw em{font-style:normal;font-size:12px;font-weight:600;color:var(--text-2,#bbb);white-space:nowrap}',
+    '.aga-auto{font-size:12px;font-weight:700;color:#3FA86A;white-space:nowrap}',
+
+    /* progreso */
+    '.aga-prog{display:grid;gap:5px;min-width:0}',
+    '.aga-bar{height:7px;border-radius:4px;background:var(--border,#3a3a3a);overflow:hidden}',
+    '.aga-bar i{display:block;height:100%;border-radius:4px;background:#3FA86A;transition:width .3s ease}',
+    '.aga-prog-n{font-size:11.5px;color:var(--muted,#8a8a8a);font-variant-numeric:tabular-nums}',
+    '.aga-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}',
+
+    '.aga-nada{padding:26px 20px;border-radius:13px;text-align:center;font-size:14px;line-height:1.65;',
+      'color:var(--muted,#8a8a8a);border:1px dashed var(--border,#3a3a3a)}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
+
+
+
+
 
 
 
@@ -25948,6 +26465,14 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
+
+
+
+
+
 
 
 
@@ -30373,6 +30898,14 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
+
+
+
+
+
+
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -33023,9 +33556,11 @@ if(typeof window.agCampusTarjeta === 'function'){
     var html = _agCampusTarjetaRt.apply(this, arguments);
     var C = (typeof COURSES !== 'undefined') ? COURSES[id] : null;
     if(!C || !C.gratis) return html;
-    /* la etiqueta va en la fila de datos, junto a los módulos */
-    html = html.replace('<div class="agc-card-meta">',
-      '<div class="agc-card-meta"><span class="agc-gratis">🟢 Gratis</span>');
+    /* El chip «🟢 Gratis» iba aqui, en la fila de datos. Se retira: la
+       portada de la tarjeta YA lleva la etiqueta «GRATIS · EMPIECE AQUÍ»,
+       asi que decia lo mismo dos veces — y de paso metia un tercer elemento
+       en esa fila, que se iba a dos lineas y descuadraba esta tarjeta
+       respecto a las otras cinco. Menos ruido y encajan. */
     /* y el boton dice lo que hace: el generico "Empezar" no distingue
        este curso de uno de pago, que es justo lo que hay que distinguir.
        Se toca el texto por el DOM y no con una expresion regular porque
@@ -33844,6 +34379,14 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
+
+
+
+
+
+
+
 
 
 
