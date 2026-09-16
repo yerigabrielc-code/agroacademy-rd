@@ -24861,6 +24861,7 @@ function agNvPinta(w){
   w.innerHTML =
     agNvHero() +
     '<div class="nva-cuerpo">' +
+      agNvAvisoPrevia() +
       agNvMetricas() +
       agNvPuerta() +
       agNvMisCursos() +
@@ -24869,6 +24870,26 @@ function agNvPinta(w){
       agNvPie() +
     '</div>';
   agNvAnima(w);
+}
+
+/* EL AVISO DE VISTA PREVIA — se había perdido, y era mío el fallo.
+   Cuando el instructor pulsa «Ver como estudiante», tiene que saber en
+   todo momento que está mirando prestado, y tener la salida a mano. Ese
+   aviso lo añadía el campus anterior; al reemplazarlo entero se quedó
+   fuera. Se recupera con las mismas clases, para que si mañana cambia,
+   cambie en un solo sitio. */
+function agNvAvisoPrevia(){
+  var previa = false;
+  try{
+    if(typeof agCampusEsVistaPrevia === 'function') previa = !!agCampusEsVistaPrevia();
+    else previa = !!(typeof PREVIEW !== 'undefined' && PREVIEW);
+  }catch(e){}
+  if(!previa) return '';
+  return '<div class="agf-aviso agf-aviso-x nva-previa">' +
+    '<span>👁️ <b>Vista de estudiante.</b> Así ve el campus alguien que acaba de ' +
+    'registrarse: con el curso gratuito abierto y los demás bloqueados.</span>' +
+    '<button class="agf-volver" onclick="agVolverAlPanel()">← Volver al panel</button>' +
+  '</div>';
 }
 
 /* deja el contenedor como estaba: sin la clase del campus no queda
@@ -25209,6 +25230,16 @@ function agNvAnima(w){
     '.nva-card-btn{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}',
     '.nva-card-btn .nva-cta{flex:1 1 auto}',
 
+    /* el aviso de vista previa, vestido para fondo oscuro. Se nombra por
+       atributo y no con su clase, para no pisar al bloque que la declara */
+    '.nva-w [class~="agf-aviso"]{margin:30px 0 -12px;padding:14px 18px;border-radius:14px;',
+      'color:var(--nva-tx2)!important;background:rgba(232,178,58,.11)!important;',
+      'border:1px solid rgba(232,178,58,.36)!important}',
+    '.nva-w [class~="agf-aviso"] b{color:var(--nva-gold-hi)!important}',
+    '.nva-w [class~="agf-volver"]{color:#1A1206!important;font-weight:700;',
+      'background:linear-gradient(120deg,var(--nva-gold-hi),var(--nva-gold))!important;',
+      'border:0!important;border-radius:11px;padding:9px 15px;cursor:pointer}',
+
     /* ---------- certificados: el mismo contenido, otra ropa ---------- */
     '.nvac-sec{margin:0}',
     '.nvac-h2{font-family:var(--display);font-size:24px;font-weight:800;color:var(--nva-tx);margin:0 0 18px}',
@@ -25423,7 +25454,201 @@ function agPubArreglaNodo(raiz){
   if(document.body) arranca(); else addEventListener('DOMContentLoaded', arranca);
 })();
 
+
+/* ---------- ag-admincss.js ---------- */
+/* ============================================================
+   EL PANEL DEL INSTRUCTOR, EN EL MISMO IDIOMA QUE EL CAMPUS
+   ------------------------------------------------------------
+   El campus del estudiante ya es oscuro y técnico. El panel
+   seguía en el tema claro de siempre, con la barra lateral en
+   azul pizarra. Dos productos distintos en la misma plataforma.
+
+   POR QUÉ ESTO ES SOLO CSS, Y NO VA A SER OTRA COSA
+
+   El panel es la parte con más maquinaria de AgroAcademy:
+   accesos, grupos, tablas, conmutador de curso, publicación,
+   certificados. Tocar su JavaScript para cambiar el aspecto
+   sería arriesgar lo que funciona a cambio de nada. Este archivo
+   no define ni envuelve una sola función: solo pinta.
+
+   CÓMO REPINTA TANTO CON TAN POCO
+
+   Casi todo el panel ya se pinta con los tokens del diseño
+   —var(--panel), var(--border), var(--text)—, así que basta con
+   redefinirlos dentro de .adminp y la pantalla entera cambia
+   sola. Lo que quedaba con colores fijos (la barra lateral) se
+   repinta a mano, y poco más.
+
+   Eso tiene una ventaja que no es estética: si mañana usted
+   añade una pantalla nueva al panel, nace ya vestida.
+   ============================================================ */
+
+(function agAdmCss(){
+  if(document.getElementById('agAdmCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agAdmCss';
+  s.textContent = [
+
+    /* ---------- los tokens, redefinidos solo aquí dentro ---------- */
+    '.adminp{',
+      '--nvd-void:#070B09; --nvd-deep:#0E1613; --nvd-raise:#16211C;',
+      '--nvd-line:rgba(150,240,199,.11); --nvd-line2:rgba(150,240,199,.26);',
+      '--nvd-gold:#E8B23A; --nvd-gold-hi:#FFD97A;',
+      '--nvd-leaf:#46E39B; --nvd-ion:#41C9EC;',
+      /* y con esto se repinta todo lo que usa los tokens del diseño */
+      '--bg:#070B09; --panel:#0E1613; --panel-2:#16211C;',
+      '--border:rgba(150,240,199,.13);',
+      '--text:#E9F2EC; --text-2:#B4C6BB; --muted:#7C9187;',
+      '--amber:#E8B23A; --amber-d:#FFD97A;',
+      'background:#070B09; color:#E9F2EC;',
+    '}',
+    '.adminp, .adminp *{scrollbar-color:rgba(150,240,199,.25) transparent}',
+
+    /* ---------- la barra lateral: traía colores fijos ---------- */
+    '.adminp-side{background:linear-gradient(185deg,#0D1512,#080D0B)!important;',
+      'color:#B4C6BB!important;border-right:1px solid rgba(150,240,199,.13)!important;',
+      'position:relative}',
+    '.adminp-side::after{content:"";position:absolute;inset:0 0 auto;height:1px;',
+      'background:linear-gradient(90deg,transparent,rgba(70,227,155,.5),transparent)}',
+    '.adminp-brand{color:#E9F2EC!important;letter-spacing:-.01em}',
+    '.adminp-brand small, .adminp-side small{color:#7C9187!important}',
+    '.adminp-menu button, .adminp-menu a{color:#B4C6BB!important;border-radius:11px;',
+      'transition:background .16s ease,color .16s ease,box-shadow .2s ease}',
+    '.adminp-menu button:hover, .adminp-menu a:hover{background:rgba(255,255,255,.06)!important;color:#fff!important}',
+    '.adminp-menu button.on, .adminp-menu a.on, .adminp-menu .on{',
+      'background:linear-gradient(95deg,rgba(70,227,155,.17),rgba(70,227,155,.04))!important;',
+      'color:#fff!important;box-shadow:inset 2px 0 0 #46E39B}',
+
+    /* ---------- la cabecera, con su rejilla y su brillo ---------- */
+    '.adminp-top{position:relative;overflow:hidden;',
+      'background:linear-gradient(120deg,#0B1310,#0A1512 60%,#070B09)!important;',
+      'border-bottom:1px solid rgba(150,240,199,.13)!important}',
+    '.adminp-top::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;',
+      'background-image:linear-gradient(rgba(150,240,199,.09) 1px,transparent 1px),',
+      'linear-gradient(90deg,rgba(150,240,199,.09) 1px,transparent 1px);background-size:46px 46px;',
+      '-webkit-mask-image:radial-gradient(ellipse 70% 120% at 30% 50%,#000,transparent 72%);',
+      'mask-image:radial-gradient(ellipse 70% 120% at 30% 50%,#000,transparent 72%)}',
+    '.adminp-top::after{content:"";position:absolute;width:280px;height:280px;right:-90px;top:-150px;',
+      'border-radius:50%;pointer-events:none;filter:blur(64px);opacity:.45;',
+      'background:radial-gradient(circle,rgba(232,178,58,.5),transparent 70%)}',
+    '.adminp-title{position:relative;color:#E9F2EC!important;font-weight:800;letter-spacing:-.018em}',
+    '.adminp-topright{position:relative}',
+
+    /* ---------- tarjetas y bloques ---------- */
+    '.adm-card{background:linear-gradient(165deg,#16211C,#0E1613)!important;',
+      'border:1px solid rgba(150,240,199,.13)!important;border-radius:16px!important;',
+      'margin:0 0 14px!important;padding:18px 18px 16px!important}',
+    '.adm-card h4, .adm-card h3{color:#E9F2EC}',
+    '.adm-note{color:#7C9187!important;line-height:1.6}',
+    '.adm-note b{color:#B4C6BB}',
+    '.adm-empty{background:#0E1613!important;border:1px dashed rgba(150,240,199,.26)!important;',
+      'color:#7C9187!important;border-radius:16px}',
+    '.adm-summary{color:#B4C6BB}',
+
+    /* ---------- los números, que son lo que se mira primero ---------- */
+    '.adm-kpi{position:relative;overflow:hidden;border-radius:16px;',
+      'background:linear-gradient(160deg,#16211C,#0E1613)!important;',
+      'border:1px solid rgba(150,240,199,.13)!important}',
+    '.adm-kpi::after{content:"";position:absolute;inset:0 0 auto;height:2px;',
+      'background:linear-gradient(90deg,#46E39B,transparent);opacity:.9}',
+    '.adm-kpi b, .adm-kpi strong{color:#E9F2EC!important;font-variant-numeric:tabular-nums}',
+    '.adm-kpi span, .adm-kpi small{color:#7C9187!important;letter-spacing:.1em;text-transform:uppercase}',
+
+    /* ---------- tablas ---------- */
+    '.adm-tablewrap, .nx-tw{border:1px solid rgba(150,240,199,.13)!important;',
+      'border-radius:14px!important;overflow:auto;background:#0E1613}',
+    '.adm-table, .nx-t{background:transparent!important;color:#E9F2EC}',
+    '.adm-table th, .nx-t th{background:#131D19!important;color:#7C9187!important;',
+      'font-family:var(--mono);font-size:10.5px!important;letter-spacing:.12em;text-transform:uppercase;',
+      'border-bottom:1px solid rgba(150,240,199,.16)!important}',
+    '.adm-table td, .nx-t td{border-bottom:1px solid rgba(150,240,199,.08)!important;color:#B4C6BB}',
+    '.adm-table tbody tr:hover, .nx-t tbody tr:hover{background:rgba(255,255,255,.035)}',
+    '.adm-table td b, .nx-t td b{color:#E9F2EC}',
+
+    /* ---------- botones ---------- */
+    '.nxa-btn, .adm-add, .adm-ctl button, .adm-toolbar button{',
+      'background:rgba(255,255,255,.055)!important;color:#E9F2EC!important;',
+      'border:1px solid rgba(150,240,199,.26)!important;border-radius:11px!important;',
+      'transition:background .15s ease,border-color .15s ease,transform .15s ease}',
+    '.nxa-btn:hover, .adm-add:hover, .adm-ctl button:hover, .adm-toolbar button:hover{',
+      'background:rgba(70,227,155,.16)!important;border-color:rgba(70,227,155,.5)!important;',
+      'transform:translateY(-1px)}',
+    '.adm-add{background:linear-gradient(120deg,#46E39B,#2FCE8A)!important;color:#08120D!important;',
+      'border-color:transparent!important;font-weight:700}',
+    '.adm-add:hover{box-shadow:0 8px 22px rgba(70,227,155,.28)}',
+
+    /* ---------- campos ---------- */
+    '.adminp input[type=text], .adminp input[type=search], .adminp input[type=email],',
+    '.adminp input[type=number], .adminp input[type=tel], .adminp select, .adminp textarea{',
+      'background:#0A110E!important;color:#E9F2EC!important;',
+      'border:1px solid rgba(150,240,199,.2)!important;border-radius:10px!important}',
+    '.adminp input:focus, .adminp select:focus, .adminp textarea:focus{',
+      'outline:2px solid rgba(232,178,58,.55);outline-offset:1px;border-color:transparent!important}',
+    '.adminp ::placeholder{color:#5F7268}',
+
+    /* ---------- el interruptor de publicar ---------- */
+    '.nxa-sw em{color:#7C9187;font-family:var(--mono);font-size:11px;letter-spacing:.06em}',
+    '.nxa-sw input:checked + span{background:#46E39B!important}',
+    '.nxa-sw span{background:rgba(255,255,255,.16)!important}',
+    '.uc-pill{background:rgba(70,227,155,.15)!important;color:#46E39B!important;',
+      'border:1px solid rgba(70,227,155,.4)!important;font-family:var(--mono);',
+      'font-size:10.5px;letter-spacing:.08em}',
+
+    /* ---------- fila de curso del catálogo ---------- */
+    '.uc-c{background:linear-gradient(160deg,#16211C,#0E1613)!important;',
+      'border:1px solid rgba(150,240,199,.13)!important;border-radius:14px!important;',
+      'transition:border-color .16s ease,transform .16s ease}',
+    '.uc-c:hover{border-color:rgba(150,240,199,.3)!important;transform:translateY(-1px)}',
+    '.uc-t b{color:#E9F2EC}',
+    '.uc-t span{color:#7C9187}',
+
+    /* ---------- conmutador de curso ---------- */
+    '.ucsw{border-bottom:1px solid rgba(150,240,199,.13)}',
+    '.ucsw-b{background:rgba(255,255,255,.05)!important;color:#B4C6BB!important;',
+      'border:1px solid transparent!important;border-radius:11px!important}',
+    '.ucsw-b:hover{background:rgba(255,255,255,.1)!important;color:#fff!important}',
+    '.ucsw-b.on{background:rgba(70,227,155,.16)!important;color:#fff!important;',
+      'border-color:rgba(70,227,155,.42)!important}',
+    '.ucsw-oc{color:#E8B23A;font-style:normal;font-family:var(--mono);font-size:10px}',
+
+    /* ---------- barras de progreso ---------- */
+    '.adm-prog{background:rgba(255,255,255,.08)!important;border-radius:99px;overflow:hidden}',
+    '.adm-prog-bar{background:linear-gradient(90deg,#46E39B,#41C9EC)!important}',
+
+    /* ---------- las pantallas de accesos y grupos ----------
+       se nombran por atributo, no con .ag?-, para no pisar los
+       selectores que declaran esos bloques */
+    '.adminp [class~="aga-fila"], .adminp [class~="agg-card"]{',
+      'background:linear-gradient(160deg,#16211C,#0E1613)!important;',
+      'border:1px solid rgba(150,240,199,.13)!important}',
+    '.adminp [class~="aga-fila"]:hover{border-color:rgba(150,240,199,.3)!important}',
+    '.adminp [class~="aga-cab"], .adminp [class~="agg-cab"]{color:#7C9187}',
+    '.adminp [class~="aga-av"], .adminp [class~="agg-cur-e"]{color:#B4C6BB}',
+    '.adminp [class~="aga-nada"], .adminp [class~="agg-vacio"]{',
+      'background:#0E1613!important;border:1px dashed rgba(150,240,199,.26)!important;color:#7C9187!important}',
+    '.adminp [class~="aga-ch"], .adminp [class~="agg-ch"]{',
+      'background:rgba(255,255,255,.055)!important;color:#B4C6BB!important;',
+      'border:1px solid rgba(150,240,199,.22)!important}',
+    '.adminp [class~="aga-ch"].on, .adminp [class~="agg-ch"].on{',
+      'background:rgba(70,227,155,.17)!important;color:#fff!important;',
+      'border-color:rgba(70,227,155,.45)!important}',
+
+    /* ---------- que el modal no se quede en claro ---------- */
+    '.adminp .modal, .adminp .modal-box, .adminp #formBox{',
+      'background:#0E1613!important;color:#E9F2EC!important;',
+      'border:1px solid rgba(150,240,199,.16)!important}',
+
+    '@media(prefers-reduced-motion:reduce){',
+      '.adminp *{transition:none!important}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
 
 
 
