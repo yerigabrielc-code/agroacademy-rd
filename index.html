@@ -24447,7 +24447,995 @@ function agC3PonBarra(){
   }
 })();
 
+
+/* ---------- ag-nova.js ---------- */
+/* ============================================================
+   AGROACADEMY · NOVA — EL CAMPUS QUE VE EL ESTUDIANTE
+   ------------------------------------------------------------
+   Esto NO mejora la pantalla anterior: la reemplaza entera.
+   agCampus() seguía pintando cabecera + stats + continuar +
+   catálogo + certificados en un solo tono claro, con las seis
+   tarjetas iguales. Servía, pero no se parecía a nada por lo
+   que alguien pagaría.
+
+   LO QUE CAMBIA, Y POR QUÉ CADA COSA
+
+   · Fondo oscuro. No es moda: es lo que deja que el curso
+     habilitado BRILLE y el bloqueado se apague. En claro, un
+     candado es un icono más; en oscuro, un curso sin acceso se
+     ve apagado de verdad y el que sí tiene, encendido.
+
+   · El gratuito deja de ser una tarjeta más y pasa a ser una
+     PUERTA: panel ancho, propio, arriba de todo, abierto para
+     cualquiera. Desde ahí se invita al curso base, que es el
+     recorrido comercial real de la plataforma.
+
+   · El progreso se ve, no se lee. Anillo global, barras por
+     curso, contadores que suben. El estudiante entiende dónde
+     está en dos segundos.
+
+   LO QUE NO CAMBIA — Y ESTO IMPORTA MÁS QUE EL DISEÑO
+
+   El acceso sigue saliendo de COURSES[curso].enrolled(alumno)
+   y de nada más. Esta pantalla no concede, no revoca y no
+   guarda nada. Es presentación sobre la misma verdad. Si
+   mañana el instructor quita un acceso en su panel, aquí el
+   curso se apaga solo.
+
+   El curso gratuito ya estaba abierto para todos en el
+   contrato — se comprobó: un alumno recién registrado, y hasta
+   uno con la cuenta en pausa, lo tiene. Aquí no se fuerza:
+   se muestra lo que el contrato ya dice.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · QUIÉN ES, Y DÓNDE ESTÁ
+   ------------------------------------------------------------ */
+var AGNVGRATIS = 'ruta';           /* la puerta de entrada */
+var AGNVBASE   = 'porcicultura';   /* a dónde invita esa puerta */
+
+function agNvUid(){
+  try{ if(typeof agCampusUid === 'function') return agCampusUid(); }catch(e){}
+  try{ return (SESSION && SESSION.id) || null; }catch(e){ return null; }
+}
+
+function agNvAlumno(){
+  var uid = agNvUid();
+  try{
+    var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === uid; })[0];
+    if(s) return s;
+  }catch(e){}
+  return null;
+}
+
+function agNvNombre(){
+  var a = agNvAlumno();
+  var n = (a && a.name) ? String(a.name).trim() : '';
+  if(!n) return 'Bienvenido';
+  return n.split(/\s+/)[0];
+}
+
+function agNvIniciales(){
+  var a = agNvAlumno();
+  var n = (a && a.name) ? String(a.name).trim() : '';
+  if(!n) return '👤';
+  var p = n.split(/\s+/).filter(Boolean);
+  return ((p[0] || '')[0] || '' ).toUpperCase() + ((p[1] || '')[0] || '').toUpperCase();
+}
+
+function agNvSaludo(){
+  var h = new Date().getHours();
+  if(h < 12) return 'Buenos días';
+  if(h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+/* el estado de cada curso sale del contrato, sin tocarlo */
+function agNvEstado(id){
+  var e = null;
+  try{ e = agEstadoCurso(id); }catch(x){}
+  if(!e) return null;
+  /* el gratuito es de todos: el contrato ya lo dice, esto solo
+     evita que un fallo de lectura lo esconda */
+  if(id === AGNVGRATIS) e.tiene = true;
+  return e;
+}
+
+function agNvCursos(){
+  try{ return agCursosVisibles(); }catch(e){ return Object.keys(COURSES || {}); }
+}
+
+/* el resumen que se pinta arriba */
+function agNvResumen(){
+  var hechos = 0, total = 0, mios = 0, hechosMios = 0, totalMios = 0, certs = 0, activos = 0;
+  agNvCursos().forEach(function(id){
+    var e = agNvEstado(id);
+    if(!e) return;
+    hechos += e.hechos; total += e.total;
+    if(e.tiene){
+      mios++; hechosMios += e.hechos; totalMios += e.total;
+      if(e.completo) certs++;
+      if(e.empezado && !e.completo) activos++;
+    }
+  });
+  return {
+    mios: mios, activos: activos, certificados: certs,
+    hechos: hechosMios, total: totalMios,
+    pct: totalMios ? Math.round(hechosMios / totalMios * 100) : 0,
+    catalogo: agNvCursos().length,
+    todosHechos: hechos, todosTotal: total
+  };
+}
+
+/* un rango que se gana con módulos aprobados, no con tiempo */
+function agNvRango(hechos){
+  if(hechos >= 40) return {t:'Productor maestro',  i:'◆◆◆◆'};
+  if(hechos >= 25) return {t:'Productor avanzado', i:'◆◆◆◇'};
+  if(hechos >= 12) return {t:'Productor formado',  i:'◆◆◇◇'};
+  if(hechos >= 4)  return {t:'En formación',       i:'◆◇◇◇'};
+  if(hechos >= 1)  return {t:'Primeros pasos',     i:'◇◇◇◇'};
+  return {t:'Recién llegado', i:'◇◇◇◇'};
+}
+
+/* ------------------------------------------------------------
+   2 · PIEZAS DE DIBUJO
+   ------------------------------------------------------------ */
+function agNvAnillo(pct, r, grosor, clase){
+  var c = 2 * Math.PI * r;
+  var d = c * (1 - Math.max(0, Math.min(100, pct)) / 100);
+  var s = (r + grosor) * 2;
+  return '<svg class="nva-ring ' + (clase || '') + '" viewBox="0 0 ' + s + ' ' + s + '" width="' + s + '" height="' + s + '" aria-hidden="true">' +
+    '<circle class="nva-ring-b" cx="' + (s/2) + '" cy="' + (s/2) + '" r="' + r + '" fill="none" stroke-width="' + grosor + '"/>' +
+    '<circle class="nva-ring-v" cx="' + (s/2) + '" cy="' + (s/2) + '" r="' + r + '" fill="none" stroke-width="' + grosor + '"' +
+      ' stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '"' +
+      ' stroke-dashoffset="' + c.toFixed(1) + '" data-off="' + d.toFixed(1) + '"' +
+      ' transform="rotate(-90 ' + (s/2) + ' ' + (s/2) + ')"/>' +
+  '</svg>';
+}
+
+function agNvBarra(pct, tono){
+  return '<div class="nva-bar' + (tono ? ' ' + tono : '') + '"><i data-w="' + pct + '"></i></div>';
+}
+
+/* ------------------------------------------------------------
+   3 · EL ENCABEZADO: quién es y cómo va
+   ------------------------------------------------------------ */
+function agNvHero(){
+  var R = agNvResumen();
+  var rango = agNvRango(R.hechos);
+  var esNuevo = R.hechos === 0;
+
+  return '<header class="nva-hero">' +
+    '<div class="nva-hero-fx" aria-hidden="true">' +
+      '<span class="nva-orb nva-orb-a"></span>' +
+      '<span class="nva-orb nva-orb-b"></span>' +
+      '<span class="nva-malla"></span>' +
+    '</div>' +
+    '<div class="nva-hero-in">' +
+
+      '<div class="nva-hero-tx">' +
+        '<p class="nva-eyebrow"><span class="nva-pulso"></span>Campus AgroAcademy</p>' +
+        '<h1 class="nva-h1">' + agNvSaludo() + ', <em>' + agEsc(agNvNombre()) + '</em></h1>' +
+        '<p class="nva-lede">' +
+          (esNuevo
+            ? 'Su cuenta ya está activa. Empiece por el curso gratuito: en cinco módulos va a saber si la porcicultura le cuadra los números.'
+            : 'Lleva <b>' + R.hechos + '</b> ' + (R.hechos === 1 ? 'módulo aprobado' : 'módulos aprobados') +
+              (R.activos ? ' y tiene <b>' + R.activos + '</b> ' + (R.activos === 1 ? 'curso' : 'cursos') + ' en marcha' : '') + '.') +
+        '</p>' +
+        '<div class="nva-perfil">' +
+          '<span class="nva-avatar">' + agNvIniciales() + '</span>' +
+          '<span class="nva-perfil-t">' +
+            '<b>' + rango.t + '</b>' +
+            '<i>' + rango.i + '</i>' +
+          '</span>' +
+          '<span class="nva-perfil-s">' + R.mios + ' de ' + R.catalogo + ' cursos habilitados</span>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="nva-hero-med">' +
+        '<div class="nva-med">' +
+          agNvAnillo(R.pct, 48, 9, 'nva-ring-lg') +
+          '<div class="nva-med-c">' +
+            '<b class="nva-cuenta" data-n="' + R.pct + '">0</b><span>%</span>' +
+          '</div>' +
+        '</div>' +
+        /* la etiqueta va DEBAJO del anillo: dentro no cabe sin cortarse */
+        '<p class="nva-med-e">avance global</p>' +
+        '<p class="nva-med-p">' + R.hechos + ' de ' + R.total + ' módulos<br>de lo que tiene habilitado</p>' +
+      '</div>' +
+
+    '</div>' +
+  '</header>';
+}
+
+/* ------------------------------------------------------------
+   4 · LAS MÉTRICAS Y EL GRÁFICO POR CURSO
+   ------------------------------------------------------------ */
+function agNvMetricas(){
+  var R = agNvResumen();
+  var tiles = [
+    ['⬡', R.mios,         R.mios === 1 ? 'curso habilitado' : 'cursos habilitados', 'leaf'],
+    ['▲', R.hechos,       R.hechos === 1 ? 'módulo aprobado' : 'módulos aprobados', 'gold'],
+    ['◈', R.activos,      R.activos === 1 ? 'curso en marcha' : 'cursos en marcha', 'ion'],
+    ['✦', R.certificados, R.certificados === 1 ? 'certificado' : 'certificados',    'gold']
+  ];
+
+  var filas = agNvCursos().map(function(id){
+    var e = agNvEstado(id), C = COURSES[id];
+    if(!e || !C) return '';
+    var abierto = e.tiene;
+    return '<li class="nva-fila' + (abierto ? '' : ' off') + '">' +
+      '<span class="nva-fila-n">' + (C.icon || '📘') + ' ' + agEsc(C.label || C.name || id) + '</span>' +
+      '<span class="nva-fila-g">' + agNvBarra(abierto ? e.pct : 0, abierto ? '' : 'mute') + '</span>' +
+      '<span class="nva-fila-v">' + (abierto ? e.hechos + '/' + e.total : '🔒') + '</span>' +
+    '</li>';
+  }).join('');
+
+  return '<section class="nva-sec nva-sec-met">' +
+    '<div class="nva-tiles">' +
+      tiles.map(function(t, i){
+        return '<div class="nva-tile nva-' + t[3] + '" style="--i:' + i + '">' +
+          '<span class="nva-tile-i">' + t[0] + '</span>' +
+          '<b class="nva-cuenta" data-n="' + t[1] + '">0</b>' +
+          '<span class="nva-tile-l">' + t[2] + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<div class="nva-graf">' +
+      '<p class="nva-graf-t">Su avance, curso por curso</p>' +
+      '<ul class="nva-filas">' + filas + '</ul>' +
+    '</div>' +
+  '</section>';
+}
+
+/* ------------------------------------------------------------
+   5 · LA PUERTA: el curso gratuito, para todo el mundo
+   ------------------------------------------------------------ */
+function agNvPuerta(){
+  var id = AGNVGRATIS;
+  var C = COURSES[id];
+  if(!C) return '';
+  var c = agCatDe(id);
+  var e = agNvEstado(id) || {hechos:0, total:C.n || 0, pct:0, empezado:false, completo:false};
+  var B = COURSES[AGNVBASE];
+  var pb = null; try{ pb = (AGPRECIOS[AGNVBASE] || {}).usd; }catch(x){}
+  var tieneBase = false;
+  try{ var eb = agNvEstado(AGNVBASE); tieneBase = !!(eb && eb.tiene); }catch(x){}
+
+  var cta = e.completo ? 'Repasar el curso' : (e.empezado ? 'Continuar donde lo dejó' : 'Empezar gratis ahora');
+
+  return '<section class="nva-sec">' +
+    /* lleva data-curso como las tarjetas: este panel ES la ficha del
+       curso gratuito, y así se le puede preguntar igual que a las demás */
+    '<article class="nva-puerta' + (e.completo ? ' hecho' : '') + '" data-curso="' + id + '">' +
+      '<div class="nva-puerta-fx" aria-hidden="true"></div>' +
+
+      '<div class="nva-puerta-a">' +
+        '<p class="nva-badge"><span class="nva-pulso g"></span>Abierto para todos · sin costo</p>' +
+        '<h2 class="nva-puerta-h">' + (C.icon || '🐖') + ' ' + agEsc(C.name || id) + '</h2>' +
+        '<p class="nva-puerta-p">' +
+          'Cinco módulos para responder una sola pregunta antes de invertir un peso: ' +
+          '<b>¿le dan los números?</b> Simulador económico, diagnóstico de su situación y una ruta clara de qué estudiar después.' +
+        '</p>' +
+
+        (e.empezado
+          ? '<div class="nva-puerta-av">' +
+              '<div class="nva-puerta-av-t"><span>Su avance</span><b>' + e.hechos + ' de ' + e.total + ' módulos</b></div>' +
+              agNvBarra(e.pct, 'g') +
+            '</div>'
+          : '<ul class="nva-puerta-l">' +
+              '<li><span>◈</span>Simulador económico con precios de aquí</li>' +
+              '<li><span>◈</span>Diagnóstico de su granja en 20 pasos</li>' +
+              '<li><span>◈</span>Certificado al aprobar los 5 módulos</li>' +
+            '</ul>') +
+
+        '<div class="nva-puerta-btn">' +
+          '<button class="nva-cta g" onclick="agIrAlCurso(\'' + id + '\')">' +
+            '<span>' + cta + '</span><i>→</i>' +
+          '</button>' +
+          '<button class="nva-cta ghost" onclick="agVerCurso(\'' + id + '\')">Ver el temario</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="nva-puerta-b">' +
+        '<p class="nva-puente-e">Cuando termine</p>' +
+        '<div class="nva-puente' + (tieneBase ? ' tiene' : '') + '">' +
+          '<span class="nva-puente-i">' + ((B && B.icon) || '🐷') + '</span>' +
+          '<b>' + agEsc((B && B.name) || 'Porcicultura aplicada a República Dominicana') + '</b>' +
+          '<span class="nva-puente-s">' + ((B && B.n) || 12) + ' módulos · el curso completo, de la instalación al proyecto final</span>' +
+          (tieneBase
+            ? '<button class="nva-cta sm" onclick="agIrAlCurso(\'' + AGNVBASE + '\')">Ya lo tiene · entrar</button>'
+            : '<button class="nva-cta sm ghost" onclick="agVerCurso(\'' + AGNVBASE + '\')">' +
+                'Ver qué incluye' + (pb ? ' · US$ ' + pb : '') + '</button>') +
+        '</div>' +
+        '<p class="nva-puente-n">' +
+          (tieneBase
+            ? 'Ya tiene el curso base habilitado. El gratuito le sirve de repaso y de orden.'
+            : 'El gratuito le dice SI le conviene. El completo le dice CÓMO hacerlo.') +
+        '</p>' +
+      '</div>' +
+
+    '</article>' +
+  '</section>';
+}
+
+/* ------------------------------------------------------------
+   6 · LAS TARJETAS
+   ------------------------------------------------------------ */
+function agNvTarjeta(id, i){
+  var C = COURSES[id]; if(!C) return '';
+  var c = agCatDe(id);
+  var e = agNvEstado(id); if(!e) return '';
+  var lock = !e.tiene;
+
+  return '<article class="nva-card' + (lock ? ' lock' : '') + (e.completo ? ' done' : '') +
+      '" style="--i:' + i + '" data-curso="' + id + '">' +
+
+    '<div class="nva-card-cov">' +
+      (c.cover ? '<img src="images/' + c.cover + '.jpg" alt="" loading="lazy">' : '<span class="nva-card-nocov"></span>') +
+      '<span class="nva-card-velo"></span>' +
+      '<span class="nva-card-ico">' + (C.icon || '📘') + '</span>' +
+      '<span class="nva-card-cat">' + agEsc(c.cat) + '</span>' +
+      (lock ? '<span class="nva-card-lock">🔒</span>' : '') +
+      (e.completo ? '<span class="nva-card-done">✓ Completado</span>' : '') +
+    '</div>' +
+
+    '<div class="nva-card-c">' +
+      '<h3>' + agEsc(C.name || id) + '</h3>' +
+      '<p>' + c.desc + '</p>' +
+
+      '<div class="nva-card-meta">' +
+        '<span>' + (C.n || 0) + ' módulos</span>' +
+        (lock
+          ? (c.precio ? '<span class="nva-precio">US$ ' + c.precio + '</span>' : '<span class="nva-precio">Con el instructor</span>')
+          : '<span>' + e.hechos + ' aprobados</span>') +
+      '</div>' +
+
+      (lock ? '' : agNvBarra(e.pct, 'sm')) +
+
+      '<div class="nva-card-btn">' +
+        (lock
+          ? '<button class="nva-cta sm lock" onclick="agDesbloquear(\'' + id + '\')">🔓 Desbloquear</button>' +
+            '<button class="nva-cta sm ghost" onclick="agVerCurso(\'' + id + '\')">Ver temario</button>'
+          : '<button class="nva-cta sm" onclick="agIrAlCurso(\'' + id + '\')">' +
+              (e.completo ? 'Repasar' : (e.empezado ? 'Continuar' : 'Empezar')) + '</button>' +
+            '<button class="nva-cta sm ghost" onclick="agVerCurso(\'' + id + '\')">Temario</button>') +
+      '</div>' +
+    '</div>' +
+  '</article>';
+}
+
+function agNvMisCursos(){
+  var ids = agNvCursos().filter(function(id){
+    var e = agNvEstado(id);
+    return e && e.tiene && id !== AGNVGRATIS;
+  });
+  if(!ids.length) return '';
+  return '<section class="nva-sec">' +
+    '<div class="nva-h2-w">' +
+      '<h2 class="nva-h2">Mis cursos</h2>' +
+      '<span class="nva-h2-n">' + ids.length + (ids.length === 1 ? ' habilitado' : ' habilitados') + '</span>' +
+    '</div>' +
+    '<p class="nva-sub">Lo que ya es suyo. El avance se guarda por separado en cada uno.</p>' +
+    '<div class="nva-rej">' + ids.map(agNvTarjeta).join('') + '</div>' +
+  '</section>';
+}
+
+function agNvCatalogo(){
+  var ids = agNvCursos().filter(function(id){
+    var e = agNvEstado(id);
+    return e && !e.tiene;
+  });
+  if(!ids.length) return '';
+  return '<section class="nva-sec nva-sec-cat">' +
+    '<div class="nva-h2-w">' +
+      '<h2 class="nva-h2">Catálogo AgroAcademy</h2>' +
+      '<span class="nva-h2-n">' + ids.length + ' por desbloquear</span>' +
+    '</div>' +
+    '<p class="nva-sub">Formación especializada que todavía no tiene abierta. ' +
+      'Puede ver el temario completo de cualquiera antes de decidir.</p>' +
+    '<div class="nva-rej">' + ids.map(agNvTarjeta).join('') + '</div>' +
+  '</section>';
+}
+
+/* Los certificados los SIGUE calculando agCampusCertificados(): ahí
+   viven el código de verificación, la lista de cursos aprobados y el
+   botón de descarga, y duplicar eso sería crear una segunda verdad.
+   Lo único que se cambia es la ropa — sus clases .agc-* vienen
+   vestidas para fondo claro y aquí el fondo es negro. Se les cambia
+   el prefijo a uno mío y se visten de nuevo. Los onclick, los id y
+   la lógica quedan intactos: ninguno lleva «agc-». */
+function agNvCertificados(){
+  var h = '';
+  try{ if(typeof agCampusCertificados === 'function') h = agCampusCertificados(); }catch(e){}
+  if(!h) return '';
+  return '<section class="nva-sec nva-sec-cert">' + h.split('agc-').join('nvac-') + '</section>';
+}
+
+/* ------------------------------------------------------------
+   7 · MONTAJE — sustituye el cuerpo entero de agCampus
+   ------------------------------------------------------------ */
+function agNvPinta(w){
+  w.classList.add('nva-w');
+  w.classList.remove('agc-w');
+  w.innerHTML =
+    agNvHero() +
+    '<div class="nva-cuerpo">' +
+      agNvMetricas() +
+      agNvPuerta() +
+      agNvMisCursos() +
+      agNvCatalogo() +
+      agNvCertificados() +
+      agNvPie() +
+    '</div>';
+  agNvAnima(w);
+}
+
+/* deja el contenedor como estaba: sin la clase del campus no queda
+   ni el fondo oscuro ni las marcas de haber pintado */
+function agNvLimpia(){
+  try{
+    var w = document.querySelector('#csOv .cs-w');
+    if(!w) return;
+    w.classList.remove('nva-w', 'nva-listo');
+    if(w.dataset.agCampus === '1') delete w.dataset.agCampus;
+  }catch(e){}
+}
+
+function agNvPie(){
+  var extra = '';
+  try{
+    if(typeof agEsInstructorReal === 'function' && agEsInstructorReal()){
+      extra = '<button class="nva-cta sm ghost" onclick="agVolverAlPanel()">← Volver al panel del instructor</button>';
+    }
+  }catch(e){}
+  return '<footer class="nva-pie">' +
+    '<span>AgroAcademy · República Dominicana</span>' + extra +
+  '</footer>';
+}
+
+if(typeof window.agCampus === 'function'){
+  var _agCampusNova = window.agCampus;
+  window.agCampus = function(){
+    try{
+      if(typeof agCampusEsEstudiante === 'function' && !agCampusEsEstudiante()){
+        /* El instructor tiene su propio catálogo. Si se sale de una sesión
+           de estudiante, la clase del campus se queda pegada al contenedor
+           y con ella el fondo oscuro, que se colaba en la vista del
+           instructor. Se retira al salir. */
+        agNvLimpia();
+        return;
+      }
+      var ov = document.getElementById('csOv');
+      if(!ov) return;
+      var w = ov.querySelector('.cs-w');
+      if(!w || w.dataset.agCampus === '1') return;
+      w.dataset.agCampus = '1';
+      agNvPinta(w);
+    }catch(e){
+      /* si algo falla, el estudiante ve el campus de antes — nunca una pantalla en blanco */
+      try{ return _agCampusNova.apply(this, arguments); }catch(x){}
+    }
+  };
+}
+
+/* Aquí hubo un envoltorio de abrirCursos para retirar la clase del campus
+   al pasar de estudiante a instructor. Se quitó: al medirlo, cerrarCursos
+   DESTRUYE el contenedor .cs-w y al abrir se crea uno nuevo y limpio, así
+   que la clase no sobrevive al cambio. No hacía falta, y además no llegaba
+   a engancharse porque abrirCursos es un const y no cuelga de window.
+   agNvLimpia() se conserva en el envoltorio de agCampus, que sí prende. */
+
+/* ------------------------------------------------------------
+   8 · MOVIMIENTO
+   ------------------------------------------------------------ */
+function agNvAnima(w){
+  var reduce = false;
+  try{ reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  var A = (typeof anime === 'function') ? anime : null;
+
+  var asienta = function(){
+    [].forEach.call(w.querySelectorAll('.nva-cuenta'), function(b){ b.textContent = b.dataset.n; });
+    [].forEach.call(w.querySelectorAll('.nva-bar i'), function(i){ i.style.width = i.dataset.w + '%'; });
+    [].forEach.call(w.querySelectorAll('.nva-ring-v'), function(c){ c.style.strokeDashoffset = c.dataset.off; });
+    w.classList.add('nva-listo');
+  };
+
+  if(reduce || !A){ asienta(); return; }
+  w.classList.add('nva-listo');
+
+  A({targets: w.querySelectorAll('.nva-hero-tx > *'), opacity:[0,1], translateY:[18,0],
+     delay: A.stagger(70), duration:620, easing:'easeOutCubic'});
+  A({targets: w.querySelectorAll('.nva-hero-med'), opacity:[0,1], scale:[.9,1],
+     duration:760, delay:180, easing:'easeOutBack'});
+  A({targets: w.querySelectorAll('.nva-tile'), opacity:[0,1], translateY:[18,0],
+     delay: A.stagger(70, {start:240}), duration:560, easing:'easeOutCubic'});
+  A({targets: w.querySelectorAll('.nva-graf'), opacity:[0,1], translateY:[18,0],
+     duration:600, delay:420, easing:'easeOutCubic'});
+  A({targets: w.querySelectorAll('.nva-puerta'), opacity:[0,1], translateY:[26,0],
+     duration:720, delay:480, easing:'easeOutCubic'});
+  A({targets: w.querySelectorAll('.nva-card'), opacity:[0,1], translateY:[24,0],
+     delay: A.stagger(60, {start:600}), duration:600, easing:'easeOutCubic'});
+
+  /* los números suben contando */
+  [].forEach.call(w.querySelectorAll('.nva-cuenta'), function(b, i){
+    var fin = parseInt(b.dataset.n, 10) || 0;
+    var o = {v:0};
+    A({targets:o, v:fin, duration: 1000 + i * 70, delay: 380 + i * 60, easing:'easeOutExpo',
+       update:function(){ b.textContent = Math.round(o.v); }});
+  });
+  /* las barras crecen */
+  [].forEach.call(w.querySelectorAll('.nva-bar i'), function(el, i){
+    A({targets:el, width:[0, (el.dataset.w || 0) + '%'], duration:900,
+       delay: 520 + i * 55, easing:'easeOutQuart'});
+  });
+  /* el anillo se dibuja */
+  [].forEach.call(w.querySelectorAll('.nva-ring-v'), function(el, i){
+    A({targets:el, strokeDashoffset:[el.getAttribute('stroke-dasharray'), el.dataset.off],
+       duration:1300, delay: 300 + i * 90, easing:'easeOutQuart'});
+  });
+}
+
+/* ------------------------------------------------------------
+   9 · ESTILOS
+   ------------------------------------------------------------ */
+(function agNvCss(){
+  if(document.getElementById('agNvCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agNvCss';
+  s.textContent = [
+    /* ---------- paleta, encerrada en el campus ---------- */
+    '.nva-w{',
+      '--nva-void:#070B09; --nva-deep:#0E1613; --nva-raise:#16211C;',
+      '--nva-line:rgba(150,240,199,.11); --nva-line2:rgba(150,240,199,.26);',
+      '--nva-tx:#E9F2EC; --nva-tx2:#B4C6BB; --nva-dim:#7C9187;',
+      '--nva-gold:#E8B23A; --nva-gold-hi:#FFD97A;',
+      '--nva-leaf:#46E39B; --nva-ion:#41C9EC;',
+      '--nva-rad:18px;',
+      'background:var(--nva-void); color:var(--nva-tx);',
+      'font-family:var(--body),system-ui,sans-serif;',
+      'padding:0!important; max-width:none!important; width:100%;',
+      'min-height:100%;',
+    '}',
+    '.nva-w *{box-sizing:border-box}',
+    '.nva-w h1,.nva-w h2,.nva-w h3{font-family:var(--display);letter-spacing:-.018em;text-wrap:balance;margin:0}',
+    '.nva-cuerpo{max-width:1180px;margin:0 auto;padding:0 22px 72px}',
+    '.nva-sec{margin-top:46px}',
+
+    /* ---------- encabezado ---------- */
+    '.nva-hero{position:relative;overflow:hidden;padding:64px 22px 58px;',
+      'background:linear-gradient(168deg,#0B1310 0%,#0A1512 45%,#070B09 100%);',
+      'border-bottom:1px solid var(--nva-line)}',
+    '.nva-hero-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}',
+    '.nva-orb{position:absolute;border-radius:50%;filter:blur(72px);opacity:.5}',
+    '.nva-orb-a{width:380px;height:380px;top:-130px;left:-90px;',
+      'background:radial-gradient(circle,rgba(70,227,155,.5),transparent 70%)}',
+    '.nva-orb-b{width:440px;height:440px;bottom:-200px;right:-110px;',
+      'background:radial-gradient(circle,rgba(232,178,58,.42),transparent 70%)}',
+    '.nva-malla{position:absolute;inset:-50% -10% -10%;opacity:.5;',
+      'background-image:linear-gradient(var(--nva-line) 1px,transparent 1px),',
+      'linear-gradient(90deg,var(--nva-line) 1px,transparent 1px);',
+      'background-size:52px 52px;',
+      '-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 35%,#000,transparent 75%);',
+      'mask-image:radial-gradient(ellipse 80% 60% at 50% 35%,#000,transparent 75%);',
+      'animation:nvaDeriva 34s linear infinite}',
+    '@keyframes nvaDeriva{from{background-position:0 0,0 0}to{background-position:52px 52px,52px 52px}}',
+    '.nva-hero-in{position:relative;max-width:1180px;margin:0 auto;',
+      'display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:center}',
+
+    '.nva-eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 16px;',
+      'font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--nva-leaf)}',
+    '.nva-pulso{width:7px;height:7px;border-radius:50%;background:var(--nva-leaf);',
+      'box-shadow:0 0 0 0 rgba(70,227,155,.7);animation:nvaPulso 2.4s infinite}',
+    '.nva-pulso.g{background:var(--nva-gold);box-shadow:0 0 0 0 rgba(232,178,58,.7)}',
+    '@keyframes nvaPulso{70%{box-shadow:0 0 0 11px transparent}100%{box-shadow:0 0 0 0 transparent}}',
+
+    '.nva-h1{font-size:clamp(30px,4.6vw,50px);font-weight:800;line-height:1.05;margin:0 0 14px}',
+    '.nva-h1 em{font-style:normal;background:linear-gradient(96deg,var(--nva-gold-hi),var(--nva-leaf));',
+      '-webkit-background-clip:text;background-clip:text;color:transparent}',
+    '.nva-lede{margin:0 0 24px;max-width:56ch;font-size:16.5px;line-height:1.62;color:var(--nva-tx2)}',
+    '.nva-lede b{color:var(--nva-tx);font-weight:700}',
+
+    '.nva-perfil{display:flex;align-items:center;gap:13px;flex-wrap:wrap;',
+      'padding:11px 15px;border-radius:999px;width:fit-content;',
+      'background:rgba(255,255,255,.045);border:1px solid var(--nva-line)}',
+    '.nva-avatar{width:38px;height:38px;flex:0 0 auto;border-radius:50%;',
+      'display:grid;place-items:center;font-family:var(--mono);font-size:13px;font-weight:700;',
+      'color:#08120D;background:linear-gradient(135deg,var(--nva-gold-hi),var(--nva-leaf))}',
+    '.nva-perfil-t{display:flex;flex-direction:column;line-height:1.25}',
+    '.nva-perfil-t b{font-size:13.5px;font-weight:700;color:var(--nva-tx)}',
+    '.nva-perfil-t i{font-style:normal;font-size:11px;letter-spacing:.22em;color:var(--nva-gold)}',
+    '.nva-perfil-s{font-family:var(--mono);font-size:11px;color:var(--nva-dim);',
+      'padding-left:13px;border-left:1px solid var(--nva-line)}',
+
+    '.nva-hero-med{display:flex;flex-direction:column;align-items:center;gap:12px}',
+    '.nva-med{position:relative;display:grid;place-items:center}',
+    '.nva-med-c{position:absolute;text-align:center;line-height:1}',
+    '.nva-med-c b{font-family:var(--display);font-size:38px;font-weight:800;color:var(--nva-tx)}',
+    '.nva-med-c span{font-family:var(--display);font-size:19px;font-weight:700;color:var(--nva-gold)}',
+    '.nva-med-e{margin:2px 0 0;text-align:center;white-space:nowrap;font-family:var(--mono);',
+      'font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--nva-gold)}',
+    '.nva-med-p{margin:0;text-align:center;font-family:var(--mono);font-size:11px;line-height:1.6;color:var(--nva-dim)}',
+
+    '.nva-ring-b{stroke:rgba(255,255,255,.08)}',
+    '.nva-ring-v{stroke:var(--nva-leaf)}',
+    '.nva-ring-lg .nva-ring-v{filter:drop-shadow(0 0 7px rgba(70,227,155,.55))}',
+
+    /* ---------- métricas ---------- */
+    '.nva-sec-met{margin-top:-30px;position:relative;z-index:2;',
+      'display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}',
+    '.nva-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}',
+    '.nva-tile{padding:17px 16px 15px;border-radius:var(--nva-rad);',
+      'background:linear-gradient(160deg,var(--nva-raise),var(--nva-deep));',
+      'border:1px solid var(--nva-line);position:relative;overflow:hidden}',
+    '.nva-tile::after{content:"";position:absolute;inset:0 0 auto;height:2px;opacity:.85}',
+    '.nva-tile.nva-leaf::after{background:linear-gradient(90deg,var(--nva-leaf),transparent)}',
+    '.nva-tile.nva-gold::after{background:linear-gradient(90deg,var(--nva-gold),transparent)}',
+    '.nva-tile.nva-ion::after{background:linear-gradient(90deg,var(--nva-ion),transparent)}',
+    '.nva-tile-i{display:block;font-size:13px;margin-bottom:9px;color:var(--nva-dim)}',
+    '.nva-tile b{display:block;font-family:var(--display);font-size:32px;font-weight:800;',
+      'line-height:1;color:var(--nva-tx);font-variant-numeric:tabular-nums}',
+    '.nva-tile-l{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.1em;text-transform:uppercase;color:var(--nva-dim)}',
+
+    '.nva-graf{padding:20px 20px 16px;border-radius:var(--nva-rad);',
+      'background:var(--nva-deep);border:1px solid var(--nva-line)}',
+    '.nva-graf-t{margin:0 0 15px;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.14em;text-transform:uppercase;color:var(--nva-dim)}',
+    '.nva-filas{list-style:none;margin:0;padding:0;display:grid;gap:11px}',
+    '.nva-fila{display:grid;grid-template-columns:minmax(0,1fr) minmax(70px,1.1fr) auto;',
+      'gap:12px;align-items:center}',
+    '.nva-fila-n{font-size:13px;color:var(--nva-tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.nva-fila.off .nva-fila-n{color:var(--nva-dim)}',
+    '.nva-fila-v{font-family:var(--mono);font-size:11.5px;color:var(--nva-dim);',
+      'font-variant-numeric:tabular-nums;min-width:38px;text-align:right}',
+
+    /* ---------- barras ---------- */
+    '.nva-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}',
+    '.nva-bar.sm{height:5px;margin-bottom:14px}',
+    '.nva-bar i{display:block;height:100%;width:0;border-radius:99px;',
+      'background:linear-gradient(90deg,var(--nva-leaf),var(--nva-ion))}',
+    '.nva-bar.g i{background:linear-gradient(90deg,var(--nva-gold),var(--nva-gold-hi))}',
+    '.nva-bar.mute i{background:rgba(255,255,255,.14)}',
+
+    /* ---------- la puerta ---------- */
+    '.nva-puerta{position:relative;overflow:hidden;border-radius:26px;',
+      'display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:0;',
+      'background:linear-gradient(150deg,#13211A 0%,#0F1A16 55%,#0C1512 100%);',
+      'border:1px solid rgba(232,178,58,.3)}',
+    '.nva-puerta-fx{position:absolute;inset:0;pointer-events:none;',
+      'background:radial-gradient(circle at 88% 12%,rgba(232,178,58,.20),transparent 52%),',
+      'radial-gradient(circle at 4% 92%,rgba(70,227,155,.15),transparent 48%)}',
+    '.nva-puerta-a{position:relative;padding:34px 32px 32px}',
+    '.nva-badge{display:inline-flex;align-items:center;gap:8px;margin:0 0 15px;',
+      'padding:6px 13px;border-radius:999px;background:rgba(232,178,58,.12);',
+      'border:1px solid rgba(232,178,58,.34);',
+      'font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nva-gold-hi)}',
+    '.nva-puerta-h{font-size:clamp(23px,3vw,32px);font-weight:800;line-height:1.14;margin:0 0 13px}',
+    '.nva-puerta-p{margin:0 0 20px;max-width:58ch;font-size:16px;line-height:1.62;color:var(--nva-tx2)}',
+    '.nva-puerta-p b{color:var(--nva-gold-hi);font-weight:700}',
+    '.nva-puerta-l{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:9px}',
+    '.nva-puerta-l li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--nva-tx2)}',
+    '.nva-puerta-l li span{color:var(--nva-leaf);font-size:11px;line-height:1.7}',
+    '.nva-puerta-av{margin:0 0 22px;max-width:420px}',
+    '.nva-puerta-av-t{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}',
+    '.nva-puerta-av-t span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;',
+      'text-transform:uppercase;color:var(--nva-dim)}',
+    '.nva-puerta-av-t b{font-family:var(--mono);font-size:12.5px;color:var(--nva-tx)}',
+    '.nva-puerta-btn{display:flex;gap:11px;flex-wrap:wrap}',
+
+    '.nva-puerta-b{position:relative;padding:34px 30px 32px;',
+      'border-left:1px solid var(--nva-line);background:rgba(0,0,0,.24)}',
+    '.nva-puente-e{margin:0 0 13px;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.16em;text-transform:uppercase;color:var(--nva-dim)}',
+    '.nva-puente{padding:19px 18px;border-radius:16px;background:rgba(255,255,255,.04);',
+      'border:1px solid var(--nva-line);display:grid;gap:9px}',
+    '.nva-puente.tiene{border-color:rgba(70,227,155,.4)}',
+    '.nva-puente-i{font-size:27px;line-height:1}',
+    '.nva-puente b{font-family:var(--display);font-size:16.5px;font-weight:700;line-height:1.28;color:var(--nva-tx)}',
+    '.nva-puente-s{font-size:13px;line-height:1.5;color:var(--nva-dim)}',
+    '.nva-puente-n{margin:14px 0 0;font-size:13px;line-height:1.58;color:var(--nva-dim)}',
+
+    /* ---------- botones ---------- */
+    '.nva-cta{display:inline-flex;align-items:center;justify-content:center;gap:9px;',
+      'padding:13px 22px;border:1px solid transparent;border-radius:12px;cursor:pointer;',
+      'font:inherit;font-size:14.5px;font-weight:700;letter-spacing:.01em;',
+      'color:#08120D;background:linear-gradient(120deg,var(--nva-leaf),#2FCE8A);',
+      'transition:transform .16s ease,box-shadow .2s ease,filter .16s ease}',
+    '.nva-cta:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(70,227,155,.26);filter:brightness(1.06)}',
+    '.nva-cta:active{transform:translateY(0)}',
+    '.nva-cta i{font-style:normal;transition:transform .18s ease}',
+    '.nva-cta:hover i{transform:translateX(3px)}',
+    '.nva-cta.g{background:linear-gradient(120deg,var(--nva-gold-hi),var(--nva-gold));color:#1A1206}',
+    '.nva-cta.g:hover{box-shadow:0 10px 26px rgba(232,178,58,.3)}',
+    '.nva-cta.sm{padding:9px 15px;font-size:13px;border-radius:10px}',
+    '.nva-cta.ghost{background:transparent;color:var(--nva-tx2);border-color:var(--nva-line2)}',
+    '.nva-cta.ghost:hover{background:rgba(255,255,255,.06);color:var(--nva-tx);box-shadow:none}',
+    '.nva-cta.lock{background:rgba(255,255,255,.08);color:var(--nva-tx);border-color:var(--nva-line2)}',
+    '.nva-cta.lock:hover{background:rgba(232,178,58,.16);border-color:rgba(232,178,58,.45);box-shadow:none}',
+    '.nva-cta:focus-visible{outline:2px solid var(--nva-gold-hi);outline-offset:3px}',
+
+    /* ---------- títulos de sección ---------- */
+    '.nva-h2-w{display:flex;align-items:baseline;gap:13px;flex-wrap:wrap}',
+    '.nva-h2{font-size:24px;font-weight:800;color:var(--nva-tx)}',
+    '.nva-h2-n{font-family:var(--mono);font-size:11px;letter-spacing:.1em;',
+      'text-transform:uppercase;color:var(--nva-dim)}',
+    '.nva-sub{margin:9px 0 22px;max-width:70ch;font-size:14.5px;line-height:1.6;color:var(--nva-dim)}',
+    '.nva-sec-cat{padding-top:34px;border-top:1px solid var(--nva-line)}',
+    '.nva-sec-cat .nva-h2::before{content:"✦";margin-right:9px;color:var(--nva-gold);font-size:.78em;vertical-align:.1em}',
+
+    /* ---------- tarjetas ---------- */
+    '.nva-rej{display:grid;grid-template-columns:repeat(auto-fill,minmax(278px,1fr));',
+      'gap:18px;grid-auto-rows:1fr}',
+    '.nva-card{display:flex;flex-direction:column;overflow:hidden;border-radius:var(--nva-rad);',
+      'background:linear-gradient(170deg,var(--nva-raise),var(--nva-deep));',
+      'border:1px solid var(--nva-line);',
+      'transition:transform .2s ease,border-color .2s ease,box-shadow .24s ease}',
+    '.nva-card:hover{transform:translateY(-4px);border-color:var(--nva-line2);',
+      'box-shadow:0 18px 40px rgba(0,0,0,.5)}',
+    '.nva-card-cov{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0A120E}',
+    '.nva-card-cov img{width:100%;height:100%;object-fit:cover;',
+      'transition:transform .5s ease,filter .3s ease}',
+    '.nva-card:hover .nva-card-cov img{transform:scale(1.05)}',
+    '.nva-card-nocov{position:absolute;inset:0;',
+      'background:linear-gradient(135deg,#132019,#0B120F)}',
+    '.nva-card-velo{position:absolute;inset:0;',
+      'background:linear-gradient(to top,rgba(7,11,9,.92) 4%,rgba(7,11,9,.14) 60%,transparent)}',
+    '.nva-card-ico{position:absolute;left:14px;bottom:12px;font-size:25px;line-height:1;',
+      'filter:drop-shadow(0 2px 7px rgba(0,0,0,.65))}',
+    '.nva-card-cat{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:99px;',
+      'background:rgba(7,11,9,.72);border:1px solid var(--nva-line);backdrop-filter:blur(5px);',
+      'font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--nva-tx2)}',
+    '.nva-card-done{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:99px;',
+      'background:rgba(70,227,155,.16);border:1px solid rgba(70,227,155,.45);',
+      'font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--nva-leaf)}',
+
+    /* el bloqueado se APAGA: eso es lo que hace legible el catálogo */
+    '.nva-card.lock .nva-card-cov img{filter:grayscale(.92) brightness(.42)}',
+    '.nva-card.lock .nva-card-velo{background:linear-gradient(to top,rgba(7,11,9,.96),rgba(7,11,9,.66))}',
+    '.nva-card.lock{border-color:rgba(255,255,255,.055)}',
+    '.nva-card.lock h3{color:var(--nva-tx2)}',
+    '.nva-card.lock:hover .nva-card-cov img{filter:grayscale(.55) brightness(.6);transform:scale(1.03)}',
+    '.nva-card-lock{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;',
+      'text-shadow:0 3px 14px rgba(0,0,0,.8);transition:transform .22s ease}',
+    '.nva-card.lock:hover .nva-card-lock{transform:scale(1.12)}',
+
+    '.nva-card-c{display:flex;flex-direction:column;flex:1;padding:16px 17px 17px}',
+    '.nva-card-c h3{font-size:16.5px;font-weight:700;line-height:1.3;margin:0 0 8px;color:var(--nva-tx)}',
+    '.nva-card-c > p{margin:0 0 13px;font-size:13.5px;line-height:1.55;color:var(--nva-dim);min-height:3.2em}',
+    '.nva-card-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;',
+      'margin-bottom:11px;font-family:var(--mono);font-size:11px;color:var(--nva-dim);min-height:20px}',
+    '.nva-precio{color:var(--nva-gold);font-weight:600}',
+    '.nva-card-btn{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}',
+    '.nva-card-btn .nva-cta{flex:1 1 auto}',
+
+    /* ---------- certificados: el mismo contenido, otra ropa ---------- */
+    '.nvac-sec{margin:0}',
+    '.nvac-h2{font-family:var(--display);font-size:24px;font-weight:800;color:var(--nva-tx);margin:0 0 18px}',
+    '.nvac-vacio{padding:36px 26px;border-radius:var(--nva-rad);text-align:center;',
+      'background:var(--nva-deep);border:1px dashed var(--nva-line2)}',
+    '.nvac-vacio span{display:block;font-size:34px;line-height:1;margin-bottom:12px;opacity:.8}',
+    '.nvac-vacio b{display:block;font-family:var(--display);font-size:17px;font-weight:700;',
+      'color:var(--nva-tx);margin-bottom:8px}',
+    '.nvac-vacio p{margin:0 auto;max-width:52ch;font-size:14px;line-height:1.6;color:var(--nva-dim)}',
+    '.nvac-certs{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}',
+    '.nvac-cert{padding:20px;border-radius:var(--nva-rad);color:var(--nva-tx);',
+      'background:linear-gradient(160deg,var(--nva-raise),var(--nva-deep));',
+      'border:1px solid var(--nva-line);border-top:2px solid var(--ac,var(--nva-gold))}',
+    '.nvac-cert-h{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}',
+    '.nvac-cert-h > span{font-size:25px;line-height:1.1}',
+    '.nvac-cert-h b{display:block;font-family:var(--display);font-size:15.5px;font-weight:700;',
+      'line-height:1.32;color:var(--nva-tx);margin-bottom:4px}',
+    '.nvac-cert-h em{font-style:normal;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.1em;text-transform:uppercase;color:var(--nva-dim)}',
+    '.nvac-cert-m{margin-bottom:13px;font-family:var(--mono);font-size:11.5px;color:var(--nva-leaf)}',
+    '.nvac-cert-cod{display:grid;gap:7px;padding:13px 14px;border-radius:12px;margin-bottom:14px;',
+      'background:rgba(0,0,0,.34);border:1px solid var(--nva-line)}',
+    '.nvac-cert-cod > span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;',
+      'text-transform:uppercase;color:var(--nva-dim)}',
+    '.nvac-cert-cod code{font-family:var(--mono);font-size:13.5px;letter-spacing:.04em;color:var(--nva-gold-hi)}',
+    '.nvac-cert-cp{align-self:start;padding:5px 12px;border-radius:8px;cursor:pointer;font:inherit;',
+      'font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;',
+      'background:transparent;color:var(--nva-tx2);border:1px solid var(--nva-line2);',
+      'transition:background .15s ease,color .15s ease}',
+    '.nvac-cert-cp:hover{background:rgba(255,255,255,.07);color:var(--nva-tx)}',
+    '.nvac-cert-a .nvac-card-cta{display:inline-flex;align-items:center;justify-content:center;',
+      'width:100%;padding:11px 18px;border:0;border-radius:11px;cursor:pointer;font:inherit;',
+      'font-size:14px;font-weight:700;color:#1A1206;',
+      'background:linear-gradient(120deg,var(--nva-gold-hi),var(--nva-gold));',
+      'transition:transform .16s ease,box-shadow .2s ease}',
+    '.nvac-cert-a .nvac-card-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(232,178,58,.28)}',
+    '.nvac-nota{margin:18px 0 0;max-width:78ch;font-size:13px;line-height:1.6;color:var(--nva-dim)}',
+
+    '.nva-pie{margin-top:54px;padding-top:22px;border-top:1px solid var(--nva-line);',
+      'display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;',
+      'font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--nva-dim)}',
+
+    /* ---------- entrada ---------- */
+    '.nva-w .nva-hero-tx > *,.nva-w .nva-hero-med,.nva-w .nva-tile,',
+    '.nva-w .nva-graf,.nva-w .nva-puerta,.nva-w .nva-card{opacity:0}',
+    '.nva-w.nva-listo .nva-hero-tx > *,.nva-w.nva-listo .nva-hero-med,',
+    '.nva-w.nva-listo .nva-tile,.nva-w.nva-listo .nva-graf,',
+    '.nva-w.nva-listo .nva-puerta,.nva-w.nva-listo .nva-card{opacity:1}',
+
+    /* ---------- móvil y pantallas medianas ---------- */
+    '@media(max-width:1000px){',
+      '.nva-sec-met{grid-template-columns:1fr;margin-top:-18px}',
+      '.nva-puerta{grid-template-columns:1fr}',
+      '.nva-puerta-b{border-left:0;border-top:1px solid var(--nva-line)}',
+    '}',
+    '@media(max-width:820px){',
+      '.nva-hero{padding:44px 18px 40px}',
+      '.nva-hero-in{grid-template-columns:1fr;gap:28px}',
+      /* en el teléfono el anillo se pone al lado de sus dos textos,
+         no encima: ocupa la mitad de alto y se lee igual */
+      '.nva-hero-med{display:grid;grid-template-columns:auto minmax(0,1fr);',
+        'grid-template-areas:"anillo etiqueta" "anillo detalle";',
+        'align-items:center;justify-items:start;column-gap:16px;row-gap:2px}',
+      '.nva-med{grid-area:anillo}',
+      '.nva-med-e{grid-area:etiqueta;text-align:left;margin:0}',
+      '.nva-med-p{grid-area:detalle;text-align:left}',
+      '.nva-med-c b{font-size:30px}',
+      '.nva-cuerpo{padding:0 16px 56px}',
+      '.nva-orb{filter:blur(56px);opacity:.42}',
+      '.nva-puerta-a,.nva-puerta-b{padding:26px 20px}',
+      '.nva-rej{grid-template-columns:1fr;gap:14px}',
+      '.nva-fila{grid-template-columns:minmax(0,1fr) auto;row-gap:7px}',
+      '.nva-fila-g{grid-column:1/-1;order:3}',
+    '}',
+    '@media(max-width:480px){',
+      '.nva-tiles{grid-template-columns:1fr 1fr}',
+      '.nva-tile b{font-size:26px}',
+      '.nva-perfil{width:100%}',
+      '.nva-perfil-s{padding-left:0;border-left:0;flex-basis:100%}',
+      '.nva-puerta-btn .nva-cta{flex:1 1 100%}',
+    '}',
+    '@media(prefers-reduced-motion:reduce){',
+      '.nva-malla{animation:none}',
+      '.nva-pulso{animation:none}',
+      '.nva-card,.nva-cta,.nva-card-cov img{transition:none}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-publicar.js ---------- */
+/* ============================================================
+   EL CURSO BASE TAMBIÉN SE PUBLICA Y SE OCULTA
+   ------------------------------------------------------------
+   En la pestaña «Catálogo», cuatro cursos traían su interruptor
+   Visible / Oculto y dos traían una etiqueta fija «Publicado»:
+   el curso base y el gratuito.
+
+   No era una decisión: era un efecto secundario. La fila dibuja
+   el interruptor solo cuando el curso lleva sellsSeparately, y
+   esos dos no lo llevan. Esa bandera no es comercial — decide
+   además cómo se entra al curso y cómo se rotula la tarjeta, y
+   cambiarla dejaba el curso base sin renderizar. Así que no se
+   toca la bandera: se corrige la fila.
+
+   LO QUE YA EXISTÍA Y NO HACE FALTA INVENTAR
+
+   La publicación del curso base ya estaba implementada entera:
+
+       NXPUB.porcicultura                 ← el valor
+       COURSES.porcicultura.published()   ← quien lo lee
+       nxPublicar('porcicultura', v)      ← quien lo cambia
+
+   Faltaba únicamente el interruptor que lo accione. Eso es todo
+   lo que añade este archivo.
+
+   EL GRATUITO SE QUEDA SIN INTERRUPTOR, A PROPÓSITO
+
+   «Introducción a la Porcicultura Rentable» es la puerta de
+   entrada: está abierta para todo el mundo y es lo único
+   publicado gratis. Un interruptor ahí solo serviría para
+   cerrar la puerta por accidente.
+
+   PUBLICAR NO ES DAR ACCESO — y siguen siendo dos cosas:
+     · publicado → el curso aparece en el catálogo.
+     · acceso    → el estudiante puede entrar.
+   Ocultar el curso base no le quita el acceso a quien ya lo
+   tiene: a esa persona le sigue apareciendo el suyo.
+   ============================================================ */
+
+var AGPUBFIJO = ['ruta'];   /* los que no llevan interruptor */
+
+function agPubInterruptor(k, pub){
+  return '<label class="nxa-sw" title="Publicar / ocultar para estudiantes">' +
+    '<input type="checkbox"' + (pub ? ' checked' : '') +
+      ' onchange="agPubCambia(\'' + k + '\', this.checked)">' +
+    '<span></span><em>' + (pub ? 'Visible' : 'Oculto') + '</em></label>';
+}
+
+window.agPubCambia = function(k, v){
+  /* se delega en la función que ya existe: ella guarda, avisa y
+     repinta. Aquí no se guarda nada por separado. */
+  try{
+    if(typeof ucPublicar === 'function') return ucPublicar(k, v);
+    if(typeof nxPublicar === 'function') return nxPublicar(k, v);
+  }catch(e){}
+  if(typeof toast === 'function') toast('No se pudo cambiar la publicación', '⚠️');
+};
+
+/* ------------------------------------------------------------
+   SE TRABAJA SOBRE EL DOM, NO SOBRE LA FUNCIÓN
+
+   El primer intento envolvía la función que arma ese catálogo. No sirve: esa función
+   vive dentro de un cierre y no cuelga de window, así que el
+   envoltorio no llegaba a ponerse y la fila seguía igual. Se
+   comprobó y salía «esa función del núcleo is not defined».
+
+   Así que se corrige la fila ya pintada. Si mañana cambia esa
+   pantalla, esto como mucho no encuentra la fila y no rompe nada.
+   ------------------------------------------------------------ */
+function agPubArreglaNodo(raiz){
+  var filas = (raiz || document).querySelectorAll('.uc-cat .uc-c');
+  if(!filas.length) return 0;
+
+  var porNombre = {};
+  try{
+    Object.keys(COURSES).forEach(function(k){
+      porNombre[String(COURSES[k].name || '').trim()] = k;
+    });
+  }catch(e){ return 0; }
+
+  var puestos = 0;
+  [].forEach.call(filas, function(fila){
+    var b = fila.querySelector('.uc-t > b');
+    if(!b) return;
+    var k = porNombre[b.textContent.trim()];
+    if(!k || AGPUBFIJO.indexOf(k) >= 0) return;
+
+    var pill = fila.querySelector('.uc-pill');
+    if(!pill) return;                       /* ya tiene interruptor */
+
+    var pub = true;
+    try{ pub = !!COURSES[k].published(); }catch(e){}
+
+    var tmp = document.createElement('div');
+    tmp.innerHTML = agPubInterruptor(k, pub);
+    fila.replaceChild(tmp.firstElementChild, pill);
+    puestos++;
+  });
+  return puestos;
+}
+
+/* se vigila la pantalla del instructor: al pintarse el catálogo,
+   se le pone el interruptor que le falta */
+(function agPubVigila(){
+  var pasar = function(){ try{ agPubArreglaNodo(document); }catch(e){} };
+  if(typeof window.renderAdmin === 'function'){
+    var _renderAdminPub = window.renderAdmin;
+    window.renderAdmin = function(){
+      var r = _renderAdminPub.apply(this, arguments);
+      setTimeout(pasar, 0);
+      setTimeout(pasar, 120);
+      return r;
+    };
+  }
+  var arranca = function(){
+    [400, 1200, 2400].forEach(function(t){ setTimeout(pasar, t); });
+    setInterval(pasar, 1500);
+  };
+  if(document.body) arranca(); else addEventListener('DOMContentLoaded', arranca);
+})();
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27597,6 +28585,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
 
 
 
@@ -32021,7 +33010,87 @@ if(typeof window.nxAdmAcceso === 'function'){
   };
 }
 
+
+/* ---------- eg-nube.js ---------- */
+/* ============================================================
+   ENGORDE: EL PERMISO TAMBIÉN POR LA NUBE
+   ------------------------------------------------------------
+   Engorde era el otro curso sin columna en el perfil. Su permiso
+   vivía solo en el localStorage del instructor — y el
+   localStorage del instructor no llega al del alumno. Es decir:
+   el instructor podía marcar «habilitado» y el alumno no se
+   enteraba nunca.
+
+   Aquí se le da la misma vía que a nutrición, reproducción y
+   sanidad: profiles.acceso_engorde.
+
+   Si la columna todavía no existe, esto no hace nada y el curso
+   sigue comportándose como hasta hoy.
+   ============================================================ */
+
+var EGNUBE = { viva: false, consultada: false };
+
+(function egNubeTraer(){
+  var intentos = 0;
+  var pedir = function(){
+    if(!window.SB || typeof SB.from !== 'function'){
+      if(++intentos < 8){ setTimeout(pedir, 1500); return; }
+      EGNUBE.consultada = true;
+      return;
+    }
+    try{
+      SB.from('profiles').select('id,acceso_engorde').then(function(r){
+        EGNUBE.consultada = true;
+        if(!r || r.error || !r.data) return;   /* la columna no existe: no se toca nada */
+        EGNUBE.viva = true;
+        var nuevo = {};
+        r.data.forEach(function(p){ if(p.acceso_engorde) nuevo[p.id] = true; });
+        EGACCESO = nuevo;
+        try{ egGuardarAcceso(); }catch(e){}
+        try{ if(typeof nxAdmin === 'function') nxAdmin(); }catch(e){}
+        try{
+          var w = document.querySelector('#csOv .cs-w');
+          if(w){ delete w.dataset.agCampus; if(typeof agCampus === 'function') agCampus(); }
+        }catch(e){}
+      }, function(){ EGNUBE.consultada = true; });
+    }catch(e){ EGNUBE.consultada = true; }
+  };
+  setTimeout(pedir, 2400);
+})();
+
+function egNubeEscribe(ids, v){
+  if(!window.SB || typeof SB.from !== 'function') return;
+  ids.forEach(function(id){
+    try{ SB.from('profiles').update({acceso_engorde: !!v}).eq('id', id).then(function(){}, function(){}); }catch(e){}
+  });
+}
+
+if(typeof window.egDarAcceso === 'function'){
+  var _egDarAccesoNube = window.egDarAcceso;
+  window.egDarAcceso = function(id, v){
+    var r = _egDarAccesoNube.apply(this, arguments);
+    egNubeEscribe([id], v);
+    return r;
+  };
+}
+
+if(typeof window.egAccesoTodos === 'function'){
+  var _egAccesoTodosNube = window.egAccesoTodos;
+  window.egAccesoTodos = function(v){
+    var antes = Object.keys(EGACCESO).join(',');
+    var r = _egAccesoTodosNube.apply(this, arguments);
+    if(Object.keys(EGACCESO).join(',') !== antes || v === false){
+      var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : [])
+        .filter(function(s){ return s.status !== 'borrado'; })
+        .map(function(s){ return s.id; });
+      egNubeEscribe(alum, v);
+    }
+    return r;
+  };
+}
+
 </script>
+
 
 
 
@@ -35149,6 +36218,13 @@ var PCVISTOS = {};
 (function pcSembrarTarde(){
   var n = 0;
   var revisar = function(){
+    /* Si el permiso ya viaja por la nube (profiles.acceso_porcicultura),
+       la siembra sobra y además estorba: volvería a dar el curso base a
+       cada cuenta activa nueva, que es justo lo que se quiere evitar.
+       En cuanto la nube contesta, esto se calla para siempre.
+       Mientras la columna no exista, sigue funcionando como hasta hoy y
+       nadie pierde el acceso que ya tiene. */
+    if(window.PCNUBE && PCNUBE.viva) return;
     try{
       var cambio = false;
       (typeof STUDENTS !== 'undefined' ? STUDENTS : []).forEach(function(s){
@@ -35408,7 +36484,138 @@ if(typeof window.abrirCursos === 'function'){
   };
 }
 
+
+/* ---------- rt-nube.js ---------- */
+/* ============================================================
+   EL CURSO BASE: EL ACCESO DEJA DE SER «TENER CUENTA ACTIVA»
+   ------------------------------------------------------------
+   QUÉ ESTABA PASANDO, MEDIDO
+
+   Un alumno recién registrado veía DOS cursos habilitados: el
+   gratuito y el curso base de US$ 75. No era un fallo suelto:
+   era la única vía que le quedaba al curso base para saber
+   quién tiene acceso.
+
+   Los otros tres cursos de pago guardan el permiso en la nube,
+   en una columna del perfil:
+
+       nutricion     → profiles.acceso_nutricion
+       reproduccion  → profiles.acceso_reproduccion
+       sanidad       → profiles.acceso_sanidad
+
+   El curso base y engorde NO tenían columna. Su permiso vivía
+   solo en el localStorage del navegador, y el localStorage del
+   instructor no llega al del alumno. Sin una vía que cruce,
+   el curso base se apoyaba en lo único que sí viaja desde
+   Supabase: el estado de la cuenta. De ahí la siembra de
+   rt-base.js — «si la cuenta está activa, dale el curso base».
+
+   Esa siembra fue una migración correcta en su momento: al
+   encender el candado, respetó a todos los que ya estaban
+   dentro. Lo que no tenía era fecha de caducidad, así que
+   siguió aplicándose a cada cuenta nueva.
+
+   LO QUE HACE ESTE ARCHIVO
+
+   Le da al curso base la misma vía que a los otros tres:
+   profiles.acceso_porcicultura. Y en cuanto esa columna
+   responde, la nube pasa a mandar y la siembra se apaga sola.
+
+   EL ORDEN IMPORTA, Y ES A PRUEBA DE OLVIDOS
+
+   · Mientras la columna NO exista, aquí no cambia nada: la
+     siembra sigue, y nadie pierde el acceso que tiene hoy.
+   · En cuanto la columna exista y responda, el mapa local se
+     reemplaza por lo que diga la nube y la siembra se detiene.
+
+   Por eso el SQL que acompaña a esto (supabase/acceso-cursos.sql)
+   crea la columna Y la rellena en la misma corrida. Si se creara
+   vacía, todos los alumnos perderían el curso base a la vez.
+   ============================================================ */
+
+var PCNUBE = { viva: false, consultada: false };
+
+/* ------------------------------------------------------------
+   1 · TRAER EL PERMISO DE LA NUBE
+   ------------------------------------------------------------ */
+(function pcNubeTraer(){
+  var intentos = 0;
+  var pedir = function(){
+    if(!window.SB || typeof SB.from !== 'function'){
+      /* el cliente de Supabase puede tardar en existir */
+      if(++intentos < 8){ setTimeout(pedir, 1500); return; }
+      PCNUBE.consultada = true;
+      return;
+    }
+    try{
+      SB.from('profiles').select('id,acceso_porcicultura').then(function(r){
+        PCNUBE.consultada = true;
+        /* si la columna no existe, Supabase devuelve error: no se toca nada */
+        if(!r || r.error || !r.data) return;
+        PCNUBE.viva = true;
+        /* la nube MANDA: se reemplaza el mapa, no se mezcla. Mezclar
+           dejaría vivo para siempre cualquier permiso viejo del
+           navegador, y entonces quitar un acceso no serviría de nada. */
+        var nuevo = {};
+        r.data.forEach(function(p){ if(p.acceso_porcicultura) nuevo[p.id] = true; });
+        PCACCESO = nuevo;
+        try{ pcGuardar(); }catch(e){}
+        pcNubeRepinta();
+      }, function(){ PCNUBE.consultada = true; });
+    }catch(e){ PCNUBE.consultada = true; }
+  };
+  setTimeout(pedir, 2200);
+})();
+
+function pcNubeRepinta(){
+  try{ if(typeof nxAdmin === 'function') nxAdmin(); }catch(e){}
+  try{
+    var w = document.querySelector('#csOv .cs-w');
+    if(w){ delete w.dataset.agCampus; if(typeof agCampus === 'function') agCampus(); }
+  }catch(e){}
+}
+
+/* ------------------------------------------------------------
+   2 · LLEVAR EL PERMISO A LA NUBE CUANDO EL INSTRUCTOR LO CAMBIA
+   ------------------------------------------------------------
+   Se envuelven las dos funciones que ya existen en vez de
+   reescribirlas: lo que guardan en local no cambia, solo se
+   añade el viaje de ida.
+   ------------------------------------------------------------ */
+function pcNubeEscribe(ids, v){
+  if(!window.SB || typeof SB.from !== 'function') return;
+  ids.forEach(function(id){
+    try{ SB.from('profiles').update({acceso_porcicultura: !!v}).eq('id', id).then(function(){}, function(){}); }catch(e){}
+  });
+}
+
+if(typeof window.pcDarAcceso === 'function'){
+  var _pcDarAccesoNube = window.pcDarAcceso;
+  window.pcDarAcceso = function(id, v){
+    var r = _pcDarAccesoNube.apply(this, arguments);
+    pcNubeEscribe([id], v);
+    return r;
+  };
+}
+
+if(typeof window.pcAccesoTodos === 'function'){
+  var _pcAccesoTodosNube = window.pcAccesoTodos;
+  window.pcAccesoTodos = function(v){
+    var antes = Object.keys(PCACCESO).join(',');
+    var r = _pcAccesoTodosNube.apply(this, arguments);
+    /* solo se sube si el instructor confirmó de verdad el diálogo */
+    if(Object.keys(PCACCESO).join(',') !== antes || v === false){
+      var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : [])
+        .filter(function(s){ return s.status !== 'borrado'; })
+        .map(function(s){ return s.id; });
+      pcNubeEscribe(alum, v);
+    }
+    return r;
+  };
+}
+
 </script>
+
 
 
 
