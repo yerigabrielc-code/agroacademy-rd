@@ -26744,6 +26744,53 @@ var SBFOTO = {
     t:'Una medida oficial de contención, en la vida real',
     p:'Cerca instalada para frenar el paso de jabalíes durante un brote de PPA, con el aviso de mantener el paso cerrado. No es una ilustración: <b>así se ve una zona bajo control sanitario</b> cuando la enfermedad ya está circulando.',
     cr:'Foto: Trio3D · <a href="https://commons.wikimedia.org/wiki/File:Klein_Gaglow,_African_swine_fever_barrier_(2_of_2).jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0'
+  },
+
+  /* ---------- SEGUNDA TANDA ----------
+     Faltaba fotografía en 6 de los 10 módulos. Aqui se cubren 5.
+
+     El modulo 10 (protocolo ante sospecha de PPA) se queda SIN foto a
+     propósito: busqué y no encontré ninguna con licencia comercial que
+     enseñara algo. Había decoración — un aviso oficial borroso en un
+     campo inglés, un político posando en un puerto — y una foto que no
+     enseña resta en vez de sumar. Prefiero decirlo a rellenar el hueco.
+
+     Todas llevan credito visible en el pie porque las licencias CC BY
+     y CC BY-SA lo exigen. No es adorno: es la condición de uso. */
+
+  ronda: {
+    f:'sb-f-ronda',
+    t:'Esto es lo que mas se parece a hacer sanidad',
+    p:'Un trabajador apoyado en la baranda, mirando. No está curando nada ni aplicando nada: <b>está viendo quién come, quién no se levanta y quién respira raro</b>. Esa es la ronda, y es la herramienta más barata que usted tiene. La granja de la foto es grande; con ocho cerdos la ronda es exactamente la misma.',
+    cr:'Foto: Golden Triangle Special Economic Zone · <a href="https://commons.wikimedia.org/wiki/File:Pig_farm_of_GTSEZ.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0'
+  },
+
+  interna: {
+    f:'sb-f-interna',
+    t:'Las divisiones están. El portón, abierto',
+    p:'Corrales de bloque bien hechos, y los animales pasando de uno a otro por el portón abierto. <b>Una división solo separa si se mantiene cerrada</b>. Si los lechones andan por todos los corrales, usted no tiene cinco corrales: tiene uno grande con paredes decorativas — y lo que entre a uno, entra a todos.',
+    cr:'Foto: Keyz abdulsalaam · <a href="https://commons.wikimedia.org/wiki/File:A_pig_farm.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0'
+  },
+
+  cuarentena: {
+    f:'sb-f-cuarentena',
+    t:'Aquí no hay dónde poner un animal nuevo',
+    p:'Madres, lechones y cerdos de engorde, todos en el mismo espacio. Es la granja de patio de media América Latina y funciona — hasta el día que usted compra un animal. <b>Si no tiene un sitio aparte, la cuarentena no se puede hacer</b>: el animal nuevo toca a todos en la primera hora. El corral de cuarentena no tiene que ser bonito; tiene que estar separado.',
+    cr:'Foto: Sumitsurai · <a href="https://commons.wikimedia.org/wiki/File:Pig_Farm_-_Bnashpukurdanga_(1).jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0'
+  },
+
+  cebadero: {
+    f:'sb-f-cebadero',
+    t:'Veneno suelto no: estación cerrada y rotulada',
+    p:'Una estación de cebo como debe ser: <b>cerrada, anclada al piso y con la etiqueta que dice que lleva dentro</b>. Así entra el ratón y no entran su perro, sus gallinas ni un niño. El veneno tirado por el suelo mata lo que no debe y al ratón muchas veces ni lo toca.',
+    cr:'Foto: BrokenSphere · <a href="https://commons.wikimedia.org/wiki/File:Bell_Rodent_Bait_Station.JPG" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 3.0'
+  },
+
+  plano: {
+    f:'sb-f-plano',
+    t:'Su granja, vista desde arriba',
+    p:'Desde el aire se ve de golpe lo que desde el suelo cuesta ver: <b>una sola entrada, la oficina antes de las naves, y un camino que no cruza por donde están los animales</b>. Ese es el ejercicio de este módulo — dibuje la suya así, aunque sea a mano en una hoja. El tamaño no cambia el dibujo: cambia el número de corrales.',
+    cr:'Foto: Szodorai Imre · <a href="https://commons.wikimedia.org/wiki/File:Pigfarm_Kft_sert%C3%A9stelepe_-_panoramio.jpg" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY 3.0'
   }
 };
 
@@ -26768,10 +26815,15 @@ function sbSecFoto(id){
     m.sec.splice(Math.min(pos, m.sec.length), 0, {k:'sbfoto', id:id});
   };
   /* de atrás hacia delante */
+  poner(9, 4, 'plano');
+  poner(8, 4, 'cebadero');
+  poner(7, 4, 'cuarentena');
   poner(6, 3, 'epp');
+  poner(5, 4, 'interna');
   poner(4, 5, 'arco');
   poner(3, 5, 'cerca');
   poner(2, 6, 'lab');
+  poner(1, 5, 'ronda');
 })();
 
 if(typeof window.nxSeccion === 'function'){
@@ -27545,6 +27597,8 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
 
 
 
