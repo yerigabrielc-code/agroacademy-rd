@@ -25510,8 +25510,18 @@ function agPubArreglaNodo(raiz){
       'position:relative}',
     '.adminp-side::after{content:"";position:absolute;inset:0 0 auto;height:1px;',
       'background:linear-gradient(90deg,transparent,rgba(70,227,155,.5),transparent)}',
-    '.adminp-brand{color:#E9F2EC!important;letter-spacing:-.01em}',
-    '.adminp-brand small, .adminp-side small{color:#7C9187!important}',
+    '.adminp-brand{color:#E9F2EC!important;letter-spacing:-.01em;',
+      'border-bottom:1px solid rgba(150,240,199,.13)!important}',
+    /* el nombre y el subtitulo son <b> y <span> en linea, asi que salian
+       pegados: «AdminGESTIÓN EDUCATIVA». Se apilan, que es lo que el
+       diseño pedía. Se toca solo este bloque, no los <b> de la pantalla. */
+    '.adminp-brand > div:last-child{display:flex;flex-direction:column;gap:3px;min-width:0}',
+    '.adminp-brand > div:last-child > b{display:block;color:#E9F2EC!important}',
+    '.adminp-brand > div:last-child > span{display:block;color:#7C9187!important}',
+    /* el cuadro del logotipo venia en azul de otra paleta */
+    '.adminp-brand .lg{background:linear-gradient(135deg,rgba(70,227,155,.22),rgba(232,178,58,.18))!important;',
+      'border:1px solid rgba(150,240,199,.2)}',
+    '.adminp-side small{color:#7C9187!important}',
     '.adminp-menu button, .adminp-menu a{color:#B4C6BB!important;border-radius:11px;',
       'transition:background .16s ease,color .16s ease,box-shadow .2s ease}',
     '.adminp-menu button:hover, .adminp-menu a:hover{background:rgba(255,255,255,.06)!important;color:#fff!important}',
@@ -25638,6 +25648,22 @@ function agPubArreglaNodo(raiz){
       'background:#0E1613!important;color:#E9F2EC!important;',
       'border:1px solid rgba(150,240,199,.16)!important}',
 
+    /* ---------- lo que no se dibuja, pero se ve ----------
+       La selección de texto, el cursor de escritura, la barra de
+       desplazamiento y el anillo de foco vienen del navegador y no
+       pertenecen a ningún diseño. Vestirlos cuesta cuatro reglas y
+       es la diferencia entre una pantalla montada y una construida. */
+    '.adminp ::selection{background:rgba(70,227,155,.28);color:#fff}',
+    '.adminp input, .adminp textarea{caret-color:#46E39B}',
+    '.adminp :focus-visible{outline:2px solid rgba(232,178,58,.65);outline-offset:2px;border-radius:6px}',
+    '.adminp ::-webkit-scrollbar{width:10px;height:10px}',
+    '.adminp ::-webkit-scrollbar-track{background:transparent}',
+    '.adminp ::-webkit-scrollbar-thumb{border-radius:99px;border:3px solid transparent;',
+      'background:rgba(150,240,199,.24);background-clip:content-box}',
+    '.adminp ::-webkit-scrollbar-thumb:hover{background:rgba(150,240,199,.4);background-clip:content-box}',
+    /* las cifras de las tablas se leen en columna: que no bailen */
+    '.adminp .adm-table td, .adminp .nx-t td, .adminp .adm-kpi b{font-variant-numeric:tabular-nums}',
+
     '@media(prefers-reduced-motion:reduce){',
       '.adminp *{transition:none!important}',
     '}'
@@ -25646,7 +25672,577 @@ function agPubArreglaNodo(raiz){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-vista.js ---------- */
+/* ============================================================
+   CONTROL DE VISIBILIDAD · QUÉ VE CADA ESTUDIANTE
+   ------------------------------------------------------------
+   DOS SISTEMAS, DOS TRABAJOS DISTINTOS — Y NO SE PISAN
+
+       ACCESO       ¿puede ENTRAR a este curso?
+                    vive en profiles.acceso_<curso>
+       VISIBILIDAD  ¿existe esta PIEZA en su pantalla?
+                    vive en profiles.vista
+
+   Son cosas distintas y por eso no se mezclan. Quitar el acceso
+   a un curso no borra su avance; apagar una pieza de la pantalla
+   no toca ni el acceso ni el avance. Ninguna de las dos borra
+   nada: las dos se pueden volver a encender y el estudiante
+   queda exactamente donde estaba.
+
+   POR QUÉ ESTO VIVE EN LA NUBE Y NO EN EL NAVEGADOR
+
+   Ya nos pasó con los accesos: lo que el instructor guarda en su
+   localStorage no llega al del alumno. Un interruptor guardado
+   aquí no cambiaría nada en la pantalla de nadie. Por eso esta
+   pieza es de nube o no es: mientras la columna profiles.vista
+   no exista, el sistema se declara APAGADO y el estudiante lo ve
+   todo, que es como está hoy.
+
+   LA REGLA DE ORO: APAGAR ES LA EXCEPCIÓN
+
+   Una clave ausente significa VISIBLE. Solo un false explícito
+   oculta. Así un alumno nuevo, o uno que nunca se configuró, lo
+   ve todo — nunca al revés. Un sistema que ocultara por defecto
+   dejaría la plataforma en blanco el día que falle una lectura.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · EL CATÁLOGO DE PIEZAS QUE SE PUEDEN APAGAR
+   ------------------------------------------------------------
+   Cada una dice QUÉ PASA si se apaga, no cómo se llama por
+   dentro. El instructor decide mirando consecuencias.
+   ------------------------------------------------------------ */
+var AGVISPIEZAS = [
+  { k:'perfil', g:'Su identidad', n:'Perfil y rango',
+    d:'Oculta su nombre, sus iniciales y el rango que lleva ganado.',
+    ico:'<circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>' },
+
+  { k:'progreso', g:'Su avance', n:'Avance global',
+    d:'Oculta el anillo con el porcentaje total y el recuento de módulos.',
+    ico:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 8 8"/>' },
+
+  { k:'estadisticas', g:'Su avance', n:'Tarjetas de estadísticas',
+    d:'Oculta los cuatro números: cursos habilitados, módulos aprobados, en marcha y certificados.',
+    ico:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>' },
+
+  { k:'grafico', g:'Su avance', n:'Gráfico curso por curso',
+    d:'Oculta la lista con la barra de avance de cada curso.',
+    ico:'<path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M3 19h18"/>' },
+
+  { k:'gratuito', g:'Sus cursos', n:'Panel del curso gratuito',
+    d:'Oculta la puerta de entrada y la invitación al curso completo. El curso sigue accesible por otras vías.',
+    ico:'<path d="M4 20V7l8-3 8 3v13"/><path d="M10 20v-6h4v6"/>' },
+
+  { k:'miscursos', g:'Sus cursos', n:'Mis cursos',
+    d:'Oculta la rejilla con los cursos que tiene habilitados.',
+    ico:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>' },
+
+  { k:'catalogo', g:'Sus cursos', n:'Catálogo de cursos bloqueados',
+    d:'Oculta la vitrina con los cursos que no tiene y sus precios. Deja de ver qué más existe.',
+    ico:'<rect x="3.5" y="8.5" width="17" height="12" rx="2"/><path d="M8.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5"/>' },
+
+  { k:'certificados', g:'Su cuenta', n:'Certificados',
+    d:'Oculta la sección de certificados y el botón de descarga. Los ya emitidos siguen siendo válidos.',
+    ico:'<circle cx="12" cy="9.5" r="5"/><path d="M8.5 13.5 7 21l5-2.5L17 21l-1.5-7.5"/>' }
+];
+
+function agVisGrupos(){
+  var o = [], vistos = {};
+  AGVISPIEZAS.forEach(function(p){ if(!vistos[p.g]){ vistos[p.g] = 1; o.push(p.g); } });
+  return o;
+}
+
+/* ------------------------------------------------------------
+   2 · LA NUBE MANDA, O ESTO NO EXISTE
+   ------------------------------------------------------------ */
+var AGVISMAPA = {};                               /* uid -> {clave:false} */
+var AGVISNUBE = { viva:false, consultada:false, error:'' };
+
+(function agVisTraer(){
+  var intentos = 0;
+  var pedir = function(){
+    if(!window.SB || typeof SB.from !== 'function'){
+      if(++intentos < 8){ setTimeout(pedir, 1500); return; }
+      AGVISNUBE.consultada = true;
+      return;
+    }
+    try{
+      SB.from('profiles').select('id,vista').then(function(r){
+        AGVISNUBE.consultada = true;
+        if(!r || r.error || !r.data){
+          AGVISNUBE.error = (r && r.error && r.error.message) ? r.error.message : 'la columna no existe';
+          return;
+        }
+        AGVISNUBE.viva = true;
+        var nuevo = {};
+        r.data.forEach(function(p){
+          if(p.vista && typeof p.vista === 'object') nuevo[p.id] = p.vista;
+        });
+        AGVISMAPA = nuevo;
+        agVisRepinta();
+      }, function(e){
+        AGVISNUBE.consultada = true;
+        AGVISNUBE.error = (e && e.message) ? e.message : 'no se pudo consultar';
+      });
+    }catch(e){ AGVISNUBE.consultada = true; AGVISNUBE.error = e.message; }
+  };
+  setTimeout(pedir, 2600);
+})();
+
+function agVisRepinta(){
+  try{ if(typeof ADM !== 'undefined' && ADM.tab === 'vista' && typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+  try{
+    var w = document.querySelector('#csOv .cs-w');
+    if(w){ delete w.dataset.agCampus; if(typeof agCampus === 'function') agCampus(); }
+  }catch(e){}
+}
+
+/* ------------------------------------------------------------
+   3 · LEER Y ESCRIBIR
+   ------------------------------------------------------------ */
+function agVisDe(uid){
+  if(!uid) return {};
+  return AGVISMAPA[uid] || {};
+}
+
+/* La pregunta que hace la pantalla del estudiante. Sin nube, todo
+   visible: es el estado de hoy y el único seguro. */
+function agVisPuede(clave, uid){
+  if(!AGVISNUBE.viva) return true;
+  var quien = uid;
+  if(!quien){
+    try{ quien = (typeof agCampusUid === 'function') ? agCampusUid() : (SESSION && SESSION.id); }catch(e){}
+  }
+  if(!quien) return true;
+  /* el instructor mirando como estudiante ve el resultado real:
+     de eso se trata la vista previa */
+  return agVisDe(quien)[clave] !== false;
+}
+window.agVisPuede = agVisPuede;
+
+function agVisOcultas(uid){
+  var v = agVisDe(uid), n = 0;
+  AGVISPIEZAS.forEach(function(p){ if(v[p.k] === false) n++; });
+  return n;
+}
+
+window.agVisPon = function(uid, clave, v){
+  if(!AGVISNUBE.viva) return;
+  var actual = Object.assign({}, agVisDe(uid));
+  if(v) delete actual[clave]; else actual[clave] = false;   /* ausente = visible */
+  AGVISMAPA[uid] = actual;
+  agVisGuardar(uid, actual);
+  agVisRepinta();
+};
+
+window.agVisRestablecer = function(uid){
+  if(!AGVISNUBE.viva) return;
+  AGVISMAPA[uid] = {};
+  agVisGuardar(uid, {});
+  if(typeof toast === 'function') toast('Este estudiante vuelve a verlo todo', '👁️');
+  agVisRepinta();
+};
+
+window.agVisAplicarATodos = function(uid){
+  if(!AGVISNUBE.viva) return;
+  var plantilla = agVisDe(uid);
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+  var n = agVisOcultas(uid);
+  var texto = n
+    ? 'Aplicar esta configuración (' + n + (n === 1 ? ' pieza oculta' : ' piezas ocultas') + ') a los ' + alum.length + ' estudiantes?'
+    : 'Dejar que los ' + alum.length + ' estudiantes lo vean todo?';
+  if(!confirm(texto)) return;
+  alum.forEach(function(a){
+    AGVISMAPA[a.id] = Object.assign({}, plantilla);
+    agVisGuardar(a.id, AGVISMAPA[a.id]);
+  });
+  if(typeof toast === 'function') toast('Aplicado a ' + alum.length + ' estudiantes', '✅');
+  agVisRepinta();
+};
+
+function agVisGuardar(uid, obj){
+  if(!window.SB || typeof SB.from !== 'function') return;
+  try{ SB.from('profiles').update({vista: obj}).eq('id', uid).then(function(){}, function(){}); }catch(e){}
+}
+
+/* ------------------------------------------------------------
+   4 · LA PANTALLA DEL INSTRUCTOR
+   ------------------------------------------------------------ */
+var AGVISSEL = null;      /* estudiante elegido */
+var AGVISQ = '';          /* búsqueda */
+
+window.agVisElegir = function(uid){ AGVISSEL = uid; agVisRepinta(); };
+window.agVisBuscar = function(q){
+  AGVISQ = String(q || '').toLowerCase();
+  var l = document.getElementById('agVisLista');
+  if(l) l.innerHTML = agVisListaHTML();
+};
+
+function agVisAlumnos(){
+  var a = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+  if(!AGVISQ) return a;
+  return a.filter(function(s){
+    return (String(s.name || '') + ' ' + String(s.email || '')).toLowerCase().indexOf(AGVISQ) >= 0;
+  });
+}
+
+function agVisIniciales(nombre){
+  var p = String(nombre || '').trim().split(/\s+/).filter(Boolean);
+  return ((p[0] || '')[0] || '?').toUpperCase() + ((p[1] || '')[0] || '').toUpperCase();
+}
+
+function agVisIcono(d){
+  return '<svg class="avs-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+}
+
+function agVisListaHTML(){
+  var alum = agVisAlumnos();
+  if(!alum.length){
+    return '<p class="avs-nada">' + (AGVISQ ? 'Ningún estudiante coincide con «' + agEsc(AGVISQ) + '».' : 'Todavía no hay estudiantes registrados.') + '</p>';
+  }
+  return alum.map(function(s){
+    var n = agVisOcultas(s.id);
+    var sel = (s.id === AGVISSEL);
+    return '<button class="avs-al' + (sel ? ' on' : '') + '" onclick="agVisElegir(\'' + s.id + '\')"' +
+        (sel ? ' aria-current="true"' : '') + '>' +
+      '<span class="avs-av">' + agVisIniciales(s.name) + '</span>' +
+      '<span class="avs-al-t">' +
+        '<b>' + agEsc(s.name || 'Sin nombre') + '</b>' +
+        '<em>' + (n ? n + (n === 1 ? ' pieza oculta' : ' piezas ocultas') : 'Lo ve todo') + '</em>' +
+      '</span>' +
+    '</button>';
+  }).join('');
+}
+
+function agVisPanelHTML(){
+  if(!AGVISSEL){
+    return '<div class="avs-vacio">' +
+      agVisIcono('<circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/>') +
+      '<b>Elija un estudiante</b>' +
+      '<p>A la izquierda están sus estudiantes. Elija uno y aquí aparecerá qué piezas de su pantalla puede apagar.</p>' +
+    '</div>';
+  }
+  var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === AGVISSEL; })[0];
+  if(!s) { AGVISSEL = null; return agVisPanelHTML(); }
+
+  var v = agVisDe(s.id);
+  var n = agVisOcultas(s.id);
+  var vivo = AGVISNUBE.viva;
+
+  var cuerpo = agVisGrupos().map(function(g){
+    return '<section class="avs-g">' +
+      '<h4 class="avs-g-t">' + g + '</h4>' +
+      AGVISPIEZAS.filter(function(p){ return p.g === g; }).map(function(p){
+        var on = v[p.k] !== false;
+        return '<label class="avs-f' + (on ? '' : ' off') + '">' +
+          '<span class="avs-f-i">' + agVisIcono(p.ico) + '</span>' +
+          '<span class="avs-f-t"><b>' + p.n + '</b><em>' + p.d + '</em></span>' +
+          '<span class="avs-sw">' +
+            '<input type="checkbox"' + (on ? ' checked' : '') + (vivo ? '' : ' disabled') +
+              ' onchange="agVisPon(\'' + s.id + '\',\'' + p.k + '\',this.checked)"' +
+              ' aria-label="' + agEsc(p.n) + '">' +
+            '<span class="avs-sw-p"></span>' +
+          '</span>' +
+        '</label>';
+      }).join('') +
+    '</section>';
+  }).join('');
+
+  return '<div class="avs-cab">' +
+      '<span class="avs-av lg">' + agVisIniciales(s.name) + '</span>' +
+      '<div class="avs-cab-t">' +
+        '<b>' + agEsc(s.name || 'Sin nombre') + '</b>' +
+        '<em>' + agEsc(s.email || 'sin correo') + '</em>' +
+      '</div>' +
+      '<span class="avs-cuenta">' + (n ? n + ' de ' + AGVISPIEZAS.length + ' ocultas' : 'Lo ve todo') + '</span>' +
+    '</div>' +
+    cuerpo +
+    '<div class="avs-masa">' +
+      '<button class="avs-b" ' + (vivo ? '' : 'disabled ') + 'onclick="agVisRestablecer(\'' + s.id + '\')">Que lo vea todo</button>' +
+      '<button class="avs-b" ' + (vivo ? '' : 'disabled ') + 'onclick="agVisAplicarATodos(\'' + s.id + '\')">Aplicar esto a todos</button>' +
+      '<span class="avs-masa-n">Los cambios se guardan solos y el estudiante los ve al recargar.</span>' +
+    '</div>';
+}
+
+function agVisAviso(){
+  if(AGVISNUBE.viva) return '';
+  var esperando = !AGVISNUBE.consultada;
+  if(esperando){
+    return '<div class="avs-aviso cargando">' +
+      '<b>Consultando la nube…</b>' +
+      '<p>Un momento. Si no hay conexión con Supabase, esta pantalla queda en solo lectura.</p>' +
+    '</div>';
+  }
+  return '<div class="avs-aviso">' +
+    '<b>Todavía no está activo: falta una columna en la base de datos</b>' +
+    '<p>Estos interruptores tienen que viajar hasta el navegador del estudiante, y lo que se guarda aquí no llega solo. ' +
+    'Mientras la columna no exista, <b>cada estudiante lo ve todo</b>, que es como está hoy: no se oculta nada por accidente.</p>' +
+    '<p>Ejecute esto una vez en el editor SQL de Supabase y esta pantalla se enciende sola:</p>' +
+    '<code class="avs-sql">alter table public.profiles<br>&nbsp;&nbsp;add column if not exists vista jsonb not null default \'{}\'::jsonb;</code>' +
+    (AGVISNUBE.error ? '<p class="avs-aviso-e">Lo que respondió la base: ' + agEsc(AGVISNUBE.error) + '</p>' : '') +
+  '</div>';
+}
+
+function agVisPantalla(){
+  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+  if(!AGVISSEL && alum.length) AGVISSEL = alum[0].id;
+
+  return '<div class="avs">' +
+    agVisAviso() +
+    '<p class="avs-intro">Aquí decide <b>qué piezas de la pantalla</b> ve cada estudiante. ' +
+      'Es cosa distinta del acceso: el acceso dice a qué cursos puede entrar, esto dice qué aparece cuando entra. ' +
+      'Apagar una pieza no borra nada — su avance y sus certificados siguen intactos.</p>' +
+    '<div class="avs-cols">' +
+      '<div class="avs-izq">' +
+        '<input class="avs-buscar" type="search" placeholder="Buscar estudiante…" ' +
+          'oninput="agVisBuscar(this.value)" value="' + agEsc(AGVISQ) + '">' +
+        '<div class="avs-lista" id="agVisLista">' + agVisListaHTML() + '</div>' +
+      '</div>' +
+      '<div class="avs-der">' + agVisPanelHTML() + '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ------------------------------------------------------------
+   5 · ENGANCHE AL PANEL — se envuelve, no se edita
+   ------------------------------------------------------------ */
+(function agVisMenu(){
+  var poner = function(){
+    var menu = document.getElementById('adminMenu');
+    if(!menu || menu.querySelector('[data-t="vista"]')) return;
+    var b = document.createElement('button');
+    b.setAttribute('data-t', 'vista');
+    /* el menú del panel se rotula con emoji en todas sus entradas;
+       una entrada distinta cantaría. Dentro de la pantalla sí van
+       iconos dibujados. */
+    b.innerHTML = '<span class="mi">👁️</span> Vista del estudiante';
+    b.setAttribute('onclick', "admTab('vista')");
+    var ref = menu.querySelector('[data-t="acceso"]') || menu.querySelector('[data-t="students"]');
+    if(ref && ref.nextSibling) menu.insertBefore(b, ref.nextSibling);
+    else menu.appendChild(b);
+  };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+  [200, 700, 1600].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminVis = window.renderAdmin;
+  window.renderAdmin = function(){
+    var mia = false;
+    try{ mia = (typeof ADM !== 'undefined' && ADM.tab === 'vista'); }catch(e){}
+    if(!mia) return _renderAdminVis.apply(this, arguments);
+    try{
+      document.querySelectorAll('#adminMenu button[data-t]').forEach(function(b){
+        b.classList.toggle('on', b.dataset.t === 'vista');
+      });
+      var tt = document.getElementById('adminTitle');
+      if(tt) tt.textContent = 'Vista del estudiante';
+      var root = document.getElementById('adminBody');
+      if(root) root.innerHTML = agVisPantalla();
+    }catch(e){
+      return _renderAdminVis.apply(this, arguments);
+    }
+  };
+}
+
+/* ------------------------------------------------------------
+   6 · Y EL EFECTO EN LA PANTALLA DEL ESTUDIANTE
+   ------------------------------------------------------------
+   Se envuelve cada pieza del campus. Devolver '' es suficiente:
+   el campus se arma concatenando, así que una pieza vacía
+   desaparece sin dejar hueco ni romper la rejilla.
+   ------------------------------------------------------------ */
+(function agVisAplica(){
+  var tapar = function(nombre, clave){
+    if(typeof window[nombre] !== 'function') return;
+    var orig = window[nombre];
+    window[nombre] = function(){
+      try{ if(!agVisPuede(clave)) return ''; }catch(e){}
+      return orig.apply(this, arguments);
+    };
+  };
+  tapar('agNvPuerta',        'gratuito');
+  tapar('agNvMisCursos',     'miscursos');
+  tapar('agNvCatalogo',      'catalogo');
+  tapar('agNvCertificados',  'certificados');
+
+  /* las métricas son dos piezas en un mismo bloque */
+  if(typeof window.agNvMetricas === 'function'){
+    var _met = window.agNvMetricas;
+    window.agNvMetricas = function(){
+      var est = true, gra = true;
+      try{ est = agVisPuede('estadisticas'); gra = agVisPuede('grafico'); }catch(e){}
+      if(!est && !gra) return '';
+      var html = _met.apply(this, arguments);
+      if(est && gra) return html;
+      try{
+        var d = document.createElement('div');
+        d.innerHTML = html;
+        if(!est){ var t = d.querySelector('.nva-tiles'); if(t) t.remove(); }
+        if(!gra){ var g = d.querySelector('.nva-graf'); if(g) g.remove(); }
+        /* con una sola mitad, que ocupe el ancho entero */
+        var sec = d.querySelector('.nva-sec-met');
+        if(sec) sec.classList.add('avs-sola');
+        return d.innerHTML;
+      }catch(e){ return html; }
+    };
+  }
+
+  /* y dentro del encabezado, el perfil y el anillo */
+  if(typeof window.agNvHero === 'function'){
+    var _hero = window.agNvHero;
+    window.agNvHero = function(){
+      var html = _hero.apply(this, arguments);
+      var per = true, pro = true;
+      try{ per = agVisPuede('perfil'); pro = agVisPuede('progreso'); }catch(e){}
+      if(per && pro) return html;
+      try{
+        var d = document.createElement('div');
+        d.innerHTML = html;
+        if(!per){ var p = d.querySelector('.nva-perfil'); if(p) p.remove(); }
+        if(!pro){ var m = d.querySelector('.nva-hero-med'); if(m) m.remove(); }
+        return d.innerHTML;
+      }catch(e){ return html; }
+    };
+  }
+})();
+
+/* ------------------------------------------------------------
+   7 · ESTILOS
+   ------------------------------------------------------------ */
+(function agVisCss(){
+  if(document.getElementById('agVisCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agVisCss';
+  s.textContent = [
+    '.avs{--avs-line:rgba(150,240,199,.13);--avs-line2:rgba(150,240,199,.28);',
+      '--avs-tx:#E9F2EC;--avs-tx2:#B4C6BB;--avs-dim:#7C9187;',
+      '--avs-leaf:#46E39B;--avs-gold:#E8B23A;--avs-gold-hi:#FFD97A;',
+      'color:var(--avs-tx)}',
+
+    '.avs-intro{margin:0 0 20px;max-width:74ch;font-size:14.5px;line-height:1.65;color:var(--avs-dim)}',
+    '.avs-intro b{color:var(--avs-tx2)}',
+
+    /* el aviso de que falta la columna: es lo primero que hay que leer */
+    '.avs-aviso{margin:0 0 20px;padding:18px 20px;border-radius:16px;',
+      'background:rgba(232,178,58,.09);border:1px solid rgba(232,178,58,.34)}',
+    '.avs-aviso b{display:block;font-family:var(--display);font-size:16px;font-weight:700;',
+      'color:var(--avs-gold-hi);margin-bottom:8px}',
+    '.avs-aviso p{margin:0 0 10px;max-width:78ch;font-size:14px;line-height:1.62;color:var(--avs-tx2)}',
+    '.avs-aviso p b{display:inline;font-size:inherit;color:var(--avs-tx)}',
+    '.avs-aviso.cargando{background:rgba(255,255,255,.04);border-color:var(--avs-line)}',
+    '.avs-aviso.cargando b{color:var(--avs-tx2)}',
+    '.avs-sql{display:block;padding:12px 14px;border-radius:10px;margin:0 0 4px;',
+      'background:rgba(0,0,0,.4);border:1px solid var(--avs-line);',
+      'font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--avs-gold-hi);',
+      'user-select:all;overflow-x:auto}',
+    '.avs-aviso-e{font-family:var(--mono);font-size:12px;color:var(--avs-dim)}',
+
+    /* dos columnas: la lista manda, el detalle responde */
+    '.avs-cols{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:start}',
+
+    '.avs-izq{display:grid;gap:10px;position:sticky;top:12px}',
+    '.avs-buscar{width:100%;padding:11px 14px;border-radius:11px;font:inherit;font-size:14px;',
+      'background:#0A110E;color:var(--avs-tx);border:1px solid var(--avs-line2)}',
+    '.avs-lista{display:grid;gap:6px;max-height:62vh;overflow:auto;padding-right:4px}',
+    '.avs-al{display:flex;align-items:center;gap:11px;width:100%;padding:10px 12px;border-radius:12px;',
+      'cursor:pointer;text-align:left;font:inherit;border:1px solid transparent;',
+      'background:rgba(255,255,255,.04);color:var(--avs-tx2);',
+      'transition:background .15s ease,border-color .15s ease}',
+    '.avs-al:hover{background:rgba(255,255,255,.08);color:var(--avs-tx)}',
+    '.avs-al.on{background:rgba(70,227,155,.15);border-color:rgba(70,227,155,.42);color:#fff;cursor:default}',
+    '.avs-al-t{display:flex;flex-direction:column;min-width:0;line-height:1.35}',
+    '.avs-al-t b{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.avs-al-t em{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--avs-dim)}',
+    '.avs-al.on .avs-al-t em{color:rgba(255,255,255,.72)}',
+    '.avs-av{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;',
+      'font-family:var(--mono);font-size:12px;font-weight:700;color:#08120D;',
+      'background:linear-gradient(135deg,var(--avs-gold-hi),var(--avs-leaf))}',
+    '.avs-av.lg{width:44px;height:44px;font-size:15px}',
+    '.avs-nada{margin:0;padding:22px 16px;border-radius:12px;text-align:center;font-size:13.5px;',
+      'color:var(--avs-dim);background:rgba(255,255,255,.03);border:1px dashed var(--avs-line2)}',
+
+    /* el detalle */
+    '.avs-der{min-width:0}',
+    '.avs-cab{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-bottom:20px;',
+      'padding-bottom:16px;border-bottom:1px solid var(--avs-line)}',
+    '.avs-cab-t{display:flex;flex-direction:column;min-width:0;line-height:1.35}',
+    '.avs-cab-t b{font-family:var(--display);font-size:18px;font-weight:700;color:var(--avs-tx)}',
+    '.avs-cab-t em{font-style:normal;font-size:13px;color:var(--avs-dim)}',
+    '.avs-cuenta{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.08em;',
+      'text-transform:uppercase;color:var(--avs-dim)}',
+
+    '.avs-g{margin-bottom:22px}',
+    '.avs-g-t{margin:0 0 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;',
+      'text-transform:uppercase;color:var(--avs-dim);font-weight:400}',
+
+    '.avs-f{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-radius:13px;',
+      'margin-bottom:7px;cursor:pointer;background:rgba(255,255,255,.035);',
+      'border:1px solid var(--avs-line);transition:background .15s ease,border-color .15s ease}',
+    '.avs-f:hover{background:rgba(255,255,255,.065);border-color:var(--avs-line2)}',
+    '.avs-f-i{flex:0 0 auto;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;',
+      'background:rgba(70,227,155,.13);color:var(--avs-leaf)}',
+    '.avs-i{width:18px;height:18px}',
+    '.avs-f-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:3px}',
+    '.avs-f-t b{font-size:14.5px;font-weight:600;color:var(--avs-tx)}',
+    '.avs-f-t em{font-style:normal;font-size:13px;line-height:1.55;color:var(--avs-dim);max-width:62ch}',
+
+    /* apagada: la fila entera se atenúa, no solo el interruptor */
+    '.avs-f.off{background:rgba(255,255,255,.015);border-color:rgba(255,255,255,.06)}',
+    '.avs-f.off .avs-f-i{background:rgba(255,255,255,.05);color:var(--avs-dim)}',
+    '.avs-f.off .avs-f-t b{color:var(--avs-dim)}',
+    '.avs-f.off .avs-f-t em{color:#5F7268}',
+
+    '.avs-sw{flex:0 0 auto;position:relative;width:46px;height:26px;align-self:center}',
+    '.avs-sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}',
+    '.avs-sw-p{position:absolute;inset:0;border-radius:99px;pointer-events:none;',
+      'background:rgba(255,255,255,.14);transition:background .18s ease}',
+    '.avs-sw-p::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;',
+      'background:#F3F8F5;transition:transform .18s cubic-bezier(.4,0,.2,1)}',
+    '.avs-sw input:checked + .avs-sw-p{background:var(--avs-leaf)}',
+    '.avs-sw input:checked + .avs-sw-p::after{transform:translateX(20px)}',
+    '.avs-sw input:focus-visible + .avs-sw-p{outline:2px solid var(--avs-gold-hi);outline-offset:2px}',
+    '.avs-sw input:disabled{cursor:not-allowed}',
+    '.avs-sw input:disabled + .avs-sw-p{opacity:.4}',
+
+    '.avs-masa{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:18px;',
+      'border-top:1px solid var(--avs-line)}',
+    '.avs-b{padding:10px 16px;border-radius:11px;cursor:pointer;font:inherit;font-size:13.5px;font-weight:600;',
+      'background:rgba(255,255,255,.055);color:var(--avs-tx);border:1px solid var(--avs-line2);',
+      'transition:background .15s ease,border-color .15s ease}',
+    '.avs-b:hover:not(:disabled){background:rgba(70,227,155,.16);border-color:rgba(70,227,155,.5)}',
+    '.avs-b:disabled{opacity:.45;cursor:not-allowed}',
+    '.avs-masa-n{font-size:12.5px;color:var(--avs-dim)}',
+
+    '.avs-vacio{display:grid;justify-items:center;gap:10px;padding:56px 24px;text-align:center;',
+      'border-radius:16px;background:rgba(255,255,255,.025);border:1px dashed var(--avs-line2)}',
+    '.avs-vacio .avs-i{width:30px;height:30px;color:var(--avs-dim)}',
+    '.avs-vacio b{font-family:var(--display);font-size:17px;font-weight:700;color:var(--avs-tx)}',
+    '.avs-vacio p{margin:0;max-width:46ch;font-size:13.5px;line-height:1.6;color:var(--avs-dim)}',
+
+    /* cuando solo queda una mitad de las métricas, que ocupe el ancho */
+    '.avs-sola{grid-template-columns:minmax(0,1fr)!important}',
+
+    '@media(max-width:900px){',
+      '.avs-cols{grid-template-columns:1fr}',
+      '.avs-izq{position:static}',
+      '.avs-lista{max-height:none}',
+      '.avs-f{gap:11px;padding:12px 13px}',
+      '.avs-f-t em{font-size:12.5px}',
+    '}',
+    '@media(prefers-reduced-motion:reduce){',
+      '.avs-sw-p,.avs-sw-p::after,.avs-al,.avs-f,.avs-b{transition:none}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
 
 
 
