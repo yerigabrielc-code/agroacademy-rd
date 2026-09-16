@@ -22236,161 +22236,6 @@ if(typeof window.agCampusTarjeta === 'function'){
 })();
 
 
-/* ---------- ag-secciones.js ---------- */
-/* ============================================================
-   SECCIONES · DE CUATRO TARJETONES A UNA LISTA QUE SE LEE
-   ------------------------------------------------------------
-   Estaban como tarjetas de 240 px de ancho mínimo. Con nombres
-   largos —«Curso completo de porcicultura», «Formulación y
-   fabricación de alimentos balanceados»— el título se partía en
-   cuatro líneas, cada tarjeta acababa con una altura distinta y
-   los botones quedaban a alturas distintas también. Y como la
-   rejilla se rellena por ancho, en una pantalla grande quedaban
-   cuatro bloques arriba y el 80 % de la página vacía.
-
-   Una sección es un registro: nombre, cuántos estudiantes tiene,
-   una nota y dos acciones. Eso se lee mucho mejor en filas de
-   altura fija que en tarjetas. Además así siguen cabiendo veinte
-   secciones sin que la pantalla se convierta en un mosaico.
-
-   No cambia ni el modelo ni las acciones: editSection,
-   deleteSection y saveSectionForm son los mismos de siempre.
-   ============================================================ */
-
-function agSeccionesVista(){
-  var secs = (typeof SECTIONS !== 'undefined' ? SECTIONS : []);
-  var alum = (typeof STUDENTS !== 'undefined' ? STUDENTS : []);
-  var E = (typeof esc === 'function') ? esc : function(x){ return String(x == null ? '' : x); };
-  var J = (typeof jsq === 'function') ? jsq : function(x){ return "'" + String(x).replace(/'/g, "\\'") + "'"; };
-
-  var total = 0;
-  var filas = secs.map(function(s, i){
-    var n = alum.filter(function(x){ return x.section === s.id; }).length;
-    total += n;
-    var ini = String(s.name || '?').trim().charAt(0).toUpperCase() || '?';
-    return '<li class="agx-row" style="--i:' + (i % 6) + '">' +
-      '<span class="agx-ini">' + E(ini) + '</span>' +
-      '<div class="agx-t">' +
-        '<b>' + E(s.name) + '</b>' +
-        (s.notes ? '<em>' + E(s.notes) + '</em>' : '') +
-      '</div>' +
-      '<span class="agx-n' + (n ? '' : ' cero') + '">' +
-        '<b>' + n + '</b><span>estudiante' + (n === 1 ? '' : 's') + '</span>' +
-      '</span>' +
-      '<div class="agx-a">' +
-        '<button onclick="editSection(' + J(s.id) + ')" title="Cambiar el nombre o las notas">✎<span>Editar</span></button>' +
-        (secs.length > 1
-          ? '<button class="del" onclick="deleteSection(' + J(s.id) + ')" title="Eliminar la sección">🗑<span>Eliminar</span></button>'
-          : '') +
-      '</div>' +
-    '</li>';
-  }).join('');
-
-  var resumen = secs.length + (secs.length === 1 ? ' sección' : ' secciones') +
-                ' · ' + total + ' estudiante' + (total === 1 ? '' : 's');
-
-  return '<div class="agx-w">' +
-    '<div class="agx-bar">' +
-      '<button class="agx-add" onclick="editSection()">＋ Crear sección</button>' +
-      '<span class="agx-res">' + resumen + '</span>' +
-    '</div>' +
-    (secs.length
-      ? '<ul class="agx-list">' + filas + '</ul>'
-      : '<div class="adm-empty">Todavía no hay ninguna sección. Cree la primera para poder agrupar a los estudiantes.</div>') +
-    '<p class="agx-pie">Las secciones agrupan estudiantes; no limitan a qué curso entran. ' +
-      'El acceso de cada curso se gestiona en <b>Cursos → Acceso</b>.</p>' +
-  '</div>';
-}
-
-/* la pestaña usa esta vista */
-if(typeof window.sectionsView === 'function'){
-  var _sectionsViewAg = window.sectionsView;
-  window.sectionsView = function(){
-    try{ return agSeccionesVista(); }
-    catch(e){ return _sectionsViewAg.apply(this, arguments); }
-  };
-}
-
-/* ---------- estilos ---------- */
-(function agCssSecciones(){
-  if(document.getElementById('agCssSecciones')) return;
-  var s = document.createElement('style');
-  s.id = 'agCssSecciones';
-  s.textContent = `
-/* la lista no se estira a lo ancho de un monitor de 1900 px */
-.agx-w{ max-width:880px }
-.agx-bar{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin:0 0 14px }
-.agx-add{ cursor:pointer; font-family:var(--sans); font-size:13.5px; font-weight:700; color:#fff;
-  padding:10px 18px; border-radius:11px; border:0;
-  background:linear-gradient(135deg,var(--green),color-mix(in srgb,var(--green) 72%,#000));
-  transition:transform .16s, box-shadow .16s }
-.agx-add:hover{ transform:translateY(-1px); box-shadow:0 10px 22px color-mix(in srgb,var(--green) 34%,transparent) }
-.agx-res{ font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums }
-
-.agx-list{ list-style:none; margin:0; padding:0;
-  border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--panel) }
-.agx-row{ display:flex; align-items:center; gap:14px; padding:11px 15px;
-  border-top:1px solid var(--border); transition:background .14s }
-.agx-row:first-child{ border-top:0 }
-.agx-row:hover{ background:color-mix(in srgb,var(--text) 4%,transparent) }
-
-.agx-ini{ flex:0 0 auto; width:34px; height:34px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:var(--display); font-size:15px; font-weight:700; color:#fff;
-  background:hsl(calc(var(--i) * 57 + 138) 38% 38%) }
-
-/* Se reserva sitio para la nota la lleve o no: si no, las filas con
-   nota miden una línea más y la lista queda dentada. */
-.agx-t{ flex:1 1 auto; min-width:0; min-height:40px;
-  display:flex; flex-direction:column; justify-content:center }
-.agx-t b{ display:block; font-size:14.5px; font-weight:600; color:var(--text);
-  text-transform:none; line-height:1.35;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.agx-t em{ display:block; margin-top:2px; font-style:normal; font-size:12.5px; color:var(--muted);
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-
-.agx-n{ flex:0 0 auto; display:flex; align-items:baseline; gap:5px; color:var(--text-2) }
-.agx-n b{ font-family:var(--display); font-size:16px; font-weight:700; color:var(--text);
-  font-variant-numeric:tabular-nums }
-.agx-n > span{ font-size:12px; color:var(--muted) }
-.agx-n.cero b, .agx-n.cero > span{ color:var(--muted); opacity:.7 }
-
-.agx-a{ flex:0 0 auto; display:flex; gap:7px }
-.agx-a button{ cursor:pointer; display:inline-flex; align-items:center; gap:6px;
-  font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--text-2);
-  padding:7px 11px; border-radius:9px; border:1px solid var(--border);
-  background:transparent; transition:all .15s }
-.agx-a button:hover{ color:var(--text); border-color:color-mix(in srgb,var(--green) 48%,var(--border));
-  background:color-mix(in srgb,var(--green) 9%,transparent) }
-.agx-a button.del:hover{ color:#B3261E; border-color:color-mix(in srgb,#B3261E 46%,var(--border));
-  background:color-mix(in srgb,#B3261E 9%,transparent) }
-
-.agx-pie{ margin:13px 0 0; font-size:12.5px; line-height:1.6; color:var(--muted) }
-.agx-pie b{ color:var(--text-2) }
-
-@media (max-width:720px){
-  .agx-row{ flex-wrap:wrap; gap:8px 11px; padding:10px 13px }
-  .agx-ini{ order:1 }
-  .agx-t{ order:2; flex:1 1 0; min-height:0 }
-  .agx-t b{ white-space:normal; display:-webkit-box;
-    -webkit-line-clamp:2; -webkit-box-orient:vertical }
-  /* el contador y los botones comparten línea: antes cada uno ocupaba
-     la suya y la fila se iba a 155 px */
-  .agx-n{ order:3; margin-left:48px }
-  .agx-a{ order:4; margin-left:auto }
-  .agx-a button span{ display:none }
-  .agx-a button{ padding:9px 14px; font-size:15px }
-}
-@media (prefers-reduced-motion:reduce){
-  .agx-add, .agx-row, .agx-a button{ transition:none }
-  .agx-add:hover{ transform:none }
-}
-`;
-  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
-  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
-})();
-
-
 /* ---------- ag-pago.js ---------- */
 /* ============================================================
    AGROACADEMY · UN SOLO PANEL DE PAGO PARA TODOS LOS CURSOS
@@ -24133,7 +23978,148 @@ function agNoPuede(curso){
   setInterval(mirar, 4000);
 })();
 
+
+/* ---------- ag-unifica.js ---------- */
+/* ============================================================
+   UNA SOLA FUENTE DE VERDAD · LIMPIEZA DE LA AUDITORÍA
+   ------------------------------------------------------------
+   LA REGLA, ESCRITA DE UNA VEZ EN EL CÓDIGO PARA QUE NO HAYA
+   QUE DEDUCIRLA NUNCA MÁS:
+
+     ¿Puede este estudiante entrar a este curso?
+         →  COURSES[curso].enrolled(estudiante)
+         y nada más. Esa función es la única autoridad.
+
+     ¿Cuánto lleva avanzado?
+         →  COURSES[curso].count(idEstudiante)
+         sobre COURSES[curso].n
+
+     ¿Tiene derecho al certificado?
+         →  se calcula de lo anterior. No se almacena, no se
+            concede: se gana.
+
+     ¿Qué curso estoy administrando?
+         →  ADM.course
+
+   Los cinco mapas (PCACCESO, NXACCESO, RPACCESO, SBACCESO,
+   EGACCESO) son el ALMACÉN de esa respuesta, no respuestas
+   paralelas. Se escriben con pcDarAcceso / nxDarAcceso /
+   rpDarAcceso / sbDarAcceso / egDarAcceso, y se leen siempre a
+   través de enrolled(). Nadie debería consultarlos directamente.
+
+   ------------------------------------------------------------
+   LO QUE SE ARREGLA AQUÍ, Y POR QUÉ
+   ------------------------------------------------------------
+
+   1 · ADMCURSO y ADM.course eran DOS variables para lo mismo,
+       sincronizadas a mano en tres sitios. Cuando se
+       desincronizaban, el panel enseñaba un curso y los datos de
+       otro — fue exactamente la causa de que el conmutador
+       dijera «Introducción · 5 módulos» y la tabla mostrara 12
+       casillas de Porcicultura.
+
+       No se borra ADMCURSO: hay código que la lee y código que
+       la escribe. Se convierte en un ALIAS VIVO de ADM.course,
+       de modo que leerla o escribirla es leer o escribir la
+       misma cosa. Ya no pueden divergir.
+
+   2 · Al recargar el panel, el curso guardado se forzaba así:
+
+         if(ADM.course!=='porcicultura' && ADM.course!=='nutricion')
+             ADM.course='porcicultura';
+
+       Otro resto de cuando había dos cursos: dejar seleccionado
+       Sanidad, recargar, y volver a Porcicultura sin avisar.
+       Ahora vale cualquier curso que exista en COURSES.
+
+   3 · La etiqueta del curso en el panel de resumen solo sabía
+       decir «🌽 Formulación» o «🐷 Porcicultura». Para los otros
+       cuatro mentía. Se toma del propio COURSES.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · ADMCURSO deja de ser una copia y pasa a ser un espejo
+   ------------------------------------------------------------ */
+(function agUnificaCurso(){
+  if(typeof ADM === 'undefined' || !ADM) return;
+  try{
+    var d = Object.getOwnPropertyDescriptor(window, 'ADMCURSO');
+    if(d && d.get) return;            /* ya es un espejo */
+    delete window.ADMCURSO;
+    Object.defineProperty(window, 'ADMCURSO', {
+      configurable: true,
+      get: function(){ try{ return ADM.course; }catch(e){ return 'porcicultura'; } },
+      set: function(v){ try{ if(v) ADM.course = v; }catch(e){} }
+    });
+  }catch(e){ /* si el navegador no deja, se queda como estaba: no se rompe nada */ }
+})();
+
+/* ------------------------------------------------------------
+   2 · el curso guardado puede ser cualquiera de los seis
+   ------------------------------------------------------------ */
+(function agRestauraCurso(){
+  var poner = function(){
+    try{
+      var g = localStorage.getItem('porci_adm_course');
+      if(!g || typeof COURSES === 'undefined' || !COURSES[g]) return;
+      if(ADM.course === g) return;
+      ADM.course = g;
+      /* si el panel ya está pintado, que se entere */
+      try{ if(typeof renderAdmin === 'function' && typeof ADM !== 'undefined' && ADM.tab) renderAdmin(); }catch(e){}
+    }catch(e){}
+  };
+  [0, 400, 1200].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+/* ------------------------------------------------------------
+   3 · la etiqueta del curso, del propio registro
+   ------------------------------------------------------------ */
+(function agEtiquetaCurso(){
+  var arreglar = function(){
+    try{
+      var e = document.querySelector('.nxd-cur');
+      if(!e) return;
+      var C = COURSES[ADM.course];
+      if(!C) return;
+      var quiere = (C.icon || '') + ' ' + (C.label || C.name || ADM.course);
+      if(e.textContent.trim() !== quiere.trim()) e.textContent = quiere;
+    }catch(err){}
+  };
+  [500, 1400].forEach(function(t){ setTimeout(arreglar, t); });
+  try{
+    var obs = new MutationObserver(function(){ arreglar(); });
+    var arranca = function(){ try{ obs.observe(document.body, {childList:true, subtree:true}); }catch(e){} };
+    if(document.body) arranca(); else addEventListener('DOMContentLoaded', arranca);
+  }catch(e){}
+})();
+
+/* ------------------------------------------------------------
+   4 · UN AVISO PARA QUIEN VENGA DESPUÉS
+   ------------------------------------------------------------
+   Si alguien añade un curso, esto es lo único que hay que hacer:
+
+     · declararlo en COURSES con el contrato completo
+       (id, icon, label, name, modules, n, rec, passed, count,
+        quiz, cfg, setCfg, published, enrolled, certLabel)
+     · registrarlo en AGCURSOSCERT y AGCERTDEF si lleva
+       certificado
+     · añadir su prefijo de almacenamiento a AGPRE (ag-detalle)
+       y su función de conceder acceso a AGDAR (ag-admin)
+
+   Todo lo demás —catálogo, campus, accesos, progreso, panel,
+   detalle por estudiante, certificados— lo recoge solo, porque
+   lee del contrato y no de listas escritas a mano.
+   ------------------------------------------------------------ */
+window.AGVERDAD = {
+  acceso:      'COURSES[curso].enrolled(estudiante)',
+  progreso:    'COURSES[curso].count(idEstudiante) sobre COURSES[curso].n',
+  certificado: 'se calcula del progreso; no se almacena',
+  cursoActivo: 'ADM.course  (ADMCURSO es su espejo)',
+  escribir:    'pcDarAcceso / nxDarAcceso / rpDarAcceso / sbDarAcceso / egDarAcceso'
+};
+
 </script>
+
 
 
 
@@ -27228,6 +27214,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
 
 
 
@@ -31685,6 +31672,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -32241,54 +32229,7 @@ function rtSecNumeros(){
    Una sola, la más reveladora: cuánto le cuesta el alimento por
    cada kilo de cerdo. Tres casillas y un resultado.
    ============================================================ */
-function rtSecCalc(){
-  return '<section class="nx-b nx-full"><div class="rt-calc rv">' +
-    '<div class="rt-calc-h"><b>🧮 Pruébelo con sus números</b>' +
-      '<p>La cuenta más reveladora del negocio, en tres casillas: cuánto le cuesta el alimento por cada kilo de cerdo que produce.</p></div>' +
-    '<div class="rt-calc-g">' +
-      '<label><span>Sacos que consumió el lote</span>' +
-        '<input type="number" step="any" id="rtc_sacos" value="60" oninput="rtCalc()"></label>' +
-      '<label><span>Precio del saco <i>RD$</i></span>' +
-        '<input type="number" step="any" id="rtc_precio" value="1400" oninput="rtCalc()"></label>' +
-      '<label><span>Kilos que ganó el lote</span>' +
-        '<input type="number" step="any" id="rtc_kg" value="1200" oninput="rtCalc()"></label>' +
-    '</div>' +
-    '<div class="rt-calc-r" id="rtCalcR"></div>' +
-    '<p class="rt-calc-n">Se asume el saco de 40 kg. En República Dominicana también se venden de 100 lb (45.4 kg): mire el suyo. ' +
-      'Esta es una de las quince calculadoras del curso de <b>Engorde porcino</b>.</p>' +
-  '</div></section>';
-}
-function rtCalc(){
-  var g = function(id){
-    var el = document.getElementById(id);
-    var n = el ? parseFloat(String(el.value).replace(/,/g, '.')) : 0;
-    return isNaN(n) ? 0 : n;
-  };
-  var sacos = g('rtc_sacos'), precio = g('rtc_precio'), kg = g('rtc_kg');
-  var out = document.getElementById('rtCalcR');
-  if(!out) return;
-  var kgAlim = sacos * 40;
-  var total = sacos * precio;
-  var porKg = kg > 0 ? total / kg : 0;
-  var ca = kg > 0 ? kgAlim / kg : 0;
-  if(!(sacos > 0 && precio > 0 && kg > 0)){
-    out.innerHTML = '<p class="rt-calc-v">Escriba los tres datos y el resultado aparece aquí solo.</p>';
-    return;
-  }
-  var f = function(v, d){ return v.toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d}); };
-  out.innerHTML =
-    '<div class="rt-calc-big"><span>El alimento le costó</span>' +
-      '<b>RD$ ' + f(porKg, 2) + '</b><em>por cada kilo de cerdo producido</em></div>' +
-    '<div class="rt-calc-sub">' +
-      '<div><b>' + f(kgAlim, 0) + ' kg</b><span>de alimento</span></div>' +
-      '<div><b>RD$ ' + f(total, 0) + '</b><span>gastados</span></div>' +
-      '<div><b>' + f(ca, 2) + '</b><span>conversión</span></div>' +
-    '</div>' +
-    '<p class="rt-calc-i">Compare ese primer número con lo que le pagan por kilo vivo. ' +
-      'Y recuerde: al alimento todavía hay que sumarle el lechón, la mano de obra, el agua, la luz y el transporte.</p>';
-}
-window.rtCalc = rtCalc;
-
+/* RETIRADO: rtSecCalc y rtCalc: los sustituyo el simulador completo (rt-simu.js) */
 /* ============================================================
    5 · LOS CINCO ERRORES
    ============================================================ */
@@ -32351,75 +32292,8 @@ function rtSecCta(){
 
 /* el orden y los textos que se pidieron, en el mismo diseño de tarjeta
    que usa el campus — nada duplicado, se lee de COURSES */
-var RTCURSOS = [
-  ['porcicultura', 'Conozca las bases para manejar una producción porcina adaptada a la realidad de República Dominicana.'],
-  ['nutricion',    'Aprenda a formular y fabricar alimentos considerando las necesidades nutricionales y los costos de producción.'],
-  ['reproduccion', 'Aprenda a manejar el proceso reproductivo desde la detección del celo hasta el parto.'],
-  ['sanidad',      'Aprenda a prevenir enfermedades y proteger su granja mediante buenas prácticas de sanidad y bioseguridad.'],
-  ['engorde',      'Aprenda a manejar el cerdo durante la etapa de crecimiento y engorde hasta alcanzar el peso de mercado.']
-];
+/* RETIRADO: RTCURSOS y rtSecCursos: los sustituyo el plan del modulo 5 (rt-diag.js) */
 
-function rtSecCursos(){
-  var tarjetas = RTCURSOS.map(function(par, i){
-    var id = par[0], desc = par[1];
-    var C = (typeof COURSES !== 'undefined') ? COURSES[id] : null;
-    if(!C) return '';
-    var c = (typeof agCatDe === 'function') ? agCatDe(id) : {icon:'📘', nombre:id, cover:null, n:0};
-    /* el estado real, con la misma lógica del campus */
-    var e = null;
-    try{ e = (typeof agEstadoCurso === 'function') ? agEstadoCurso(id) : null; }catch(err){}
-    var publicado = e ? e.publicado : true;
-    var tiene = e ? e.tiene : false;
-    var precio = null;
-    try{ if(typeof AGPRECIOS !== 'undefined' && AGPRECIOS[id]) precio = AGPRECIOS[id].usd; }catch(err){}
-
-    var estado, cls, accion, cta;
-    if(!publicado){
-      estado = 'Próximamente'; cls = ' rt-c-pronto';
-      accion = ''; cta = 'Próximamente';
-    } else if(tiene){
-      estado = 'Ya lo tiene'; cls = ' rt-c-tiene';
-      accion = 'rtAbrirCurso(\'' + id + '\')'; cta = 'Entrar al curso →';
-    } else {
-      estado = (precio != null) ? ('US$ ' + precio) : 'Se adquiere aparte';
-      cls = '';
-      accion = 'rtVerCurso(\'' + id + '\')'; cta = 'Ver curso →';
-    }
-
-    return '<article class="rt-c' + cls + '" style="--i:' + i + '">' +
-      '<div class="rt-c-cov"' + (c.cover ? ' style="--cov:url(&quot;images/' + c.cover + '.jpg&quot;)"' : '') + '>' +
-        '<span class="rt-c-num">' + String(i + 1).padStart(2, '0') + '</span>' +
-        '<span class="rt-c-ico">' + c.icon + '</span>' +
-      '</div>' +
-      '<div class="rt-c-b">' +
-        '<b>' + agEsc(c.nombre) + '</b>' +
-        '<p>' + agEsc(desc) + '</p>' +
-        '<div class="rt-c-m"><span>' + (c.n || 0) + ' módulos</span>' +
-          '<span class="rt-c-e">' + agEsc(estado) + '</span></div>' +
-        (accion
-          ? '<button class="rt-c-cta" onclick="' + accion + '">' + cta + '</button>'
-          : '<span class="rt-c-cta off">' + cta + '</span>') +
-      '</div>' +
-    '</article>';
-  }).join('');
-
-  return '<section class="nx-b nx-full">' +
-    '<div class="rt-cs rv">' + tarjetas + '</div></section>';
-}
-
-window.rtAbrirCurso = function(id){
-  var c = (typeof agCatDe === 'function') ? agCatDe(id) : null;
-  rtCerrar();
-  try{ if(typeof cerrarCursos === 'function') cerrarCursos(); }catch(e){}
-  setTimeout(function(){
-    try{ if(c && typeof c.abrir === 'function') c.abrir(); }
-    catch(e){ if(typeof toast === 'function') toast('No se pudo abrir el curso', '⚠️'); }
-  }, 120);
-};
-
-/* ============================================================
-   7 · FOTOGRAFÍAS
-   ============================================================ */
 var RTFOTO = {
   crecimiento: {
     f:'nutri-m03-cerdos-crecimiento',
@@ -32485,10 +32359,8 @@ function rtSeccion(s, mod){
     case 'rtidea':    return rtSecIdea();
     case 'rtmas100':  return rtSecMas100();
     case 'rtnumeros': return rtSecNumeros();
-    case 'rtcalc':    return rtSecCalc();
     case 'rterrores': return rtSecErrores();
     case 'rtcta':     return rtSecCta();
-    case 'rtcursos':  return rtSecCursos();
     case 'rtfoto':    return rtSecFoto(s.id);
   }
   /* Registro abierto: cada parte nueva se apunta en RTREG y no hay que
@@ -32508,17 +32380,7 @@ if(typeof window.nxSeccion === 'function'){
     return _nxSecRt.apply(this, arguments);
   };
 }
-/* la mini calculadora arranca sola */
-if(typeof window.rtPinta === 'function'){
-  var _rtPintaCalc = window.rtPinta;
-  window.rtPinta = function(){
-    var r = _rtPintaCalc.apply(this, arguments);
-    /* sincrono: si se deja para despues, quien mire el DOM enseguida
-       —o el estudiante que llega rapido— ve la caja vacia */
-    try{ if(document.getElementById('rtCalcR')) rtCalc(); }catch(e){}
-    return r;
-  };
-}
+/* RETIRADO: el arranque de la mini calculadora: la sustituyo el simulador (rt-simu.js) */
 
 
 /* ---------- rt-visual.js ---------- */
@@ -35158,6 +35020,7 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
 
 
 
