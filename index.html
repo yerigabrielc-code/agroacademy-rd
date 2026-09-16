@@ -24353,7 +24353,102 @@ function agC3PonBarra(){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-secuencia.js ---------- */
+/* ============================================================
+   LO QUE YA APROBÓ NUNCA SE LE CIERRA
+   ------------------------------------------------------------
+   EL DEFECTO, MEDIDO EN LOS SEIS CURSOS
+
+   El candado entre módulos —que ya venía encendido en los seis,
+   no solo en el curso de entrada— usaba esta regla:
+
+       ¿puedo abrir el módulo N?
+           → N es el primero, o aprobé el N-1
+
+   Es correcta para avanzar, y equivocada para volver. Con esa
+   regla sola, a un estudiante se le cierra contenido que YA
+   aprobó. Medido sobre Sanidad:
+
+     aprobó 1,2,4,5,6  →  abiertos 1,2,3,5,6,7
+                          el 4 CERRADO, y ya lo tenía aprobado
+     aprobó 7,8,9      →  abiertos 1,8,9,10
+                          el 7 CERRADO, y ya lo tenía aprobado
+
+   Esos huecos existen de verdad: el candado se puede apagar y
+   volver a encender desde el panel, y quien avanzó mientras
+   estaba apagado no lleva la secuencia perfecta.
+
+   LA REGLA CORREGIDA, y es una sola línea más:
+
+       ¿puedo abrir el módulo N?
+           → N es el primero, o aprobé el N-1, O YA APROBÉ EL N
+
+   Con eso:
+   · Un estudiante nuevo sigue teniendo que ir en orden.
+   · Nadie pierde acceso a algo que ya hizo — que es exactamente
+     lo que no se puede tocar.
+   · Repasar antes del certificado deja de ser imposible.
+
+   SE APLICA A LOS SEIS DESDE AQUÍ, no curso por curso: la regla
+   es la misma y duplicarla seis veces es cómo se desincronizan
+   las cosas.
+   ============================================================ */
+
+(function agSecuencia(){
+  var puertas = [
+    ['isUnlocked', 'porcicultura', 'examPassed'],   /* curso base: el estudiante en sesión */
+    ['nxDesbloq',  'nutricion',    'nxAprob'],
+    ['rpDesbloq',  'reproduccion', 'rpAprob'],
+    ['sbDesbloq',  'sanidad',      'sbAprob'],
+    ['egDesbloq',  'engorde',      'egAprob'],
+    ['rtDesbloq',  'ruta',         'rtAprob']
+  ];
+  var puestas = [];
+
+  var enganchar = function(){
+    puertas.forEach(function(par){
+      var fn = par[0], curso = par[1], aprob = par[2];
+      if(puestas.indexOf(fn) >= 0) return;
+      if(typeof window[fn] !== 'function') return;
+      var orig = window[fn];
+      window[fn] = function(n){
+        /* lo que decida la regla original manda cuando dice que SÍ */
+        var r = false;
+        try{ r = !!orig.apply(this, arguments); }catch(e){ r = true; }
+        if(r) return true;
+        /* y si dice que no, todavía queda una razón para abrirlo:
+           que el estudiante ya lo tenga aprobado */
+        try{
+          if(typeof window[aprob] === 'function'){
+            /* las funciones de los cursos toman (n) y miran al alumno en
+               sesión; la del curso base también. Un único argumento. */
+            if(window[aprob](n)) return true;
+          }
+        }catch(e){}
+        return false;
+      };
+      puestas.push(fn);
+    });
+    try{ window.AGSECUENCIA = puestas; }catch(e){}
+    return puestas.length === puertas.length;
+  };
+
+  /* este bloque va antes que Sanidad, Engorde y el curso de entrada:
+     en la primera pasada no estarían todas */
+  if(!enganchar()){
+    var n = 0;
+    var seguir = function(){
+      if(enganchar()) return;
+      if(++n < 40) setTimeout(seguir, 150);
+    };
+    setTimeout(seguir, 0);
+    if(document.readyState !== 'complete') addEventListener('load', enganchar);
+  }
+})();
+
 </script>
+
 
 
 
@@ -27450,6 +27545,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
 
 
 
@@ -31911,6 +32007,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -35258,6 +35355,7 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
 
 
 
