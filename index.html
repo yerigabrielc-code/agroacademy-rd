@@ -23377,7 +23377,770 @@ if(typeof window.renderAdmin === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-grupos.js ---------- */
+/* ============================================================
+   GRUPOS Y ACCESO · CADA COSA EN SU SITIO
+   ------------------------------------------------------------
+   LO QUE DIJO LA AUDITORÍA, MEDIDO, NO SUPUESTO:
+
+   Las secciones YA NO controlan el acceso a los cursos. Se
+   comprobó de dos formas: leyendo si alguna función de acceso
+   mira el campo (ninguna lo mira) y cambiando de sección y
+   borrando secciones (el acceso no se movió ni un ápice).
+
+   Hoy s.section se usa para tres cosas, todas administrativas:
+   como etiqueta impresa, como filtro de la tabla y para contar
+   cuántos hay en cada grupo.
+
+   ENTONCES, ¿DE DÓNDE SALE LA CONFUSIÓN? Del nombre. Es texto
+   libre, así que se pueden crear secciones llamadas «Curso
+   Completo de Porcicultura», y la pantalla las presenta como
+   «8 estudiantes pertenecen a…». La sección no da acceso, pero
+   lo APARENTA — y eso, aunque no sea un fallo de permisos, es un
+   fallo igual.
+
+   POR ESO ESTE BLOQUE NO TOCA LOS PERMISOS. Cambiarlos seria
+   crear el sistema duplicado que hay que evitar: la fuente de
+   verdad de «¿puede entrar?» sigue siendo enrolled() sobre los
+   mapas de cada curso. Lo que se arregla es la PANTALLA:
+
+   · La de grupos dice lo que hace y enseña a sus estudiantes.
+   · Avisa de los grupos con nombre de curso y ofrece renombrar
+     — renombrar, nunca borrar, y sin mover a nadie.
+   · La ficha del estudiante gana «Cursos y acceso», que es la
+     otra cara de la pantalla por curso y escribe en lo mismo.
+
+   EL AVANCE NO SE TOCA NUNCA. Vive en
+   '<prefijo>::<alumno>::exam_m<N>', atado al ID del estudiante.
+   Ninguna operación de este fichero escribe ni borra esas
+   claves, ni cambia un s.id. Renombrar o borrar un grupo no
+   puede alcanzarlas.
+   ============================================================ */
+
+function agGrE(x){ return (typeof esc === 'function') ? esc(x) : String(x == null ? '' : x); }
+function agGrJ(x){ return (typeof jsq === 'function') ? jsq(x) : ("'" + String(x).replace(/'/g, "\\'") + "'"); }
+
+function agGrSecs(){ try{ return (typeof SECTIONS !== 'undefined' ? SECTIONS : []); }catch(e){ return []; } }
+function agGrAlum(){
+  try{ return (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s && s.status !== 'borrado'; }); }
+  catch(e){ return []; }
+}
+function agGrDe(secId){ return agGrAlum().filter(function(s){ return s.section === secId; }); }
+
+/* ------------------------------------------------------------
+   1 · GRUPOS QUE PARECEN CURSOS
+   No se tocan solos: se avisa y se ofrece renombrar.
+   ------------------------------------------------------------ */
+function agGrPareceCurso(nombre){
+  var n = String(nombre || '').toLowerCase().trim();
+  if(!n) return false;
+  try{
+    var choca = Object.keys(COURSES).some(function(c){
+      var cn = String(COURSES[c].name || '').toLowerCase();
+      if(!cn) return false;
+      return n.indexOf(cn.slice(0, 14)) >= 0 || cn.indexOf(n) >= 0;
+    });
+    if(choca) return true;
+  }catch(e){}
+  return /\bcurso\b|porcicultura|formulaci|reproducci|sanidad|bioseguridad|engorde|alimentos balanceados/i.test(n);
+}
+function agGrSugerir(nombre){
+  /* un nombre neutro que conserva la pista de dónde venía */
+  var n = String(nombre || '').replace(/^curso\s+(completo\s+)?(de\s+)?/i, '').trim();
+  return 'Grupo ' + (n ? n.charAt(0).toUpperCase() + n.slice(1) : 'sin nombre');
+}
+window.agGrRenombrar = function(id){
+  var s = agGrSecs().filter(function(x){ return x.id === id; })[0];
+  if(!s) return;
+  var antes = s.name;
+  var prop = agGrSugerir(antes);
+  var nuevo = prompt('Este grupo se llama como un curso, y eso hace creer que pertenecer a él da acceso al curso — no lo da.\n\n' +
+    'Escriba un nombre que describa AL GRUPO DE PERSONAS.\n\n' +
+    'Nadie se mueve de grupo y nadie pierde accesos ni avance: solo cambia el nombre.', prop);
+  if(nuevo == null) return;
+  nuevo = String(nuevo).trim();
+  if(!nuevo){ if(typeof toast === 'function') toast('El nombre no puede quedar vacío', '✍️'); return; }
+  s.name = nuevo;
+  try{ if(typeof saveSections === 'function') saveSections(); }catch(e){}
+  if(typeof toast === 'function') toast('«' + antes + '» ahora se llama «' + nuevo + '»', '🏷️');
+  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+};
+
+/* ------------------------------------------------------------
+   2 · MOVER UN ESTUDIANTE DE GRUPO
+   Solo cambia s.section. Ni accesos ni avance se rozan.
+   ------------------------------------------------------------ */
+window.agGrMover = function(uid, secId){
+  var s = agGrAlum().filter(function(x){ return x.id === uid; })[0];
+  if(!s) return;
+  s.section = secId;
+  try{ if(typeof saveStudents === 'function') saveStudents(); }catch(e){}
+  if(typeof toast === 'function'){
+    var n = (agGrSecs().filter(function(x){ return x.id === secId; })[0] || {}).name || secId;
+    toast(s.name + ' pasa a «' + n + '»', '🗂️');
+  }
+  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+};
+
+/* ------------------------------------------------------------
+   3 · LA PANTALLA DE GRUPOS
+   ------------------------------------------------------------ */
+function agGruposVista(){
+  var secs = agGrSecs();
+  var alum = agGrAlum();
+  var sospechosos = secs.filter(function(s){ return agGrPareceCurso(s.name); });
+
+  var aviso = sospechosos.length
+    ? '<div class="agg-aviso">' +
+        '<b>⚠️ ' + sospechosos.length + (sospechosos.length === 1 ? ' grupo se llama' : ' grupos se llaman') + ' como un curso.</b>' +
+        '<p>Pertenecer a un grupo <b>no da acceso a ningún curso</b> — el acceso se gestiona en ' +
+        '<b>Accesos</b>, uno por estudiante y curso. Un grupo con nombre de curso hace creer lo contrario. ' +
+        'Puede renombrarlo aquí mismo: <b>nadie cambia de grupo y nadie pierde accesos ni avance</b>.</p>' +
+        '<div class="agg-aviso-l">' + sospechosos.map(function(s){
+          return '<button onclick="agGrRenombrar(' + agGrJ(s.id) + ')">🏷️ Renombrar «' + agGrE(s.name) + '»</button>';
+        }).join('') + '</div>' +
+      '</div>'
+    : '';
+
+  var tarjetas = secs.map(function(s, i){
+    var dentro = agGrDe(s.id);
+    var otros = secs.filter(function(x){ return x.id !== s.id; });
+    var lista = dentro.length
+      ? '<ul class="agg-alum">' + dentro.map(function(a){
+          var mover = otros.length
+            ? '<select onchange="agGrMover(' + agGrJ(a.id) + ', this.value)" title="Mover a otro grupo">' +
+                '<option value="" selected disabled>Mover a…</option>' +
+                otros.map(function(o){ return '<option value="' + agGrE(o.id) + '">' + agGrE(o.name) + '</option>'; }).join('') +
+              '</select>'
+            : '';
+          return '<li>' +
+            '<span class="agg-ini">' + agGrE(String(a.name || '?').trim().charAt(0).toUpperCase()) + '</span>' +
+            '<div><b>' + agGrE(a.name || a.id) + '</b><em>' + agGrE(a.email || '') + '</em></div>' +
+            mover +
+          '</li>';
+        }).join('') + '</ul>'
+      : '<p class="agg-vacio">Este grupo todavía no tiene estudiantes.</p>';
+
+    return '<section class="agg-card' + (agGrPareceCurso(s.name) ? ' ojo' : '') + '" style="--i:' + (i % 6) + '">' +
+      '<header>' +
+        '<span class="agg-ini big">' + agGrE(String(s.name || '?').trim().charAt(0).toUpperCase()) + '</span>' +
+        '<div class="agg-h-t">' +
+          '<b>' + agGrE(s.name) + '</b>' +
+          '<em>' + dentro.length + ' estudiante' + (dentro.length === 1 ? '' : 's') +
+            (s.notes ? ' · ' + agGrE(s.notes) : '') + '</em>' +
+        '</div>' +
+        '<div class="agg-h-a">' +
+          '<button onclick="editSection(' + agGrJ(s.id) + ')">✎ Editar</button>' +
+          (secs.length > 1 ? '<button class="del" onclick="deleteSection(' + agGrJ(s.id) + ')">🗑 Eliminar</button>' : '') +
+        '</div>' +
+      '</header>' +
+      lista +
+    '</section>';
+  }).join('');
+
+  return '<div class="agg">' +
+    '<div class="agg-cab">' +
+      '<div>' +
+        '<b>Los grupos organizan estudiantes. No dan acceso a cursos.</b>' +
+        '<p>Un grupo es una forma de ordenar a su gente: por año, por empresa, por tanda. ' +
+        'Dos estudiantes del mismo grupo pueden tener cursos distintos habilitados, y cambiar a alguien de grupo ' +
+        'no le añade ni le quita ningún curso. Eso se hace en <b>🔑 Accesos</b>.</p>' +
+      '</div>' +
+      '<button class="agg-add" onclick="editSection()">＋ Crear grupo</button>' +
+    '</div>' +
+    aviso +
+    (secs.length
+      ? '<div class="agg-lista">' + tarjetas + '</div>'
+      : '<div class="adm-empty">Todavía no hay ningún grupo. Cree el primero para poder ordenar a los estudiantes.</div>') +
+    '<p class="agg-pie">' + secs.length + (secs.length === 1 ? ' grupo' : ' grupos') +
+      ' · ' + alum.length + ' estudiante' + (alum.length === 1 ? '' : 's') + ' en total. ' +
+      'Al eliminar un grupo, sus estudiantes pasan a otro: <b>no se borra a nadie ni se toca su avance</b>.</p>' +
+  '</div>';
+}
+window.agGruposVista = agGruposVista;
+
+/* la pestaña de Secciones pasa a ser esta */
+if(typeof window.sectionsView === 'function'){
+  var _sectionsViewGr = window.sectionsView;
+  window.sectionsView = function(){
+    try{ return agGruposVista(); }
+    catch(e){ return _sectionsViewGr.apply(this, arguments); }
+  };
+}
+/* y se llama «Grupos» en el menú, que es lo que son */
+(function agGrMenu(){
+  var poner = function(){
+    var b = document.querySelector('#adminMenu [data-t="sections"]');
+    if(!b || b.dataset.grupos === '1') return;
+    b.dataset.grupos = '1';
+    b.innerHTML = '<span class="mi">🗂️</span> Grupos';
+  };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+  [200, 700, 1600].forEach(function(t){ setTimeout(poner, t); });
+  try{
+    if(typeof ADM_TITLES !== 'undefined' && ADM_TITLES.sections) ADM_TITLES.sections = 'Grupos de estudiantes';
+  }catch(e){}
+})();
+
+/* ------------------------------------------------------------
+   4 · «CURSOS Y ACCESO» EN LA FICHA DEL ESTUDIANTE
+   La otra cara de la pantalla por curso. Lee enrolled() y
+   escribe con agAccPon(): la misma y única fuente de verdad.
+   ------------------------------------------------------------ */
+function agGrAccesoDe(uid){
+  var s = agGrAlum().filter(function(x){ return x.id === uid; })[0];
+  if(!s) return '';
+  var ids = [];
+  try{ ids = (typeof agCursosVisibles === 'function') ? agCursosVisibles() : Object.keys(COURSES); }catch(e){ ids = []; }
+
+  var filas = ids.map(function(c){
+    var C = COURSES[c];
+    if(!C) return '';
+    var auto = !!C.gratis;
+    var tiene = false;
+    try{ tiene = !!C.enrolled(s); }catch(e){}
+    var a = (typeof agAccAvance === 'function') ? agAccAvance(c, uid) : {hechos:0, total:C.n||0, pct:0, completo:false, empezado:false};
+    var estado = a.completo ? '<span class="agg-ch ok">✅ Completado</span>'
+               : (a.empezado ? '<span class="agg-ch prog">⏳ En progreso</span>' : '');
+    var boton = auto
+      ? '<span class="agg-auto">🟢 Automático</span>'
+      : '<button class="agg-b' + (tiene ? ' quitar' : '') + '" onclick="agGrAcceso(' + agGrJ(uid) + ', ' + agGrJ(c) + ', ' + (!tiene) + ')">' +
+          (tiene ? 'Bloquear' : 'Habilitar') + '</button>';
+    return '<li class="agg-cur' + (tiene ? ' si' : '') + '">' +
+      '<span class="agg-cur-e">' + (tiene ? '🟢' : '🔒') + '</span>' +
+      '<div class="agg-cur-t">' +
+        '<b>' + agGrE(C.name || c) + '</b>' +
+        '<em>' + (tiene ? 'Disponible' : 'Bloqueado') + ' · ' + a.hechos + ' de ' + a.total + ' módulos' + '</em>' +
+      '</div>' +
+      estado + boton +
+    '</li>';
+  }).join('');
+
+  return '<div class="agg-acc">' +
+    '<div class="agg-acc-h"><b>Cursos y acceso</b>' +
+      '<span>Cada curso se habilita por separado. El grupo del estudiante no influye.</span></div>' +
+    '<ul class="agg-curs">' + filas + '</ul>' +
+  '</div>';
+}
+window.agGrAccesoDe = agGrAccesoDe;
+
+window.agGrAcceso = function(uid, curso, v){
+  if(typeof agAccPon !== 'function'){
+    if(typeof toast === 'function') toast('No se pudo cambiar el acceso', '⚠️');
+    return;
+  }
+  agAccPon(curso, uid, v);
+  /* se repinta solo el bloque, para no perder el sitio en la ficha */
+  var caja = document.querySelector('.agg-acc');
+  if(caja){ caja.outerHTML = agGrAccesoDe(uid); return; }
+  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+};
+
+/* Se cuelga de la ficha del estudiante que ya existe. OJO: studentProfile
+   NO devuelve HTML — llama a openForm(titulo, cuerpo, acciones), que escribe
+   dentro de #formBox. Asi que concatenar su valor de retorno no habria hecho
+   nada (es undefined): hay que inyectar en el cuadro ya abierto. */
+if(typeof window.studentProfile === 'function'){
+  var _studentProfileGr = window.studentProfile;
+  window.studentProfile = function(id){
+    var r = _studentProfileGr.apply(this, arguments);
+    try{
+      var caja = document.getElementById('formBox');
+      if(!caja) return r;
+      if(caja.querySelector('.agg-acc')) return r;
+      var rejilla = caja.querySelector('.form-grid') || caja;
+      var d = document.createElement('div');
+      d.innerHTML = agGrAccesoDe(id);
+      if(d.firstElementChild) rejilla.appendChild(d.firstElementChild);
+    }catch(e){}
+    return r;
+  };
+}
+
+/* ------------------------------------------------------------
+   5 · ESTILOS
+   ------------------------------------------------------------ */
+(function agGrCss(){
+  if(document.getElementById('agGrCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agGrCss';
+  s.textContent = [
+    '.agg{display:grid;gap:15px}',
+    '.agg-cab{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;',
+      'padding:15px 18px;border-radius:14px;border:1px solid var(--border,#3a3a3a);',
+      'background:color-mix(in srgb,var(--green,#2F7D4F) 6%,transparent)}',
+    /* Solo el TITULAR es bloque: «.agg-cab b» a secas alcanzaba tambien a
+       las negritas de enfasis dentro del parrafo y las partia en lineas
+       sueltas, dejando el punto final huerfano. Mismo fallo de cascada que
+       ya dio el pie de foto: se acota el selector, no se sube el peso. */
+    '.agg-cab > div > b{display:block;font-size:15px;font-weight:800;color:var(--text,#eee);margin-bottom:5px}',
+    '.agg-cab p{margin:0;font-size:13.2px;line-height:1.62;color:var(--text-2,#bbb);max-width:70ch}',
+    '.agg-cab p b{display:inline;color:var(--text,#eee)}',
+    '.agg-add{flex:0 0 auto;padding:10px 16px;border-radius:11px;cursor:pointer;font:inherit;',
+      'font-size:13.5px;font-weight:700;color:#fff;border:0;background:var(--green,#2F7D4F)}',
+
+    '.agg-aviso{padding:14px 17px;border-radius:13px;',
+      'border:1px solid color-mix(in srgb,#C08A12 40%,transparent);',
+      'background:color-mix(in srgb,#C08A12 10%,transparent)}',
+    '.agg-aviso b{color:var(--text,#eee)}',
+    '.agg-aviso p{margin:6px 0 11px;font-size:13.2px;line-height:1.62;color:var(--text-2,#bbb);max-width:74ch}',
+    '.agg-aviso-l{display:flex;gap:8px;flex-wrap:wrap}',
+    '.agg-aviso-l button{padding:8px 14px;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;',
+      'font-weight:700;color:#8A6208;border:1px solid color-mix(in srgb,#C08A12 50%,transparent);',
+      'background:color-mix(in srgb,#C08A12 16%,transparent)}',
+    '.agg-aviso-l button:hover{background:#8A6208;color:#fff;border-color:#8A6208}',
+
+    '.agg-lista{display:grid;gap:12px}',
+    '.agg-card{border:1px solid var(--border,#3a3a3a);border-radius:15px;overflow:hidden}',
+    '.agg-card.ojo{border-color:color-mix(in srgb,#C08A12 42%,transparent)}',
+    '.agg-card > header{display:flex;align-items:center;gap:12px;padding:13px 16px;flex-wrap:wrap;',
+      'background:color-mix(in srgb,var(--text,#fff) 3%,transparent);border-bottom:1px solid var(--border,#3a3a3a)}',
+    '.agg-h-t{flex:1 1 200px;min-width:0}',
+    '.agg-h-t b{display:block;font-size:15.5px;font-weight:800;color:var(--text,#eee)}',
+    '.agg-h-t em{display:block;font-style:normal;font-size:12.3px;color:var(--muted,#8a8a8a);margin-top:2px}',
+    '.agg-h-a{display:flex;gap:7px;flex:0 0 auto}',
+    '.agg-h-a button{padding:7px 12px;border-radius:9px;cursor:pointer;font:inherit;font-size:12.5px;',
+      'color:var(--text-2,#bbb);border:1px solid var(--border,#3a3a3a);background:transparent}',
+    '.agg-h-a button:hover{color:var(--text,#eee);border-color:var(--text-2,#bbb)}',
+    '.agg-h-a button.del:hover{color:#B03A2E;border-color:#B03A2E}',
+
+    '.agg-ini{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;',
+      'background:#2F7D4F;color:#fff;font-weight:800;font-size:13px}',
+    '.agg-ini.big{width:38px;height:38px;font-size:15px}',
+
+    '.agg-alum{list-style:none;margin:0;padding:6px 10px 10px;display:grid;gap:5px}',
+    '.agg-alum li{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:10px}',
+    '.agg-alum li:hover{background:color-mix(in srgb,var(--text,#fff) 4%,transparent)}',
+    '.agg-alum li > div{flex:1 1 auto;min-width:0}',
+    '.agg-alum li b{display:block;font-size:14px;font-weight:600;color:var(--text,#eee)}',
+    '.agg-alum li em{display:block;font-style:normal;font-size:11.8px;color:var(--muted,#8a8a8a);',
+      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.agg-alum select{flex:0 0 auto;font:inherit;font-size:12.3px;padding:6px 9px;border-radius:9px;',
+      'color:var(--text-2,#bbb);border:1px solid var(--border,#3a3a3a);background:transparent;cursor:pointer}',
+    '.agg-vacio{margin:0;padding:14px 16px;font-size:13px;color:var(--muted,#8a8a8a)}',
+    '.agg-pie{margin:0;font-size:12.6px;line-height:1.6;color:var(--muted,#8a8a8a)}',
+
+    /* cursos y acceso, en la ficha del estudiante */
+    '.agg-acc{margin-top:16px;border:1px solid var(--border,#3a3a3a);border-radius:15px;overflow:hidden}',
+    '.agg-acc-h{padding:13px 16px;border-bottom:1px solid var(--border,#3a3a3a);',
+      'background:color-mix(in srgb,var(--text,#fff) 3%,transparent)}',
+    '.agg-acc-h b{display:block;font-size:15px;font-weight:800;color:var(--text,#eee)}',
+    '.agg-acc-h span{display:block;font-size:12.3px;color:var(--muted,#8a8a8a);margin-top:3px}',
+    '.agg-curs{list-style:none;margin:0;padding:8px 10px 10px;display:grid;gap:5px}',
+    '.agg-cur{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:11px;',
+      'border:1px solid transparent}',
+    '.agg-cur.si{border-color:color-mix(in srgb,#2F7D4F 26%,transparent);',
+      'background:color-mix(in srgb,#2F7D4F 6%,transparent)}',
+    '.agg-cur-e{font-size:16px;line-height:1;flex:0 0 auto}',
+    '.agg-cur-t{flex:1 1 auto;min-width:0}',
+    '.agg-cur-t b{display:block;font-size:14px;font-weight:600;color:var(--text,#eee);line-height:1.3}',
+    '.agg-cur-t em{display:block;font-style:normal;font-size:11.8px;color:var(--muted,#8a8a8a)}',
+    '.agg-ch{font-size:11.3px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap}',
+    '.agg-ch.ok{background:color-mix(in srgb,#2F7D4F 14%,transparent);color:#1F6B41}',
+    '.agg-ch.prog{background:color-mix(in srgb,#C08A12 18%,transparent);color:#8A6208}',
+    '.agg-auto{font-size:12px;font-weight:700;color:#2F7D4F;white-space:nowrap}',
+    '.agg-b{flex:0 0 auto;padding:7px 14px;border-radius:9px;cursor:pointer;font:inherit;font-size:12.5px;',
+      'font-weight:700;color:#fff;border:0;background:#2F7D4F}',
+    '.agg-b.quitar{background:transparent;color:var(--text-2,#bbb);border:1px solid var(--border,#3a3a3a)}',
+    '.agg-b.quitar:hover{color:#B03A2E;border-color:#B03A2E}',
+
+    '@media(max-width:620px){',
+      '.agg-alum li{flex-wrap:wrap}',
+      '.agg-alum select{width:100%}',
+      '.agg-cur{flex-wrap:wrap}',
+      '.agg-b{width:100%}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-detalle.js ---------- */
+/* ============================================================
+   EL DETALLE POR ESTUDIANTE, SIN MEZCLAR CURSOS
+   ------------------------------------------------------------
+   DOS FALLOS REALES, REPRODUCIDOS EN PRODUCCIÓN:
+
+   1 · nxDatosCurso() decidía el curso así:
+
+         const c = ADMCURSO;
+         return c === 'nutricion' ? {…nx:: 10 módulos…}
+                                  : {…porci:: 12 módulos…};
+
+       Se escribió cuando la plataforma tenía DOS cursos y nunca
+       se amplió. Con Reproducción, Sanidad, Engorde o el curso
+       de entrada seleccionados caía en el «else» y devolvía
+       Porcicultura: doce columnas y claves porci::. Por eso el
+       conmutador decía «Introducción · 5 módulos» y la tabla de
+       abajo enseñaba 12 casillas y «1/12». Medido: con «ruta»
+       seleccionado la tabla seguía pintando 12 columnas.
+
+   2 · nxTablaDetalle() listaba a TODOS los estudiantes, tuvieran
+       acceso al curso o no. Medido: con Porcicultura
+       seleccionada salían 7 filas, 5 de ellas de gente SIN
+       acceso. De ahí la impresión de que alguien «está avanzando
+       en los 12 módulos» de un curso que no tiene.
+
+   QUÉ SE HACE:
+
+   · nxDatosCurso() se reconstruye desde el contrato de COURSES,
+     así que vale para los seis y para el séptimo que venga.
+   · La tabla lista solo a quien TIENE acceso.
+   · Y lo que estaba escondido se enseña aparte, en un bloque
+     propio: «tienen avance pero no tienen acceso». No se oculta
+     ni se borra nada — el avance es del estudiante y se queda.
+     Simplemente deja de aparecer donde confunde.
+   ============================================================ */
+
+/* la clave de almacenamiento de cada curso, que es lo único que el
+   contrato de COURSES no expone */
+var AGPRE = {
+  porcicultura: 'porci::',
+  nutricion:    'nx::',
+  reproduccion: 'rp::',
+  sanidad:      'sb::',
+  engorde:      'eg::',
+  ruta:         'rt::'
+};
+
+function agDetCursoId(){
+  var c = null;
+  try{ c = (typeof ADMCURSO !== 'undefined' && ADMCURSO) ? ADMCURSO : null; }catch(e){}
+  if(!c){ try{ c = (typeof ADM !== 'undefined' && ADM.course) ? ADM.course : null; }catch(e){} }
+  try{ if(!c || !COURSES[c]) c = 'porcicultura'; }catch(e){ c = 'porcicultura'; }
+  return c;
+}
+
+if(typeof window.nxDatosCurso === 'function'){
+  var _nxDatosCursoAg = window.nxDatosCurso;
+  window.nxDatosCurso = function(){
+    try{
+      var id = agDetCursoId();
+      var C = COURSES[id];
+      if(!C) return _nxDatosCursoAg.apply(this, arguments);
+      var ms = [];
+      try{
+        ms = (C.modules() || []).map(function(m){
+          return { n: (m.n != null ? m.n : m.id), num: m.num, t: (m.t || m.title || ''), ac: m.ac };
+        });
+      }catch(e){ ms = []; }
+      return { pre: (AGPRE[id] || 'porci::'), n: (C.n || ms.length), nom: (C.label || C.name || id), mods: ms, id: id };
+    }catch(e){ return _nxDatosCursoAg.apply(this, arguments); }
+  };
+}
+
+/* ------------------------------------------------------------
+   LA TABLA
+   ------------------------------------------------------------ */
+function agDetAlum(C){
+  try{
+    if(typeof enrolledStudents === 'function') return enrolledStudents(C);
+  }catch(e){}
+  try{
+    return (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){
+      return s && s.status !== 'borrado' && C.enrolled(s);
+    });
+  }catch(e){ return []; }
+}
+function agDetColados(C, pre, n){
+  /* con avance guardado pero sin acceso: ni se oculta ni se borra */
+  var out = [];
+  try{
+    (typeof STUDENTS !== 'undefined' ? STUDENTS : []).forEach(function(s){
+      if(!s || s.status === 'borrado') return;
+      var tiene = false;
+      try{ tiene = !!C.enrolled(s); }catch(e){}
+      if(tiene) return;
+      var ap = 0;
+      for(var i = 1; i <= n; i++){
+        try{ var r = JSON.parse(localStorage.getItem(pre + s.id + '::exam_m' + i)); if(r && r.passed) ap++; }catch(e){}
+      }
+      if(ap > 0) out.push({ s: s, ap: ap });
+    });
+  }catch(e){}
+  return out;
+}
+
+if(typeof window.nxTablaDetalle === 'function'){
+  var _nxTablaDetalleAg = window.nxTablaDetalle;
+  window.nxTablaDetalle = function(){
+    var D, C;
+    try{
+      D = nxDatosCurso();
+      C = COURSES[D.id || agDetCursoId()];
+      if(!C || !D.mods || !D.mods.length) return _nxTablaDetalleAg.apply(this, arguments);
+    }catch(e){ return _nxTablaDetalleAg.apply(this, arguments); }
+
+    var alum = agDetAlum(C);
+    var colados = agDetColados(C, D.pre, D.n);
+
+    var cab = '<div class="nxd-h"><b>Detalle por estudiante · ' + agEsc(C.name || D.nom) + '</b>' +
+      '<span>Solo aparecen los estudiantes <b>con acceso a este curso</b>. ' +
+      'Cada casilla es un módulo: verde = aprobado con su nota · ámbar = presentado sin aprobar · vacío = no lo ha tocado.</span></div>';
+
+    if(!alum.length){
+      return cab + '<div class="adm-empty">Todavía no hay ningún estudiante con acceso a <b>' +
+        agEsc(C.label || C.name) + '</b>. Se habilita en <b>🔑 Accesos</b>.</div>' + agDetColadosHTML(colados, C);
+    }
+
+    var h = cab + '<div class="nx-tw"><table class="nx-t nxd-t"><thead><tr><th>Estudiante</th>' +
+      D.mods.map(function(m){ return '<th class="nxd-m" title="' + agEsc(m.t) + '">' + m.num + '</th>'; }).join('') +
+      '<th>Avance</th><th>Prom.</th></tr></thead><tbody>';
+
+    alum.forEach(function(a){
+      var ap = 0, notas = [], celdas = '';
+      D.mods.forEach(function(m){
+        var r = null;
+        try{ r = JSON.parse(localStorage.getItem(D.pre + a.id + '::exam_m' + m.n)); }catch(e){}
+        if(!r){ celdas += '<td class="nxd-c"><i class="nxd-v"></i></td>'; return; }
+        var nota = r.best || r.last || 0;
+        notas.push(nota);
+        if(r.passed) ap++;
+        celdas += '<td class="nxd-c"><button class="nxd-p ' + (r.passed ? 'ok' : 'no') + '" ' +
+          'onclick="nxVerIntento(\'' + a.id + '\',' + m.n + ')" title="' + agEsc(a.name + ' · ' + m.t) + '">' + nota + '</button></td>';
+      });
+      var prom = notas.length ? Math.round(notas.reduce(function(x, y){ return x + y; }, 0) / notas.length) : 0;
+      h += '<tr><td class="nxd-e"><b>' + agEsc(a.name) + '</b><span>' + agEsc(a.email || '') + '</span></td>' + celdas +
+        '<td class="nx-num"><div class="nxd-bar"><i style="width:' + (D.n ? (ap / D.n * 100) : 0) + '%"></i></div>' + ap + '/' + D.n + '</td>' +
+        '<td class="nx-num ' + (prom >= 80 ? 'nx-hi' : '') + '">' + (notas.length ? prom + '%' : '—') + '</td></tr>';
+    });
+
+    return h + '</tbody></table></div>' + agDetColadosHTML(colados, C);
+  };
+}
+
+function agDetColadosHTML(colados, C){
+  if(!colados || !colados.length) return '';
+  return '<div class="agd-col">' +
+    '<b>⚠️ ' + colados.length + (colados.length === 1 ? ' estudiante tiene avance' : ' estudiantes tienen avance') +
+      ' en «' + agEsc(C.label || C.name) + '» pero <u>no tiene' + (colados.length === 1 ? '' : 'n') + ' acceso</u>.</b>' +
+    '<p>Es avance real, de cuando este curso estaba abierto para ellos. <b>No se ha borrado nada</b> y se conserva ' +
+    'tal cual: si les devuelve el acceso, lo encuentran donde lo dejaron. Se muestra aquí, aparte de la tabla, ' +
+    'para que no parezca que están cursando algo que hoy no pueden abrir.</p>' +
+    '<ul>' + colados.map(function(x){
+      return '<li><span>' + agEsc(x.s.name) + '</span><em>' + x.ap + ' de ' + (C.n || '?') + ' módulos aprobados</em>' +
+        '<button onclick="agAccPon(\'' + (C.id || '') + '\', \'' + agEsc(x.s.id) + '\', true); if(typeof renderAdmin===\'function\') renderAdmin();">Darle acceso</button></li>';
+    }).join('') + '</ul>' +
+  '</div>';
+}
+
+/* ------------------------------------------------------------
+   ESTILOS
+   ------------------------------------------------------------ */
+(function agDetCss(){
+  if(document.getElementById('agDetCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agDetCss';
+  s.textContent = [
+    '.agd-col{margin-top:16px;padding:15px 17px;border-radius:14px;',
+      'border:1px solid color-mix(in srgb,#C08A12 42%,transparent);',
+      'background:color-mix(in srgb,#C08A12 9%,transparent)}',
+    '.agd-col > b{display:block;font-size:14.5px;color:var(--text,#eee);margin-bottom:6px}',
+    '.agd-col > b u{text-decoration-thickness:2px}',
+    '.agd-col > p{margin:0 0 12px;font-size:13.2px;line-height:1.62;color:var(--text-2,#bbb);max-width:78ch}',
+    '.agd-col ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}',
+    '.agd-col li{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:9px 12px;border-radius:10px;',
+      'background:color-mix(in srgb,var(--text,#fff) 4%,transparent)}',
+    '.agd-col li > span{font-size:14px;font-weight:600;color:var(--text,#eee)}',
+    '.agd-col li > em{flex:1 1 auto;font-style:normal;font-size:12.4px;color:var(--muted,#8a8a8a)}',
+    '.agd-col li > button{flex:0 0 auto;padding:7px 14px;border-radius:9px;cursor:pointer;font:inherit;',
+      'font-size:12.5px;font-weight:700;color:#fff;border:0;background:#2F7D4F}',
+    '.agd-col li > button:hover{filter:brightness(1.08)}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-candado.js ---------- */
+/* ============================================================
+   EL CANDADO TAMBIÉN EN EL EXAMEN, NO SOLO EN LA PUERTA
+   ------------------------------------------------------------
+   LO QUE PASÓ, Y ES UN FALLO MÍO DE DISEÑO:
+
+   El acceso al curso base se cerró en mount() y goto(), que son
+   los que PINTAN el contenido. Es la puerta principal, y para
+   quien entra hoy funciona. Pero no es el único camino:
+
+   · Quien ya tenía la página abierta cuando se puso el candado
+     sigue dentro: su navegador nunca vuelve a llamar a mount().
+   · Quien tiene el JavaScript viejo en caché carga una versión
+     sin candado.
+   · Y el examen se calificaba y se GUARDABA sin preguntar nada:
+     submitExam() escribía la nota directamente.
+
+   Resultado observado: un estudiante con el acceso bloqueado
+   pasó de 1 a 2 módulos aprobados. El candado estaba puesto en
+   la puerta y la ventana seguía abierta.
+
+   ASÍ QUE SE CIERRA DONDE DE VERDAD IMPORTA: en el punto en que
+   se escribe la nota. Da igual cómo se haya llegado al examen —
+   página vieja, caché, URL directa: si el estudiante no tiene el
+   curso, la nota no se guarda.
+
+   Se aplica a los SEIS cursos con el mismo criterio, no solo al
+   que dio el problema: cualquiera puede perder el acceso a
+   mitad de camino y el comportamiento debe ser el mismo.
+
+   LO QUE NO HACE: no borra ni toca ninguna nota ya guardada. El
+   avance que un estudiante ya hizo es suyo y se queda donde
+   está; lo que se impide es SUMAR más sin acceso.
+
+   HONESTIDAD SOBRE EL ALCANCE: esto es una aplicación de una
+   sola página; la comprobación corre en el navegador del
+   estudiante. Alguien con la consola abierta puede saltársela.
+   Sirve para que nadie avance por accidente o por inercia, no
+   como barrera contra quien quiera forzarla a propósito. Para
+   eso haría falta validar en el servidor.
+   ============================================================ */
+
+function agQuienCursa(){
+  try{
+    if(typeof SESSION !== 'undefined' && SESSION && SESSION.id) return SESSION.id;
+    if(typeof STU !== 'undefined' && STU) return STU;
+  }catch(e){}
+  return null;
+}
+function agEsElInstructor(){
+  try{
+    if(typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN') return true;
+    if(typeof PREVIEW !== 'undefined' && PREVIEW) return true;
+  }catch(e){}
+  return false;
+}
+
+/* ¿puede este estudiante seguir sumando notas en este curso? */
+function agPuedeCursar(curso){
+  if(agEsElInstructor()) return true;
+  /* Sin sesión iniciada no se estorba. El modo local/demostración no tiene
+     lista de estudiantes contra la que comprobar nada, y bloquearlo ahí
+     rompería el curso a quien solo está mirando la aplicación. */
+  try{ if(typeof SESSION === 'undefined' || !SESSION) return true; }catch(e){ return true; }
+  var uid = agQuienCursa();
+  if(uid == null) return true;
+  try{
+    var C = COURSES[curso];
+    if(!C) return true;
+    var s = null;
+    try{ s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === uid; })[0]; }catch(e){}
+    /* si la lista todavía no ha llegado de la nube, no se bloquea a nadie:
+       más vale dejar pasar que dejar fuera a quien sí tiene derecho */
+    if(!s) return true;
+    return !!C.enrolled(s);
+  }catch(e){ return true; }
+}
+window.agPuedeCursar = agPuedeCursar;
+
+function agNoPuede(curso){
+  var n = curso;
+  try{ n = COURSES[curso].name || curso; }catch(e){}
+  if(typeof toast === 'function'){
+    toast('No tiene acceso a «' + n + '»: la evaluación no se guardó', '🔒');
+  }
+}
+
+/* ------------------------------------------------------------
+   LOS SEIS PUNTOS DONDE SE GUARDA UNA NOTA
+   ------------------------------------------------------------ */
+(function agCierraExamenes(){
+  var puertas = [
+    ['submitExam', 'porcicultura'],
+    ['nxEnviar',   'nutricion'],
+    ['rpEnviar',   'reproduccion'],
+    ['sbEnviar',   'sanidad'],
+    ['egEnviar',   'engorde'],
+    ['rtEnviar',   'ruta']
+  ];
+  var puestos = [];
+
+  /* Este bloque se inserta ANTES que los de Sanidad, Engorde y el curso
+     de entrada, asi que sus funciones de enviar todavia no existen cuando
+     esto corre por primera vez: en la primera pasada solo se engancharon
+     tres de seis. Se reintenta hasta tenerlas todas. */
+  var enganchar = function(){
+    puertas.forEach(function(par){
+      var f = par[0], curso = par[1];
+      if(puestos.indexOf(f) >= 0) return;
+      if(typeof window[f] !== 'function') return;
+      var orig = window[f];
+      window[f] = function(){
+        if(!agPuedeCursar(curso)){ agNoPuede(curso); return; }
+        return orig.apply(this, arguments);
+      };
+      puestos.push(f);
+    });
+    try{ window.AGCANDADOS = puestos; }catch(e){}
+    return puestos.length === puertas.length;
+  };
+
+  if(!enganchar()){
+    var n = 0;
+    var seguir = function(){
+      if(enganchar()) return;
+      if(++n < 40) setTimeout(seguir, 150);
+    };
+    setTimeout(seguir, 0);
+    if(document.readyState !== 'complete') addEventListener('load', enganchar);
+  }
+})();
+
+/* ------------------------------------------------------------
+   Y QUE NO SE PUEDA SEGUIR LEYENDO EL CONTENIDO CON LA PÁGINA
+   VIEJA ABIERTA: se comprueba cada poco, no solo al entrar.
+   ------------------------------------------------------------
+   Si alguien pierde el acceso mientras está dentro, el curso se
+   cierra solo. No se le quita nada de lo que ya hizo: solo deja
+   de tener el contenido delante.
+   ------------------------------------------------------------ */
+(function agVigilaDentro(){
+  var overlays = {
+    nutricion:    ['nxOv', 'nxCerrar'],
+    reproduccion: ['rpOv', 'rpCerrar'],
+    sanidad:      ['sbOv', 'sbCerrar'],
+    engorde:      ['egOv', 'egCerrar']
+  };
+  var mirar = function(){
+    try{
+      if(agEsElInstructor()) return;
+      Object.keys(overlays).forEach(function(curso){
+        var par = overlays[curso];
+        if(!document.getElementById(par[0])) return;
+        if(agPuedeCursar(curso)) return;
+        var cerrado = false;
+        try{ if(typeof window[par[1]] === 'function'){ window[par[1]](); cerrado = true; } }catch(e){}
+        if(!cerrado){
+          /* si el curso no expone su cerrador, se retira el overlay a mano:
+             dejarlo abierto seria dejar el contenido delante de quien ya no
+             lo tiene */
+          try{ var ov = document.getElementById(par[0]); if(ov){ ov.remove(); cerrado = true; } }catch(e){}
+          try{ document.body.style.overflow = ''; }catch(e){}
+        }
+        if(cerrado && typeof toast === 'function') toast('Su acceso a este curso ha cambiado', '🔒');
+      });
+      /* el curso base vive en #main, no en un overlay */
+      var main = document.getElementById('main');
+      if(main && main.innerHTML.length > 400 && !agPuedeCursar('porcicultura')){
+        try{
+          if(typeof pcPanelBloqueado === 'function') main.innerHTML = pcPanelBloqueado();
+        }catch(e){}
+      }
+    }catch(e){}
+  };
+  /* al principio mas seguido, por si el acceso cambia justo al entrar */
+  [800, 1800, 3000].forEach(function(t){ setTimeout(mirar, t); });
+  setInterval(mirar, 4000);
+})();
+
 </script>
+
+
+
+
+
+
+
 
 
 
@@ -26465,6 +27228,14 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
+
+
+
+
+
 
 
 
@@ -30906,6 +31677,14 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
+
+
+
+
+
+
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -34379,6 +35158,14 @@ if(typeof window.abrirCursos === 'function'){
 }
 
 </script>
+
+
+
+
+
+
+
+
 
 
 
