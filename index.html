@@ -27511,7 +27511,177 @@ if(typeof window.quickAdd === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-subeaccesos.js ---------- */
+/* ============================================================
+   SUBIR A LA NUBE LOS PERMISOS QUE YA ESTABAN CONCEDIDOS
+   ------------------------------------------------------------
+   EL PELIGRO QUE ESTO EVITA
+
+   Los permisos de cada curso viven hoy en el navegador del
+   instructor. Al crear las columnas en Supabase nacen VACÍAS, y
+   tres de los seis cursos toman la nube como verdad absoluta:
+
+       nutricion    NXACCESO[id] = !!p.acceso_nutricion
+       porcicultura PCACCESO = {lo que diga la nube}
+       engorde      EGACCESO = {lo que diga la nube}
+
+   Es decir: el día que se crean las columnas, esos tres cursos
+   se quedarían SIN NADIE. Todos los alumnos perderían el acceso
+   a la vez, y el instructor tendría que volver a darlo uno por
+   uno de memoria.
+
+   (Reproducción y sanidad solo AÑADEN lo que encuentran en la
+   nube, nunca quitan, así que no corren ese riesgo.)
+
+   LO QUE HACE
+
+   La primera vez que el instructor entra después de crear las
+   columnas, sube a la nube exactamente los permisos que ya tenía
+   concedidos. Ni uno más.
+
+   TRES CANDADOS PARA QUE NO SE DISPARE CUANDO NO DEBE
+
+   1 · Solo en la sesión del INSTRUCTOR. El navegador del alumno
+       no tiene la lista buena y no debe escribir permisos.
+   2 · Solo si la nube está VACÍA para ese curso. Si ya hay
+       alguien concedido, la nube manda y aquí no se toca nada.
+   3 · Una sola vez por curso y navegador, con marca guardada.
+       Así, si mañana usted se los quita a todos a propósito, esto
+       no se los devuelve.
+
+   Y la foto de los permisos se toma AL ARRANCAR, antes de que
+   ningún bloque haya leído la nube: si se tomara después, ya
+   estaría contaminada con el mapa vacío que se quiere evitar.
+   ============================================================ */
+
+var AGSUBE = {
+  porcicultura: { mapa:'PCACCESO', col:'acceso_porcicultura' },
+  nutricion:    { mapa:'NXACCESO', col:'acceso_nutricion' },
+  reproduccion: { mapa:'RPACCESO', col:'acceso_reproduccion' },
+  sanidad:      { mapa:'SBACCESO', col:'acceso_sanidad' },
+  engorde:      { mapa:'EGACCESO', col:'acceso_engorde' }
+};
+
+/* OJO, y me ha mordido tres veces ya: NXACCESO está declarado con
+   `let`, y un `let` de nivel superior NO crea propiedad en window.
+   Leerlo como window.NXACCESO devolvía undefined y la foto salía
+   vacía — justo del curso que más falta hace proteger. Hay que
+   nombrarlo, no buscarlo en window. */
+function agSubeMapa(nombre){
+  try{ return (0, eval)(nombre); }catch(e){ return null; }
+}
+
+/* la foto, cuanto antes */
+var AGSUBEFOTO = {};
+var AGSUBELEIDO = {};      /* ¿se pudo leer el mapa de este curso? */
+(function agSubeFoto(){
+  var tomar = function(){
+    Object.keys(AGSUBE).forEach(function(c){
+      if(AGSUBEFOTO[c]) return;                 /* ya la tengo */
+      var m = agSubeMapa(AGSUBE[c].mapa);
+      if(m && typeof m === 'object'){
+        AGSUBELEIDO[c] = true;
+        var ids = Object.keys(m).filter(function(k){ return !!m[k]; });
+        if(ids.length) AGSUBEFOTO[c] = ids;
+      }
+    });
+  };
+  tomar();
+  /* los mapas de sanidad, engorde y ruta nacen después de este
+     bloque; se mira unas cuantas veces, pero siempre ANTES de
+     que las lecturas de nube (2.2 s en adelante) contesten */
+  [60, 180, 400, 700, 1100, 1600].forEach(function(t){ setTimeout(tomar, t); });
+})();
+
+function agSubeMarca(curso){ return 'ag_subido_' + curso; }
+
+function agSubeYaHecho(curso){
+  try{ return localStorage.getItem(agSubeMarca(curso)) === '1'; }catch(e){ return false; }
+}
+
+function agSubeApunta(curso){
+  try{ localStorage.setItem(agSubeMarca(curso), '1'); }catch(e){}
+}
+
+function agSubeEsInstructor(){
+  try{
+    return typeof SESSION !== 'undefined' && SESSION && SESSION.role === 'ADMIN';
+  }catch(e){ return false; }
+}
+
+/* ------------------------------------------------------------
+   LA MIGRACIÓN, CURSO POR CURSO
+   ------------------------------------------------------------ */
+function agSubeCurso(curso){
+  var cfg = AGSUBE[curso];
+  if(!cfg || agSubeYaHecho(curso)) return;
+  if(!window.SB || typeof SB.from !== 'function') return;
+
+  var mios = AGSUBEFOTO[curso] || [];
+  if(!mios.length){
+    /* «no hay nada que subir» y «no pude leer el mapa» se parecen
+       mucho y son cosas muy distintas. Solo se da por hecho cuando
+       el mapa SÍ se leyó y de verdad estaba vacío; si no se pudo
+       leer, se deja sin marcar para volver a intentarlo. */
+    if(AGSUBELEIDO[curso]) agSubeApunta(curso);
+    return;
+  }
+
+  try{
+    SB.from('profiles').select('id,' + cfg.col).then(function(r){
+      if(!r || r.error || !r.data) return;       /* la columna no existe todavía */
+      var enNube = r.data.filter(function(p){ return !!p[cfg.col]; }).length;
+      if(enNube > 0){ agSubeApunta(curso); return; }   /* la nube ya manda */
+
+      var patch = {};
+      patch[cfg.col] = true;
+      var n = 0;
+      mios.forEach(function(id){
+        try{ SB.from('profiles').update(patch).eq('id', id).then(function(){}, function(){}); n++; }catch(e){}
+      });
+      agSubeApunta(curso);
+
+      var nombre = curso;
+      try{ nombre = (COURSES[curso] || {}).label || curso; }catch(e){}
+      if(typeof toast === 'function'){
+        toast('Subidos ' + n + ' permisos de ' + nombre + ' a la nube', '☁️');
+      }
+    }, function(){});
+  }catch(e){}
+}
+
+(function agSubeArranca(){
+  var intentos = 0;
+  var probar = function(){
+    if(!agSubeEsInstructor() || !window.SB || typeof SB.from !== 'function'){
+      if(++intentos < 20){ setTimeout(probar, 1500); return; }
+      return;
+    }
+    Object.keys(AGSUBE).forEach(agSubeCurso);
+  };
+  /* después de que las lecturas de nube hayan contestado, para
+     saber de verdad si la nube está vacía */
+  setTimeout(probar, 4200);
+})();
+
+/* por si el instructor entra más tarde en la misma pestaña */
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminSube = window.renderAdmin;
+  var yaMirado = false;
+  window.renderAdmin = function(){
+    var r = _renderAdminSube.apply(this, arguments);
+    if(!yaMirado && agSubeEsInstructor()){
+      yaMirado = true;
+      setTimeout(function(){ Object.keys(AGSUBE).forEach(agSubeCurso); }, 1200);
+    }
+    return r;
+  };
+}
+
 </script>
+
+
 
 
 
