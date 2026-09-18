@@ -4926,9 +4926,9 @@ router();
   async function loadCloudAdminData(){
     try{
       const {data:secs}=await sb.from('sections').select('*').order('created_at');
-      if(secs)SECTIONS=secs.map(s=>({id:s.id,name:s.name,notes:s.notes||''}));
+      if(secs&&secs.length)SECTIONS=secs.map(s=>({id:s.id,name:s.name,notes:s.notes||''}));
       const {data:profs}=await sb.from('profiles').select('*');
-      if(profs)STUDENTS=profs.filter(p=>p.role!=='admin').map(p=>({id:p.id,name:p.full_name||p.email||'(sin nombre)',email:p.email||'',phone:p.phone||'',enrolled:p.enrolled_at||(p.created_at?String(p.created_at).slice(0,10):''),created:p.created_at||p.enrolled_at||'',section:p.section_id||'',status:p.status||'activo',pass:'',notes:p.notes||''}))
+      if(profs&&profs.length)STUDENTS=profs.filter(p=>p.role!=='admin').map(p=>({id:p.id,name:p.full_name||p.email||'(sin nombre)',email:p.email||'',phone:p.phone||'',enrolled:p.enrolled_at||(p.created_at?String(p.created_at).slice(0,10):''),created:p.created_at||p.enrolled_at||'',section:p.section_id||'',status:p.status||'activo',pass:'',notes:p.notes||''}))
         .sort((a,b)=>String(a.created||a.enrolled).localeCompare(String(b.created||b.enrolled))||String(a.name).localeCompare(String(b.name)));
       const hc=await progHasCourse();
       const {data:prog}=await sb.from('progress').select('*');
@@ -35769,6 +35769,13 @@ var EGNUBE = { viva: false, consultada: false };
       SB.from('profiles').select('id,acceso_engorde').then(function(r){
         EGNUBE.consultada = true;
         if(!r || r.error || !r.data) return;   /* la columna no existe: no se toca nada */
+
+        /* Y cero filas tampoco es una respuesta: la consulta puede
+           llegar sin error y vacía si las políticas no dejan leer
+           los perfiles. Darlo por «nadie tiene acceso» borraría el
+           mapa y dejaría a todos fuera de Engorde a la vez. */
+        if(!r.data.length) return;
+
         EGNUBE.viva = true;
         var nuevo = {};
         r.data.forEach(function(p){ if(p.acceso_engorde) nuevo[p.id] = true; });
@@ -35817,6 +35824,7 @@ if(typeof window.egAccesoTodos === 'function'){
 }
 
 </script>
+
 
 
 
@@ -39279,6 +39287,18 @@ var PCNUBE = { viva: false, consultada: false };
         PCNUBE.consultada = true;
         /* si la columna no existe, Supabase devuelve error: no se toca nada */
         if(!r || r.error || !r.data) return;
+
+        /* UNA RESPUESTA VACÍA NO ES UNA RESPUESTA.
+           Se midió en vivo: la consulta llega sin error y con CERO
+           filas — porque las políticas de la base no dejan leer los
+           perfiles, o porque la sesión no está autenticada todavía.
+           Tomar eso por «nadie tiene acceso» BORRA el mapa entero y
+           deja a todos los alumnos fuera del curso base de golpe.
+           Con cero filas se prefiere no saber nada y conservar lo
+           que hay: es el mismo fallo que vaciaba la lista de
+           estudiantes, y aquí costaría igual de caro. */
+        if(!r.data.length) return;
+
         PCNUBE.viva = true;
         /* la nube MANDA: se reemplaza el mapa, no se mezcla. Mezclar
            dejaría vivo para siempre cualquier permiso viejo del
@@ -39342,6 +39362,7 @@ if(typeof window.pcAccesoTodos === 'function'){
 }
 
 </script>
+
 
 
 
