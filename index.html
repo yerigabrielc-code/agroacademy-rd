@@ -4932,7 +4932,8 @@ router();
         .sort((a,b)=>String(a.created||a.enrolled).localeCompare(String(b.created||b.enrolled))||String(a.name).localeCompare(String(b.name)));
       const hc=await progHasCourse();
       const {data:prog}=await sb.from('progress').select('*');
-      for(const k in CLOUDPROG)delete CLOUDPROG[k];
+      /* 0 FILAS NO ES 0 DATOS. Antes se vaciaba CLOUDPROG ANTES de rellenarlo, asi que una consulta vacia —sesion caducada, politicas, sin conexion— borraba el avance de TODOS de golpe. Solo se limpia cuando la nube trae filas de verdad. */
+      if(prog && prog.length){ for(const k in CLOUDPROG)delete CLOUDPROG[k]; }
       (prog||[]).forEach(r=>{
         const c = hc ? courseOfRow(r) : 'porcicultura';
         const u = (CLOUDPROG[r.user_id]=CLOUDPROG[r.user_id]||{});
@@ -28135,7 +28136,556 @@ if(typeof window.renderAdmin === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-navcurso.js ---------- */
+/* ============================================================
+   LA NAVEGACIÓN DEL CURSO, COMPLETA OTRA VEZ
+   ------------------------------------------------------------
+   Las subpestañas del curso habían quedado en:
+
+       Catálogo | Acceso | Fórmulas | Ajustes
+
+   Y el editor de certificados —nxAdmCertificados(), que sigue
+   existiendo y funcionando— se había quedado sin puerta. Se
+   comprobó: las funciones responden, pero no hay forma de llegar
+   a ellas desde la interfaz. Código vivo, inalcanzable.
+
+   Ahora son:
+
+       Catálogo | Contenido | Acceso | Fórmulas | Certificados | Ajustes
+
+   NO SE CREA UN SEGUNDO SISTEMA. Las dos pestañas nuevas llaman a
+   lo que ya existe:
+
+       Contenido    → agCtPantalla()        (el visor del panel)
+       Certificados → nxAdmCertificados()   (el editor de siempre)
+
+   Y se hace envolviendo nxAdmin, no reescribiéndolo: si mañana se
+   añade otra pestaña al original, aparece igual.
+   ============================================================ */
+
+var AGNAVEXTRA = [
+  { id:'contenido',    rotulo:'Contenido',    tras:'catalogo' },
+  { id:'certificados', rotulo:'Certificados', tras:'formulas' }
+];
+
+function agNavCuerpo(id){
+  if(id === 'contenido'){
+    try{ if(typeof agCtPantalla === 'function') return agCtPantalla(); }catch(e){}
+    return '<div class="adm-empty">El visor de contenido no está disponible.</div>';
+  }
+  if(id === 'certificados'){
+    try{ if(typeof nxAdmCertificados === 'function') return nxAdmCertificados(); }catch(e){}
+    return '<div class="adm-empty">El editor de certificados no está disponible.</div>';
+  }
+  return '';
+}
+
+/* pone los chips que faltan sobre la tira ya pintada */
+function agNavChips(raiz){
+  var tira = raiz.querySelector('.fchips');
+  if(!tira) return;
+  var actual = '';
+  try{ actual = NXADMTAB || ''; }catch(e){}
+
+  AGNAVEXTRA.forEach(function(x){
+    if(tira.querySelector('[data-agnav="' + x.id + '"]')) return;
+    var b = document.createElement('button');
+    b.className = 'fchip' + (actual === x.id ? ' on' : '');
+    b.setAttribute('data-agnav', x.id);
+    b.setAttribute('onclick', "nxAdmTab('" + x.id + "')");
+    b.textContent = x.rotulo;
+
+    /* se coloca detrás de su vecina; si esa no está, al final */
+    var ref = null;
+    [].forEach.call(tira.querySelectorAll('button'), function(o){
+      var oc = o.getAttribute('onclick') || '';
+      if(oc.indexOf("'" + x.tras + "'") >= 0) ref = o;
+    });
+    if(ref && ref.nextSibling) tira.insertBefore(b, ref.nextSibling);
+    else if(ref) tira.appendChild(b);
+    else tira.appendChild(b);
+  });
+
+  /* y si la pestaña activa es una de las mías, que ninguna otra
+     se quede encendida */
+  if(AGNAVEXTRA.some(function(x){ return x.id === actual; })){
+    [].forEach.call(tira.querySelectorAll('button'), function(o){
+      var mia = o.getAttribute('data-agnav') === actual;
+      o.classList.toggle('on', mia);
+    });
+  }
+}
+
+if(typeof window.nxAdmin === 'function'){
+  var _nxAdminNav = window.nxAdmin;
+  window.nxAdmin = function(){
+    var mia = '';
+    try{ mia = AGNAVEXTRA.some(function(x){ return x.id === NXADMTAB; }) ? NXADMTAB : ''; }catch(e){}
+
+    /* El original no conoce estas pestañas y caeria en Catalogo,
+       reescribiendo el cuerpo. Se le deja pintar la tira de chips
+       —que es lo que se quiere reutilizar— y despues se sustituye
+       solo el cuerpo. */
+    var r = _nxAdminNav.apply(this, arguments);
+    try{
+      var body = document.getElementById('adminBody');
+      if(!body) return r;
+      agNavChips(body);
+      if(mia){
+        var tira = body.querySelector('.fchips');
+        var cuerpo = agNavCuerpo(mia);
+        body.innerHTML = (tira ? tira.outerHTML : '') + cuerpo;
+        agNavChips(body);
+        /* el editor de certificados necesita pintar su lienzo
+           despues de estar en el DOM */
+        if(mia === 'certificados'){
+          setTimeout(function(){
+            try{ if(typeof nxCertPreview === 'function') nxCertPreview(); }catch(e){}
+          }, 0);
+        }
+      }
+    }catch(e){}
+    return r;
+  };
+}
+
+/* nxAdmTab existe, pero por si acaso se asegura que acepte las nuevas */
+if(typeof window.nxAdmTab !== 'function'){
+  window.nxAdmTab = function(t){
+    window.NXADMTAB = t;
+    try{ if(typeof nxAdmin === 'function') nxAdmin(); }catch(e){}
+  };
+}
+
+
+/* ---------- ag-alumno.js ---------- */
+/* ============================================================
+   PANEL ÚNICO DEL ESTUDIANTE
+   ------------------------------------------------------------
+   Hasta ahora, para entender a un alumno había que recorrer
+   cuatro pantallas: Estudiantes para su ficha, Accesos para sus
+   cursos, Progreso para su avance y Vista del estudiante para
+   qué ve. Cuatro sitios, cuatro veces buscar el mismo nombre.
+
+   Aquí está todo junto, para UN alumno:
+
+       su ficha          nombre, correo, estado, desde cuándo
+       ACCESO            ¿a qué cursos puede entrar?
+       VISIBILIDAD       ¿qué piezas ve en su pantalla?
+       su avance         módulos aprobados, curso por curso
+       sus certificados  los que ya ganó
+
+   ACCESO Y VISIBILIDAD SON COSAS DISTINTAS, y por eso van en dos
+   columnas separadas y rotuladas. Quitar el acceso a un curso le
+   impide entrar; ocultar una pieza solo la quita de su pantalla.
+   Ninguna de las dos borra avance.
+
+   NADA DE ESTO ES UNA COPIA
+
+   No hay un segundo registro de alumnos, ni de accesos, ni de
+   progreso. Cada dato se lee de donde ya vive:
+
+       ficha         STUDENTS
+       acceso        COURSES[c].enrolled(alumno)
+       cambiarlo     <pre>DarAcceso(uid, v)   ← el de cada curso
+       visibilidad   agVisPuede / agVisPon
+       avance        COURSES[c].count(uid)
+       certificados  el contrato de certificados
+
+   Y todo va por el ID del alumno. Lo que se cambia aquí de uno no
+   puede tocar a otro porque nunca se escribe sin ese id delante.
+   ============================================================ */
+
+var AGALSEL = null;   /* el alumno elegido */
+var AGALQ = '';       /* búsqueda */
+
+/* ------------------------------------------------------------
+   1 · DE DÓNDE SALE CADA COSA
+   ------------------------------------------------------------ */
+var AGALDAR = {
+  porcicultura: 'pcDarAcceso',
+  nutricion:    'nxDarAcceso',
+  reproduccion: 'rpDarAcceso',
+  sanidad:      'sbDarAcceso',
+  engorde:      'egDarAcceso'
+};
+
+function agAlAlumnos(){
+  var a = [];
+  try{ a = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; }); }catch(e){}
+  if(!AGALQ) return a;
+  return a.filter(function(s){
+    return (String(s.name || '') + ' ' + String(s.email || '')).toLowerCase().indexOf(AGALQ) >= 0;
+  });
+}
+
+function agAlFicha(uid){
+  try{ return (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.id === uid; })[0] || null; }catch(e){ return null; }
+}
+
+function agAlTiene(uid, curso){
+  var s = agAlFicha(uid);
+  if(!s) return false;
+  try{ return !!COURSES[curso].enrolled(s); }catch(e){ return false; }
+}
+
+function agAlAvance(uid, curso){
+  try{
+    var hechos = COURSES[curso].count(uid) || 0;
+    var total = COURSES[curso].n || 0;
+    return { hechos: hechos, total: total, pct: total ? Math.round(hechos / total * 100) : 0 };
+  }catch(e){ return { hechos:0, total:0, pct:0 }; }
+}
+
+function agAlIniciales(n){
+  var p = String(n || '').trim().split(/\s+/).filter(Boolean);
+  return ((p[0] || '')[0] || '?').toUpperCase() + ((p[1] || '')[0] || '').toUpperCase();
+}
+
+/* ------------------------------------------------------------
+   2 · CAMBIAR COSAS — SIEMPRE CON EL ID DELANTE
+   ------------------------------------------------------------ */
+window.agAlElegir = function(uid){ AGALSEL = uid; agAlRepinta(); };
+
+window.agAlBuscar = function(q){
+  AGALQ = String(q || '').toLowerCase();
+  var l = document.getElementById('agAlLista');
+  if(l) l.innerHTML = agAlListaHTML();
+};
+
+window.agAlAcceso = function(uid, curso, v){
+  var fn = AGALDAR[curso];
+  if(!fn || typeof window[fn] !== 'function'){
+    if(typeof toast === 'function') toast('Ese curso no se gestiona desde aquí', '⚠️');
+    return;
+  }
+  try{ window[fn](uid, !!v); }catch(e){}
+  agAlRepinta();
+};
+
+window.agAlVista = function(uid, clave, v){
+  try{ if(typeof agVisPon === 'function') agVisPon(uid, clave, !!v); }catch(e){}
+  agAlRepinta();
+};
+
+function agAlRepinta(){
+  try{ if(typeof ADM !== 'undefined' && ADM.tab === 'alumno' && typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+}
+
+/* ------------------------------------------------------------
+   3 · LA LISTA
+   ------------------------------------------------------------ */
+function agAlListaHTML(){
+  var al = agAlAlumnos();
+  if(!al.length){
+    return '<p class="agal-nada">' + (AGALQ ? 'Nadie coincide con «' + agEsc(AGALQ) + '».' : 'Todavía no hay estudiantes registrados.') + '</p>';
+  }
+  return al.map(function(s){
+    var n = 0;
+    try{ Object.keys(COURSES).forEach(function(c){ if(agAlTiene(s.id, c)) n++; }); }catch(e){}
+    var sel = (s.id === AGALSEL);
+    return '<button class="agal-a' + (sel ? ' on' : '') + '" onclick="agAlElegir(\'' + s.id + '\')"' +
+        (sel ? ' aria-current="true"' : '') + '>' +
+      '<span class="agal-av">' + agAlIniciales(s.name) + '</span>' +
+      '<span class="agal-a-t">' +
+        '<b>' + agEsc(s.name || 'Sin nombre') + '</b>' +
+        '<em>' + n + (n === 1 ? ' curso' : ' cursos') + ' · ' + agEsc(s.status || 'activo') + '</em>' +
+      '</span>' +
+    '</button>';
+  }).join('');
+}
+
+/* ------------------------------------------------------------
+   4 · LA FICHA COMPLETA
+   ------------------------------------------------------------ */
+function agAlPanelHTML(){
+  if(!AGALSEL) return '<div class="agal-vacio"><b>Elija un estudiante</b><p>A la izquierda están todos. Al elegir uno verá su ficha, sus cursos, qué ve en pantalla, su avance y sus certificados — todo aquí.</p></div>';
+  var s = agAlFicha(AGALSEL);
+  if(!s){ AGALSEL = null; return agAlPanelHTML(); }
+
+  var cursos = [];
+  try{ cursos = Object.keys(COURSES); }catch(e){}
+
+  /* ---- accesos ---- */
+  var accesos = cursos.map(function(c){
+    var C = COURSES[c];
+    var tiene = agAlTiene(s.id, c);
+    var gestionable = !!AGALDAR[c];
+    var av = agAlAvance(s.id, c);
+    return '<label class="agal-c' + (tiene ? ' on' : '') + (gestionable ? '' : ' fija') + '">' +
+      '<span class="agal-c-i">' + (C.icon || '📘') + '</span>' +
+      '<span class="agal-c-t">' +
+        '<b>' + agEsc(C.label || C.name || c) + '</b>' +
+        '<em>' + (gestionable
+          ? (tiene ? 'puede entrar' : 'bloqueado')
+          : 'gratuito · abierto para todos') + '</em>' +
+      '</span>' +
+      (av.total ? '<span class="agal-c-p">' + av.hechos + '/' + av.total + '</span>' : '') +
+      (gestionable
+        ? '<span class="agal-sw">' +
+            '<input type="checkbox"' + (tiene ? ' checked' : '') +
+              ' onchange="agAlAcceso(\'' + s.id + '\',\'' + c + '\',this.checked)"' +
+              ' aria-label="Acceso a ' + agEsc(C.label || c) + '">' +
+            '<span class="agal-sw-p"></span></span>'
+        : '<span class="agal-fijo">siempre</span>') +
+    '</label>';
+  }).join('');
+
+  /* ---- visibilidad ---- */
+  var vivo = false;
+  try{ vivo = !!(typeof AGVISNUBE !== 'undefined' && AGVISNUBE.viva); }catch(e){}
+  var piezas = [];
+  try{ piezas = (typeof AGVISPIEZAS !== 'undefined') ? AGVISPIEZAS : []; }catch(e){}
+  var visibles = piezas.map(function(p){
+    var on = true;
+    try{ on = agVisPuede(p.k, s.id); }catch(e){}
+    return '<label class="agal-v' + (on ? '' : ' off') + '">' +
+      '<span class="agal-v-t"><b>' + p.n + '</b></span>' +
+      '<span class="agal-sw">' +
+        '<input type="checkbox"' + (on ? ' checked' : '') + (vivo ? '' : ' disabled') +
+          ' onchange="agAlVista(\'' + s.id + '\',\'' + p.k + '\',this.checked)"' +
+          ' aria-label="' + agEsc(p.n) + '">' +
+        '<span class="agal-sw-p"></span></span>' +
+    '</label>';
+  }).join('');
+
+  /* ---- avance ---- */
+  var totH = 0, totT = 0;
+  var avance = cursos.map(function(c){
+    var av = agAlAvance(s.id, c);
+    if(agAlTiene(s.id, c)){ totH += av.hechos; totT += av.total; }
+    if(!av.total) return '';
+    return '<li class="agal-p' + (agAlTiene(s.id, c) ? '' : ' off') + '">' +
+      '<span>' + agEsc((COURSES[c] || {}).label || c) + '</span>' +
+      '<span class="agal-bar"><i style="width:' + av.pct + '%"></i></span>' +
+      '<span class="agal-p-n">' + av.hechos + '/' + av.total + '</span>' +
+    '</li>';
+  }).join('');
+
+  /* ---- certificados ---- */
+  var certs = [];
+  try{
+    (typeof AGCURSOSCERT !== 'undefined' ? AGCURSOSCERT : []).forEach(function(cc){
+      var av = agAlAvance(s.id, cc.id);
+      if(av.total && av.hechos >= av.total) certs.push(cc);
+    });
+  }catch(e){}
+
+  return '<div class="agal-cab">' +
+      '<span class="agal-av lg">' + agAlIniciales(s.name) + '</span>' +
+      '<div class="agal-cab-t">' +
+        '<b>' + agEsc(s.name || 'Sin nombre') + '</b>' +
+        '<em>' + agEsc(s.email || 'sin correo') + ' · desde ' + agEsc(s.enrolled || '—') + '</em>' +
+      '</div>' +
+      '<span class="agal-est ' + (s.status === 'activo' ? 'on' : '') + '">' + agEsc(s.status || 'activo') + '</span>' +
+    '</div>' +
+
+    '<div class="agal-cols">' +
+      '<section class="agal-b">' +
+        '<h4 class="agal-t">Acceso · a qué cursos puede entrar</h4>' +
+        '<p class="agal-n">Quitar el acceso no borra su avance. Si se lo devuelve, sigue donde estaba.</p>' +
+        accesos +
+      '</section>' +
+
+      '<section class="agal-b">' +
+        '<h4 class="agal-t">Visibilidad · qué ve en su pantalla</h4>' +
+        '<p class="agal-n">' + (vivo
+          ? 'Es cosa distinta del acceso: esto solo decide qué piezas aparecen.'
+          : 'Sin la columna <b>vista</b> en la base, esto no se puede cambiar y el alumno lo ve todo.') + '</p>' +
+        (visibles || '<p class="agal-nada">No hay piezas configurables.</p>') +
+      '</section>' +
+    '</div>' +
+
+    '<section class="agal-b ancha">' +
+      '<h4 class="agal-t">Avance</h4>' +
+      (totT
+        ? '<p class="agal-n">' + totH + ' de ' + totT + ' módulos en lo que tiene habilitado ' +
+          '(' + Math.round(totH / totT * 100) + ' %).</p>'
+        : '<p class="agal-n">Todavía no tiene cursos habilitados.</p>') +
+      '<ul class="agal-ps">' + (avance || '') + '</ul>' +
+    '</section>' +
+
+    '<section class="agal-b ancha">' +
+      '<h4 class="agal-t">Certificados</h4>' +
+      (certs.length
+        ? '<ul class="agal-cs">' + certs.map(function(cc){
+            return '<li><b>' + agEsc((COURSES[cc.id] || {}).name || cc.id) + '</b><em>' + agEsc(cc.pref || '') + '</em></li>';
+          }).join('') + '</ul>'
+        : '<p class="agal-nada">Todavía no ha completado ningún curso.</p>') +
+    '</section>';
+}
+
+function agAlPantalla(){
+  var al = agAlAlumnos();
+  if(!AGALSEL && al.length) AGALSEL = al[0].id;
+  return '<div class="agal">' +
+    '<p class="agal-intro">Todo lo de un estudiante en una pantalla: su ficha, a qué cursos puede entrar, ' +
+      'qué ve, cuánto lleva y qué ha ganado. <b>Acceso y visibilidad no son lo mismo</b> y por eso van separados.</p>' +
+    '<div class="agal-marco">' +
+      '<div class="agal-izq">' +
+        '<input class="agal-buscar" type="search" placeholder="Buscar estudiante…" oninput="agAlBuscar(this.value)" value="' + agEsc(AGALQ) + '">' +
+        '<div class="agal-lista" id="agAlLista">' + agAlListaHTML() + '</div>' +
+      '</div>' +
+      '<div class="agal-der">' + agAlPanelHTML() + '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ------------------------------------------------------------
+   5 · ENGANCHE
+   ------------------------------------------------------------ */
+(function agAlMenu(){
+  var poner = function(){
+    var menu = document.getElementById('adminMenu');
+    if(!menu || menu.querySelector('[data-t="alumno"]')) return;
+    var b = document.createElement('button');
+    b.setAttribute('data-t', 'alumno');
+    b.innerHTML = '<span class="mi">🧑‍🌾</span> Ficha del estudiante';
+    b.setAttribute('onclick', "admTab('alumno')");
+    var ref = menu.querySelector('[data-t="students"]');
+    if(ref && ref.nextSibling) menu.insertBefore(b, ref.nextSibling);
+    else menu.appendChild(b);
+  };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+  [200, 700, 1600].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminAl = window.renderAdmin;
+  window.renderAdmin = function(){
+    var mia = false;
+    try{ mia = (typeof ADM !== 'undefined' && ADM.tab === 'alumno'); }catch(e){}
+    if(!mia) return _renderAdminAl.apply(this, arguments);
+    try{
+      document.querySelectorAll('#adminMenu button[data-t]').forEach(function(b){
+        b.classList.toggle('on', b.dataset.t === 'alumno');
+      });
+      var tt = document.getElementById('adminTitle');
+      if(tt) tt.textContent = 'Ficha del estudiante';
+      var root = document.getElementById('adminBody');
+      if(root) root.innerHTML = agAlPantalla();
+    }catch(e){
+      return _renderAdminAl.apply(this, arguments);
+    }
+  };
+}
+
+/* ------------------------------------------------------------
+   6 · ESTILOS
+   ------------------------------------------------------------ */
+(function agAlCss(){
+  if(document.getElementById('agAlCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agAlCss';
+  s.textContent = [
+    '.agal{color:var(--agp-tx)}',
+    '.agal-intro{margin:0 0 18px;max-width:78ch;font-size:13.5px;line-height:1.6;color:var(--agp-dim)}',
+    '.agal-intro b{color:var(--agp-tx2)}',
+    '.agal-marco{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:18px;align-items:start}',
+
+    '.agal-izq{display:grid;gap:9px;position:sticky;top:12px}',
+    '.agal-buscar{width:100%;padding:11px 14px;border-radius:11px;font:inherit;font-size:14px;',
+      'background:var(--agp-deep);color:var(--agp-tx);border:1px solid var(--agp-line2)}',
+    '.agal-lista{display:grid;gap:5px;max-height:66vh;overflow:auto;padding-right:4px}',
+    '.agal-a{display:flex;align-items:center;gap:11px;width:100%;padding:10px 12px;border-radius:11px;',
+      'cursor:pointer;text-align:left;font:inherit;border:1px solid transparent;',
+      'background:rgba(255,255,255,.035);color:var(--agp-tx2);transition:background .15s ease,border-color .15s ease}',
+    '.agal-a:hover{background:rgba(255,255,255,.075);color:var(--agp-tx)}',
+    '.agal-a.on{background:color-mix(in srgb,var(--agp-veg) 16%,transparent);',
+      'border-color:color-mix(in srgb,var(--agp-veg) 45%,transparent);color:var(--agp-tx);cursor:default}',
+    '.agal-a-t{display:flex;flex-direction:column;gap:2px;min-width:0}',
+    '.agal-a-t b{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.agal-a-t em{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--agp-dim)}',
+    '.agal-av{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;',
+      'font-family:var(--mono);font-size:12px;font-weight:700;color:var(--agp-acc-d);background:var(--agp-acc)}',
+    '.agal-av.lg{width:46px;height:46px;font-size:15px}',
+
+    '.agal-der{min-width:0}',
+    '.agal-cab{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-bottom:18px;',
+      'padding-bottom:15px;border-bottom:1px solid var(--agp-line)}',
+    '.agal-cab-t{display:flex;flex-direction:column;gap:3px;min-width:0}',
+    '.agal-cab-t b{font-family:var(--display);font-size:19px;font-weight:700}',
+    '.agal-cab-t em{font-style:normal;font-size:13px;color:var(--agp-dim)}',
+    '.agal-est{margin-left:auto;padding:4px 12px;border-radius:999px;font-family:var(--mono);',
+      'font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;',
+      'background:rgba(255,255,255,.07);color:var(--agp-dim);border:1px solid var(--agp-line)}',
+    '.agal-est.on{background:color-mix(in srgb,var(--agp-veg) 18%,transparent);',
+      'color:var(--agp-veg-hi);border-color:color-mix(in srgb,var(--agp-veg) 45%,transparent)}',
+
+    '.agal-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px}',
+    '.agal-b{padding:16px 18px;border-radius:14px;margin-bottom:16px;',
+      'background:var(--agp-deep);border:1px solid var(--agp-line)}',
+    '.agal-b.ancha{margin-top:0}',
+    '.agal-t{margin:0 0 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;',
+      'text-transform:uppercase;color:var(--agp-dim);font-weight:400}',
+    '.agal-n{margin:0 0 13px;font-size:12.5px;line-height:1.55;color:var(--agp-dim);max-width:60ch}',
+    '.agal-n b{color:var(--agp-tx2)}',
+
+    '.agal-c{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;margin-bottom:6px;',
+      'cursor:pointer;background:rgba(255,255,255,.03);border:1px solid var(--agp-line)}',
+    '.agal-c:hover{background:rgba(255,255,255,.06)}',
+    '.agal-c.on{border-color:color-mix(in srgb,var(--agp-veg) 40%,transparent)}',
+    '.agal-c.fija{cursor:default;opacity:.85}',
+    '.agal-c-i{font-size:17px;line-height:1;flex:0 0 auto}',
+    '.agal-c-t{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 auto}',
+    '.agal-c-t b{font-size:13.5px;font-weight:600;color:var(--agp-tx)}',
+    '.agal-c-t em{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--agp-dim)}',
+    '.agal-c-p{font-family:var(--mono);font-size:11px;color:var(--agp-dim);flex:0 0 auto}',
+    '.agal-fijo{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--agp-dim);flex:0 0 auto}',
+
+    '.agal-v{display:flex;align-items:center;justify-content:space-between;gap:12px;',
+      'padding:9px 12px;border-radius:10px;margin-bottom:5px;cursor:pointer;',
+      'background:rgba(255,255,255,.03);border:1px solid var(--agp-line)}',
+    '.agal-v:hover{background:rgba(255,255,255,.06)}',
+    '.agal-v.off{opacity:.55}',
+    '.agal-v-t b{font-size:13.5px;font-weight:500;color:var(--agp-tx)}',
+
+    '.agal-sw{position:relative;width:42px;height:24px;flex:0 0 auto}',
+    '.agal-sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}',
+    '.agal-sw-p{position:absolute;inset:0;border-radius:99px;pointer-events:none;',
+      'background:rgba(255,255,255,.14);transition:background .18s ease}',
+    '.agal-sw-p::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;',
+      'background:var(--agp-tx);transition:transform .18s cubic-bezier(.4,0,.2,1)}',
+    '.agal-sw input:checked + .agal-sw-p{background:var(--agp-veg)}',
+    '.agal-sw input:checked + .agal-sw-p::after{transform:translateX(18px)}',
+    '.agal-sw input:focus-visible + .agal-sw-p{outline:2px solid var(--agp-acc-hi);outline-offset:2px}',
+    '.agal-sw input:disabled + .agal-sw-p{opacity:.4}',
+
+    '.agal-ps{list-style:none;margin:0;padding:0;display:grid;gap:8px}',
+    '.agal-p{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,1.4fr) auto;gap:12px;align-items:center;font-size:13px}',
+    '.agal-p.off{opacity:.5}',
+    '.agal-p > span:first-child{color:var(--agp-tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.agal-bar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}',
+    '.agal-bar i{display:block;height:100%;background:var(--agp-veg)}',
+    '.agal-p-n{font-family:var(--mono);font-size:11px;color:var(--agp-dim);font-variant-numeric:tabular-nums}',
+
+    '.agal-cs{list-style:none;margin:0;padding:0;display:grid;gap:7px}',
+    '.agal-cs li{display:flex;align-items:baseline;justify-content:space-between;gap:12px;',
+      'padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--agp-line)}',
+    '.agal-cs b{font-size:13.5px;font-weight:600;color:var(--agp-tx)}',
+    '.agal-cs em{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--agp-acc-hi)}',
+
+    '.agal-nada{margin:0;padding:14px;border-radius:11px;text-align:center;font-size:13px;',
+      'color:var(--agp-dim);background:rgba(255,255,255,.025);border:1px dashed var(--agp-line2)}',
+    '.agal-vacio{padding:48px 24px;text-align:center;border-radius:16px;',
+      'background:rgba(255,255,255,.025);border:1px dashed var(--agp-line2)}',
+    '.agal-vacio b{display:block;font-family:var(--display);font-size:17px;font-weight:700;margin-bottom:8px}',
+    '.agal-vacio p{margin:0 auto;max-width:48ch;font-size:13.5px;line-height:1.6;color:var(--agp-dim)}',
+
+    '@media(max-width:900px){',
+      '.agal-marco{grid-template-columns:1fr}',
+      '.agal-izq{position:static}',
+      '.agal-lista{max-height:none}',
+    '}',
+    '@media(prefers-reduced-motion:reduce){ .agal-sw-p,.agal-sw-p::after,.agal-a,.agal-c{transition:none} }'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
 
 
 
