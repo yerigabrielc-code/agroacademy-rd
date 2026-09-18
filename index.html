@@ -27679,7 +27679,466 @@ if(typeof window.renderAdmin === 'function'){
   };
 }
 
+
+/* ---------- ag-contenido.js ---------- */
+/* ============================================================
+   VER EL CONTENIDO DE CUALQUIER CURSO, DESDE EL PANEL
+   ------------------------------------------------------------
+   EL PROBLEMA
+
+   Para revisar una lección, el instructor tenía que ENTRAR AL
+   CURSO COMO ESTUDIANTE. La única acción del panel era:
+
+       ucVerModulo(n) → goto(n); location.hash = '#/curso'
+
+   Es decir: salir del panel, meterse en el curso, navegar por
+   las diapositivas y volver. Y hasta hace dos días, además,
+   chocando con los candados del alumno.
+
+   Administrar y consumir son dos cosas distintas. Esta pantalla
+   es la de administrar: todo el contenido a la vista, de
+   corrido, sin simular ser nadie.
+
+   QUÉ SE VE
+
+   · Cada módulo con su título y lo que contiene.
+   · TODAS sus secciones, pintadas igual que las ve el alumno.
+   · El examen completo, CON LA RESPUESTA CORRECTA marcada —
+     que es precisamente lo que el alumno no puede ver.
+
+   CÓMO SE CONSTRUYE, Y POR QUÉ ASÍ
+
+   Sobre el contrato que ya existe: COURSES[c].modules() y
+   COURSES[c].quiz(n) responden igual en los seis cursos. Nada de
+   una copia del temario que haya que mantener en sincronía: si
+   mañana se añade un módulo, aquí aparece solo.
+
+   Las secciones se pintan con nxSeccion(), que pese al nombre es
+   el pintor de todos los cursos — cada bloque le fue añadiendo
+   sus tipos. Porcicultura es la excepción: no tiene secciones,
+   su contenido vive en SCAFFOLD y DEEP, y se lee de ahí.
+
+   ESTO NO EDITA NADA. Es una ventana, no un formulario. Se dice
+   en pantalla para que nadie busque un botón de guardar que no
+   existe.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · LEER LO QUE NO CUELGA DE window
+   ------------------------------------------------------------
+   SCAFFOLD, DEEP y varios más están declarados con const, y un
+   const de nivel superior no crea propiedad en window. Es la
+   trampa que ya me costó tres errores en este proyecto.
+   ------------------------------------------------------------ */
+function agCtNombrar(n){
+  try{ return (0, eval)(n); }catch(e){ return null; }
+}
+
+var AGCTSEL = null;       /* módulo elegido */
+
+/* ------------------------------------------------------------
+   2 · CUÁNTO CONTENIDO TIENE CADA MÓDULO
+   ------------------------------------------------------------ */
+function agCtSecciones(curso, n){
+  try{
+    var arr = { porcicultura:'MODULES', nutricion:'NXMOD', reproduccion:'RPMOD',
+                sanidad:'SBMOD', engorde:'EGMOD', ruta:'RTMOD' }[curso];
+    var a = agCtNombrar(arr);
+    if(!Array.isArray(a)) return [];
+    var m = a.filter(function(x){ return x.n === n || x.id === n; })[0];
+    return (m && m.sec) ? m.sec : [];
+  }catch(e){ return []; }
+}
+
+function agCtPreguntas(curso, n){
+  try{ return COURSES[curso].quiz(n) || []; }catch(e){ return []; }
+}
+
+/* ------------------------------------------------------------
+   3 · PINTAR EL CONTENIDO
+   ------------------------------------------------------------ */
+function agCtSeccionesHTML(curso, n){
+  var sec = agCtSecciones(curso, n);
+  if(!sec.length) return '';
+  var out = [];
+  sec.forEach(function(s, i){
+    var h = '';
+    try{ if(typeof nxSeccion === 'function') h = nxSeccion(s, n); }catch(e){}
+    if(!h){
+      /* si un tipo de sección no tiene pintor, se muestra en crudo
+         antes que fingir que no existe */
+      var crudo = '';
+      try{ crudo = JSON.stringify(s, null, 1).slice(0, 900); }catch(e){}
+      h = '<pre class="agct-crudo">' + agEsc(crudo) + '</pre>';
+    }
+    out.push('<div class="agct-s">' +
+      '<span class="agct-s-n">' + (i + 1) + ' · ' + agEsc(s.k || 'sección') + '</span>' +
+      '<div class="agct-s-c">' + h + '</div>' +
+    '</div>');
+  });
+  return out.join('');
+}
+
+/* Porcicultura no tiene secciones: su contenido está repartido en
+   CUATRO objetos, y no todos cubren los mismos módulos. Se midió:
+
+       BASE      módulos 1 y 2
+       SCAFFOLD  módulos 3 al 12
+       EXTRA     módulos 3 al 12
+       DEEP      módulos 3 al 12
+
+   Mirar solo SCAFFOLD dejaba los dos primeros módulos en blanco,
+   que es justo lo que pasó. Se leen los cuatro, en ese orden. */
+function agCtPorciHTML(n){
+  var fuentes = ['BASE', 'SCAFFOLD', 'EXTRA'].map(function(k){
+    var o = agCtNombrar(k);
+    return (o && o[n]) ? o[n] : null;
+  }).filter(Boolean);
+  var dp = agCtNombrar('DEEP');
+  var d = (dp && dp[n]) ? dp[n] : null;
+
+  if(!fuentes.length && !d){
+    return '<p class="agct-nada">Este módulo no tiene contenido cargado en BASE, SCAFFOLD, EXTRA ni DEEP.</p>';
+  }
+
+  /* se funden las fuentes: la primera que traiga un campo, manda */
+  var s = {};
+  fuentes.forEach(function(f){
+    Object.keys(f).forEach(function(k){ if(s[k] === undefined) s[k] = f[k]; });
+  });
+
+  var out = [];
+  var bloque = function(t, c){ out.push('<div class="agct-s"><span class="agct-s-n">' + t + '</span><div class="agct-s-c">' + c + '</div></div>'); };
+  var lista = function(a){ return '<ul class="agct-l">' + a.map(function(x){ return '<li>' + agEsc(String(x)) + '</li>'; }).join('') + '</ul>'; };
+
+  {
+    if(s.lead)  bloque('entrada',    '<p>' + s.lead + '</p>');
+    if(s.intro) bloque('introducción','<p>' + s.intro + '</p>');
+    if(s.proc && s.proc.length) bloque('procedimiento',
+      '<ul class="agct-l">' + s.proc.map(function(x){
+        return Array.isArray(x)
+          ? '<li><b>' + agEsc(String(x[0])) + '</b> — ' + agEsc(String(x[1] || '')) + '</li>'
+          : '<li>' + agEsc(String(x)) + '</li>';
+      }).join('') + '</ul>');
+    /* BASE guarda pares [titulo, descripcion] y SCAFFOLD trios
+       [icono, titulo, descripcion]. Dar por hecha una sola forma
+       dejaba los objetivos del modulo 1 con un guion y nada
+       detras. Se toman los DOS ULTIMOS elementos, que son los que
+       llevan el texto en ambos casos. */
+    var par = function(a){
+      if(!Array.isArray(a)) return { t: String(a || ''), d: '' };
+      if(a.length >= 3) return { t: String(a[1] || ''), d: String(a[2] || '') };
+      return { t: String(a[0] || ''), d: String(a[1] || '') };
+    };
+    var listaPares = function(arr){
+      return '<ul class="agct-l">' + arr.map(function(x){
+        var v = par(x);
+        return '<li><b>' + agEsc(v.t) + '</b>' + (v.d ? ' — ' + agEsc(v.d) : '') + '</li>';
+      }).join('') + '</ul>';
+    };
+    if(s.obj && s.obj.length) bloque('objetivos', listaPares(s.obj));
+    if(s.key && s.key.length) bloque('claves', listaPares(s.key));
+    if(s.tables && s.tables.length) bloque('tablas', s.tables.map(function(tb){
+      return '<div class="agct-tb"><b>' + agEsc(tb.cap || '') + '</b>' +
+        '<table><thead><tr>' + (tb.head || []).map(function(h){ return '<th>' + agEsc(h) + '</th>'; }).join('') + '</tr></thead>' +
+        '<tbody>' + (tb.rows || []).map(function(r){
+          return '<tr>' + r.map(function(c){ return '<td>' + agEsc(String(c)) + '</td>'; }).join('') + '</tr>';
+        }).join('') + '</tbody></table></div>';
+    }).join(''));
+    if(s.check && s.check.length)     bloque('lista de comprobación', lista(s.check));
+    if(s.summary && s.summary.length) bloque('resumen', lista(s.summary));
+    if(s.mastery && s.mastery.length) bloque('lo que debe dominar', lista(s.mastery));
+  }
+
+  if(d && d.sections && d.sections.length){
+    d.sections.forEach(function(x){
+      var cuerpo = '';
+      if(x.items && x.items.length){
+        cuerpo = '<ul class="agct-l">' + x.items.map(function(it){
+          return Array.isArray(it)
+            ? '<li><b>' + agEsc(String(it[0])) + '</b> ' + agEsc(String(it[1] || '')) + (it[2] ? ' — ' + agEsc(String(it[2])) : '') + '</li>'
+            : '<li>' + agEsc(String(it)) + '</li>';
+        }).join('') + '</ul>';
+      } else {
+        try{ cuerpo = '<pre class="agct-crudo">' + agEsc(JSON.stringify(x, null, 1).slice(0, 900)) + '</pre>'; }catch(e){}
+      }
+      bloque((x.label || x.kind || 'sección') + (x.title ? ' · ' + x.title : ''), cuerpo);
+    });
+  }
+  return out.join('');
+}
+
+/* ------------------------------------------------------------
+   4 · EL EXAMEN, CON LA RESPUESTA A LA VISTA
+   ------------------------------------------------------------ */
+function agCtQuizHTML(curso, n){
+  var q = agCtPreguntas(curso, n);
+  if(!q.length) return '<p class="agct-nada">Este módulo no tiene examen.</p>';
+
+  /* Tres formas distintas de guardar una pregunta conviven en la
+     plataforma, y se midieron una por una:
+
+       1) [texto, [[opcion, esCorrecta], ...]]   ← lo que devuelve
+          COURSES[c].quiz() en cinco cursos
+       2) [texto, [opciones], indiceCorrecta]
+       3) {q, o:[opciones], c:indice, fb}        ← el crudo
+
+     Suponer una sola es lo que hizo que no se marcara ninguna
+     respuesta: se leía it[2] como índice cuando la corrección
+     venía dentro de cada opción. */
+  var leer = function(it){
+    if(!Array.isArray(it)){
+      return { q: it.q, o: (it.o || []).map(String), c: it.c, fb: it.fb || '' };
+    }
+    var ops = it[1] || [];
+    if(ops.length && Array.isArray(ops[0])){
+      var idx = -1;
+      ops.forEach(function(o, i){ if(o[1]) idx = i; });
+      return { q: it[0], o: ops.map(function(o){ return String(o[0]); }), c: idx, fb: it[2] || '' };
+    }
+    return { q: it[0], o: ops.map(String), c: it[2], fb: it[3] || '' };
+  };
+
+  return '<ol class="agct-q">' + q.map(function(it){
+    var x = leer(it);
+    return '<li>' +
+      '<b>' + agEsc(String(x.q || '')) + '</b>' +
+      '<ul>' + x.o.map(function(o, i){
+        var ok = (i === x.c);
+        return '<li class="' + (ok ? 'ok' : '') + '">' +
+          (ok ? '<span class="agct-ok">correcta</span>' : '') + agEsc(String(o)) + '</li>';
+      }).join('') + '</ul>' +
+      (x.fb ? '<em class="agct-fb">' + agEsc(String(x.fb)) + '</em>' : '') +
+    '</li>';
+  }).join('') + '</ol>';
+}
+
+/* ------------------------------------------------------------
+   5 · LA PANTALLA
+   ------------------------------------------------------------ */
+window.agCtElegir = function(n){
+  AGCTSEL = n;
+  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+};
+
+window.agCtComoAlumno = function(n){
+  var curso = 'porcicultura';
+  try{ curso = ADM.course || 'porcicultura'; }catch(e){}
+  try{ if(typeof agIrAlCurso === 'function') agIrAlCurso(curso); }catch(e){}
+  setTimeout(function(){
+    try{ if(typeof goto === 'function') goto(n); }catch(e){}
+  }, 700);
+};
+
+function agCtPantalla(){
+  var curso = 'porcicultura';
+  try{ curso = ADM.course || 'porcicultura'; }catch(e){}
+  var C = (typeof COURSES !== 'undefined') ? COURSES[curso] : null;
+  if(!C) return '<div class="adm-empty">No encuentro ese curso.</div>';
+
+  var mods = [];
+  try{ mods = C.modules() || []; }catch(e){}
+  if(!mods.length) return '<div class="adm-empty">Este curso todavía no tiene módulos.</div>';
+
+  if(AGCTSEL === null || !mods.some(function(m){ return m.n === AGCTSEL; })) AGCTSEL = mods[0].n;
+
+  var totalSec = 0, totalQ = 0;
+  mods.forEach(function(m){
+    totalSec += agCtSecciones(curso, m.n).length;
+    totalQ += agCtPreguntas(curso, m.n).length;
+  });
+
+  var lista = mods.map(function(m){
+    var s = agCtSecciones(curso, m.n).length;
+    var q = agCtPreguntas(curso, m.n).length;
+    var sel = (m.n === AGCTSEL);
+    return '<button class="agct-m' + (sel ? ' on' : '') + '" onclick="agCtElegir(' + m.n + ')"' +
+        (sel ? ' aria-current="true"' : '') + '>' +
+      '<span class="agct-m-n">' + agEsc(m.num || String(m.n)) + '</span>' +
+      '<span class="agct-m-t">' +
+        '<b>' + agEsc(m.title || m.t || ('Módulo ' + m.n)) + '</b>' +
+        '<em>' + (s ? s + (s === 1 ? ' sección' : ' secciones') : 'sin secciones') +
+          (q ? ' · ' + q + (q === 1 ? ' pregunta' : ' preguntas') : ' · sin examen') + '</em>' +
+      '</span>' +
+    '</button>';
+  }).join('');
+
+  var m = mods.filter(function(x){ return x.n === AGCTSEL; })[0] || mods[0];
+  var cuerpo = (curso === 'porcicultura')
+    ? agCtPorciHTML(m.n)
+    : agCtSeccionesHTML(curso, m.n);
+  if(!cuerpo) cuerpo = '<p class="agct-nada">Este módulo no tiene secciones cargadas.</p>';
+
+  return '<div class="agct">' +
+    '<div class="agct-cab">' +
+      '<span class="agct-ico">' + (C.icon || '📘') + '</span>' +
+      '<div class="agct-cab-t">' +
+        '<b>' + agEsc(C.name || curso) + '</b>' +
+        '<em>' + mods.length + ' módulos · ' + totalSec + ' secciones · ' + totalQ + ' preguntas</em>' +
+      '</div>' +
+      '<span class="agct-lectura">solo lectura</span>' +
+    '</div>' +
+    '<p class="agct-intro">Todo el contenido del curso, de corrido y sin candados. ' +
+      'Aquí se revisa; para cambiarlo hay que editar el curso. ' +
+      'El examen se muestra <b>con la respuesta correcta marcada</b> — eso el estudiante no lo ve.</p>' +
+
+    '<div class="agct-cols">' +
+      '<div class="agct-izq">' + lista + '</div>' +
+      '<div class="agct-der">' +
+        '<div class="agct-h">' +
+          '<span class="agct-h-n">Módulo ' + agEsc(m.num || String(m.n)) + '</span>' +
+          '<h3>' + agEsc(m.title || m.t || '') + '</h3>' +
+          (m.sub ? '<p>' + agEsc(m.sub) + '</p>' : '') +
+          '<button class="agct-b" onclick="agCtComoAlumno(' + m.n + ')">Abrirlo como lo ve el alumno</button>' +
+        '</div>' +
+        '<section class="agct-bloque"><h4 class="agct-t">Contenido</h4>' + cuerpo + '</section>' +
+        '<section class="agct-bloque"><h4 class="agct-t">Examen del módulo</h4>' + agCtQuizHTML(curso, m.n) + '</section>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ------------------------------------------------------------
+   6 · ENGANCHE AL PANEL
+   ------------------------------------------------------------ */
+(function agCtMenu(){
+  var poner = function(){
+    var menu = document.getElementById('adminMenu');
+    if(!menu || menu.querySelector('[data-t="contenido"]')) return;
+    var b = document.createElement('button');
+    b.setAttribute('data-t', 'contenido');
+    b.innerHTML = '<span class="mi">📖</span> Contenido';
+    b.setAttribute('onclick', "admTab('contenido')");
+    var ref = menu.querySelector('[data-t="modules"]');
+    if(ref && ref.nextSibling) menu.insertBefore(b, ref.nextSibling);
+    else menu.appendChild(b);
+  };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+  [200, 700, 1600].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminCt = window.renderAdmin;
+  window.renderAdmin = function(){
+    var mia = false;
+    try{ mia = (typeof ADM !== 'undefined' && ADM.tab === 'contenido'); }catch(e){}
+    if(!mia) return _renderAdminCt.apply(this, arguments);
+    try{
+      document.querySelectorAll('#adminMenu button[data-t]').forEach(function(b){
+        b.classList.toggle('on', b.dataset.t === 'contenido');
+      });
+      var tt = document.getElementById('adminTitle');
+      if(tt) tt.textContent = 'Contenido del curso';
+      var root = document.getElementById('adminBody');
+      if(root) root.innerHTML = agCtPantalla();
+    }catch(e){
+      return _renderAdminCt.apply(this, arguments);
+    }
+  };
+}
+
+/* ------------------------------------------------------------
+   7 · ESTILOS
+   ------------------------------------------------------------ */
+(function agCtCss(){
+  if(document.getElementById('agCtCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agCtCss';
+  s.textContent = [
+    '.agct{color:var(--agp-tx)}',
+    '.agct-cab{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-bottom:12px;',
+      'padding-bottom:14px;border-bottom:1px solid var(--agp-line)}',
+    '.agct-ico{font-size:24px;line-height:1}',
+    '.agct-cab-t{display:flex;flex-direction:column;gap:3px;min-width:0}',
+    '.agct-cab-t b{font-family:var(--display);font-size:17px;font-weight:700}',
+    '.agct-cab-t em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--agp-dim)}',
+    '.agct-lectura{margin-left:auto;padding:4px 11px;border-radius:999px;',
+      'font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;',
+      'background:rgba(255,255,255,.06);color:var(--agp-dim);border:1px solid var(--agp-line)}',
+    '.agct-intro{margin:0 0 18px;max-width:78ch;font-size:13.5px;line-height:1.6;color:var(--agp-dim)}',
+    '.agct-intro b{color:var(--agp-tx2)}',
+
+    '.agct-cols{display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);gap:18px;align-items:start}',
+    '.agct-izq{display:grid;gap:5px;position:sticky;top:12px;max-height:74vh;overflow:auto;padding-right:4px}',
+    '.agct-m{display:flex;align-items:flex-start;gap:11px;width:100%;padding:10px 12px;border-radius:11px;',
+      'cursor:pointer;text-align:left;font:inherit;border:1px solid transparent;',
+      'background:rgba(255,255,255,.035);color:var(--agp-tx2);transition:background .15s ease,border-color .15s ease}',
+    '.agct-m:hover{background:rgba(255,255,255,.075);color:var(--agp-tx)}',
+    '.agct-m.on{background:color-mix(in srgb,var(--agp-veg) 16%,transparent);',
+      'border-color:color-mix(in srgb,var(--agp-veg) 45%,transparent);color:var(--agp-tx);cursor:default}',
+    '.agct-m-n{flex:0 0 auto;font-family:var(--mono);font-size:11px;padding-top:2px;color:var(--agp-dim)}',
+    '.agct-m.on .agct-m-n{color:var(--agp-veg-hi)}',
+    '.agct-m-t{display:flex;flex-direction:column;gap:2px;min-width:0}',
+    '.agct-m-t b{font-size:13.5px;font-weight:600;line-height:1.35}',
+    '.agct-m-t em{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--agp-dim)}',
+
+    '.agct-der{min-width:0}',
+    '.agct-h{padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid var(--agp-line)}',
+    '.agct-h-n{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--agp-dim)}',
+    '.agct-h h3{margin:6px 0 0;font-family:var(--display);font-size:22px;font-weight:800;line-height:1.2}',
+    '.agct-h p{margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--agp-tx2);max-width:70ch}',
+    '.agct-b{margin-top:13px;padding:9px 15px;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;',
+      'background:rgba(255,255,255,.055);color:var(--agp-tx);border:1px solid var(--agp-line2);',
+      'transition:background .15s ease,border-color .15s ease}',
+    '.agct-b:hover{background:color-mix(in srgb,var(--agp-veg) 18%,transparent);',
+      'border-color:color-mix(in srgb,var(--agp-veg) 50%,transparent)}',
+
+    '.agct-bloque{margin-bottom:26px}',
+    '.agct-t{margin:0 0 12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;',
+      'text-transform:uppercase;color:var(--agp-dim);font-weight:400}',
+
+    '.agct-s{margin-bottom:14px;border-radius:13px;overflow:hidden;',
+      'background:var(--agp-deep);border:1px solid var(--agp-line)}',
+    '.agct-s-n{display:block;padding:8px 14px;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.08em;color:var(--agp-dim);background:rgba(255,255,255,.03);',
+      'border-bottom:1px solid var(--agp-line)}',
+    '.agct-s-c{padding:16px 18px;font-size:14.5px;line-height:1.65;color:var(--agp-tx2);overflow-x:auto}',
+    '.agct-s-c b{color:var(--agp-tx)}',
+    '.agct-s-c h2,.agct-s-c h3,.agct-s-c h4{color:var(--agp-tx);font-family:var(--display)}',
+    '.agct-s-c img{max-width:100%;height:auto;border-radius:10px}',
+    '.agct-s-c table{width:100%;border-collapse:collapse;font-size:13.5px}',
+    '.agct-s-c th,.agct-s-c td{padding:7px 10px;border-bottom:1px solid var(--agp-line);text-align:left}',
+
+    '.agct-l{margin:0;padding-left:20px;display:grid;gap:6px}',
+    '.agct-l li{line-height:1.6}',
+    '.agct-tb{margin-bottom:14px}',
+    '.agct-tb > b{display:block;margin-bottom:7px;font-size:13.5px;color:var(--agp-tx)}',
+    '.agct-tb table{width:100%;border-collapse:collapse;font-size:13.5px}',
+    '.agct-tb th{text-align:left;padding:7px 10px;color:var(--agp-dim);font-family:var(--mono);',
+      'font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--agp-line2)}',
+    '.agct-tb td{padding:7px 10px;border-bottom:1px solid var(--agp-line)}',
+    '.agct-crudo{margin:0;padding:12px;border-radius:10px;overflow-x:auto;',
+      'font-family:var(--mono);font-size:11.5px;line-height:1.55;color:var(--agp-dim);',
+      'background:rgba(0,0,0,.3);border:1px solid var(--agp-line)}',
+    '.agct-nada{margin:0;padding:18px;border-radius:12px;text-align:center;font-size:13.5px;',
+      'color:var(--agp-dim);background:rgba(255,255,255,.025);border:1px dashed var(--agp-line2)}',
+
+    '.agct-q{margin:0;padding-left:22px;display:grid;gap:16px}',
+    '.agct-q > li{line-height:1.6}',
+    '.agct-q > li > b{display:block;margin-bottom:8px;font-size:14.5px;color:var(--agp-tx)}',
+    '.agct-q ul{margin:0;padding:0;list-style:none;display:grid;gap:5px}',
+    '.agct-q ul li{padding:7px 12px;border-radius:9px;font-size:13.5px;color:var(--agp-tx2);',
+      'background:rgba(255,255,255,.03);border:1px solid var(--agp-line)}',
+    '.agct-q ul li.ok{background:color-mix(in srgb,var(--agp-veg) 15%,transparent);',
+      'border-color:color-mix(in srgb,var(--agp-veg) 45%,transparent);color:var(--agp-tx)}',
+    '.agct-ok{display:inline-block;margin-right:9px;padding:2px 8px;border-radius:999px;',
+      'font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;',
+      'background:var(--agp-veg);color:var(--agp-veg-d)}',
+    '.agct-fb{display:block;margin-top:7px;font-style:normal;font-size:13px;line-height:1.55;color:var(--agp-dim)}',
+
+    '@media(max-width:900px){',
+      '.agct-cols{grid-template-columns:1fr}',
+      '.agct-izq{position:static;max-height:none}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
 
 
 
