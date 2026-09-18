@@ -26893,7 +26893,627 @@ window.agAdmAdministrando = agAdmAdministrando;
   }
 })();
 
+
+/* ---------- ag-reglas.js ---------- */
+/* ============================================================
+   LAS REGLAS DE CADA CURSO, EN MANOS DEL INSTRUCTOR
+   ------------------------------------------------------------
+   LO QUE HABÍA, MEDIDO
+
+   Cada curso tenía sus reglas en variables sueltas:
+
+       porcicultura  CFG.gating / CFG.passing / CFG.attempts
+       nutricion     NXGATE / NXPASS
+       reproduccion  RPGATE / RPPASS
+       sanidad       SBGATE / SBPASS
+       engorde       EGGATE / EGPASS
+       ruta          RTGATE / RTPASS
+
+   Y la pantalla de Configuración tenía CINCO controles que solo
+   tocaban el curso base. Los otros cuatro (reproducción, sanidad,
+   engorde, ruta) estaban escritos a fuego: para cambiar la nota
+   mínima de Sanidad había que editar el código.
+
+   Peor: de los seis, solo dos se guardaban. Los demás volvían a
+   su valor de fábrica en cada recarga, así que un cambio hecho a
+   mano no sobrevivía a cerrar la pestaña.
+
+   LO QUE HACE ESTE ARCHIVO
+
+   Una sola pantalla, dentro de Configuración, que gobierna el
+   curso que esté seleccionado arriba. Lo que se cambia aquí se
+   guarda y se aplica a las variables de verdad — no se crea un
+   segundo sistema de reglas: se le pone mando al que ya existe.
+
+   DÓNDE SE GUARDA, Y POR QUÉ ASÍ
+
+   En el navegador para que tenga efecto inmediato, y en
+   settings.reglas de Supabase para que llegue al alumno. A
+   diferencia del control de visibilidad, aquí el valor de fábrica
+   es sensato: si la nube no contesta, el curso se comporta como
+   hasta hoy. Por eso este sí funciona antes de correr el SQL.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · EL MAPA: qué variable gobierna cada curso
+   ------------------------------------------------------------ */
+var AGREGLASMAPA = {
+  porcicultura: { gate:'CFG.gating', pass:'CFG.passing', int:'CFG.attempts' },
+  nutricion:    { gate:'NXGATE',     pass:'NXPASS',      int:null },
+  reproduccion: { gate:'RPGATE',     pass:'RPPASS',      int:null },
+  sanidad:      { gate:'SBGATE',     pass:'SBPASS',      int:null },
+  engorde:      { gate:'EGGATE',     pass:'EGPASS',      int:null },
+  ruta:         { gate:'RTGATE',     pass:'RTPASS',      int:null }
+};
+
+var AGREGLAS = {};            /* curso -> {gate, pass, int, cert} */
+
+(function agRgCargar(){
+  try{ AGREGLAS = JSON.parse(localStorage.getItem('ag_reglas') || '{}') || {}; }catch(e){ AGREGLAS = {}; }
+})();
+
+function agRgGuardarLocal(){
+  try{ localStorage.setItem('ag_reglas', JSON.stringify(AGREGLAS)); }catch(e){}
+}
+
+/* ------------------------------------------------------------
+   2 · LEER Y ESCRIBIR LA VARIABLE DE VERDAD
+   ------------------------------------------------------------
+   Se toca la variable que el curso ya consulta. Nada de un mapa
+   paralelo que haya que mantener en sincronía.
+   ------------------------------------------------------------ */
+function agRgLee(ruta){
+  if(!ruta) return null;
+  try{
+    if(ruta.indexOf('.') > 0){
+      var p = ruta.split('.');
+      var o = window[p[0]];
+      return o ? o[p[1]] : null;
+    }
+    return window[ruta];
+  }catch(e){ return null; }
+}
+
+function agRgEscribe(ruta, v){
+  if(!ruta) return;
+  try{
+    if(ruta.indexOf('.') > 0){
+      var p = ruta.split('.');
+      if(window[p[0]]) window[p[0]][p[1]] = v;
+      return;
+    }
+    window[ruta] = v;
+  }catch(e){}
+}
+
+/* el estado actual de un curso, leyendo lo que de verdad manda */
+function agRgDe(curso){
+  var m = AGREGLASMAPA[curso];
+  if(!m) return null;
+  var g = agRgLee(m.gate);
+  var p = agRgLee(m.pass);
+  var i = m.int ? agRgLee(m.int) : null;
+  return {
+    gate: (g === undefined || g === null) ? true : !!g,
+    pass: (typeof p === 'number') ? p : 80,
+    int:  (typeof i === 'number') ? i : 0,
+    cert: agRgCertActivo(curso)
+  };
+}
+
+function agRgCertActivo(curso){
+  var g = AGREGLAS[curso];
+  if(g && typeof g.cert === 'boolean') return g.cert;
+  try{
+    return (typeof AGCURSOSCERT !== 'undefined') &&
+           AGCURSOSCERT.some(function(c){ return c.id === curso; });
+  }catch(e){ return true; }
+}
+
+/* ------------------------------------------------------------
+   3 · APLICAR LO GUARDADO
+   ------------------------------------------------------------ */
+function agRgAplicar(curso){
+  var m = AGREGLASMAPA[curso], g = AGREGLAS[curso];
+  if(!m || !g) return;
+  if(typeof g.gate === 'boolean') agRgEscribe(m.gate, g.gate);
+  if(typeof g.pass === 'number')  agRgEscribe(m.pass, g.pass);
+  if(m.int && typeof g.int === 'number') agRgEscribe(m.int, g.int);
+}
+
+function agRgAplicarTodo(){
+  Object.keys(AGREGLASMAPA).forEach(agRgAplicar);
+}
+
+/* las variables de los cursos nacen dentro de sus bloques, que
+   cargan después de este. Se reintenta hasta que existan. */
+(function agRgArranque(){
+  var n = 0;
+  var probar = function(){
+    var listas = Object.keys(AGREGLASMAPA).filter(function(c){
+      return agRgLee(AGREGLASMAPA[c].gate) !== null && agRgLee(AGREGLASMAPA[c].gate) !== undefined;
+    }).length;
+    agRgAplicarTodo();
+    if(listas < 6 && ++n < 40) setTimeout(probar, 200);
+  };
+  setTimeout(probar, 0);
+  if(document.readyState !== 'complete') addEventListener('load', agRgAplicarTodo);
+})();
+
+/* ------------------------------------------------------------
+   4 · LA NUBE, PARA QUE LLEGUE AL ALUMNO
+   ------------------------------------------------------------ */
+var AGRGNUBE = { viva:false, consultada:false };
+
+(function agRgTraer(){
+  var n = 0;
+  var pedir = function(){
+    if(!window.SB || typeof SB.from !== 'function'){
+      if(++n < 8){ setTimeout(pedir, 1500); return; }
+      AGRGNUBE.consultada = true; return;
+    }
+    try{
+      SB.from('settings').select('reglas').eq('id', 1).maybeSingle().then(function(r){
+        AGRGNUBE.consultada = true;
+        if(!r || r.error || !r.data) return;        /* la columna no existe todavía */
+        AGRGNUBE.viva = true;
+        var v = r.data.reglas;
+        if(v && typeof v === 'object'){
+          AGREGLAS = Object.assign({}, AGREGLAS, v);
+          agRgGuardarLocal();
+          agRgAplicarTodo();
+          agRgRepinta();
+        }
+      }, function(){ AGRGNUBE.consultada = true; });
+    }catch(e){ AGRGNUBE.consultada = true; }
+  };
+  setTimeout(pedir, 2800);
+})();
+
+function agRgSubir(){
+  if(!window.SB || typeof SB.from !== 'function') return;
+  try{ SB.from('settings').update({reglas: AGREGLAS}).eq('id', 1).then(function(){}, function(){}); }catch(e){}
+}
+
+function agRgRepinta(){
+  try{ if(typeof ADM !== 'undefined' && ADM.tab === 'config' && typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+}
+
+/* ------------------------------------------------------------
+   5 · CAMBIAR UNA REGLA
+   ------------------------------------------------------------ */
+window.agRgPon = function(curso, campo, valor){
+  if(!AGREGLASMAPA[curso]) return;
+  if(!AGREGLAS[curso]) AGREGLAS[curso] = {};
+
+  if(campo === 'pass'){
+    var n = parseInt(valor, 10);
+    if(isNaN(n)) return;
+    valor = Math.max(0, Math.min(100, n));
+  }
+  if(campo === 'int'){
+    var k = parseInt(valor, 10);
+    valor = isNaN(k) ? 0 : Math.max(0, k);
+  }
+  if(campo === 'gate' || campo === 'cert') valor = !!valor;
+
+  AGREGLAS[curso][campo] = valor;
+  agRgGuardarLocal();
+  agRgAplicar(curso);
+  agRgSubir();
+
+  if(campo === 'cert') agRgAplicarCert();
+
+  /* el candado y la nota cambian lo que ve el alumno ahora mismo */
+  try{
+    var w = document.querySelector('#csOv .cs-w');
+    if(w){ delete w.dataset.agCampus; if(typeof agCampus === 'function') agCampus(); }
+  }catch(e){}
+  agRgRepinta();
+};
+
+window.agRgRestablecer = function(curso){
+  if(!confirm('¿Devolver ' + ((COURSES[curso] || {}).label || curso) + ' a sus reglas de fábrica?')) return;
+  delete AGREGLAS[curso];
+  agRgGuardarLocal();
+  agRgSubir();
+  if(typeof toast === 'function') toast('Reglas de fábrica restablecidas', '↩️');
+  /* las de fábrica solo vuelven del todo al recargar: se avisa */
+  agRgRepinta();
+};
+
+/* el certificado de un curso se apaga sacándolo del registro */
+function agRgAplicarCert(){
+  if(typeof AGCURSOSCERT === 'undefined') return;
+  try{
+    if(!window.AGCERTTODOS) window.AGCERTTODOS = AGCURSOSCERT.slice();
+    var vivos = AGCERTTODOS.filter(function(c){ return agRgCertActivo(c.id); });
+    AGCURSOSCERT.length = 0;
+    vivos.forEach(function(c){ AGCURSOSCERT.push(c); });
+  }catch(e){}
+}
+
+/* ------------------------------------------------------------
+   6 · LA PANTALLA
+   ------------------------------------------------------------ */
+function agRgPantalla(){
+  var curso = 'porcicultura';
+  try{ curso = ADM.course || 'porcicultura'; }catch(e){}
+  var C = (typeof COURSES !== 'undefined') ? COURSES[curso] : null;
+  if(!C || !AGREGLASMAPA[curso]) return '';
+
+  var r = agRgDe(curso);
+  var tocado = !!AGREGLAS[curso];
+  var m = AGREGLASMAPA[curso];
+
+  var fila = function(campo, titulo, explica, control){
+    return '<div class="agr-f">' +
+      '<div class="agr-f-t"><b>' + titulo + '</b><em>' + explica + '</em></div>' +
+      '<div class="agr-f-c">' + control + '</div>' +
+    '</div>';
+  };
+
+  var interruptor = function(campo, on){
+    return '<label class="agr-sw">' +
+      '<input type="checkbox"' + (on ? ' checked' : '') +
+        ' onchange="agRgPon(\'' + curso + '\',\'' + campo + '\',this.checked)">' +
+      '<span class="agr-sw-p"></span>' +
+      '<em>' + (on ? 'Sí' : 'No') + '</em>' +
+    '</label>';
+  };
+
+  return '<div class="agr">' +
+    '<div class="agr-cab">' +
+      '<span class="agr-ico">' + (C.icon || '📘') + '</span>' +
+      '<div class="agr-cab-t">' +
+        '<b>Reglas de ' + agEsc(C.label || C.name || curso) + '</b>' +
+        '<em>Solo este curso. Cada uno lleva las suyas — cámbielo arriba para configurar otro.</em>' +
+      '</div>' +
+      (tocado ? '<span class="agr-marca">modificado</span>' : '') +
+    '</div>' +
+
+    fila('gate', 'Avanzar en orden',
+      'Con esto encendido, el estudiante abre un módulo solo cuando aprueba el anterior. Apagado, navega libremente. Lo que ya aprobó nunca se le cierra.',
+      interruptor('gate', r.gate)) +
+
+    fila('pass', 'Nota mínima para aprobar',
+      'El porcentaje que hace falta en el examen de cada módulo. Bajarla no borra notas: quien ya aprobó sigue aprobado.',
+      '<div class="agr-num"><input type="number" min="0" max="100" step="1" value="' + r.pass + '"' +
+        ' onchange="agRgPon(\'' + curso + '\',\'pass\',this.value)"><span>%</span></div>') +
+
+    (m.int !== null
+      ? fila('int', 'Intentos permitidos',
+          'Cuántas veces puede repetir cada examen. Cero significa las que haga falta, que es lo normal en formación.',
+          '<div class="agr-num"><input type="number" min="0" step="1" value="' + r.int + '"' +
+            ' onchange="agRgPon(\'' + curso + '\',\'int\',this.value)"><span>' + (r.int === 0 ? 'sin límite' : 'intentos') + '</span></div>')
+      : '') +
+
+    fila('cert', 'Entrega certificado',
+      'Al aprobar todos los módulos, el estudiante recibe el certificado de este curso. Apagarlo no invalida los ya emitidos.',
+      interruptor('cert', r.cert)) +
+
+    '<div class="agr-pie">' +
+      '<button class="agr-b" onclick="agRgRestablecer(\'' + curso + '\')">Volver a las de fábrica</button>' +
+      '<span class="agr-n">' +
+        (AGRGNUBE.viva
+          ? 'Se guardan y viajan a todos los estudiantes.'
+          : 'Se guardan en este navegador. Para que viajen a los estudiantes, ejecute el SQL de acceso-cursos.') +
+      '</span>' +
+    '</div>' +
+  '</div>';
+}
+
+/* se cuelga de Configuración, que es donde el instructor la busca */
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminRg = window.renderAdmin;
+  window.renderAdmin = function(){
+    var r = _renderAdminRg.apply(this, arguments);
+    try{
+      var esConfig = (typeof ADM !== 'undefined' && ADM.tab === 'config');
+      if(!esConfig) return r;
+      var root = document.getElementById('adminBody');
+      if(!root || root.querySelector('.agr')) return r;
+      var d = document.createElement('div');
+      d.innerHTML = agRgPantalla();
+      if(d.firstElementChild) root.insertBefore(d.firstElementChild, root.firstChild);
+    }catch(e){}
+    return r;
+  };
+}
+
+/* ------------------------------------------------------------
+   7 · ESTILOS
+   ------------------------------------------------------------ */
+(function agRgCss(){
+  if(document.getElementById('agRgCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agRgCss';
+  s.textContent = [
+    '.agr{margin:0 0 22px;padding:20px 22px 18px;border-radius:16px;',
+      'background:linear-gradient(165deg,var(--agp-raise),var(--agp-deep));',
+      'border:1px solid var(--agp-line);color:var(--agp-tx)}',
+
+    '.agr-cab{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-bottom:6px;',
+      'padding-bottom:16px;border-bottom:1px solid var(--agp-line)}',
+    '.agr-ico{font-size:24px;line-height:1}',
+    '.agr-cab-t{display:flex;flex-direction:column;gap:3px;min-width:0}',
+    '.agr-cab-t b{font-family:var(--display);font-size:17px;font-weight:700}',
+    '.agr-cab-t em{font-style:normal;font-size:13px;line-height:1.5;color:var(--agp-dim);max-width:62ch}',
+    '.agr-marca{margin-left:auto;padding:4px 11px;border-radius:999px;',
+      'font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;',
+      'background:color-mix(in srgb,var(--agp-acc) 16%,transparent);color:var(--agp-acc-hi);',
+      'border:1px solid color-mix(in srgb,var(--agp-acc) 42%,transparent)}',
+
+    '.agr-f{display:flex;align-items:flex-start;gap:20px;padding:16px 0;',
+      'border-bottom:1px solid var(--agp-line)}',
+    '.agr-f:last-of-type{border-bottom:0}',
+    '.agr-f-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px}',
+    '.agr-f-t b{font-size:14.5px;font-weight:600}',
+    '.agr-f-t em{font-style:normal;font-size:13px;line-height:1.55;color:var(--agp-dim);max-width:64ch}',
+    '.agr-f-c{flex:0 0 auto;padding-top:2px}',
+
+    '.agr-sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;position:relative}',
+    '.agr-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0}',
+    '.agr-sw-p{position:relative;width:46px;height:26px;border-radius:99px;flex:0 0 auto;',
+      'background:rgba(255,255,255,.14);transition:background .18s ease}',
+    '.agr-sw-p::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;',
+      'border-radius:50%;background:var(--agp-tx);transition:transform .18s cubic-bezier(.4,0,.2,1)}',
+    '.agr-sw input:checked + .agr-sw-p{background:var(--agp-veg)}',
+    '.agr-sw input:checked + .agr-sw-p::after{transform:translateX(20px)}',
+    '.agr-sw input:focus-visible + .agr-sw-p{outline:2px solid var(--agp-acc-hi);outline-offset:2px}',
+    '.agr-sw em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--agp-dim);min-width:18px}',
+
+    '.agr-num{display:inline-flex;align-items:center;gap:9px}',
+    '.agr-num input{width:88px;padding:9px 12px;border-radius:10px;font:inherit;font-size:15px;',
+      'text-align:right;font-variant-numeric:tabular-nums;',
+      'background:var(--agp-deep);color:var(--agp-tx);border:1px solid var(--agp-line2)}',
+    '.agr-num input:focus{outline:2px solid color-mix(in srgb,var(--agp-acc) 60%,transparent);',
+      'outline-offset:1px;border-color:transparent}',
+    '.agr-num span{font-family:var(--mono);font-size:11.5px;color:var(--agp-dim)}',
+
+    '.agr-pie{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:16px;',
+      'padding-top:16px;border-top:1px solid var(--agp-line)}',
+    '.agr-b{padding:9px 15px;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;',
+      'background:rgba(255,255,255,.055);color:var(--agp-tx);border:1px solid var(--agp-line2);',
+      'transition:background .15s ease,border-color .15s ease}',
+    '.agr-b:hover{background:color-mix(in srgb,var(--agp-veg) 18%,transparent);',
+      'border-color:color-mix(in srgb,var(--agp-veg) 50%,transparent)}',
+    '.agr-n{font-size:12.5px;color:var(--agp-dim)}',
+
+    '@media(max-width:760px){',
+      '.agr{padding:16px 16px 14px}',
+      '.agr-f{flex-direction:column;gap:11px}',
+      '.agr-f-c{padding-top:0}',
+    '}',
+    '@media(prefers-reduced-motion:reduce){',
+      '.agr-sw-p,.agr-sw-p::after,.agr-b{transition:none}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-arreglos.js ---------- */
+/* ============================================================
+   DOS ARREGLOS QUE SALIERON DE LA AUDITORÍA
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · UN MENSAJE QUE MENTÍA
+   ------------------------------------------------------------
+   Con tres estudiantes registrados, el Dashboard y el Progreso
+   del curso base decían:
+
+       «Aún no hay estudiantes. Ve a Estudiantes y agrega el
+        primero.»
+
+   No era cierto. Las dos pantallas muestran los estudiantes CON
+   ACCESO al curso seleccionado, y no había ninguno con acceso al
+   curso base — que es distinto de no haber estudiantes.
+
+   El mensaje venía de cuando el curso base lo tenía todo el
+   mundo por defecto. Desde que el acceso es explícito, manda al
+   instructor a la pantalla equivocada: iría a crear un alumno que
+   ya existe en vez de ir a darle acceso.
+
+   Se corrige el texto, no la lógica: la lógica era correcta.
+   ------------------------------------------------------------ */
+(function agFixVacio(){
+  var VIEJO = 'Aún no hay estudiantes. Ve a <b>Estudiantes</b> y agrega el primero.';
+  var VIEJO2 = 'Sin estudiantes.';
+
+  var nuevo = function(){
+    var n = 0;
+    try{ n = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; }).length; }catch(e){}
+    var C = null;
+    try{ C = courseCtx(); }catch(e){}
+    var nombre = C ? (C.label || C.name || 'este curso') : 'este curso';
+    if(!n){
+      return 'Todavía no hay estudiantes registrados. Créelos en <b>Estudiantes</b> y después deles acceso en <b>Accesos</b>.';
+    }
+    return 'Hay <b>' + n + '</b> ' + (n === 1 ? 'estudiante registrado' : 'estudiantes registrados') +
+      ', pero ninguno tiene acceso a <b>' + agEsc(nombre) + '</b> todavía. ' +
+      'Habilítelos en <b>Accesos</b> y aparecerán aquí.';
+  };
+
+  var arreglar = function(html){
+    if(typeof html !== 'string') return html;
+    if(html.indexOf(VIEJO) >= 0) return html.split(VIEJO).join(nuevo());
+    /* «Sin estudiantes.» es tan escueto que tambien despista */
+    if(html.indexOf(VIEJO2) >= 0 && html.indexOf('adm-empty') >= 0) return html.split(VIEJO2).join(nuevo());
+    return html;
+  };
+
+  ['dashboardView', 'progressView'].forEach(function(fn){
+    if(typeof window[fn] !== 'function') return;
+    var orig = window[fn];
+    window[fn] = function(){
+      try{ return arreglar(orig.apply(this, arguments)); }
+      catch(e){ return orig.apply(this, arguments); }
+    };
+  });
+})();
+
+/* ------------------------------------------------------------
+   2 · ESTUDIANTES DUPLICADOS
+   ------------------------------------------------------------
+   quickAdd crea al alumno comparando por NOMBRE exacto. «José
+   Pérez», «jose perez» y «José  Pérez» con dos espacios son tres
+   personas distintas para el sistema. Con el tiempo eso deja al
+   mismo productor repartido en varias fichas, cada una con su
+   trozo de avance.
+
+   NO se fusionan fichas automáticamente: unir dos alumnos es
+   decidir cuál avance sobrevive, y esa decisión es del
+   instructor, no mía. Lo que se hace es DETECTARLO y decirlo,
+   con los datos delante para que él resuelva.
+
+   Y se endurece la comparación al crear, que es donde nace el
+   problema: sin tildes, sin mayúsculas, sin espacios de más, y
+   mirando también el correo.
+   ------------------------------------------------------------ */
+function agDupNormaliza(s){
+  return String(s || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')   /* fuera tildes */
+    .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function agDupBuscar(){
+  var al = [];
+  try{ al = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; }); }catch(e){}
+  var porNombre = {}, porCorreo = {}, grupos = [];
+
+  al.forEach(function(s){
+    var n = agDupNormaliza(s.name);
+    var c = agDupNormaliza(s.email);
+    if(n){ (porNombre[n] = porNombre[n] || []).push(s); }
+    if(c){ (porCorreo[c] = porCorreo[c] || []).push(s); }
+  });
+
+  var vistos = {};
+  var meter = function(lista, motivo){
+    if(lista.length < 2) return;
+    var clave = lista.map(function(s){ return s.id; }).sort().join('|');
+    if(vistos[clave]) return;
+    vistos[clave] = 1;
+    grupos.push({ motivo: motivo, alumnos: lista });
+  };
+  Object.keys(porCorreo).forEach(function(k){ meter(porCorreo[k], 'mismo correo'); });
+  Object.keys(porNombre).forEach(function(k){ meter(porNombre[k], 'mismo nombre'); });
+  return grupos;
+}
+window.agDupBuscar = agDupBuscar;
+
+function agDupAvanceDe(uid){
+  var n = 0;
+  try{
+    Object.keys(COURSES).forEach(function(c){ n += (COURSES[c].count(uid) || 0); });
+  }catch(e){}
+  return n;
+}
+
+function agDupAvisoHTML(){
+  var g = agDupBuscar();
+  if(!g.length) return '';
+  return '<div class="agd">' +
+    '<div class="agd-t">' +
+      '<b>' + g.length + (g.length === 1 ? ' posible duplicado' : ' posibles duplicados') + '</b>' +
+      '<span>La misma persona parece estar registrada más de una vez. Cada ficha lleva su propio avance, ' +
+      'así que conviene resolverlo antes de que acumulen más.</span>' +
+    '</div>' +
+    g.map(function(x){
+      return '<div class="agd-g">' +
+        '<span class="agd-m">' + x.motivo + '</span>' +
+        x.alumnos.map(function(s){
+          var av = agDupAvanceDe(s.id);
+          return '<div class="agd-a">' +
+            '<b>' + agEsc(s.name || 'sin nombre') + '</b>' +
+            '<em>' + agEsc(s.email || 'sin correo') + '</em>' +
+            '<span>' + av + (av === 1 ? ' módulo aprobado' : ' módulos aprobados') + ' · desde ' + agEsc(s.enrolled || '—') + '</span>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }).join('') +
+    '<p class="agd-n">Decida usted cuál conservar: unir dos fichas es elegir qué avance sobrevive, ' +
+    'y eso no se hace solo. Para retirar una, póngala como <b>borrada</b> en su ficha.</p>' +
+  '</div>';
+}
+
+/* se cuelga de la pestaña Estudiantes, que es donde se resuelve */
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminDup = window.renderAdmin;
+  window.renderAdmin = function(){
+    var r = _renderAdminDup.apply(this, arguments);
+    try{
+      if(typeof ADM === 'undefined' || ADM.tab !== 'students') return r;
+      var root = document.getElementById('adminBody');
+      if(!root || root.querySelector('.agd')) return r;
+      var html = agDupAvisoHTML();
+      if(!html) return r;
+      var d = document.createElement('div');
+      d.innerHTML = html;
+      root.insertBefore(d.firstElementChild, root.firstChild);
+    }catch(e){}
+    return r;
+  };
+}
+
+/* y al crear: comparar sin tildes, sin mayusculas y por correo */
+if(typeof window.quickAdd === 'function'){
+  var _quickAdd = window.quickAdd;
+  window.quickAdd = function(){
+    try{
+      var campo = document.getElementById('stuInput');
+      var nombre = campo ? String(campo.value || '').trim() : '';
+      if(nombre){
+        var n = agDupNormaliza(nombre);
+        var ya = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){
+          return s.status !== 'borrado' && agDupNormaliza(s.name) === n;
+        })[0];
+        if(ya){
+          /* el original comparaba con === exacto y aquí se le escapaba */
+          if(typeof loginStudent === 'function'){ loginStudent(ya.id); return; }
+        }
+      }
+    }catch(e){}
+    return _quickAdd.apply(this, arguments);
+  };
+}
+
+/* ------------------------------------------------------------
+   3 · ESTILOS
+   ------------------------------------------------------------ */
+(function agArrCss(){
+  if(document.getElementById('agArrCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agArrCss';
+  s.textContent = [
+    '.agd{margin:0 0 18px;padding:18px 20px 14px;border-radius:16px;',
+      'background:color-mix(in srgb,var(--agp-acc) 9%,transparent);',
+      'border:1px solid color-mix(in srgb,var(--agp-acc) 38%,transparent);color:var(--agp-tx)}',
+    '.agd-t{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}',
+    '.agd-t b{font-family:var(--display);font-size:16px;font-weight:700;color:var(--agp-acc-hi)}',
+    '.agd-t span{font-size:13.5px;line-height:1.6;color:var(--agp-tx2);max-width:74ch}',
+    '.agd-g{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin-bottom:10px;',
+      'padding:12px 14px;border-radius:12px;background:rgba(0,0,0,.26);border:1px solid var(--agp-line)}',
+    '.agd-m{align-self:center;padding:3px 10px;border-radius:999px;flex:0 0 auto;',
+      'font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;',
+      'background:rgba(255,255,255,.07);color:var(--agp-dim);border:1px solid var(--agp-line)}',
+    '.agd-a{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.4}',
+    '.agd-a b{font-size:14px;font-weight:600}',
+    '.agd-a em{font-style:normal;font-size:12.5px;color:var(--agp-tx2)}',
+    '.agd-a span{font-family:var(--mono);font-size:11px;color:var(--agp-dim)}',
+    '.agd-n{margin:4px 0 0;font-size:12.5px;line-height:1.6;color:var(--agp-dim);max-width:74ch}',
+    '@media(max-width:640px){ .agd-g{flex-direction:column} }'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
 
 
 
