@@ -26767,7 +26767,134 @@ window.agCtaSalir = function(){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-admincontenido.js ---------- */
+/* ============================================================
+   EL INSTRUCTOR NO CHOCA CON LOS CANDADOS DE SUS ALUMNOS
+   ------------------------------------------------------------
+   EL FALLO, MEDIDO
+
+   Con el instructor dentro de la plataforma y sin ningún avance
+   propio, los módulos abiertos eran:
+
+       porcicultura   1 de 13    ← chocaba con el candado
+       nutricion     10 de 10
+       reproduccion  10 de 10
+       sanidad       10 de 10
+       engorde       10 de 10
+       ruta           5 de 5
+
+   Ninguna de las seis puertas pregunta por el ROL. Todas miran
+   solo PREVIEW, que es la vista previa de estudiante. Que cinco
+   funcionaran era casualidad, no diseño: dependía de por dónde
+   cayera la lectura del avance. La sexta dejaba al instructor
+   fuera de su propio curso.
+
+   LA REGLA, UNA Y PARA LAS SEIS
+
+       Si quien mira es el INSTRUCTOR y NO está en vista previa,
+       todo el contenido está abierto. Siempre.
+
+   Administrar contenido y consumirlo como estudiante son dos
+   cosas distintas, y esta es la línea que las separa:
+
+     · role ADMIN, PREVIEW apagado  → administra: lo ve todo.
+     · role ADMIN, PREVIEW encendido → mira como alumno: ve
+       exactamente lo que vería el alumno, candados incluidos.
+       Si no fuera así, la vista previa no serviría para nada.
+     · role STUDENT → sus candados, intactos.
+
+   LO QUE ESTO NO TOCA
+
+   El avance de nadie. El instructor abriendo un módulo no
+   aprueba nada ni escribe progreso: solo deja de encontrarse la
+   puerta cerrada. Las notas se siguen guardando por el mismo
+   sitio de siempre y con las mismas comprobaciones.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · QUIÉN ESTÁ ADMINISTRANDO
+   ------------------------------------------------------------ */
+function agAdmAdministrando(){
+  try{
+    if(typeof SESSION === 'undefined' || !SESSION) return false;
+    if(SESSION.role !== 'ADMIN') return false;
+    /* en vista previa el instructor quiere ver los candados */
+    if(typeof PREVIEW !== 'undefined' && PREVIEW) return false;
+    return true;
+  }catch(e){ return false; }
+}
+window.agAdmAdministrando = agAdmAdministrando;
+
+/* ------------------------------------------------------------
+   2 · LAS SEIS PUERTAS, CON LA MISMA LLAVE MAESTRA
+   ------------------------------------------------------------
+   Se envuelven, no se reescriben: la regla del estudiante sigue
+   siendo la suya y se ejecuta igual. Solo se añade una salida
+   antes, para quien administra.
+   ------------------------------------------------------------ */
+(function agAdmPuertas(){
+  var puertas = ['isUnlocked', 'nxDesbloq', 'rpDesbloq', 'sbDesbloq', 'egDesbloq', 'rtDesbloq'];
+  var puestas = [];
+
+  var enganchar = function(){
+    puertas.forEach(function(fn){
+      if(puestas.indexOf(fn) >= 0) return;
+      if(typeof window[fn] !== 'function') return;
+      var orig = window[fn];
+      window[fn] = function(){
+        if(agAdmAdministrando()) return true;
+        try{ return orig.apply(this, arguments); }
+        catch(e){ return true; }
+      };
+      puestas.push(fn);
+    });
+    try{ window.AGADMPUERTAS = puestas; }catch(e){}
+    return puestas.length === puertas.length;
+  };
+
+  /* este bloque carga antes que sanidad, engorde y ruta */
+  if(!enganchar()){
+    var n = 0;
+    var seguir = function(){
+      if(enganchar()) return;
+      if(++n < 40) setTimeout(seguir, 150);
+    };
+    setTimeout(seguir, 0);
+    if(document.readyState !== 'complete') addEventListener('load', enganchar);
+  }
+})();
+
+/* ------------------------------------------------------------
+   3 · Y QUE TAMPOCO LE CIERREN EL CURSO ENTERO
+   ------------------------------------------------------------
+   agPuedeCursar ya dejaba pasar al instructor, pero el vigilante
+   de ag-candado cierra cada 4 segundos cualquier curso cuyo
+   acceso se haya revocado. Para quien administra, eso sería
+   cerrarle el curso en la cara mientras lo revisa.
+   ------------------------------------------------------------ */
+(function agAdmNoCierre(){
+  var poner = function(){
+    if(typeof window.agPuedeCursar !== 'function') return false;
+    if(window.agPuedeCursar.__adm) return true;
+    var orig = window.agPuedeCursar;
+    var envuelto = function(){
+      if(agAdmAdministrando()) return true;
+      try{ return orig.apply(this, arguments); }catch(e){ return true; }
+    };
+    envuelto.__adm = true;
+    window.agPuedeCursar = envuelto;
+    return true;
+  };
+  if(!poner()){
+    var n = 0;
+    var seguir = function(){ if(poner()) return; if(++n < 40) setTimeout(seguir, 150); };
+    setTimeout(seguir, 0);
+  }
+})();
+
 </script>
+
 
 
 
