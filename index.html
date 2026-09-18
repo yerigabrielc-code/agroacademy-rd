@@ -24860,7 +24860,7 @@ function agNvTarjeta(id, i){
       '<span class="nva-card-velo"></span>' +
       '<span class="nva-card-ico">' + (C.icon || '📘') + '</span>' +
       '<span class="nva-card-cat">' + agEsc(c.cat) + '</span>' +
-      (lock ? '<span class="nva-card-lock">🔒</span>' : '') +
+      (lock ? '<span class="nva-card-lock"><i>🔒</i><b>Bloqueado</b></span>' : '') +
       (e.completo ? '<span class="nva-card-done">✓ Completado</span>' : '') +
     '</div>' +
 
@@ -24918,7 +24918,7 @@ function agNvCatalogo(){
     '</div>' +
     '<p class="nva-sub">Formación especializada que todavía no tiene abierta. ' +
       'Puede ver el temario completo de cualquiera antes de decidir.</p>' +
-    '<div class="nva-rej">' + ids.map(agNvTarjeta).join('') + '</div>' +
+    '<div class="nva-rej">' + ids.map(agNvTarjeta).join('') + agNvPideHTML(ids.length) + '</div>' +
   '</section>';
 }
 
@@ -24929,6 +24929,27 @@ function agNvCatalogo(){
    vestidas para fondo claro y aquí el fondo es negro. Se les cambia
    el prefijo a uno mío y se visten de nuevo. Los onclick, los id y
    la lógica quedan intactos: ninguno lleva «agc-». */
+/* EL HUECO DEL FINAL, RESUELTO CON CONTENIDO
+   Con cinco cursos bloqueados en una rejilla de tres, la última fila
+   deja una celda vacía — un rectángulo negro que no dice nada y que
+   hace ver la pantalla incompleta. En vez de estirar las tarjetas
+   hasta deformarlas, esa celda lleva lo único que falta ahí: cómo se
+   pide acceso. Si algún día los cursos cuadran en la rejilla, no
+   aparece. */
+function agNvPideHTML(n){
+  if(!n) return '';
+  var cols = 3;                       /* lo que cabe en escritorio */
+  if(n % cols === 0) return '';       /* la rejilla ya cierra sola */
+  return '<article class="nva-pide">' +
+    '<span class="nva-pide-i">✦</span>' +
+    '<b>¿Le interesa alguno?</b>' +
+    '<p>Cada curso se habilita uno a uno. Escríbale al instructor diciéndole cuál quiere ' +
+    'y se lo abre en su cuenta — su avance de los demás no se toca.</p>' +
+    '<span class="nva-pide-n">También puede abrir «Ver temario» en cualquiera ' +
+    'para saber exactamente qué incluye antes de decidir.</span>' +
+  '</article>';
+}
+
 function agNvCertificados(){
   var h = '';
   try{ if(typeof agCampusCertificados === 'function') h = agCampusCertificados(); }catch(e){}
@@ -25272,15 +25293,15 @@ function agNvAnima(w){
     '.nva-sec-cat .nva-h2::before{content:"✦";margin-right:9px;color:var(--nva-gold);font-size:.78em;vertical-align:.1em}',
 
     /* ---------- tarjetas ---------- */
-    '.nva-rej{display:grid;grid-template-columns:repeat(auto-fill,minmax(278px,1fr));',
-      'gap:18px;grid-auto-rows:1fr}',
+    '.nva-rej{display:grid;grid-template-columns:repeat(auto-fit,minmax(336px,1fr));',
+      'gap:22px;grid-auto-rows:1fr}',
     '.nva-card{display:flex;flex-direction:column;overflow:hidden;border-radius:var(--nva-rad);',
       'background:linear-gradient(170deg,var(--nva-raise),var(--nva-deep));',
       'border:1px solid var(--nva-line);',
       'transition:transform .2s ease,border-color .2s ease,box-shadow .24s ease}',
     '.nva-card:hover{transform:translateY(-4px);border-color:var(--nva-line2);',
       'box-shadow:0 18px 40px rgba(0,0,0,.5)}',
-    '.nva-card-cov{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--agp-deep)}',
+    '.nva-card-cov{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--agp-deep)}',
     '.nva-card-cov img{width:100%;height:100%;object-fit:cover;',
       'transition:transform .5s ease,filter .3s ease}',
     '.nva-card:hover .nva-card-cov img{transform:scale(1.05)}',
@@ -25288,7 +25309,7 @@ function agNvAnima(w){
       'background:linear-gradient(135deg,var(--agp-raise),var(--agp-deep))}',
     '.nva-card-velo{position:absolute;inset:0;',
       'background:linear-gradient(to top,rgba(20,18,14,.92) 4%,rgba(20,18,14,.14) 60%,transparent)}',
-    '.nva-card-ico{position:absolute;left:14px;bottom:12px;font-size:25px;line-height:1;',
+    '.nva-card-ico{position:absolute;left:16px;bottom:14px;font-size:31px;line-height:1;',
       'filter:drop-shadow(0 2px 7px rgba(0,0,0,.65))}',
     '.nva-card-cat{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:99px;',
       'background:rgba(20,18,14,.72);border:1px solid var(--nva-line);backdrop-filter:blur(5px);',
@@ -25298,22 +25319,41 @@ function agNvAnima(w){
       'font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--nva-leaf)}',
 
     /* el bloqueado se APAGA: eso es lo que hace legible el catálogo */
-    '.nva-card.lock .nva-card-cov img{filter:grayscale(.92) brightness(.42)}',
-    '.nva-card.lock .nva-card-velo{background:linear-gradient(to top,rgba(20,18,14,.96),rgba(20,18,14,.66))}',
+    '.nva-card.lock .nva-card-cov img{filter:grayscale(.25) brightness(.74) saturate(1.06)}',
+    '.nva-card.lock .nva-card-velo{background:linear-gradient(to top,rgba(20,18,14,.94) 6%,rgba(20,18,14,.30) 58%,rgba(20,18,14,.12))}',
     '.nva-card.lock{border-color:rgba(255,255,255,.055)}',
-    '.nva-card.lock h3{color:var(--nva-tx2)}',
+    '.nva-card.lock h3{color:var(--nva-tx)}',
     '.nva-card.lock:hover .nva-card-cov img{filter:grayscale(.55) brightness(.6);transform:scale(1.03)}',
-    '.nva-card-lock{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;',
+    '.nva-card-lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;',
       'text-shadow:0 3px 14px rgba(0,0,0,.8);transition:transform .22s ease}',
     '.nva-card.lock:hover .nva-card-lock{transform:scale(1.12)}',
+    '.nva-card-lock i{font-style:normal;width:56px;height:56px;border-radius:50%;display:grid;',
+      'place-items:center;font-size:24px;backdrop-filter:blur(3px);',
+      'background:color-mix(in srgb,var(--nva-gold) 86%,transparent);',
+      'box-shadow:0 8px 24px rgba(0,0,0,.55)}',
+    '.nva-card-lock b{padding:5px 14px;border-radius:999px;font-family:var(--mono);font-size:10px;',
+      'letter-spacing:.15em;text-transform:uppercase;font-weight:400;',
+      'background:rgba(20,18,14,.82);color:var(--nva-gold-hi);backdrop-filter:blur(3px);',
+      'border:1px solid color-mix(in srgb,var(--nva-gold) 48%,transparent)}',
 
-    '.nva-card-c{display:flex;flex-direction:column;flex:1;padding:16px 17px 17px}',
-    '.nva-card-c h3{font-size:16.5px;font-weight:700;line-height:1.3;margin:0 0 8px;color:var(--nva-tx)}',
-    '.nva-card-c > p{margin:0 0 13px;font-size:13.5px;line-height:1.55;color:var(--nva-dim);min-height:3.2em}',
+    '.nva-card-c{display:flex;flex-direction:column;flex:1;padding:19px 20px 20px}',
+    '.nva-card-c h3{font-size:18px;font-weight:700;line-height:1.28;margin:0 0 9px;color:var(--nva-tx)}',
+    '.nva-card-c > p{margin:0 0 14px;font-size:14px;line-height:1.6;color:var(--nva-tx2);min-height:3.2em}',
     '.nva-card-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;',
       'margin-bottom:11px;font-family:var(--mono);font-size:11px;color:var(--nva-dim);min-height:20px}',
     '.nva-precio{color:var(--nva-gold);font-weight:600}',
     '.nva-card-btn{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}',
+
+    /* la celda que cerraba la rejilla con negro, ahora dice algo */
+    '.nva-pide{display:flex;flex-direction:column;justify-content:center;gap:10px;',
+      'padding:26px 24px;border-radius:var(--nva-rad);',
+      'background:color-mix(in srgb,var(--nva-gold) 7%,transparent);',
+      'border:1px dashed color-mix(in srgb,var(--nva-gold) 40%,transparent)}',
+    '.nva-pide-i{font-size:19px;line-height:1;color:var(--nva-gold)}',
+    '.nva-pide b{font-family:var(--display);font-size:17px;font-weight:700;color:var(--nva-tx)}',
+    '.nva-pide p{margin:0;font-size:14px;line-height:1.6;color:var(--nva-tx2)}',
+    '.nva-pide-n{font-size:12.5px;line-height:1.55;color:var(--nva-dim);',
+      'padding-top:10px;border-top:1px solid var(--nva-line)}',
     '.nva-card-btn .nva-cta{flex:1 1 auto}',
 
     /* el aviso de vista previa, vestido para fondo oscuro. Se nombra por
@@ -28684,7 +28724,291 @@ if(typeof window.renderAdmin === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-cuentaadmin.js ---------- */
+/* ============================================================
+   LA CUENTA DEL INSTRUCTOR
+   ------------------------------------------------------------
+   El estudiante ya tiene su panel de cuenta: datos, contraseña,
+   estado y salida. El instructor tenía solo un «Cerrar sesión»
+   en la barra lateral y dos campos sueltos en Configuración
+   (cAdmU, cAdmP) que son credenciales LOCALES de otra época, no
+   su cuenta de Supabase.
+
+   Aquí tiene lo mismo que el alumno, con lo que le corresponde
+   por ser instructor:
+
+       Sus datos       nombre y correo
+       Su contraseña   la cambia contra Supabase
+       La plataforma   qué gobierna desde su sesión
+       Cerrar sesión   cierra las DOS, como la del alumno
+
+   NO SE DUPLICA NADA. La salida reutiliza agCtaSalir(), que ya
+   cierra la sesión local y la de la nube y funciona igual para
+   cualquiera. Los estilos son los del panel del estudiante: una
+   sola hoja para las dos pantallas.
+   ============================================================ */
+
+function agCaEsInstructor(){
+  try{
+    if(typeof SESSION === 'undefined' || !SESSION) return false;
+    if(SESSION.role !== 'ADMIN') return false;
+    if(typeof PREVIEW !== 'undefined' && PREVIEW) return false;
+    return true;
+  }catch(e){ return false; }
+}
+
+function agCaNube(){
+  var sb = window.SB || window.sb;
+  return (sb && sb.auth && typeof sb.auth.updateUser === 'function') ? sb : null;
+}
+
+function agCaYo(){
+  var d = { id:'', nombre:'Instructor', correo:'' };
+  try{ d.id = (SESSION && SESSION.id) || ''; }catch(e){}
+  try{
+    var sb = window.SB || window.sb;
+    if(sb && sb.auth && typeof sb.auth.getUser === 'function'){ /* asíncrono: no se espera aquí */ }
+  }catch(e){}
+  try{
+    var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === d.id; })[0];
+    if(s){ d.nombre = s.name || d.nombre; d.correo = s.email || ''; }
+  }catch(e){}
+  try{
+    var g = localStorage.getItem('ag_admin_perfil');
+    if(g){ var o = JSON.parse(g); if(o && o.nombre) d.nombre = o.nombre; if(o && o.correo) d.correo = o.correo; }
+  }catch(e){}
+  return d;
+}
+
+function agCaIniciales(n){
+  var p = String(n || '').trim().split(/\s+/).filter(Boolean);
+  return ((p[0] || '')[0] || 'I').toUpperCase() + ((p[1] || '')[0] || '').toUpperCase();
+}
+
+/* ------------------------------------------------------------
+   EL BOTÓN, EN LA BARRA DE ARRIBA DEL PANEL
+   ------------------------------------------------------------ */
+(function agCaPon(){
+  var poner = function(){
+    try{
+      if(!agCaEsInstructor()) return;
+      var barra = document.querySelector('.adminp-topright');
+      if(!barra || barra.querySelector('.agq-b')) return;
+      var yo = agCaYo();
+      var b = document.createElement('button');
+      b.className = 'agq-b';
+      b.setAttribute('onclick', 'agCaAbrir()');
+      b.setAttribute('aria-haspopup', 'dialog');
+      b.innerHTML = '<span class="agq-b-av">' + agCaIniciales(yo.nombre) + '</span>' +
+        '<span class="agq-b-n">' + agEsc(String(yo.nombre).split(/\s+/)[0]) + '</span>' +
+        '<svg class="agq-b-v" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+          'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>' +
+        '<span class="agq-b-s">Mi cuenta</span>';
+      barra.insertBefore(b, barra.firstChild);
+    }catch(e){}
+  };
+  var arranca = function(){
+    [500, 1400, 2600].forEach(function(t){ setTimeout(poner, t); });
+    setInterval(poner, 2000);
+  };
+  if(document.body) arranca(); else addEventListener('DOMContentLoaded', arranca);
+})();
+
+/* ------------------------------------------------------------
+   EL PANEL
+   ------------------------------------------------------------ */
+window.agCaAbrir = function(){
+  if(document.getElementById('agqOv')) return;
+  var yo = agCaYo();
+  var nube = agCaNube();
+
+  var alumnos = 0, activos = 0, cursos = 0, publicados = 0;
+  try{
+    var al = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; });
+    alumnos = al.length;
+    activos = al.filter(function(s){ return s.status === 'activo'; }).length;
+    cursos = Object.keys(COURSES).length;
+    publicados = Object.keys(COURSES).filter(function(c){
+      try{ return !!COURSES[c].published(); }catch(e){ return true; }
+    }).length;
+  }catch(e){}
+
+  var d = document.createElement('div');
+  d.id = 'agqOv';
+  d.className = 'agq-ov';
+  d.setAttribute('role', 'dialog');
+  d.setAttribute('aria-modal', 'true');
+  d.setAttribute('aria-label', 'Mi cuenta de instructor');
+  d.innerHTML =
+    '<div class="agq-p" role="document">' +
+      '<header class="agq-h">' +
+        '<span class="agq-h-av">' + agCaIniciales(yo.nombre) + '</span>' +
+        '<div class="agq-h-t">' +
+          '<b>' + agEsc(yo.nombre) + '</b>' +
+          '<em>' + agEsc(yo.correo || 'instructor') + '</em>' +
+        '</div>' +
+        '<button class="agq-x" onclick="agCaCerrar()" aria-label="Cerrar">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">' +
+          '<path d="M18 6 6 18M6 6l12 12"/></svg>' +
+        '</button>' +
+      '</header>' +
+
+      '<div class="agq-c">' +
+        '<section class="agq-s">' +
+          '<h3 class="agq-s-t">Sus datos</h3>' +
+          '<label class="agq-f"><span>Nombre</span>' +
+            '<input id="agCaNombre" type="text" value="' + agEsc(yo.nombre) + '" autocomplete="name"></label>' +
+          '<label class="agq-f"><span>Correo</span>' +
+            '<input id="agCaCorreo" type="email" value="' + agEsc(yo.correo) + '" autocomplete="email"></label>' +
+          '<p class="agq-n">Es como aparece usted en la plataforma. El correo con el que entra lo gobierna Supabase; ' +
+          'cambiarlo aquí no cambia su inicio de sesión.</p>' +
+          '<div class="agq-a">' +
+            '<button class="agq-ok" id="agCaGuardar" onclick="agCaGuardar()">Guardar cambios</button>' +
+            '<span class="agq-msg" id="agCaMsgDatos"></span>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="agq-s">' +
+          '<h3 class="agq-s-t">Su contraseña</h3>' +
+          (nube
+            ? '<label class="agq-f"><span>Contraseña nueva</span>' +
+                '<input id="agCaPass1" type="password" autocomplete="new-password" placeholder="Al menos 8 caracteres"></label>' +
+              '<label class="agq-f"><span>Repítala</span>' +
+                '<input id="agCaPass2" type="password" autocomplete="new-password" placeholder="La misma otra vez"></label>' +
+              '<p class="agq-n">Es la contraseña de su cuenta de Supabase, la que usa para entrar. ' +
+              'Cambiarla no afecta a ningún estudiante.</p>' +
+              '<div class="agq-a">' +
+                '<button class="agq-ok" id="agCaCambiar" onclick="agCaPass()">Cambiar contraseña</button>' +
+                '<span class="agq-msg" id="agCaMsgPass"></span>' +
+              '</div>'
+            : '<p class="agq-n">Esta copia no está conectada a la nube, así que no hay contraseña que cambiar desde aquí.</p>') +
+        '</section>' +
+
+        '<section class="agq-s">' +
+          '<h3 class="agq-s-t">La plataforma</h3>' +
+          '<dl class="agq-d">' +
+            '<div><dt>Estudiantes</dt><dd>' + alumnos + '</dd></div>' +
+            '<div><dt>Activos</dt><dd>' + activos + '</dd></div>' +
+            '<div><dt>Cursos</dt><dd>' + cursos + '</dd></div>' +
+            '<div><dt>Publicados</dt><dd>' + publicados + '</dd></div>' +
+            '<div><dt>Su sesión</dt><dd><span class="agq-pill on">instructor</span></dd></div>' +
+          '</dl>' +
+          '<p class="agq-n">Las reglas de cada curso se cambian en <b>Configuración</b>, y qué ve cada alumno en ' +
+          '<b>Ficha del estudiante</b>. Aquí solo lo que es suyo.</p>' +
+        '</section>' +
+      '</div>' +
+
+      '<footer class="agq-pie">' +
+        '<button class="agq-salir" onclick="agCaSalir()">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>' +
+          '</svg>Cerrar sesión</button>' +
+        '<span class="agq-pie-n">Los datos de sus estudiantes no se tocan.</span>' +
+      '</footer>' +
+    '</div>';
+
+  d.addEventListener('mousedown', function(e){ if(e.target === d) agCaCerrar(); });
+  document.body.appendChild(d);
+  document.addEventListener('keydown', agCaTecla);
+  try{ (d.querySelector('#agCaNombre') || d.querySelector('.agq-x')).focus(); }catch(e){}
+};
+
+window.agCaCerrar = function(){
+  var d = document.getElementById('agqOv');
+  if(d) d.remove();
+  document.removeEventListener('keydown', agCaTecla);
+};
+
+function agCaTecla(e){ if(e.key === 'Escape'){ e.stopPropagation(); agCaCerrar(); } }
+
+function agCaDi(donde, texto, malo){
+  var el = document.getElementById(donde);
+  if(!el) return;
+  el.textContent = texto;
+  el.className = 'agq-msg' + (malo ? ' mal' : (texto ? ' bien' : ''));
+}
+
+window.agCaGuardar = function(){
+  var nom = (document.getElementById('agCaNombre') || {}).value || '';
+  var cor = (document.getElementById('agCaCorreo') || {}).value || '';
+  nom = nom.trim(); cor = cor.trim();
+  if(nom.length < 2){ agCaDi('agCaMsgDatos', 'Escriba su nombre para poder guardarlo.', true); return; }
+
+  var b = document.getElementById('agCaGuardar');
+  if(b){ b.disabled = true; b.textContent = 'Guardando…'; }
+
+  /* se guarda aparte del listado de estudiantes: el instructor no es
+     un alumno y meterlo en STUDENTS lo haría aparecer en las listas */
+  try{ localStorage.setItem('ag_admin_perfil', JSON.stringify({nombre:nom, correo:cor})); }catch(e){}
+
+  var fin = function(ok, err){
+    if(b){ b.disabled = false; b.textContent = 'Guardar cambios'; }
+    if(ok){
+      agCaDi('agCaMsgDatos', 'Guardado.');
+      try{
+        var h = document.querySelector('#agqOv .agq-h-t b'); if(h) h.textContent = nom;
+        var bn = document.querySelector('.adminp-topright .agq-b-n'); if(bn) bn.textContent = nom.split(/\s+/)[0];
+        var av = document.querySelectorAll('#agqOv .agq-h-av, .adminp-topright .agq-b-av');
+        [].forEach.call(av, function(x){ x.textContent = agCaIniciales(nom); });
+      }catch(e){}
+    } else agCaDi('agCaMsgDatos', err || 'Se guardó aquí, pero no llegó a la nube.', true);
+  };
+
+  var sb = window.SB || window.sb;
+  var uid = '';
+  try{ uid = (SESSION && SESSION.id) || ''; }catch(e){}
+  if(!sb || typeof sb.from !== 'function' || !uid){ fin(true); return; }
+  try{
+    sb.from('profiles').update({full_name: nom}).eq('id', uid).then(function(r){
+      if(r && r.error) fin(false, 'Se guardó aquí, pero no llegó a la nube: ' + r.error.message);
+      else fin(true);
+    }, function(){ fin(false); });
+  }catch(e){ fin(true); }
+};
+
+window.agCaPass = function(){
+  var sb = agCaNube();
+  if(!sb) return;
+  var a = (document.getElementById('agCaPass1') || {}).value || '';
+  var b = (document.getElementById('agCaPass2') || {}).value || '';
+  if(a.length < 8){ agCaDi('agCaMsgPass', 'La contraseña necesita al menos 8 caracteres.', true); return; }
+  if(a !== b){ agCaDi('agCaMsgPass', 'Las dos no coinciden. Revise la segunda.', true); return; }
+
+  var btn = document.getElementById('agCaCambiar');
+  if(btn){ btn.disabled = true; btn.textContent = 'Cambiando…'; }
+
+  var fin = function(ok, err){
+    if(btn){ btn.disabled = false; btn.textContent = 'Cambiar contraseña'; }
+    if(ok){
+      agCaDi('agCaMsgPass', 'Lista. Úsela la próxima vez que entre.');
+      ['agCaPass1', 'agCaPass2'].forEach(function(k){ var e = document.getElementById(k); if(e) e.value = ''; });
+    } else agCaDi('agCaMsgPass', err || 'No se pudo cambiar. Inténtelo otra vez.', true);
+  };
+
+  try{
+    var pr = sb.auth.updateUser({password: a});
+    if(pr && typeof pr.then === 'function'){
+      pr.then(function(r){ (r && r.error) ? fin(false, r.error.message) : fin(true); },
+              function(e){ fin(false, (e && e.message) || null); });
+    } else fin(true);
+  }catch(e){ fin(false, e.message); }
+};
+
+/* la salida es EXACTAMENTE la del estudiante: cierra las dos
+   sesiones y la local aunque la nube falle */
+window.agCaSalir = function(){
+  try{ agCaCerrar(); }catch(e){}
+  if(typeof agCtaSalir === 'function') return agCtaSalir();
+  if(!confirm('¿Cerrar su sesión?')) return;
+  try{ if(typeof logout === 'function') logout(); }catch(e){}
+  try{ if(typeof router === 'function') router(); }catch(e){}
+};
+
 </script>
+
+
 
 
 
