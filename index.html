@@ -5638,6 +5638,100 @@ router();
   };
 })();
 </script>
+
+<script>
+/* ============================================================
+   REFLEXIÓN DEL MÓDULO — Curso 3 (Reproducción)
+   ------------------------------------------------------------
+   Mismo mecanismo que la reflexión de Porcicultura (tabla
+   consultas, tipo 'reflexion'), pero implementado aparte para
+   no tocar ni arriesgar el de Porcicultura: DOM distinto
+   (#rpMain, sin mount()/goto()) y curso propio en la fila, así
+   "¿ya reflexionó este módulo?" no se cruza entre los dos cursos
+   aunque compartan el mismo número de módulo.
+   ============================================================ */
+(function(){
+  if(!window.SB) return;
+  var sb = window.SB;
+
+  var REFLEXRP = {
+    1:'¿Cómo detecta hoy el celo en su granja: con qué frecuencia revisa y si tiene verraco a mano? ¿Qué va a cambiar después de este módulo?',
+    2:'De las seis fechas de la ficha (destete, celo, servicio, diagnóstico, parto, destetados), ¿cuáles anota hoy y cuáles no? ¿Cuál va a empezar a anotar esta semana?',
+    3:'Piense en su última marrana servida. ¿Confirmó el reflejo de inmovilidad, o se guió por la vulva hinchada o porque montaba a otras? Sea honesto.',
+    4:'¿Su granja revisa el celo una o dos veces al día? Si es una, ¿qué le impide pasar a dos, y qué necesitaría para lograrlo?',
+    5:'¿Cómo llegan y se conservan hoy las dosis de semen en su granja, desde que las recibe hasta que las usa? ¿Dónde ve el punto más débil?',
+    6:'¿Reagrupa o traslada marranas recién servidas? Después de este módulo, ¿qué va a esperar antes de hacerlo?',
+    7:'¿Con qué método diagnostica hoy la gestación, y en qué momento lo hace? Si hoy no diagnostica, ¿qué le cuesta más: empezar con retorno al celo o con ecografía?',
+    8:'Piense en la última marrana que le "falló". ¿Por cuál pregunta del árbol de diagnóstico habría empezado a revisar, y llegó a hacerlo?',
+    9:'¿Sabe cuál es hoy el intervalo destete-celo promedio de su granja? Si no lo sabe, ¿qué le falta anotar para poder calcularlo en el próximo destete?',
+    10:'Con lo que vio en este curso, ¿en qué parte del recorrido —del celo al parto— cree que su granja pierde más días no productivos? ¿Qué va a medir primero?'
+  };
+
+  function rpMiId(){ return (typeof SESSION!=='undefined' && SESSION && SESSION.id) || null; }
+  function rpMiNombre(){ try{ var s=curStudent(); return (s&&s.name)||'Estudiante'; }catch(e){ return 'Estudiante'; } }
+
+  async function yaReflexionoRp(mod){
+    var uid=rpMiId(); if(!uid) return null;
+    var r=await sb.from('consultas').select('id,cuerpo,created_at')
+      .eq('user_id',uid).eq('tipo','reflexion').eq('modulo',mod).eq('curso','reproduccion').limit(1);
+    return (r.data&&r.data[0])||null;
+  }
+
+  window.rfEnviarRp = async function(mod){
+    var t=document.getElementById('rfrTxt'); if(!t) return;
+    var cue=(t.value||'').trim();
+    if(cue.length<40){ toast('Desarrolle un poco más su respuesta: es lo que hace útil la reflexión','✍️'); return; }
+    var r=await sb.from('consultas').insert({
+      user_id:rpMiId(), autor:rpMiNombre(), modulo:mod, tipo:'reflexion', curso:'reproduccion',
+      visibilidad:'publica', estado:'abierta',
+      titulo:'Reflexión · Reproducción · Módulo '+String(mod).padStart(2,'0'),
+      cuerpo:cue });
+    if(r.error){ toast('No se pudo enviar: '+r.error.message,'⛔'); return; }
+    toast('Reflexión compartida. El instructor la leerá y comentará.','🧠');
+    pintarReflexionRp(mod, {cuerpo:cue, created_at:new Date().toISOString()});
+  };
+
+  function pintarReflexionRp(mod, hecha){
+    var cont=document.getElementById('rfrBox'); if(!cont) return;
+    if(hecha){
+      cont.innerHTML='<div class="rf-hecha"><div class="rf-ico">✅</div><div>'+
+        '<b>Ya compartió su reflexión de este módulo</b>'+
+        '<p>'+esc(hecha.cuerpo)+'</p>'+
+        '<span class="nx-cap">El instructor puede comentarla desde el panel de consultas.</span>'+
+        '</div></div>';
+    } else {
+      cont.innerHTML='<textarea id="rfrTxt" placeholder="Escriba su punto de vista. No hay respuesta correcta: lo que cuenta es que lo piense con su granja en la cabeza."></textarea>'+
+        '<div class="rf-pie"><span>Se publicará en el foro con su nombre, para que el instructor pueda comentarla.</span>'+
+        '<button class="btn btn-primary" onclick="rfEnviarRp('+mod+')">Compartir mi reflexión</button></div>';
+    }
+  }
+
+  /* inserta la sección justo DESPUÉS del examen del módulo, dentro de #rpMain */
+  if(typeof window.rpPinta === 'function'){
+    var _rpPinta = window.rpPinta;
+    window.rpPinta = function(){
+      _rpPinta.apply(this, arguments);
+      var mod = (typeof RPCUR !== 'undefined') ? RPCUR : 0;
+      if(!mod || !REFLEXRP[mod]) return;
+      var wrap = document.querySelector('#rpMain .nx-wrap'); if(!wrap) return;
+      var examen = document.getElementById('rpex-'+mod); if(!examen) return;
+      var examSec = examen.closest('section.nx-b') || examen.parentNode;
+
+      var s=document.createElement('section');
+      s.className='nx-b rv in';
+      s.innerHTML='<h3>Ahora piénselo con su granja en la cabeza</h3>'+
+        '<p class="nx-cap">'+esc(REFLEXRP[mod])+'</p>'+
+        '<div class="rf" id="rfrBox"><div class="rf-cargando">Cargando…</div></div>';
+
+      if(examSec && examSec.nextSibling) wrap.insertBefore(s, examSec.nextSibling);
+      else if(examSec) wrap.appendChild(s);
+
+      yaReflexionoRp(mod).then(function(h){ pintarReflexionRp(mod,h); });
+    };
+  }
+})();
+</script>
+
 <style>
 /* ===== mercado: precio del kilo por provincia + noticias ===== */
 .mk-ov{position:fixed;inset:0;z-index:9000;background:var(--bg);overflow-y:auto;
@@ -14068,7 +14162,26 @@ var RPMOD = [
   ['Destetar es quitar el freno', 'Ahí empieza a correr el reloj que usted va a medir en el módulo 09.']]},
 
  {k:'alerta', tipo:'tip', ico:'🩺', t:'Hasta aquí llega usted, desde aquí llega el veterinario',
-  p:'Entender la fisiología le permite <b>observar mejor y registrar mejor</b>. No le permite diagnosticar enfermedades ni indicar hormonas. Cualquier tratamiento hormonal, cualquier sospecha de infección y cualquier problema reproductivo que se repita en el lote <b>se consulta con un veterinario</b>, y se consulta con los registros en la mano — que es justamente lo que usted va a montar en el módulo siguiente.'}
+  p:'Entender la fisiología le permite <b>observar mejor y registrar mejor</b>. No le permite diagnosticar enfermedades ni indicar hormonas. Cualquier tratamiento hormonal, cualquier sospecha de infección y cualquier problema reproductivo que se repita en el lote <b>se consulta con un veterinario</b>, y se consulta con los registros en la mano — que es justamente lo que usted va a montar en el módulo siguiente.'},
+
+ {k:'agcards', t:'Las cuatro hormonas, una tarjeta cada una',
+  p:'Si se le olvida todo lo demás, que no se le olvide esto: quién manda en cada momento.',
+  l:[
+   ['🌱','FSH','Hace crecer los folículos en el ovario. Mientras crecen, producen estrógeno.'],
+   ['🌸','Estrógeno','Provoca todo lo que usted ve por fuera: vulva, inquietud, y al final el reflejo de inmovilidad.'],
+   ['⚡','LH','El pico que ordena la ovulación. Llega después de que el estrógeno toca su punto más alto.'],
+   ['🛡️','Progesterona','La hormona de la calma. Mantiene la gestación y bloquea la aparición de un nuevo celo.']
+  ]},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['🔑','El celo lo produce el estrógeno','Todo lo que usted ve por fuera viene de los folículos que están creciendo, antes de que ovule.'],
+   ['👁️','La ovulación no se ve','Ocurre después de que empieza el celo. Usted la deduce con el criterio del módulo 04, no la observa.'],
+   ['🌡️','El calor pesa más aquí','Apaga los signos de celo, afecta los embriones en los primeros días y alarga el destete-celo.'],
+   ['📋','Sin registro no hay diagnóstico','Todo lo que este curso calcula después nace de las fechas que usted anote desde el módulo 02.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'La próxima vez que vea una marrana inquieta o con la vulva cambiada, no la sirva todavía: apunte la hora y espere a confirmar el reflejo de inmovilidad. Esa sola costumbre evita el error de servicio más común del país.'}
 ]},
 
 /* ============================= 02 ============================= */
@@ -14114,7 +14227,29 @@ var RPMOD = [
   ['Revise la ficha una vez por semana', 'Busque servicios sin diagnóstico, celos sin servicio y partos sin registrar. Media hora semanal le ahorra el trimestre.']]},
 
  {k:'alerta', tipo:'crit', ico:'✏️', t:'Los tres errores de registro que arruinan los números',
-  p:'<b>Uno:</b> anotar la fecha de servicio pero no la del celo — así nunca se puede evaluar si el momento fue el correcto. <b>Dos:</b> registrar solo los servicios que salieron bien, que es como medir la puntería contando solo los aciertos. <b>Tres:</b> cambiar de criterio a mitad de camino (un mes se anota el primer servicio y otro mes el último). Un registro inconsistente es peor que no tener registro, porque da confianza falsa.'}
+  p:'<b>Uno:</b> anotar la fecha de servicio pero no la del celo — así nunca se puede evaluar si el momento fue el correcto. <b>Dos:</b> registrar solo los servicios que salieron bien, que es como medir la puntería contando solo los aciertos. <b>Tres:</b> cambiar de criterio a mitad de camino (un mes se anota el primer servicio y otro mes el último). Un registro inconsistente es peor que no tener registro, porque da confianza falsa.'},
+
+ {k:'aglinea', t:'La ficha, en el momento exacto de cada evento',
+  p:'El mismo recorrido de todas sus marranas. Cada flecha es un dato que se anota ahí mismo, no "después".',
+  l:[
+   ['Destete','Fecha exacta. Arranca el reloj del intervalo destete-celo.'],
+   ['Celo detectado','Fecha y hora. Decide cuándo se sirve.'],
+   ['Servicio','Fecha, hora y dosis usada. De aquí sale la fecha probable de parto.'],
+   ['Diagnóstico de gestación','Separa "no quedó" de "se perdió".'],
+   ['Parto','Nacidos totales, vivos, muertos y momificados.'],
+   ['Destete de la camada','Cierra el ciclo y abre el siguiente.']
+  ],
+  pie:'Seis eventos, seis fechas. Si a su granja le falta una, ya sabe cuál montar primero esta semana.'},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['📝','Sin fechas no hay diagnóstico','Todo lo que este curso calcula sale de cinco o seis fechas apuntadas a tiempo.'],
+   ['🕐','La hora no es un capricho','Diez horas de diferencia caen justo donde se decide si el servicio llega a tiempo.'],
+   ['📅','Una fila por servicio, no por marrana','Una marrana puede tener varios servicios en celos distintos.'],
+   ['🔁','Revise la ficha una vez por semana','Media hora semanal le ahorra el trimestre completo.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Monte hoy mismo la lista de sus marranas con su identificación y número de parto. Si alguna no está identificada, ese es el primer trabajo antes de anotar nada más: sin ID no hay historial.'}
 ]},
 
 /* ============================= 03 ============================= */
@@ -14169,7 +14304,30 @@ var RPMOD = [
 
  {k:'prosa', t:'Cuando el problema no es la marrana', p:[
   'Antes de concluir que un lote «no está entrando en celo», hay que descartar que el problema sea de detección. Son dos cosas distintas y se corrigen de maneras opuestas.',
-  'Una pista práctica: si las marranas que <b>sí</b> se detectan quedan gestantes con normalidad, pero hay muchas que «no aparecen», el problema huele a detección. Si las que se detectan también fallan, el problema es otro y probablemente hay que llamar al veterinario. En el módulo 08 se trabaja ese árbol completo.']}
+  'Una pista práctica: si las marranas que <b>sí</b> se detectan quedan gestantes con normalidad, pero hay muchas que «no aparecen», el problema huele a detección. Si las que se detectan también fallan, el problema es otro y probablemente hay que llamar al veterinario. En el módulo 08 se trabaja ese árbol completo.']},
+
+ {k:'agcomp', t:'Celo real, contra señales que pueden confundirlo',
+  p:'El signo que manda es uno solo. Los demás avisan, pero no autorizan a servir.',
+  bt:'Esto SÍ es celo', bien:[
+   'Se queda quieta y firme al presionarle el lomo (reflejo de inmovilidad)',
+   'Acepta la monta del verraco, orientándose hacia él',
+   'Orejas rígidas y mirada fija mientras dura la presión'],
+  mt:'Esto puede confundirlo', mal:[
+   'Vulva hinchada y enrojecida — puede ser proestro, todavía no es el momento',
+   'Monta a otras marranas — es proestro, no celo',
+   'Inquietud y vocalización sola, sin reflejo de inmovilidad',
+   'Secreción con mal olor o con pus — eso no es celo, es un problema para consultar'],
+  pie:'Ante la duda, no sirva todavía: marque, traiga el verraco y confirme en pocas horas.'},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['🐗','El verraco no es opcional','Su presencia amplifica todos los signos. Sin él, usted lee a medio volumen.'],
+   ['🕗','Una revisión al día no alcanza','Dos pasadas, mañana y tarde, siempre a la misma hora, es la práctica estándar.'],
+   ['🌡️','El calor apaga los signos','En temporada caliente, revise más temprano, más tarde y con más cuidado.'],
+   ['🔍','Detección o marranas, no lo mismo','Si las detectadas sí quedan gestantes, el problema es de rutina, no del hato.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Fije un horario exacto para las dos revisiones diarias (por ejemplo 7:00 a.m. y 4:00 p.m.) y péguelo en la pared del galpón. La consistencia del horario es lo que hace comparables sus datos de un mes a otro.'}
 ]}
 ];
 
@@ -14928,7 +15086,29 @@ RPMOD.push(
 
  {k:'prosa', t:'Primerizas y multíparas no se manejan igual', p:[
   'La primeriza suele tener un celo más corto y a veces menos evidente. Eso significa dos cosas prácticas: <b>se le detecta con más facilidad si se le presta más atención</b>, y el margen para decidir el servicio es más estrecho.',
-  'En granjas donde primerizas y multíparas se manejan exactamente igual, casi siempre son las primerizas las que acumulan las repeticiones. Si sus números muestran eso, no busque enfermedad: revise primero si les está aplicando el mismo criterio de momento a dos grupos que no se comportan igual.']}
+  'En granjas donde primerizas y multíparas se manejan exactamente igual, casi siempre son las primerizas las que acumulan las repeticiones. Si sus números muestran eso, no busque enfermedad: revise primero si les está aplicando el mismo criterio de momento a dos grupos que no se comportan igual.']},
+
+ {k:'agcomp', t:'Dos formas de leer el mismo celo',
+  p:'No es la misma incertidumbre, y por eso no se decide igual.',
+  bt:'Con dos revisiones al día', bien:[
+   'La ventana de incertidumbre sobre el inicio es corta',
+   'Usted sabe si el celo está al principio, a la mitad o al final',
+   'El protocolo de su granja se aplica con confianza'],
+  mt:'Con una sola revisión al día', mal:[
+   'La marrana puede llevar hasta 24 horas en celo sin que usted lo sepa',
+   'El momento óptimo del servicio puede haber pasado ya',
+   'Hay que tratarla como "más avanzada de lo que parece", no como recién empezada'],
+  pie:'Subir a dos revisiones diarias es, muchas veces, la mejora más barata que existe en una granja.'},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['🎯','El criterio, no el reloj','El momento se cuenta desde que EMPEZÓ el celo, no desde que usted lo vio.'],
+   ['🩺','El protocolo lo define su técnico','Cada protocolo comercial está calibrado para un sistema. El que aplica es el de su granja.'],
+   ['🚩','Confirme antes de servir','Reflejo de inmovilidad con verraco presente. Servir sobre un signo dudoso es tirar una dosis.'],
+   ['📝','Anote todo, aunque no sirva','Hora de detección, hora de cada servicio, y si seguía en celo al día siguiente.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Sea cual sea su protocolo, aplíquelo por igual a todo el lote esta semana y anote la hora de detección de cada una. En un mes va a poder ver si las primerizas concentran las repeticiones.'}
 ]},
 
 /* ============================= 05 ============================= */
@@ -14980,7 +15160,31 @@ RPMOD.push(
   ['Use dentro del plazo que indica el proveedor', 'Y anote en la ficha la identificación de la dosis usada en cada servicio.']]},
 
  {k:'alerta', tipo:'tip', ico:'🩺', t:'Lo que decide el veterinario',
-  p:'Las cantidades, los tiempos, el número de servicios por celo y cualquier uso de hormonas <b>los define el veterinario o el técnico responsable de su granja</b>, con sus animales y su sistema. Este curso le enseña a ejecutar bien y a detectar cuándo algo va mal; no le indica dosificaciones ni tratamientos.'}
+  p:'Las cantidades, los tiempos, el número de servicios por celo y cualquier uso de hormonas <b>los define el veterinario o el técnico responsable de su granja</b>, con sus animales y su sistema. Este curso le enseña a ejecutar bien y a detectar cuándo algo va mal; no le indica dosificaciones ni tratamientos.'},
+
+ {k:'agcomp', t:'Dosis bien manejada, contra dosis en riesgo',
+  p:'Ninguno de estos fallos se ve el día que ocurre. Se ve tres semanas después, cuando la marrana repite.',
+  bt:'Dosis bien manejada', bien:[
+   'Llega con la temperatura correcta y se revisa antes de aceptar el lote',
+   'Se guarda en el conservador, que se abre lo menos posible',
+   'Se saca solo la que se va a usar en el momento',
+   'Se manipula con suavidad, sin golpes ni cambios bruscos de temperatura'],
+  mt:'Dosis en riesgo', mal:[
+   'Llegó con la temperatura fuera de rango y se usó igual',
+   'Queda "esperando" fuera del conservador mucho rato',
+   'Se sacan todas las del día de una vez, al empezar la jornada',
+   'Se agita o se golpea al transportarla'],
+  pie:'La ficha del módulo 02 registra la identificación del lote: es lo único que le permite rastrear una falla después.'},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['🔗','No es la IA, es la cadena','Casi nunca falla el método. Falla algún eslabón: recepción, conservación, higiene o registro.'],
+   ['💧','El reflujo repetido es técnica','Si aparece siempre con la misma persona, se corrige entrenando, no cambiando de proveedor.'],
+   ['🌡️','El calor es el riesgo grande aquí','Dosis en el carro o en el pasillo se dañan antes de llegar a la marrana.'],
+   ['🩺','Cantidades y protocolo, del veterinario','Este módulo enseña a ejecutar bien, no a indicar dosis ni tratamientos.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Pegue la hoja de indicaciones del proveedor de semen junto al conservador, no en una gaveta. Es el dato que más rápido se pierde y el que más cuesta cuando falta.'}
 ]},
 
 /* ============================= 06 ============================= */
@@ -15018,7 +15222,26 @@ RPMOD.push(
    ['Los días siguientes al servicio', 'Tranquilidad, agua, sombra', 'Reagrupar, trasladar, vacunar sin necesidad'],
    ['Período de implantación', 'Ambiente estable, mínima intervención', 'Peleas, estrés térmico, cambios bruscos de dieta'],
    ['Gestación media', 'Controlar condición corporal, observar', 'Engordarla de más'],
-   ['Últimas semanas', 'Preparar traslado a maternidad sin prisas', 'Movimientos bruscos y traslados de último momento']]}
+   ['Últimas semanas', 'Preparar traslado a maternidad sin prisas', 'Movimientos bruscos y traslados de último momento']]},
+
+ {k:'aglinea', t:'Los días que más pesan, en orden',
+  p:'El mismo período de la tabla anterior, visto como un recorrido. Entre más cerca del servicio, más frágil.',
+  l:[
+   ['Días siguientes al servicio','Tranquilidad, agua y sombra. No reagrupar ni trasladar.','máxima fragilidad'],
+   ['Período de implantación','Ambiente estable. Cada susto tiene precio y no se ve ese día.','crítico'],
+   ['Gestación media','Controlar condición corporal sin engordarla de más.','más estable'],
+   ['Últimas semanas','Preparar el traslado a maternidad con calma.','preparación']
+  ]},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['👻','La camada se decide antes de notarse','Lo que pasa en los días vulnerables no avisa: solo se ve una camada más chica.'],
+   ['🥊','No reagrupe recién servidas','Peleas y estrés justo en el peor momento cuestan embriones.'],
+   ['🌡️','El calor es el enemigo más difícil','Sombra real, agua fresca y mover el manejo pesado a horas frescas.'],
+   ['⚖️','Ni flaca ni gorda','La condición al servicio condiciona todo el ciclo, incluido el intervalo destete-celo.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Revise el calendario de servicios de los últimos tres meses. Si las camadas de los servicios hechos en temporada caliente salieron más chicas, ya sabe por dónde empezar a corregir.'}
 ]},
 
 /* ============================= 07 ============================= */
@@ -15057,7 +15280,24 @@ RPMOD.push(
   ['En cualquier tamaño', 'Lo que no se negocia es <b>anotar el resultado en la ficha</b>. Un diagnóstico que no se registra no sirve para calcular nada después.']]},
 
  {k:'alerta', tipo:'tip', ico:'🩺', t:'La ecografía la interpreta quien sabe',
-  p:'Un ecógrafo en manos sin entrenamiento da falsos positivos y falsos negativos, y las dos cosas cuestan dinero. Si va a incorporarlo, incorpore también la capacitación. Y cualquier hallazgo anormal —líquido, contenido que no corresponde— <b>se consulta con el veterinario</b>, no se interpreta por cuenta propia.'}
+  p:'Un ecógrafo en manos sin entrenamiento da falsos positivos y falsos negativos, y las dos cosas cuestan dinero. Si va a incorporarlo, incorpore también la capacitación. Y cualquier hallazgo anormal —líquido, contenido que no corresponde— <b>se consulta con el veterinario</b>, no se interpreta por cuenta propia.'},
+
+ {k:'agdatos', t:'Cuánto cuesta no diagnosticar, en días',
+  p:'La diferencia entre las dos cifras es exactamente lo que vale un buen diagnóstico de gestación.',
+  l:[
+   ['21 días','pérdida corta','si el retorno al celo se revisa a tiempo'],
+   ['~114 días','pérdida larga','si recién se descubre vacía en la fecha del parto']
+  ]},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['💸','Cada día de retraso cuesta','Una marrana vacía sin diagnosticar sigue comiendo y ocupando corral sin producir nada.'],
+   ['🆓','El primer método no cuesta nada','El retorno al celo solo necesita la rutina de detección y la ficha ya montadas.'],
+   ['❓','Un "no repitió" es débil','Puede estar gestante, o puede haber repetido sin que usted lo detectara.'],
+   ['📋','Sin registro, no sirve','Un diagnóstico que no se anota no se puede usar para calcular nada después.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Marque en su calendario la fecha del próximo ciclo de cada marrana recién servida. Ese día, revísela: es el diagnóstico que no le cuesta nada.'}
 ]}
 
 );
@@ -15308,7 +15548,18 @@ RPMOD.push(
   ['Mire el grupo', 'Si se concentran en primerizas, revise el criterio de momento y de selección antes de sospechar enfermedad.']]},
 
  {k:'alerta', tipo:'tip', ico:'📋', t:'Cómo llamar al veterinario para que la visita sirva',
-  p:'Llegue con: las fechas de servicio y de retorno de cada caso, el número de parto de cada marrana, los lotes de semen usados, qué días hizo más calor, quién inseminó, y el diagnóstico de gestación si lo hubo. <b>Con esos datos una visita resuelve; sin ellos, la visita es una conversación.</b> Ese es el verdadero valor de la ficha del módulo 02.'}
+  p:'Llegue con: las fechas de servicio y de retorno de cada caso, el número de parto de cada marrana, los lotes de semen usados, qué días hizo más calor, quién inseminó, y el diagnóstico de gestación si lo hubo. <b>Con esos datos una visita resuelve; sin ellos, la visita es una conversación.</b> Ese es el verdadero valor de la ficha del módulo 02.'},
+
+ {k:'agcards', t:'Los cuatro árboles, de un vistazo',
+  p:'Todos empiezan igual: descartando el problema de observación y de registro antes de sospechar de la marrana.',
+  l:[
+   ['1️⃣','No entra en celo','Revise observación, destete, condición corporal, agua, calor y contacto con verraco antes de sospechar del animal.'],
+   ['2️⃣','No quedó gestante','Momento del servicio, manejo de la dosis, reflujo, higiene y condición corporal, en ese orden.'],
+   ['3️⃣','Repite el celo','La fecha del retorno dice si no hubo fecundación o si hubo pérdida después.'],
+   ['4️⃣','Abortó','Aquí usted no diagnostica: registra, conserva la evidencia y llama al veterinario.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Arme hoy una hoja con las preguntas del Árbol 1 y el Árbol 2. La próxima vez que algo falle, revísela antes de sospechar del semen o de las marranas.'}
 ]},
 
 /* ============================= 09 ============================= */
@@ -15343,7 +15594,27 @@ RPMOD.push(
  {k:'prosa', t:'Días no productivos: donde se acumula la pérdida', p:[
   'Una marrana en el año está en uno de tres estados: gestante, lactando, o <b>ninguna de las dos</b>. Ese tercer estado son los días no productivos, y es donde se va la plata sin que nadie lo vea, porque no hay ningún evento que lo señale.',
   'Los días no productivos vienen de tres sitios: intervalos destete-celo largos, repeticiones, y marranas vacías descubiertas tarde. Los tres se atacan con lo que enseñan los módulos 03, 07 y 09 de este curso.',
-  'Y son caros de una manera muy concreta: <b>cada día no productivo cuesta lo que cuesta mantener una marrana un día</b>. Ese número usted lo puede sacar, y la calculadora de este módulo lo traduce a pesos y a lote.']}
+  'Y son caros de una manera muy concreta: <b>cada día no productivo cuesta lo que cuesta mantener una marrana un día</b>. Ese número usted lo puede sacar, y la calculadora de este módulo lo traduce a pesos y a lote.']},
+
+ {k:'aglinea', t:'Destete → celo → servicio, con lo que puede alargar cada tramo',
+  p:'El mismo recorrido que da nombre al módulo. Cada tramo tiene su propia lista de sospechosos.',
+  l:[
+   ['Destete','Anote la fecha exacta: el día que se quitaron los lechones, no el día en que usted lo apuntó.','día 0'],
+   ['Días siguientes','Puede alargarse por salir flaca de lactancia, calor, falta de agua o comida, o lactancia muy corta.','se vigila'],
+   ['Celo','Revise todos los días, no cada dos. Con contacto de verraco se expresa mejor.','se mide aquí'],
+   ['Servicio','Reste fecha de celo menos fecha de destete: ese es su intervalo destete-celo.','cierra el ciclo']
+  ],
+  pie:'Su referencia útil es su propio promedio del trimestre pasado, medido igual — no el número de una revista de otro país y otro clima.'},
+
+ {k:'agcards', t:'Lo que se lleva de este módulo',
+  l:[
+   ['🌡️','El termómetro de la lactancia','Una marrana que salió bien de lactar vuelve pronto al celo. Una agotada, tarda.'],
+   ['🔍','No hay número bueno universal','Mídase contra usted mismo, con su propio promedio del trimestre pasado.'],
+   ['👀','El promedio esconde','Mire también las que se salen: son casi siempre el verdadero problema.'],
+   ['💰','Tres orígenes de días no productivos','Destete-celo largo, repeticiones, y vacías descubiertas tarde. Los tres se atacan con este curso.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo esta semana en su granja',
+  p:'Anote la fecha de destete de cada marrana que desteta esta semana, y revísele el celo todos los días desde entonces, sin saltarse ninguno.'}
 ]},
 
 /* ============================= 10 ============================= */
@@ -15375,7 +15646,33 @@ RPMOD.push(
   'Una advertencia que vale para todos: <b>compárelos consigo mismo</b>. Su tasa de parto de este trimestre contra la del trimestre pasado, medida igual, le dice mucho más que compararse con el número de una revista de otro país y otro clima.']},
 
  {k:'alerta', tipo:'crit', ico:'💰', t:'Dónde está el dinero, en una frase',
-  p:'La reproducción no se pierde en el parto: se pierde en los <b>días en que la marrana no está ni gestante ni lactando</b>. Celos no detectados, servicios a destiempo, repeticiones y vacías descubiertas tarde. Los cuatro producen lo mismo —días no productivos— y los cuatro se atacan con lo que usted ya aprendió en este curso. La última calculadora le pone el precio.'}
+  p:'La reproducción no se pierde en el parto: se pierde en los <b>días en que la marrana no está ni gestante ni lactando</b>. Celos no detectados, servicios a destiempo, repeticiones y vacías descubiertas tarde. Los cuatro producen lo mismo —días no productivos— y los cuatro se atacan con lo que usted ya aprendió en este curso. La última calculadora le pone el precio.'},
+
+ {k:'aglinea', t:'El mapa de una buena reproducción',
+  p:'Los nueve pasos que recorrió en este curso, en el orden en que pasan dentro de su granja. Una falla en cualquiera de ellos golpea todo lo que viene después.',
+  l:[
+   ['Marrana preparada','Condición corporal correcta, ni flaca ni gorda, saliendo bien de la lactancia.','módulo 01 y 06'],
+   ['Celo bien detectado','Reflejo de inmovilidad confirmado, con verraco, dos revisiones al día.','módulo 03'],
+   ['Servicio en el momento adecuado','El criterio de cuándo, no la hora del reloj.','módulo 04'],
+   ['Buena inseminación','Dosis bien manejada, higiene, técnica sin prisa.','módulo 05'],
+   ['Gestación cuidada','Sin peleas, sin traslados ni sustos en los días vulnerables.','módulo 06'],
+   ['Diagnóstico a tiempo','Retorno al celo o ecografía, pero siempre registrado.','módulo 07'],
+   ['Parto acompañado','Maternidad preparada con tiempo, intervención mínima.','este módulo'],
+   ['Lechones registrados','Nacidos totales, vivos, muertos y momificados, cada uno anotado.','este módulo'],
+   ['Rentabilidad','Menos días no productivos, más partos al año, más kilos vendibles.','el resultado']
+  ],
+  pie:'Si un número no le gusta al final del recorrido, no se mira solo el último paso: se revisa la cadena completa desde el principio.'},
+
+ {k:'agcards', t:'Lo que se lleva de este curso',
+  l:[
+   ['👁️','Ahora sabe qué mirar','El reflejo de inmovilidad, no la vulva ni la monta a otras.'],
+   ['⏱️','Ahora sabe cuándo actuar','El criterio del momento del servicio, no un número fijo de horas.'],
+   ['📋','Ahora sabe qué registrar','Seis fechas por marrana, anotadas en el momento, no "después".'],
+   ['🔎','Ahora sabe dónde puede estar el problema','Cuatro árboles de diagnóstico que empiezan siempre por lo más barato de revisar.'],
+   ['💰','Ahora entiende el dinero','Se pierde en los días no productivos, no en el parto.']
+  ]},
+ {k:'agnota', tipo:'campo', nt:'Aplíquelo desde el lunes',
+  p:'Abra su ficha de cubrición y empiece a anotar. No es otro curso: es el primer hábito que sostiene a todos los demás.'}
 ]}
 
 );
@@ -17763,6 +18060,292 @@ window.agOtraVez = function(){
   var poner = function(){ (document.head || document.documentElement).appendChild(s); };
   if(document.head) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
+
+
+/* ---------- ag-color.js ---------- */
+/* ============================================================
+   UN COLOR POR SIGNIFICADO
+   ------------------------------------------------------------
+   EL PROBLEMA, CONTADO
+
+       202 colores distintos en el documento
+       216 rgba() sueltos
+       179 degradados
+
+   No es que haya muchos colores: es que el mismo color dice
+   cosas distintas y cosas distintas se dicen con el mismo color.
+   El verde #2F7D4F aparece 156 veces y hace de botón primario,
+   de «aprobado» y de barra de avance a la vez. Cuando todo es
+   verde, el verde deja de significar nada, y el ojo tiene que
+   leer el texto para saber qué está mirando — que es justo lo
+   que el color debía ahorrarle.
+
+   Y al revés: hay cinco rojos (#B03A2E, #C6402E, #B3261E,
+   #8E2C2C, #C23B3B) para una sola idea, error. Cinco tonos que
+   el ojo registra como cinco cosas y son una.
+
+   EL SISTEMA: SIETE PAPELES, NI UNO MÁS
+
+   Cada uno tiene UN color y ese color no hace nada más.
+
+     información   lo que se lee, no un estado
+     acción        lo que el usuario puede pulsar
+     progreso      cuánto lleva — una cantidad, no un juicio
+     éxito         terminado, aprobado, concedido
+     advertencia   mírame, pero no pasa nada malo
+     error         algo salió mal o va a romperse
+     bloqueado     todavía no es suyo
+
+   LAS DOS SEPARACIONES QUE MÁS ARREGLAN
+
+   1. BLOQUEADO NO ES ERROR. Un curso que no ha comprado no es
+      un fallo suyo ni del sistema. Pintarlo de rojo —o de
+      cualquier color de alarma— le dice al estudiante que algo
+      va mal cuando lo que pasa es que hay algo más que puede
+      tener. Bloqueado es neutro, con el ámbar del candado
+      encima: cerrado, no roto.
+
+   2. PROGRESO NO ES ÉXITO. Una barra al 40 % no es un logro a
+      medias: es una cantidad. Si comparte color con «aprobado»,
+      media barra verde parece media aprobación. El progreso va
+      en salvia, que es cantidad; el éxito en verde, que es
+      juicio. Cuando la barra se llena, cambia a verde — y ese
+      cambio de color ES la información.
+
+   LA ESCALA DE GRÁFICOS
+
+   Seis tonos y se acabó. Repartidos en la rueda para que se
+   distingan, y —esto es lo que se suele saltar— igualados en
+   claridad, para que ninguno pese más que otro. Una serie más
+   brillante que las demás parece la importante aunque no lo
+   sea: eso es el gráfico mintiendo con el color.
+
+   Los seis cursos toman su identidad de esta misma escala. No
+   hay un color «de Sanidad» y otro «de la serie 4 del gráfico»:
+   es el mismo, y por eso el gráfico se lee sin leyenda.
+
+   FONDO CLARO Y FONDO OSCURO
+
+   Cada papel tiene su valor para cada fondo. No se invierte el
+   color: se elige. Un verde que contrasta sobre tierra oscura
+   se apaga sobre blanco, y al revés — así que van declarados
+   los dos, y manda el tema del documento.
+   ============================================================ */
+
+(function agColorSistema(){
+  if(document.getElementById('agColorSistema')) return;
+  var s = document.createElement('style');
+  s.id = 'agColorSistema';
+  s.textContent = [
+
+    ':root{',
+
+      /* ---------- LOS SIETE PAPELES ---------- *
+       * -c  el color              (relleno, barra, punto)
+       * -t  el texto sobre él     (tinta legible encima)
+       * -s  su superficie tenue   (fondo de insignia, fila)
+       * -b  su borde              (contorno de insignia)
+       */
+
+      /* INFORMACIÓN — no es un estado, es lo que se lee */
+      '--ag-info-c:#C6BCA8;',
+      '--ag-info-t:#14120E;',
+      '--ag-info-s:rgba(233,222,199,.07);',
+      '--ag-info-b:rgba(233,222,199,.18);',
+
+      /* ACCIÓN — lo que se pulsa. Sigue siendo el verde que ya
+         era el botón primario en 156 sitios: cambiarlo habría
+         sido un coste sin ganancia. Lo que cambia es que AHORA
+         SOLO significa esto. */
+      '--ag-accion-c:#2F7D4F;',
+      '--ag-accion-hi:#3C9A63;',
+      '--ag-accion-t:#FFFFFF;',
+      '--ag-accion-s:rgba(47,125,79,.14);',
+      '--ag-accion-b:rgba(47,125,79,.42);',
+
+      /* PROGRESO — una cantidad. Salvia: avanza sin celebrar */
+      '--ag-prog-c:#7D9464;',
+      '--ag-prog-hi:#93A879;',
+      '--ag-prog-t:#10140C;',
+      '--ag-prog-s:rgba(125,148,100,.13);',
+      '--ag-prog-b:rgba(125,148,100,.36);',
+
+      /* ÉXITO — un juicio: terminado, aprobado, concedido */
+      '--ag-exito-c:#5FA97A;',
+      '--ag-exito-hi:#7CC095;',
+      '--ag-exito-t:#0C1710;',
+      '--ag-exito-s:rgba(95,169,122,.14);',
+      '--ag-exito-b:rgba(95,169,122,.40);',
+
+      /* ADVERTENCIA — mírame. El ámbar de la marca */
+      '--ag-aviso-c:#C8912F;',
+      '--ag-aviso-hi:#E0AE52;',
+      '--ag-aviso-t:#1A1206;',
+      '--ag-aviso-s:rgba(200,145,47,.13);',
+      '--ag-aviso-b:rgba(200,145,47,.40);',
+
+      /* ERROR — lo único rojo del sistema. Uno, no cinco */
+      '--ag-error-c:#C4544A;',
+      '--ag-error-hi:#DC7B72;',
+      '--ag-error-t:#1B0B09;',
+      '--ag-error-s:rgba(196,84,74,.13);',
+      '--ag-error-b:rgba(196,84,74,.40);',
+
+      /* BLOQUEADO — cerrado, no roto. Neutro, nunca de alarma */
+      '--ag-bloq-c:#6E675C;',
+      '--ag-bloq-hi:#8A8276;',
+      '--ag-bloq-t:#F0EADC;',
+      '--ag-bloq-s:rgba(110,103,92,.16);',
+      '--ag-bloq-b:rgba(233,222,199,.16);',
+
+      /* ---------- LA ESCALA DE GRÁFICOS ----------
+       * Seis. Repartidos en la rueda y nivelados en claridad,
+       * para que ninguna serie parezca la importante por brillar
+       * más. El orden es el de uso: si un gráfico tiene tres
+       * series, usa las tres primeras y quedan bien separadas. */
+      '--ag-g1:#7D9464;',   /* salvia   */
+      '--ag-g2:#C8912F;',   /* ámbar    */
+      '--ag-g3:#5B93A8;',   /* azul     */
+      '--ag-g4:#C07A52;',   /* terracota*/
+      '--ag-g5:#94799E;',   /* ciruela  */
+      '--ag-g6:#A89A4E;',   /* oliva    */
+
+      /* ---------- LOS SEIS CURSOS ----------
+       * Toman su color de la escala de arriba. Por eso un gráfico
+       * por curso se lee sin leyenda: el color del curso en la
+       * tarjeta es el mismo que en la barra. */
+      '--ag-c-ruta:#C8912F;',          /* Introducción — el gratuito, ámbar de entrada */
+      '--ag-c-porcicultura:#7D9464;',  /* el curso base */
+      '--ag-c-nutricion:#A89A4E;',     /* Formulación */
+      '--ag-c-reproduccion:#94799E;',  /* Reproducción */
+      '--ag-c-sanidad:#5B93A8;',       /* Sanidad */
+      '--ag-c-engorde:#C07A52;',       /* Engorde */
+
+    '}',
+
+    /* ------------------------------------------------------------
+       FONDO CLARO
+       ------------------------------------------------------------
+       No se invierte nada: se vuelven a elegir los valores. Los
+       colores de relleno bajan de claridad para contrastar contra
+       blanco, y las superficies tenues suben de opacidad porque
+       sobre claro un 7 % no se ve.
+       ------------------------------------------------------------ */
+    'body.light,:root[data-tema="claro"]{',
+      '--ag-info-c:#5C554A; --ag-info-t:#FFFFFF;',
+      '--ag-info-s:rgba(26,22,16,.05); --ag-info-b:rgba(26,22,16,.16);',
+
+      '--ag-accion-c:#256A41; --ag-accion-hi:#2F7D4F; --ag-accion-t:#FFFFFF;',
+      '--ag-accion-s:rgba(37,106,65,.10); --ag-accion-b:rgba(37,106,65,.34);',
+
+      '--ag-prog-c:#5E7546; --ag-prog-hi:#6E8754; --ag-prog-t:#FFFFFF;',
+      '--ag-prog-s:rgba(94,117,70,.11); --ag-prog-b:rgba(94,117,70,.32);',
+
+      '--ag-exito-c:#3D8558; --ag-exito-hi:#4C9A69; --ag-exito-t:#FFFFFF;',
+      '--ag-exito-s:rgba(61,133,88,.11); --ag-exito-b:rgba(61,133,88,.34);',
+
+      '--ag-aviso-c:#9A6D14; --ag-aviso-hi:#B5811A; --ag-aviso-t:#FFFFFF;',
+      '--ag-aviso-s:rgba(154,109,20,.11); --ag-aviso-b:rgba(154,109,20,.34);',
+
+      '--ag-error-c:#A63C33; --ag-error-hi:#C4544A; --ag-error-t:#FFFFFF;',
+      '--ag-error-s:rgba(166,60,51,.10); --ag-error-b:rgba(166,60,51,.32);',
+
+      '--ag-bloq-c:#7A7266; --ag-bloq-hi:#635C52; --ag-bloq-t:#FFFFFF;',
+      '--ag-bloq-s:rgba(26,22,16,.06); --ag-bloq-b:rgba(26,22,16,.15);',
+
+      '--ag-g1:#5E7546; --ag-g2:#9A6D14; --ag-g3:#3F7488;',
+      '--ag-g4:#9A5B36; --ag-g5:#725A7C; --ag-g6:#807433;',
+
+      '--ag-c-ruta:#9A6D14; --ag-c-porcicultura:#5E7546; --ag-c-nutricion:#807433;',
+      '--ag-c-reproduccion:#725A7C; --ag-c-sanidad:#3F7488; --ag-c-engorde:#9A5B36;',
+    '}',
+
+    /* ------------------------------------------------------------
+       LAS PIEZAS QUE USAN LOS PAPELES
+       ------------------------------------------------------------
+       Una insignia de estado, una barra de avance y un punto de
+       gráfico. Tres piezas para todo el sistema: si mañana el
+       verde de éxito cambia, cambia en un sitio.
+       ------------------------------------------------------------ */
+
+    /* insignia de estado — misma forma para los siete papeles */
+    '.ag-es{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;',
+      'border-radius:999px;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.11em;text-transform:uppercase;white-space:nowrap;',
+      'border:1px solid var(--ag-info-b);background:var(--ag-info-s);color:var(--ag-info-c)}',
+    '.ag-es::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}',
+    '.ag-es.accion{border-color:var(--ag-accion-b);background:var(--ag-accion-s);color:var(--ag-accion-hi)}',
+    '.ag-es.prog{border-color:var(--ag-prog-b);background:var(--ag-prog-s);color:var(--ag-prog-hi)}',
+    '.ag-es.exito{border-color:var(--ag-exito-b);background:var(--ag-exito-s);color:var(--ag-exito-hi)}',
+    '.ag-es.aviso{border-color:var(--ag-aviso-b);background:var(--ag-aviso-s);color:var(--ag-aviso-hi)}',
+    '.ag-es.error{border-color:var(--ag-error-b);background:var(--ag-error-s);color:var(--ag-error-hi)}',
+    '.ag-es.bloq{border-color:var(--ag-bloq-b);background:var(--ag-bloq-s);color:var(--ag-bloq-hi)}',
+
+    /* barra de avance — salvia mientras avanza, verde al llenarse.
+       Ese cambio de color al 100 % no es adorno: es el dato. */
+    '.ag-barra{display:block;position:relative;width:100%;height:7px;border-radius:999px;overflow:hidden;',
+      'background:var(--ag-info-s);border:1px solid var(--ag-info-b)}',
+    '.ag-barra > i{display:block;height:100%;border-radius:999px;',
+      'background:var(--ag-prog-c);transition:width .5s cubic-bezier(.4,0,.2,1),background .3s}',
+    '.ag-barra.lleno > i{background:var(--ag-exito-c)}',
+    '.ag-barra.vacio > i{background:var(--ag-bloq-c)}',
+
+    /* punto de color para leyendas y listas por curso */
+    '.ag-punto{display:inline-block;width:9px;height:9px;border-radius:50%;',
+      'background:var(--ag-info-c);flex:none;vertical-align:middle}',
+    '.ag-punto.g1{background:var(--ag-g1)}', '.ag-punto.g2{background:var(--ag-g2)}',
+    '.ag-punto.g3{background:var(--ag-g3)}', '.ag-punto.g4{background:var(--ag-g4)}',
+    '.ag-punto.g5{background:var(--ag-g5)}', '.ag-punto.g6{background:var(--ag-g6)}',
+
+    /* el botón: un solo primario por pantalla, y es acción */
+    '.ag-bt{display:inline-flex;align-items:center;justify-content:center;gap:8px;',
+      'padding:11px 18px;border-radius:11px;border:1px solid transparent;cursor:pointer;',
+      'font:inherit;font-size:14.5px;font-weight:600;line-height:1;',
+      'background:var(--ag-accion-c);color:var(--ag-accion-t);',
+      'transition:background .16s,transform .16s,border-color .16s}',
+    '.ag-bt:hover{background:var(--ag-accion-hi)}',
+    '.ag-bt:active{transform:translateY(1px)}',
+    '.ag-bt.suave{background:transparent;color:var(--ag-info-c);border-color:var(--ag-info-b)}',
+    '.ag-bt.suave:hover{border-color:var(--ag-accion-b);color:var(--ag-accion-hi);background:var(--ag-accion-s)}',
+    '.ag-bt.peligro{background:transparent;color:var(--ag-error-hi);border-color:var(--ag-error-b)}',
+    '.ag-bt.peligro:hover{background:var(--ag-error-s)}',
+    '.ag-bt[disabled],.ag-bt.no{background:var(--ag-bloq-s);color:var(--ag-bloq-hi);',
+      'border-color:var(--ag-bloq-b);cursor:not-allowed}',
+
+    /* foco visible, del color de acción: quien va con teclado
+       tiene que ver dónde está sin adivinarlo */
+    '.ag-bt:focus-visible,.ag-es:focus-visible{outline:2px solid var(--ag-accion-hi);outline-offset:2px}'
+
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+/* ------------------------------------------------------------
+   AYUDAS PARA PINTAR — para que las pantallas no repitan HTML
+   ------------------------------------------------------------ */
+
+/* el color del curso, desde la variable: nunca un hex suelto */
+function agColorCurso(id){ return 'var(--ag-c-' + String(id || '').replace(/[^a-z]/gi, '') + ',var(--ag-info-c))'; }
+window.agColorCurso = agColorCurso;
+
+/* una barra de avance que ya sabe cambiar de color al llenarse */
+function agBarraAvance(hechos, total){
+  var h = +hechos || 0, t = +total || 0;
+  var pct = t ? Math.round(h / t * 100) : 0;
+  var cl = (t && h >= t) ? ' lleno' : (h > 0 ? '' : ' vacio');
+  return '<span class="ag-barra' + cl + '" role="img" aria-label="' + h + ' de ' + t + '">' +
+    '<i style="width:' + pct + '%"></i></span>';
+}
+window.agBarraAvance = agBarraAvance;
+
+/* una insignia de estado: el papel decide el color, no quien llama */
+function agEstado(papel, texto){
+  var ok = ['accion', 'prog', 'exito', 'aviso', 'error', 'bloq'];
+  var c = (ok.indexOf(papel) >= 0) ? ' ' + papel : '';
+  return '<span class="ag-es' + c + '">' + String(texto == null ? '' : texto) + '</span>';
+}
+window.agEstado = agEstado;
 
 
 /* ---------- ag-css.js ---------- */
@@ -29024,7 +29607,1785 @@ window.agCaSalir = function(){
   try{ if(typeof router === 'function') router(); }catch(e){}
 };
 
+
+/* ---------- ag-panel.js ---------- */
+/* ============================================================
+   EL PANEL DEL ADMINISTRADOR, COMPACTADO
+   ------------------------------------------------------------
+   El panel había crecido por acumulación: cada tanda añadía su
+   pestaña al final del menú y ninguna quitaba la que ya hacía lo
+   mismo. El resultado eran catorce entradas con cuatro maneras
+   distintas de llegar al mismo sitio.
+
+   La pregunta que ordena esta pieza es una sola: ¿esta función
+   ya existe en otro lado? Donde la respuesta es sí, queda una.
+
+   LO QUE SALE DEL MENÚ, Y A DÓNDE SE VA CADA COSA
+   -----------------------------------------------
+   · «Accesos»             → a la Ficha del estudiante. Había DOS
+     sistemas de acceso: uno por curso (un curso, muchos alumnos)
+     y otro por alumno (un alumno, muchos cursos). Los dos escriben
+     en las MISMAS funciones nxDarAcceso/sbDarAcceso/... así que no
+     eran dos verdades, pero sí dos puertas. Queda la del alumno,
+     que es como se piensa el problema en la práctica: llega uno,
+     paga, se le abre lo suyo.
+
+   · «Vista del estudiante» → a la Ficha, donde ya estaba entera.
+     La columna VISIBILIDAD de la ficha es literalmente la misma
+     pantalla; llamaba a agVisPon igual que el bloque suelto.
+
+   · «Grupos»              → a Configuración, solo renombrar. Un
+     grupo no da acceso a nada (lo decía su propio aviso) y nada
+     del sistema depende de gestionarlos. Pero los nombres SÍ se
+     ven —en la ficha, en los Excel— y cinco se llaman como un
+     curso, así que la única acción con valor real se conserva.
+
+   · «Mercado»             → a Configuración. No es administración
+     de la academia, pero el estudiante tiene un botón que lee lo
+     que se publica ahí: borrarlo del todo dejaba huérfano el botón.
+
+   LA BARRA «GESTIONANDO»
+   ----------------------
+   No se borra: se pone donde significa algo. Es el selector de
+   curso, y hay pantallas que SON de un curso (Módulos, Contenido,
+   Evaluaciones, Progreso, Certificados) y pantallas que son de
+   toda la academia (Dashboard, Cursos, Estudiantes, Ficha). En
+   las segundas la barra no elegía nada: solo pedía una decisión
+   que no hacía falta tomar.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · EL MENÚ QUE QUEDA
+   ------------------------------------------------------------
+   En el orden en que se administra de verdad: primero se mira
+   cómo va todo, luego se trabaja el producto (cursos, contenido,
+   módulos), luego la gente (estudiantes, ficha), luego lo que
+   la gente produce (evaluaciones, progreso, certificados), y al
+   final lo que se toca de vez en cuando.
+   ------------------------------------------------------------ */
+var AGPANELMENU = [
+  ['dashboard', '📊', 'Dashboard'],
+  ['cursos',    '📚', 'Cursos'],
+  ['contenido', '📖', 'Contenido'],
+  ['modules',   '🎬', 'Módulos'],
+  ['students',  '👥', 'Estudiantes'],
+  ['alumno',    '🧑‍🌾', 'Ficha del estudiante'],
+  ['evals',     '📝', 'Evaluaciones'],
+  ['progress',  '📈', 'Progreso'],
+  ['certs',     '🎓', 'Certificados'],
+  ['consultas', '💬', 'Consultas'],
+  ['config',    '⚙️', 'Configuración']
+];
+
+/* las que se van del menú — cada una tiene su destino arriba */
+var AGPANELFUERA = ['acceso', 'vista', 'sections', 'mercado'];
+
+/* las pantallas que SON de un curso: solo ahí manda «Gestionando» */
+var AGPANELPORCURSO = ['contenido', 'modules', 'evals', 'progress', 'certs'];
+
+window.AGPANELMENU = AGPANELMENU;
+window.AGPANELFUERA = AGPANELFUERA;
+window.AGPANELPORCURSO = AGPANELPORCURSO;
+
+/* ------------------------------------------------------------
+   2 · DEJAR EL MENÚ COMO DEBE QUEDAR
+   ------------------------------------------------------------
+   Las pestañas se inyectan tarde y cada una por su cuenta (varias
+   con setTimeout), así que esto no puede ejecutarse una vez y ya:
+   tiene que poder volver a ordenar cuando alguien añade algo.
+   ------------------------------------------------------------ */
+function agPanelOrdena(){
+  var menu = document.getElementById('adminMenu');
+  if(!menu) return false;
+
+  /* fuera las que se fueron */
+  AGPANELFUERA.forEach(function(k){
+    var b = menu.querySelector('[data-t="' + k + '"]');
+    while(b){ b.parentNode.removeChild(b); b = menu.querySelector('[data-t="' + k + '"]'); }
+  });
+
+  /* el bloque de abajo (separador, vista previa, salir) se queda
+     donde está; el orden solo afecta a los botones con data-t */
+  var primerFijo = null;
+  var hijos = Array.prototype.slice.call(menu.children);
+  for(var i = 0; i < hijos.length; i++){
+    if(!hijos[i].hasAttribute || !hijos[i].hasAttribute('data-t')){ primerFijo = hijos[i]; break; }
+  }
+
+  AGPANELMENU.forEach(function(e){
+    var b = menu.querySelector('[data-t="' + e[0] + '"]');
+    if(!b) return;                       /* aún no se ha inyectado: ya llegará */
+    var mi = b.querySelector('.mi');
+    if(mi && mi.textContent !== e[1]) mi.textContent = e[1];
+    menu.insertBefore(b, primerFijo);    /* null = al final, que es lo correcto */
+  });
+  return true;
+}
+window.agPanelOrdena = agPanelOrdena;
+
+(function agPanelVigila(){
+  var arranca = function(){
+    agPanelOrdena();
+    var menu = document.getElementById('adminMenu');
+    if(menu && typeof MutationObserver === 'function'){
+      var ob = new MutationObserver(function(){
+        /* desarmar el observador mientras se reordena, o se llama a sí mismo */
+        ob.disconnect();
+        try{ agPanelOrdena(); }catch(e){}
+        ob.observe(menu, { childList: true });
+      });
+      ob.observe(menu, { childList: true });
+    }
+  };
+  if(document.body) arranca(); else addEventListener('DOMContentLoaded', arranca);
+  [200, 700, 1600, 3000].forEach(function(t){ setTimeout(function(){ try{ agPanelOrdena(); }catch(e){} }, t); });
+})();
+
+/* ------------------------------------------------------------
+   3 · SI ALGUIEN CAE EN UNA PESTAÑA QUE YA NO EXISTE
+   ------------------------------------------------------------
+   ADM.tab se guarda entre sesiones y NXADMTAB también. Un panel
+   que arranca en «acceso» se quedaría con el cuerpo vacío y sin
+   botón encendido, que es la peor forma de fallar: sin síntoma.
+   ------------------------------------------------------------ */
+var AGPANELDESTINO = { acceso: 'alumno', vista: 'alumno', sections: 'config', mercado: 'config' };
+window.AGPANELDESTINO = AGPANELDESTINO;
+
+if(typeof window.admTab === 'function'){
+  var _admTabPanel = window.admTab;
+  window.admTab = function(t){
+    var d = AGPANELDESTINO[t];
+    if(d){
+      if(typeof toast === 'function'){
+        var comoSeLlamaba = { acceso: 'Los accesos', vista: 'La vista del estudiante',
+                              sections: 'Los grupos', mercado: 'El mercado' }[t];
+        var donde = (d === 'alumno') ? 'la Ficha del estudiante' : 'Configuración';
+        toast(comoSeLlamaba + ' ahora se gestionan desde ' + donde, '📍');
+      }
+      t = d;
+    }
+    return _admTabPanel.call(this, t);
+  };
+}
+
+/* ------------------------------------------------------------
+   4 · «GESTIONANDO» SOLO DONDE ELIGE ALGO
+   ------------------------------------------------------------
+   No se desmonta la barra: se esconde. Desmontarla obligaría a
+   volver a montarla al entrar en una pantalla por curso, y ese
+   montaje ya tiene su propio reintento — dos mecanismos para lo
+   mismo es justo lo que esta tanda viene a quitar.
+   ------------------------------------------------------------ */
+function agPanelBarra(){
+  var sw = document.getElementById('ucsw');
+  if(!sw) return;
+  var t = 'dashboard';
+  try{ if(typeof ADM !== 'undefined' && ADM.tab) t = ADM.tab; }catch(e){}
+  sw.style.display = (AGPANELPORCURSO.indexOf(t) >= 0) ? '' : 'none';
+}
+window.agPanelBarra = agPanelBarra;
+
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminPanel = window.renderAdmin;
+  window.renderAdmin = function(){
+    var r = _renderAdminPanel.apply(this, arguments);
+    try{ agPanelBarra(); }catch(e){}
+    return r;
+  };
+}
+if(typeof window.admTab === 'function'){
+  var _admTabBarra = window.admTab;
+  window.admTab = function(t){
+    var r = _admTabBarra.apply(this, arguments);
+    try{ agPanelBarra(); }catch(e){}
+    return r;
+  };
+}
+[300, 900, 1800].forEach(function(t){ setTimeout(function(){ try{ agPanelBarra(); }catch(e){} }, t); });
+
+/* ------------------------------------------------------------
+   5 · EL BOTÓN «IR A ACCESO» DEL CATÁLOGO
+   ------------------------------------------------------------
+   Apuntaba a la pestaña que acaba de desaparecer. Ahora lleva a
+   la Ficha, que es donde se abre un curso a alguien.
+   ------------------------------------------------------------ */
+window.ucIrAcceso = function(){
+  try{ if(typeof admTab === 'function') admTab('alumno'); }catch(e){}
+  if(typeof toast === 'function') toast('Elija al estudiante y ábrale el curso en su ficha', '🔑');
+};
+
+/* ------------------------------------------------------------
+   6 · ESTILOS COMUNES DEL PANEL COMPACTADO
+   ------------------------------------------------------------
+   Piezas que varias pantallas nuevas comparten. Vive aquí y no
+   repetido en cada bloque, que es el mismo error en pequeño.
+   ------------------------------------------------------------ */
+(function agPanelCss(){
+  if(document.getElementById('agPanelCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agPanelCss';
+  s.textContent = [
+    /* rótulo de sección: la etiqueta pequeña que ordena una pantalla */
+    '.agp-rot{margin:0 0 12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;',
+      'text-transform:uppercase;color:var(--agp-dim)}',
+    '.agp-rot:not(:first-child){margin-top:30px}',
+
+    /* nota explicativa bajo un título */
+    '.agp-nota{margin:0 0 18px;max-width:80ch;font-size:14px;line-height:1.6;color:var(--agp-tx2)}',
+
+    /* caja base, la que usan las pantallas nuevas */
+    '.agp-caja{background:var(--agp-deep);border:1px solid rgba(233,222,199,.11);',
+      'border-radius:16px;padding:20px}',
+
+    /* vacío honesto: dice por qué está vacío, no solo que lo está */
+    '.agp-vacio{padding:34px 22px;text-align:center;color:var(--agp-dim);',
+      'border:1px dashed rgba(233,222,199,.16);border-radius:16px}',
+    '.agp-vacio b{display:block;margin:0 0 6px;font-family:var(--display);font-size:16px;color:var(--agp-tx2)}',
+    '.agp-vacio p{margin:0 auto;max-width:52ch;font-size:13.5px;line-height:1.6}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-previa.js ---------- */
+/* ============================================================
+   «VER COMO ESTUDIANTE» ABRE EL CAMPUS, Y LO ABRE ENTERO
+   ------------------------------------------------------------
+   DOS FALLOS, Y EL SEGUNDO ES UN CAMBIO DE CRITERIO
+
+   1. CAÍA DENTRO DE UN CURSO, NO EN EL CAMPUS.
+      enterPreview() terminaba en showScreen('curso'), que es la
+      pantalla del curso base. El instructor pulsaba «Ver como
+      estudiante» y aparecía en el módulo 1 de Porcicultura, sin
+      haber visto nunca lo primero que ve un estudiante de verdad:
+      su HOME, con sus cursos, su avance y lo que le falta.
+
+   2. LOS CANDADOS. Hasta ahora la vista previa enseñaba a
+      propósito lo que ve un recién registrado: el gratuito
+      abierto y los demás cerrados. Era una decisión defendible
+      y ya no es la que hace falta.
+
+      El motivo del cambio: ahora existe la Ficha del estudiante,
+      que enseña curso por curso qué tiene abierto CADA persona
+      real. Esa pregunta —«¿qué ve fulano?»— ya está contestada
+      donde corresponde, con datos de fulano.
+
+      Lo que no tenía respuesta era la otra: «¿cómo se ve mi
+      contenido?». Para eso la vista previa tiene que poder
+      entrar a todo. Un instructor no puede mejorar un módulo
+      que no puede abrir.
+
+   LA REGLA NUEVA
+
+       Vista previa = estudiante de prueba con todo abierto.
+
+   Y todo abierto significa abierto de verdad: los seis cursos,
+   los módulos en cualquier orden, sin candado comercial y sin
+   la puerta de «apruebe el anterior».
+
+   LO QUE NO TOCA — Y ESTO ES LO QUE LO HACE SEGURO
+
+   No se concede ni un acceso. Ni una fila. Las seis funciones
+   que ABREN cursos (nxDarAcceso, sbDarAcceso, ...) no se llaman
+   aquí: lo que se cambia es lo que RESPONDEN las puertas cuando
+   preguntan, y solo mientras dura la vista previa. En cuanto se
+   sale, todas contestan lo de siempre.
+
+   El avance tampoco: el estudiante de prueba es «__preview__»,
+   y todo lo que escriba cae en claves con ese nombre dentro —
+   porci::__preview__::, nx::__preview__::, sb::__preview__:: y
+   las demás. Al salir se borran las seis familias, no solo la
+   del curso base como se hacía antes, que dejaba rastro.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · QUIÉN ESTÁ EN LA VISTA PREVIA PREMIUM
+   ------------------------------------------------------------
+   No basta con PREVIEW: un estudiante nunca debe entrar aquí ni
+   aunque alguien le encienda la variable a mano. Se exige que la
+   SESIÓN sea de instructor, que es lo que no se puede falsificar
+   desde la pantalla del alumno.
+   ------------------------------------------------------------ */
+function agPrevPremium(){
+  try{
+    if(typeof PREVIEW === 'undefined' || !PREVIEW) return false;
+    if(typeof SESSION === 'undefined' || !SESSION) return false;
+    return SESSION.role === 'ADMIN';
+  }catch(e){ return false; }
+}
+window.agPrevPremium = agPrevPremium;
+
+/* las seis familias de claves donde el estudiante de prueba escribe */
+var AGPREVCLAVES = ['porci::', 'nx::', 'sb::', 'rt::', 'eg::', 'rp::'];
+window.AGPREVCLAVES = AGPREVCLAVES;
+
+function agPrevLimpia(){
+  try{
+    Object.keys(localStorage).forEach(function(k){
+      for(var i = 0; i < AGPREVCLAVES.length; i++){
+        if(k.indexOf(AGPREVCLAVES[i] + '__preview__::') === 0){ localStorage.removeItem(k); return; }
+      }
+    });
+  }catch(e){}
+}
+window.agPrevLimpia = agPrevLimpia;
+
+/* ------------------------------------------------------------
+   2 · ENTRAR: AL CAMPUS, NO A UN CURSO
+   ------------------------------------------------------------
+   Se reescribe entera en vez de envolverla porque lo que cambia
+   es justo la última línea —a dónde va— y envolver para deshacer
+   lo que la original acaba de hacer deja dos destinos peleándose.
+   ------------------------------------------------------------ */
+window.enterPreview = function(){
+  try{ PREVIEW = true; }catch(e){ window.PREVIEW = true; }
+  try{ STU = '__preview__'; }catch(e){ window.STU = '__preview__'; }
+  agPrevLimpia();
+  try{ if(typeof loadStudent === 'function') loadStudent(); }catch(e){}
+  try{ current = -1; }catch(e){}
+  document.body.classList.add('preview');
+
+  /* el campus vive en su overlay; showScreen('curso') era lo que
+     metía al instructor dentro del curso base */
+  try{ if(typeof showScreen === 'function') showScreen('curso'); }catch(e){}
+  try{
+    if(typeof abrirCursos === 'function') abrirCursos();
+    else if(typeof window.abrirCursos === 'function') window.abrirCursos();
+    else { var f = (0, eval)('typeof abrirCursos!=="undefined" && abrirCursos'); if(f) f(); }
+  }catch(e){}
+};
+
+window.exitPreview = function(){
+  try{ PREVIEW = false; }catch(e){ window.PREVIEW = false; }
+  try{ STU = ''; }catch(e){ window.STU = ''; }
+  agPrevLimpia();
+  document.body.classList.remove('preview');
+  document.body.classList.remove('focus');
+  try{ if(typeof cerrarCursos === 'function') cerrarCursos(); }catch(e){}
+  try{ if(typeof showScreen === 'function') showScreen('admin'); }catch(e){}
+};
+
+/* agVolverAlPanel es el botón del aviso y del pie: que salga por
+   la misma puerta, o el modo se queda a medio apagar */
+window.agVolverAlPanel = function(){ window.exitPreview(); };
+
+/* ------------------------------------------------------------
+   3 · TODO ABIERTO MIENTRAS DURA
+   ------------------------------------------------------------
+   Las mismas seis puertas que ya sabían dejar pasar al instructor
+   que administra. Aquí se les añade el otro caso. Se envuelven
+   igual: la regla del estudiante sigue intacta debajo.
+   ------------------------------------------------------------ */
+(function agPrevPuertas(){
+  var puertas = ['isUnlocked', 'nxDesbloq', 'rpDesbloq', 'sbDesbloq', 'egDesbloq', 'rtDesbloq', 'agPuedeCursar'];
+  var puestas = [];
+  var enganchar = function(){
+    puertas.forEach(function(fn){
+      if(puestas.indexOf(fn) >= 0) return;
+      if(typeof window[fn] !== 'function') return;
+      var orig = window[fn];
+      var envuelto = function(){
+        if(agPrevPremium()) return true;
+        try{ return orig.apply(this, arguments); }catch(e){ return true; }
+      };
+      envuelto.__prev = true;
+      window[fn] = envuelto;
+      puestas.push(fn);
+    });
+    try{ window.AGPREVPUERTAS = puestas; }catch(e){}
+    return puestas.length === puertas.length;
+  };
+  if(!enganchar()){
+    var n = 0;
+    var seguir = function(){ if(enganchar()) return; if(++n < 40) setTimeout(seguir, 150); };
+    setTimeout(seguir, 0);
+    if(document.readyState !== 'complete') addEventListener('load', enganchar);
+  }
+})();
+
+/* ------------------------------------------------------------
+   4 · Y LOS SEIS CURSOS, MATRICULADOS
+   ------------------------------------------------------------
+   Una puerta abierta no basta: el campus ni siquiera pinta la
+   tarjeta de un curso en el que no se esta matriculado.
+
+   Lo primero que intente fue envolver COURSES[x].enrolled, y no
+   servia: agEstadoCurso —que es quien decide si una tarjeta sale
+   con candado— no pregunta por el estudiante de prueba, pregunta
+   por SESSION.id, que en vista previa sigue siendo el instructor.
+   La envoltura existia y no se disparaba nunca.
+
+   Asi que se envuelve donde se decide de verdad, que ademas es
+   UN solo sitio en vez de seis. Y se envuelve el resultado, no la
+   pregunta: agEstadoCurso sigue calculando lo suyo y aqui solo se
+   levanta el 'tiene'. Si manana cambia como se lee el avance,
+   esto no se entera.
+   ------------------------------------------------------------ */
+(function agPrevMatricula(){
+  var poner = function(){
+    if(typeof window.agEstadoCurso !== 'function') return false;
+    if(window.agEstadoCurso.__prev) return true;
+    var orig = window.agEstadoCurso;
+    var envuelto = function(id){
+      var e = orig.apply(this, arguments);
+      if(e && agPrevPremium()) e.tiene = true;
+      return e;
+    };
+    envuelto.__prev = true;
+    window.agEstadoCurso = envuelto;
+    return true;
+  };
+  if(!poner()){
+    var i = 0;
+    var seguir = function(){ if(poner()) return; if(++i < 40) setTimeout(seguir, 150); };
+    setTimeout(seguir, 0);
+  }
+})();
+
+/* ------------------------------------------------------------
+   5 · SIN BANDA DE AVISO
+   ------------------------------------------------------------
+   Habia una banda arriba del campus anunciando la vista previa.
+   Se quita, y no por gusto: la banda usaba las clases de aviso flotante
+   del campus anterior, que sacan el bloque del flujo, asi que se montaba ENCIMA
+   de las tarjetas de metricas en vez de empujarlas hacia abajo.
+   Un aviso que tapa justo el dato que el instructor viene a mirar
+   estorba mas de lo que informa.
+
+   La salida no se pierde: el pie del campus lleva «Volver al panel
+   del instructor», y solo lo lleva cuando quien mira es el
+   instructor de verdad (agEsInstructorReal). Una salida que no
+   tapa nada vale mas que una que si.
+   ------------------------------------------------------------ */
+window.agNvAvisoPrevia = function(){ return ''; };
+
+/* ------------------------------------------------------------
+   6 · QUE EL BOTÓN DEL MENÚ LLEVE AQUÍ
+   ------------------------------------------------------------
+   El botón del panel tiene onclick="enterPreview()" escrito en el
+   HTML, así que ya entra por la función nueva. Pero ag-campus2
+   desviaba el curso base a showScreen('curso') cuando se abría
+   desde la vista previa —para esquivar el router— y eso volvía a
+   sacar al instructor del campus. Ya no hace falta: el campus se
+   abre encima y el router no interviene.
+   ------------------------------------------------------------ */
+(function agPrevSinDesvio(){
+  var poner = function(){
+    if(typeof window.agAbrirCurso !== 'function') return false;
+    if(window.agAbrirCurso.__prevOk) return true;
+    var orig = window.agAbrirCurso;
+    var envuelto = function(id){
+      /* en previa premium todos los cursos se abren por su propia
+         vía, igual que para el estudiante */
+      return orig.apply(this, arguments);
+    };
+    envuelto.__prevOk = true;
+    window.agAbrirCurso = envuelto;
+    return true;
+  };
+  var i = 0;
+  var seguir = function(){ if(poner()) return; if(++i < 40) setTimeout(seguir, 150); };
+  setTimeout(seguir, 300);
+})();
+
+/* ------------------------------------------------------------
+   7 · ESTILO DEL AVISO
+   ------------------------------------------------------------ */
+(function agPrevCss(){
+  if(document.getElementById('agPrevCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agPrevCss';
+  s.textContent = [
+    '.agprev-aviso{align-items:flex-start;gap:16px;line-height:1.55}',
+    '.agprev-aviso b{color:var(--agp-acc-hi)}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-tablero.js ---------- */
+/* ============================================================
+   EL TABLERO: LO QUE UN INSTRUCTOR NECESITA SABER AL ENTRAR
+   ------------------------------------------------------------
+   EL TABLERO ANTERIOR CONTABA UN SOLO CURSO
+
+   Y no lo decía. Enseñaba «Progreso promedio 0 %», «15 estudiantes
+   · 0 módulos aprobados», «Todavía nadie ha presentado una
+   evaluación» — cifras que parecían de la academia y eran del
+   curso que hubiera en la barra «Gestionando». Con quince alumnos
+   dentro y doce módulos aprobados en Porcicultura, el panel abría
+   en ceros. No estaba roto: estaba contestando otra pregunta.
+
+   Un tablero es lo primero que se ve al entrar, y lo primero que
+   se ve tiene que ser de TODO. El detalle por curso ya tiene su
+   sitio —Progreso, con su selector— y no hacía falta dos veces.
+
+   QUÉ SE QUEDA Y POR QUÉ
+
+   Cinco cifras arriba, y cada una está porque cambia una decisión:
+
+     estudiantes activos   a cuánta gente le responde usted
+     cursos publicados     cuánto de su catálogo está en la calle
+     accesos concedidos    cuántas puertas ha abierto de verdad
+     módulos aprobados     si la gente avanza o solo se registra
+     certificados          cuánta gente llegó hasta el final
+
+   Lo que se quitó, y por qué:
+
+     «Tasa de aprobación»   era aprobados/presentadas, y con cero
+                            presentadas daba 0 % — un cero que
+                            parecía un problema y era una división
+                            sin numerador.
+     «Promedio de notas»    lo mismo, y además la nota media de
+                            una academia entera no dice qué hacer.
+     «Distribución de notas» un histograma vacío ocupando media
+                            pantalla. Un gráfico sin datos no es
+                            un gráfico: es un hueco con ejes.
+     «Avance por módulo»    seguía en el curso de la barra. Vive
+                            en Progreso, que es su sitio.
+
+   LOS COLORES
+
+   Del sistema de siete papeles, sin excepciones. Cada curso lleva
+   su color de la escala de gráficos, el mismo que llevará en
+   Progreso y en la ficha: así la barra de Sanidad es azul en las
+   tres pantallas y no hay que leer la etiqueta para saber cuál es.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · DE DÓNDE SALE CADA CIFRA
+   ------------------------------------------------------------
+   Todo se deriva de las fuentes que ya existen. No se guarda ni
+   un contador nuevo: un contador guardado es un dato que se puede
+   quedar desfasado, y entonces el tablero miente con confianza.
+   ------------------------------------------------------------ */
+function agTbCursos(){
+  try{ return Object.keys((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES')); }
+  catch(e){ return []; }
+}
+function agTbCurso(k){
+  try{ return ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[k]; }
+  catch(e){ return null; }
+}
+function agTbAlumnos(){
+  var a = [];
+  try{ a = (typeof STUDENTS !== 'undefined' ? STUDENTS : []) || []; }catch(e){}
+  return a.filter(function(s){ return s && s.status !== 'borrado'; });
+}
+
+/* la fecha de llegada, en el formato que haya */
+function agTbLlegada(s){
+  return String((s && (s.created || s.enrolled || s.enrolled_at)) || '');
+}
+
+/* ¿emite certificado este curso? Solo los que están en el registro */
+function agTbDaCert(k){
+  try{
+    var L = (typeof AGCURSOSCERT !== 'undefined') ? AGCURSOSCERT : (0, eval)('AGCURSOSCERT');
+    for(var i = 0; i < L.length; i++) if(L[i].id === k) return true;
+  }catch(e){}
+  return false;
+}
+
+function agTbResumen(){
+  var al = agTbAlumnos();
+  var r = { alumnos: al.length, activos: 0, publicados: 0, cursos: 0,
+            accesos: 0, aprobados: 0, certs: 0, sinEmpezar: 0, porCurso: [] };
+
+  al.forEach(function(s){ if((s.status || 'activo') === 'activo') r.activos++; });
+
+  agTbCursos().forEach(function(k){
+    var C = agTbCurso(k);
+    if(!C) return;
+    r.cursos++;
+    var pub = true;
+    try{ pub = !!C.published(); }catch(e){}
+    if(pub) r.publicados++;
+
+    var total = 0, conAcceso = 0, hechos = 0, completos = 0, n = C.n || 0;
+    al.forEach(function(s){
+      var tiene = false;
+      try{ tiene = !!C.enrolled(s); }catch(e){}
+      if(!tiene) return;
+      conAcceso++;
+      var h = 0;
+      try{ h = C.count(s.id) || 0; }catch(e){}
+      hechos += h;
+      total += n;
+      if(n > 0 && h >= n) completos++;
+      if(h === 0) r.sinEmpezar++;
+    });
+
+    r.accesos += conAcceso;
+    r.aprobados += hechos;
+    if(agTbDaCert(k)) r.certs += completos;
+
+    r.porCurso.push({
+      id: k, label: C.label || k, name: C.name || C.label || k, icon: C.icon || '•',
+      pub: pub, n: n, conAcceso: conAcceso, hechos: hechos,
+      pct: total ? Math.round(hechos / total * 100) : 0,
+      completos: completos, daCert: agTbDaCert(k)
+    });
+  });
+
+  /* de más gente a menos: el curso donde hay más alumnos es el
+     que más consecuencias tiene si algo va mal */
+  r.porCurso.sort(function(a, b){ return b.conAcceso - a.conAcceso; });
+  return r;
+}
+window.agTbResumen = agTbResumen;
+
+/* ------------------------------------------------------------
+   2 · LAS PIEZAS
+   ------------------------------------------------------------ */
+function agTbCifra(valor, rotulo, pie, papel){
+  return '<div class="agtb-c' + (papel ? ' ' + papel : '') + '">' +
+    '<b>' + valor + '</b>' +
+    '<span class="agtb-c-r">' + rotulo + '</span>' +
+    (pie ? '<span class="agtb-c-p">' + pie + '</span>' : '') +
+  '</div>';
+}
+
+function agTbFilaCurso(c){
+  var col = 'var(--ag-c-' + c.id + ',var(--ag-info-c))';
+  var estado = c.pub
+    ? '<span class="ag-es exito">Publicado</span>'
+    : '<span class="ag-es bloq">Oculto</span>';
+  return '<div class="agtb-f">' +
+    '<span class="agtb-f-p" style="background:' + col + '"></span>' +
+    '<span class="agtb-f-n"><b>' + agEsc(c.name) + '</b>' +
+      '<em>' + c.n + ' módulos' + (c.daCert ? ' · da certificado' : '') + '</em></span>' +
+    '<span class="agtb-f-e">' + estado + '</span>' +
+    '<span class="agtb-f-a">' + c.conAcceso + '<i>con acceso</i></span>' +
+    '<span class="agtb-f-b">' + agBarraAvance(c.hechos, c.conAcceso * c.n) +
+      '<i>' + c.pct + ' % del temario cursado</i></span>' +
+    '<span class="agtb-f-t">' + c.completos + '<i>lo terminaron</i></span>' +
+  '</div>';
+}
+
+/* ------------------------------------------------------------
+   3 · LA PANTALLA
+   ------------------------------------------------------------ */
+function agTbPantalla(){
+  var r = agTbResumen();
+
+  if(!r.alumnos){
+    return '<div class="agtb">' +
+      '<div class="agp-vacio"><b>Todavía no hay nadie registrado</b>' +
+      '<p>Cuando alguien cree su cuenta aparecerá aquí con su avance. ' +
+      'Mientras tanto puede preparar el contenido en <b>Contenido</b> ' +
+      'o revisar cómo se ve todo con <b>Ver como estudiante</b>.</p></div>' +
+    '</div>';
+  }
+
+  /* --- los que tienen la puerta abierta y no han entrado ---
+     Es el único aviso del tablero, y está porque se puede
+     actuar: son personas a las que escribirle hoy. */
+  var parados = [];
+  agTbAlumnos().forEach(function(s){
+    var abiertos = 0, hechos = 0;
+    agTbCursos().forEach(function(k){
+      var C = agTbCurso(k); if(!C) return;
+      var t = false; try{ t = !!C.enrolled(s); }catch(e){}
+      if(!t) return;
+      abiertos++;
+      try{ hechos += C.count(s.id) || 0; }catch(e){}
+    });
+    if(abiertos > 0 && hechos === 0) parados.push({ s: s, abiertos: abiertos });
+  });
+
+  /* --- los últimos en llegar --- */
+  var nuevos = agTbAlumnos().slice().sort(function(a, b){
+    var x = agTbLlegada(a), y = agTbLlegada(b);
+    return x < y ? 1 : (x > y ? -1 : 0);       /* el más reciente primero */
+  }).slice(0, 6);
+
+  var pend = 0;
+  try{ pend = (typeof NXPEND !== 'undefined' && NXPEND) ? (NXPEND.total || 0) : 0; }catch(e){}
+
+  var h = '<div class="agtb">';
+
+  /* --- las cinco cifras --- */
+  h += '<div class="agtb-cifras">' +
+    agTbCifra(r.activos, 'Estudiantes activos',
+      (r.alumnos > r.activos ? (r.alumnos - r.activos) + ' en otro estado' : 'todas las cuentas al día'), 'accion') +
+    agTbCifra(r.publicados + '<i>/' + r.cursos + '</i>', 'Cursos publicados',
+      (r.cursos - r.publicados > 0 ? (r.cursos - r.publicados) + ' sin publicar todavía' : 'el catálogo entero en la calle'), 'exito') +
+    agTbCifra(r.accesos, 'Accesos concedidos', 'suma de los seis cursos', 'prog') +
+    agTbCifra(r.aprobados, 'Módulos aprobados',
+      (r.sinEmpezar ? r.sinEmpezar + ' matrículas sin empezar' : 'todo el mundo ha empezado'), 'prog') +
+    agTbCifra(r.certs, 'Certificados ganados', 'cursos terminados al 100 %', 'exito') +
+  '</div>';
+
+  /* --- lo accionable, si lo hay --- */
+  if(pend || parados.length){
+    h += '<div class="agtb-hoy">';
+    if(pend){
+      h += '<button class="agtb-hoy-i aviso" onclick="admTab(\'consultas\')">' +
+        '<b>' + pend + '</b><span>' + (pend === 1 ? 'consulta sin responder' : 'consultas sin responder') +
+        '</span><i>Responder →</i></button>';
+    }
+    if(parados.length){
+      h += '<button class="agtb-hoy-i prog" onclick="admTab(\'alumno\')">' +
+        '<b>' + parados.length + '</b><span>' +
+        (parados.length === 1 ? 'tiene curso abierto y no ha empezado' : 'tienen curso abierto y no han empezado') +
+        '</span><i>Ver fichas →</i></button>';
+    }
+    h += '</div>';
+  }
+
+  /* --- los cursos, uno por fila --- */
+  h += '<p class="agp-rot">Sus cursos, de más gente a menos</p>' +
+    '<div class="agtb-cursos">' + r.porCurso.map(agTbFilaCurso).join('') + '</div>';
+
+  /* --- quién acaba de llegar --- */
+  h += '<p class="agp-rot">Los últimos en registrarse</p>' +
+    '<div class="agtb-nuevos">' + nuevos.map(function(s){
+      var ab = 0;
+      agTbCursos().forEach(function(k){
+        var C = agTbCurso(k); if(!C) return;
+        try{ if(C.enrolled(s)) ab++; }catch(e){}
+      });
+      var f = agTbLlegada(s).slice(0, 10);
+      return '<button class="agtb-n" onclick="agTbAbrirFicha(\'' + s.id + '\')">' +
+        '<span class="agtb-n-av">' + agTbIni(s.name) + '</span>' +
+        '<span class="agtb-n-t"><b>' + agEsc(s.name || s.email || 'Sin nombre') + '</b>' +
+        '<em>' + (f || 'sin fecha') + ' · ' + ab + (ab === 1 ? ' curso' : ' cursos') + '</em></span>' +
+      '</button>';
+    }).join('') + '</div>';
+
+  return h + '</div>';
+}
+window.agTbPantalla = agTbPantalla;
+
+function agTbIni(n){
+  n = String(n || '').trim();
+  if(!n) return '👤';
+  var p = n.split(/\s+/).filter(Boolean);
+  return ((p[0] || '')[0] || '').toUpperCase() + ((p[1] || '')[0] || '').toUpperCase();
+}
+
+/* del tablero a la ficha de esa persona, sin pasar por la lista */
+window.agTbAbrirFicha = function(uid){
+  try{ if(typeof AGALSEL !== 'undefined') AGALSEL = uid; }catch(e){}
+  try{ window.AGALSEL = uid; }catch(e){}
+  try{ if(typeof admTab === 'function') admTab('alumno'); }catch(e){}
+};
+
+/* ------------------------------------------------------------
+   4 · ENGANCHE — Y POR QUE NO SE ENVUELVE renderAdmin
+   ------------------------------------------------------------
+   Lo primero que hice fue envolver renderAdmin, como hacen las
+   demas piezas. No pintaba nunca, y la razon es un detalle del
+   modulo de nube que conviene dejar escrito:
+
+     linea 4993:  admTab = function(t){
+                    if(t==='students'||t==='dashboard'||
+                       t==='progress'||t==='certs'){
+                      loadCloudAdminData().then(function(){
+                        ADM.tab=t; _renderAdmin(); ... });
+                      return; }
+                    _admTab(t); };
+
+   _renderAdmin es una COPIA de renderAdmin guardada antes de
+   que existiera ninguna envoltura. Para esas cuatro pestanas el
+   panel no llama a window.renderAdmin: llama a la copia. Quien
+   envuelva renderAdmin para quedarse con el tablero, la lista de
+   estudiantes, el progreso o los certificados pierde en silencio
+   — que es como perdia este.
+
+   Donde SI se gana es una capa mas adentro. renderAdmin resuelve
+   la vista en cada llamada:
+
+     const V = {dashboard: dashboardView, ...};
+     root.innerHTML = (V[ADM.tab] || dashboardView)();
+
+   Lee el identificador cada vez, asi que sustituir dashboardView
+   alcanza a todos los caminos, el de la nube incluido. Es ademas
+   el patron que ya usaba el modulo de consultas para anadir sus
+   pestanas: una manera de hacerlo, no dos.
+   ------------------------------------------------------------ */
+(function agTbEngancha(){
+  var poner = function(){
+    if(typeof window.dashboardView !== 'function') return false;
+    if(window.dashboardView.__tb) return true;
+    var envuelto = function(){
+      try{ return agTbPantalla(); }
+      catch(e){
+        /* si el tablero nuevo falla, mejor un aviso honesto que
+           una pantalla en blanco sin explicacion */
+        return '<div class=agp-vacio><b>No se pudo pintar el tablero</b>' +
+               '<p>' + agEsc(e.message) + '</p></div>';
+      }
+    };
+    envuelto.__tb = true;
+    window.dashboardView = envuelto;
+    try{ dashboardView = envuelto; }catch(e){}
+    return true;
+  };
+  if(!poner()){
+    var i = 0;
+    var seguir = function(){ if(poner()) return; if(++i < 60) setTimeout(seguir, 150); };
+    setTimeout(seguir, 0);
+  }
+  /* el modulo de consultas envuelve dashboardView mas abajo en el
+     documento, asi que hay que volver a ponerse por encima despues */
+  [400, 1200, 2500].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+/* ------------------------------------------------------------
+   5 · ESTILOS
+   ------------------------------------------------------------ */
+(function agTbCss(){
+  if(document.getElementById('agTbCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agTbCss';
+  s.textContent = [
+    '.agtb{color:var(--agp-tx)}',
+
+    /* --- las cinco cifras --- */
+    '.agtb-cifras{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}',
+    '@media(max-width:1180px){.agtb-cifras{grid-template-columns:repeat(3,minmax(0,1fr))}}',
+    '@media(max-width:700px){.agtb-cifras{grid-template-columns:repeat(2,minmax(0,1fr))}}',
+    '.agtb-c{position:relative;padding:20px 20px 18px;border-radius:16px;overflow:hidden;',
+      'background:var(--agp-deep);border:1px solid var(--ag-info-b)}',
+    /* el filo de color es lo único que distingue una cifra de otra:
+       basta un filo, no hace falta teñir la tarjeta entera */
+    '.agtb-c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ag-info-c)}',
+    '.agtb-c.accion::before{background:var(--ag-accion-c)}',
+    '.agtb-c.prog::before{background:var(--ag-prog-c)}',
+    '.agtb-c.exito::before{background:var(--ag-exito-c)}',
+    '.agtb-c.aviso::before{background:var(--ag-aviso-c)}',
+    '.agtb-c b{display:block;font-family:var(--display);font-size:40px;font-weight:800;line-height:1;',
+      'color:var(--agp-tx);font-variant-numeric:tabular-nums}',
+    '.agtb-c b i{font-style:normal;font-size:20px;color:var(--agp-dim);font-weight:600}',
+    '.agtb-c-r{display:block;margin:11px 0 0;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.14em;text-transform:uppercase;color:var(--agp-tx2)}',
+    '.agtb-c-p{display:block;margin:6px 0 0;font-size:12.5px;line-height:1.45;color:var(--agp-dim)}',
+
+    /* --- lo de hoy: solo sale si hay algo que hacer --- */
+    '.agtb-hoy{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:14px}',
+    '.agtb-hoy-i{display:flex;align-items:center;gap:13px;padding:15px 18px;border-radius:14px;',
+      'cursor:pointer;font:inherit;text-align:left;width:100%;',
+      'background:var(--ag-info-s);border:1px solid var(--ag-info-b);color:var(--agp-tx);',
+      'transition:border-color .16s,background .16s}',
+    '.agtb-hoy-i.aviso{background:var(--ag-aviso-s);border-color:var(--ag-aviso-b)}',
+    '.agtb-hoy-i.prog{background:var(--ag-prog-s);border-color:var(--ag-prog-b)}',
+    '.agtb-hoy-i:hover{border-color:var(--ag-accion-b)}',
+    '.agtb-hoy-i b{font-family:var(--display);font-size:30px;font-weight:800;line-height:1;flex:none}',
+    '.agtb-hoy-i.aviso b{color:var(--ag-aviso-hi)}',
+    '.agtb-hoy-i.prog b{color:var(--ag-prog-hi)}',
+    '.agtb-hoy-i span{flex:1;font-size:13.5px;line-height:1.4;color:var(--agp-tx2)}',
+    '.agtb-hoy-i i{font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;',
+      'text-transform:uppercase;color:var(--agp-dim);white-space:nowrap}',
+    '.agtb-hoy-i:hover i{color:var(--ag-accion-hi)}',
+
+    /* --- una fila por curso --- */
+    '.agtb-cursos{display:grid;gap:9px}',
+    '.agtb-f{display:grid;align-items:center;gap:14px;padding:14px 18px;border-radius:13px;',
+      'grid-template-columns:4px minmax(0,2.1fr) 112px 92px minmax(160px,1.4fr) 104px;',
+      'background:var(--agp-deep);border:1px solid var(--ag-info-b)}',
+    '.agtb-f-p{align-self:stretch;border-radius:999px;min-height:34px}',
+    '.agtb-f-n b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;color:var(--agp-tx)}',
+    '.agtb-f-n em{display:block;margin-top:3px;font-style:normal;font-size:12px;color:var(--agp-dim)}',
+    '.agtb-f-a,.agtb-f-t{text-align:center;font-family:var(--display);font-size:21px;font-weight:700;',
+      'color:var(--agp-tx);font-variant-numeric:tabular-nums}',
+    '.agtb-f-a > i,.agtb-f-t > i,.agtb-f-b > i{display:block;margin-top:4px;font-style:normal;',
+      'font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;',
+      'color:var(--agp-dim);font-weight:400;white-space:nowrap}',
+    '.agtb-f-b{display:block}',
+    '.agtb-f-b > i{text-align:left;margin-top:7px}',
+
+    /* --- los últimos en llegar --- */
+    '.agtb-nuevos{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}',
+    '.agtb-n{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:13px;',
+      'cursor:pointer;font:inherit;text-align:left;width:100%;',
+      'background:var(--agp-deep);border:1px solid var(--ag-info-b);color:var(--agp-tx);',
+      'transition:border-color .16s}',
+    '.agtb-n:hover{border-color:var(--ag-accion-b)}',
+    '.agtb-n-av{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;',
+      'background:var(--ag-prog-s);border:1px solid var(--ag-prog-b);color:var(--ag-prog-hi);',
+      'font-family:var(--mono);font-size:12px;letter-spacing:.04em}',
+    '.agtb-n-t{min-width:0;flex:1}',
+    '.agtb-n-t b{display:block;font-size:13.5px;font-weight:600;line-height:1.3;color:var(--agp-tx);',
+      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.agtb-n-t em{display:block;margin-top:2px;font-style:normal;font-family:var(--mono);',
+      'font-size:10.5px;color:var(--agp-dim)}',
+
+    /* --- pantallas estrechas: la fila de curso se apila --- */
+    '@media(max-width:1000px){',
+      '.agtb-f{grid-template-columns:4px minmax(0,1fr) auto;row-gap:10px}',
+      '.agtb-f-e{grid-column:3}',
+      '.agtb-f-a,.agtb-f-b,.agtb-f-t{grid-column:2/-1;text-align:left}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-cursos.js ---------- */
+/* ============================================================
+   «CURSOS» ES EL CATÁLOGO, Y NADA MÁS
+   ------------------------------------------------------------
+   La pestaña tenía dentro una segunda navegación:
+
+       Catálogo | Contenido | Acceso | Fórmulas | Certificados | Ajustes
+
+   Seis solapas de las que cinco llevaban a sitios que ya existen
+   en el menú de la izquierda. Dos navegaciones para el mismo
+   destino no es redundancia decorativa: obliga a recordar POR
+   DÓNDE se entró, porque lo que se ve en cada sitio es distinto
+   aunque se llame igual.
+
+   A DÓNDE SE VA CADA SOLAPA
+
+     Contenido     al bloque Contenido. Era el mismo.
+     Acceso        a la Ficha del estudiante, con lo demás.
+     Certificados  al bloque Certificados. Era el mismo.
+     Ajustes       partido, porque eran dos cosas mezcladas:
+                     · nota mínima y bloqueo de avance son reglas
+                       de evaluación y viven en Evaluaciones, que
+                       es ahora su único sitio;
+                     · la premezcla y «publicar para todos» son
+                       parámetros del producto Formulación y se
+                       quedan en Fórmulas, junto a lo que afectan.
+     Fórmulas      se queda, pero en Contenido: es una herramienta
+                   de un curso, y Contenido es la pantalla que
+                   sigue al conmutador de curso.
+
+   Queda el catálogo, que es lo único que no estaba en otro lado:
+   qué cursos existen, cuáles están publicados y cuáles se ven.
+
+   PUBLICADO Y VISIBLE NO SON LO MISMO — Y AHORA SE DICE
+   Publicado es del producto: existe y se ofrece. Visible es de
+   la vitrina: aparece o no en el catálogo del estudiante. Y
+   ninguno de los dos da acceso: eso es de la Ficha. Las tres
+   ideas estaban mezcladas en un solo interruptor con la etiqueta
+   «Visible», y de ahí salía la pregunta de siempre —«¿por qué lo
+   ve y no puede entrar?»—. El catálogo ahora lo explica donde se
+   toca, no en una nota al pie.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · LA PANTALLA: SOLO CATALOGO
+   ------------------------------------------------------------
+   Primero sustitui nxAdmin entera y no pintaba nada:
+
+       ucCatalogo is not defined
+
+   El catalogo, los ajustes y el montaje de arrastre se declaran
+   DENTRO de la misma funcion anonima que declara nxAdmin. Son
+   suyas: fuera del cierre no existen, aunque nxAdmin si este en
+   window. Una funcion que se ve no garantiza ver las que usa.
+
+   Asi que no se sustituye: se envuelve. Se le fija la solapa en
+   'catalogo' antes de llamarla —con lo que ella misma pinta el
+   catalogo usando sus funciones privadas— y despues se le retira
+   del cuerpo la tira de solapas, que es lo unico que sobraba.
+
+   Quitar el resultado en vez de evitar que se genere parece un
+   rodeo, y es lo contrario: es la unica forma de no copiar aqui
+   codigo que ya vive ahi dentro.
+   ------------------------------------------------------------ */
+(function agCurCatalogo(){
+  var poner = function(){
+    if(typeof window.nxAdmin !== 'function') return false;
+    if(window.nxAdmin.__soloCat) return true;
+    var orig = window.nxAdmin;
+    var envuelto = function(){
+      /* que la original elija siempre el catalogo */
+      try{ window.NXADMTAB = 'catalogo'; }catch(e){}
+      try{ (0, eval)('NXADMTAB = "catalogo"'); }catch(e){}
+      var r = orig.apply(this, arguments);
+      try{
+        var body = document.getElementById('adminBody');
+        if(body){
+          /* fuera la segunda navegacion */
+          var tira = body.querySelector('.fchips');
+          if(tira) tira.parentNode.removeChild(tira);
+          /* La nota que ya traia decia «cambielo desde el conmutador de
+             arriba», y el conmutador ya no sale en esta pantalla: la
+             instruccion apuntaba a un sitio vacio. Se REESCRIBE la que
+             hay en vez de anadir otra debajo — anadir una segunda nota
+             para corregir la primera es exactamente la duplicacion que
+             esta tanda viene a quitar. */
+          /* Los cuatro recuadros «X se paga aparte» repetian el MISMO
+             parrafo una vez por curso de pago, y los cuatro mandaban a
+             «la pestaña Acceso», que ya no existe. Cuatro copias de una
+             instruccion caducada: se retiran. Lo que decian de util —que
+             visible no es acceso y que se abre uno por uno— lo dice ya
+             la nota de arriba, una sola vez. */
+          [].forEach.call(body.querySelectorAll('.adm-card'), function(c){
+            var t = c.querySelector('h4');
+            if(t && t.textContent.indexOf('se paga aparte') >= 0) c.parentNode.removeChild(c);
+          });
+
+          var nota = body.querySelector('.adm-note');
+          if(nota){
+            nota.classList.add('agp-nota', 'agcur-nota');
+            nota.innerHTML = 'Sus productos. <b>Publicado</b> es que el curso existe y se ofrece; ' +
+              '<b>visible</b> es que aparece en el catalogo del estudiante. ' +
+              'Ninguno de los dos da acceso &mdash; eso se abre persona por persona en la ' +
+              '<b>Ficha del estudiante</b>.';
+          }
+        }
+      }catch(e){}
+      try{ if(typeof agPanelBarra === 'function') agPanelBarra(); }catch(e){}
+      return r;
+    };
+    envuelto.__soloCat = true;
+    window.nxAdmin = envuelto;
+    return true;
+  };
+  if(!poner()){
+    var i = 0;
+    var seguir = function(){ if(poner()) return; if(++i < 60) setTimeout(seguir, 150); };
+    setTimeout(seguir, 0);
+  }
+  [400, 1200, 2500].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+/* nxAdmTab ya no tiene a dónde llevar dentro de Cursos. Se deja
+   viva porque hay botones antiguos que la llaman, y se manda cada
+   destino a su bloque del menú: así un enlace viejo no muere, va
+   a donde ahora vive esa función. */
+var AGCURSODESTINO = {
+  contenido: 'contenido', certificados: 'certs', acceso: 'alumno',
+  ajustes: 'evals', formulas: 'contenido', catalogo: 'cursos'
+};
+window.nxAdmTab = function(t){
+  var d = AGCURSODESTINO[t];
+  if(!d || d === 'cursos'){ window.NXADMTAB = 'catalogo'; if(typeof nxAdmin === 'function') nxAdmin(); return; }
+  if(t === 'formulas'){ try{ window.AGCTPANEL = 'formulas'; }catch(e){} }
+  if(typeof admTab === 'function') admTab(d);
+};
+
+/* ------------------------------------------------------------
+   2 · QUE LOS CHIPS AÑADIDOS NO VUELVAN
+   ------------------------------------------------------------
+   ag-navcurso añadía «Contenido» y «Certificados» a la tira de
+   Cursos. La tira ya no existe, pero su código sigue buscándola
+   cada vez que se pinta el panel. Se le quita la lista y deja de
+   tener nada que poner — mejor que borrarle el bloque entero,
+   que es de otra tanda y puede tener más cosas dentro.
+   ------------------------------------------------------------ */
+(function agCurSinChips(){
+  var vaciar = function(){
+    try{ if(typeof AGNAVEXTRA !== 'undefined' && AGNAVEXTRA && AGNAVEXTRA.length) AGNAVEXTRA.length = 0; }catch(e){}
+    try{ if(window.AGNAVEXTRA && window.AGNAVEXTRA.length) window.AGNAVEXTRA.length = 0; }catch(e){}
+  };
+  vaciar();
+  [200, 800, 2000].forEach(function(t){ setTimeout(vaciar, t); });
+})();
+
+/* ------------------------------------------------------------
+   3 · LO QUE SE LLEVÓ «AJUSTES», PARA QUIEN LO RECOJA
+   ------------------------------------------------------------
+   Evaluaciones lo pinta con esto, en vez de volver a escribir la
+   lectura del contrato de cada curso. Una fuente, dos pantallas.
+   ------------------------------------------------------------ */
+function agCurReglasDe(id){
+  var C = null;
+  try{ C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[id]; }catch(e){}
+  if(!C) return null;
+  var cfg = {};
+  try{ cfg = C.cfg || {}; }catch(e){}
+  return { id: id, label: C.label || id, icon: C.icon || '•', n: C.n || 0,
+           passing: (cfg.passing != null ? cfg.passing : 80),
+           gating: !!cfg.gating,
+           ponerlas: function(p){ try{ C.setCfg(p); }catch(e){} } };
+}
+window.agCurReglasDe = agCurReglasDe;
+
+
+/* ---------- ag-graficos.js ---------- */
+/* ============================================================
+   DOS GRÁFICOS QUE DICEN ALGO, Y UN INTERRUPTOR QUE VOLVÍA
+   ------------------------------------------------------------
+   1 · EL INTERRUPTOR QUE DESAPARECÍA
+
+   El del catálogo: a veces quedaba el rótulo «Visible» y el
+   interruptor no estaba. Intermitente, que es la peor pista.
+
+   No era intermitente: dependía del ancho. El interruptor es
+
+       <label class="nxa-sw">   display:inline-flex
+         <input>                display:none
+         <span></span>          width:40px height:22px
+         <em>Visible</em>
+
+   El <span> es un ítem flex, y un ítem flex lleva flex-shrink:1
+   de fábrica. Su width:40px no es un ancho: es una PREFERENCIA.
+   Cuando el nombre del curso es largo o la columna estrecha, el
+   navegador reparte lo que falta encogiendo lo que puede encoger
+   — y lo único que podía era el interruptor, hasta cero. El
+   rótulo sobrevivía porque el texto tiene contenido mínimo.
+
+   Por eso salía en unas filas y no en otras, y por eso cambiaba
+   al cambiar el ancho de la ventana.
+
+   Una línea: flex:none. Un ítem que representa un CONTROL no se
+   encoge nunca — si no cabe, que se parta la fila.
+
+   ------------------------------------------------------------
+   2 · GRÁFICOS: TENÍA USTED RAZÓN
+
+   Quité los del tablero viejo porque mentían —el histograma
+   salía vacío y el de módulos contaba un curso solo— y dejé el
+   tablero sin ninguno. Eso fue pasarse de frenada: el problema
+   no era que hubiera gráficos, era que esos dos no informaban.
+
+   Van dos, y cada uno contesta una pregunta que las cifras
+   sueltas no contestan:
+
+   EL EMBUDO — «¿dónde se me cae la gente?»
+   Registrado → tiene algo abierto → empezó → pasó de la mitad →
+   terminó un curso. Cinco escalones. Una cifra suelta dice
+   cuántos terminaron; el embudo dice en qué escalón se quedan,
+   que es lo único que se puede ir a arreglar. Es UNA serie, así
+   que es de UN color: pintar cinco escalones de cinco colores
+   sugeriría cinco categorías distintas y son la misma medida.
+
+   LAS ALTAS POR MES — «¿esto crece?»
+   Una serie temporal de verdad, de las fechas de registro. Sin
+   ella, «15 estudiantes» no distingue entre quince el mes pasado
+   y quince en dos años. Un color, el de progreso: es cantidad.
+
+   Los dos se dibujan con divs y CSS. Nada de librerías: son
+   barras, y una librería de gráficos para pintar barras es otra
+   dependencia que mantener.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · EL ARREGLO DEL INTERRUPTOR
+   ------------------------------------------------------------ */
+(function agGrafSwitch(){
+  if(document.getElementById('agGrafSwitch')) return;
+  var s = document.createElement('style');
+  s.id = 'agGrafSwitch';
+  s.textContent = [
+    /* un control no se encoge: si no cabe, que se parta la fila */
+    '.nxa-sw{flex-wrap:wrap}',
+    '.nxa-sw span{flex:none}',
+    '.nxa-sw em{white-space:nowrap}',
+    /* y lo mismo para el otro interruptor del panel, que tiene
+       exactamente el mismo montaje y el mismo riesgo */
+    '.switch{flex:none}',
+    '.switch > span{flex:none}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+/* ------------------------------------------------------------
+   2 · LOS DATOS DE LOS DOS GRÁFICOS
+   ------------------------------------------------------------ */
+function agGrafEmbudo(){
+  var al = (typeof agTbAlumnos === 'function') ? agTbAlumnos() : [];
+  var cursos = (typeof agTbCursos === 'function') ? agTbCursos() : [];
+  var e = { registrados: al.length, conAlgo: 0, empezaron: 0, mitad: 0, terminaron: 0 };
+
+  al.forEach(function(s){
+    /* «mitad» y «termino» se miden POR CURSO, no sobre la suma de
+       todos. Medido en total salia la contradiccion de que nadie
+       pasaba de la mitad y aun asi alguien habia terminado: quien
+       acaba un curso de 12 y tiene otros cinco abiertos no llega al
+       50 % del agregado. Dos escalones del mismo embudo tienen que
+       medirse con la misma vara o el embudo no es un embudo. */
+    var abiertos = 0, hechos = 0, total = 0, algunoCompleto = false, mejor = 0;
+    cursos.forEach(function(k){
+      var C = (typeof agTbCurso === 'function') ? agTbCurso(k) : null;
+      if(!C) return;
+      var t = false;
+      try{ t = !!C.enrolled(s); }catch(x){}
+      if(!t) return;
+      abiertos++;
+      var h = 0, n = C.n || 0;
+      try{ h = C.count(s.id) || 0; }catch(x){}
+      hechos += h; total += n;
+      if(n > 0 && h / n > mejor) mejor = h / n;
+      if(n > 0 && h >= n) algunoCompleto = true;
+    });
+    if(abiertos > 0) e.conAlgo++;
+    if(hechos > 0) e.empezaron++;
+    if(mejor >= 0.5) e.mitad++;
+    if(algunoCompleto) e.terminaron++;
+  });
+  return e;
+}
+window.agGrafEmbudo = agGrafEmbudo;
+
+function agGrafAltas(){
+  var al = (typeof agTbAlumnos === 'function') ? agTbAlumnos() : [];
+  var mapa = {};
+  al.forEach(function(s){
+    var f = (typeof agTbLlegada === 'function') ? agTbLlegada(s) : '';
+    var m = String(f).slice(0, 7);                  /* AAAA-MM */
+    if(!/^\d{4}-\d{2}$/.test(m)) return;
+    mapa[m] = (mapa[m] || 0) + 1;
+  });
+  var meses = Object.keys(mapa).sort();
+  if(!meses.length) return [];
+
+  /* rellenar los meses sin altas: un hueco es un dato. Si se
+     saltan, dos meses separados parecen consecutivos y la
+     pendiente del gráfico miente. */
+  var out = [], cur = meses[0], fin = meses[meses.length - 1];
+  while(cur <= fin && out.length < 36){
+    out.push({ mes: cur, n: mapa[cur] || 0 });
+    var y = +cur.slice(0, 4), q = +cur.slice(5, 7) + 1;
+    if(q > 12){ q = 1; y++; }
+    cur = y + '-' + (q < 10 ? '0' + q : q);
+  }
+  /* El tope se calcula DESPUES de recortar, por dos razones. La de
+     fondo: la escala debe ser la de lo que se ve, no la de meses que
+     quedaron fuera del cuadro. Y la que me costo un rato: antes se
+     guardaba como propiedad del array (out.tope = ...) y se devolvia
+     out.slice(-12) — y slice() crea un array nuevo SIN las propiedades
+     propias. Llegaba undefined, el divisor caia a 1 y las barras se
+     pintaban con height:200 %. Un dato adjunto a un array no sobrevive
+     a las operaciones del array. */
+  var vis = out.slice(-12);                         /* el último año */
+  var tope = 0;
+  vis.forEach(function(x){ if(x.n > tope) tope = x.n; });
+  vis.tope = tope || 1;
+  return vis;
+}
+window.agGrafAltas = agGrafAltas;
+
+/* ------------------------------------------------------------
+   3 · DIBUJARLOS
+   ------------------------------------------------------------ */
+var AGGRAFMES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+function agGrafEmbudoHTML(){
+  var e = agGrafEmbudo();
+  if(!e.registrados) return '';
+  var pasos = [
+    ['Se registraron',        e.registrados, 'todas las cuentas vivas'],
+    ['Tienen algo abierto',   e.conAlgo,     'al menos un curso habilitado'],
+    ['Empezaron',             e.empezaron,   'aprobaron su primer módulo'],
+    ['Pasaron de la mitad',   e.mitad,       'más del 50 % de algún curso suyo'],
+    ['Terminaron un curso',   e.terminaron,  'al menos uno al 100 %']
+  ];
+  var tope = e.registrados || 1;
+  return '<div class="aggr-caja">' +
+    '<h4 class="aggr-t">¿Dónde se queda la gente?<em>de registrarse a terminar</em></h4>' +
+    '<div class="aggr-emb">' + pasos.map(function(p, i){
+      var pct = Math.round(p[1] / tope * 100);
+      /* la caída respecto al escalón anterior: es el dato que
+         dice dónde hay que trabajar */
+      var caida = (i > 0 && pasos[i - 1][1] > 0)
+        ? Math.round((pasos[i - 1][1] - p[1]) / pasos[i - 1][1] * 100) : 0;
+      return '<div class="aggr-paso">' +
+        '<span class="aggr-paso-n">' + p[0] + '<em>' + p[2] + '</em></span>' +
+        '<span class="aggr-paso-b"><i style="width:' + Math.max(pct, 1.5) + '%"></i></span>' +
+        '<span class="aggr-paso-c">' + p[1] +
+          (i > 0 && caida > 0 ? '<em>−' + caida + ' %</em>' : '<em>&nbsp;</em>') + '</span>' +
+      '</div>';
+    }).join('') + '</div></div>';
+}
+
+function agGrafAltasHTML(){
+  var d = agGrafAltas();
+  if(!d.length) return '';
+  var tope = d.tope || 1;
+  var suma = 0; d.forEach(function(x){ suma += x.n; });
+  return '<div class="aggr-caja">' +
+    '<h4 class="aggr-t">Altas por mes<em>' + suma + ' en los últimos ' + d.length + ' meses</em></h4>' +
+    '<div class="aggr-meses">' + d.map(function(x){
+      var alto = Math.round(x.n / tope * 100);
+      var mm = +x.mes.slice(5, 7);
+      return '<div class="aggr-mes' + (x.n ? '' : ' cero') + '" title="' + x.mes + ': ' + x.n + '">' +
+        '<span class="aggr-mes-c">' + (x.n || '') + '</span>' +
+        '<span class="aggr-mes-b"><i style="height:' + Math.max(alto, x.n ? 4 : 0) + '%"></i></span>' +
+        '<span class="aggr-mes-e">' + (AGGRAFMES[mm - 1] || '') + '</span>' +
+      '</div>';
+    }).join('') + '</div></div>';
+}
+
+window.agGrafPar = function(){
+  var a = agGrafEmbudoHTML(), b = agGrafAltasHTML();
+  if(!a && !b) return '';
+  return '<p class="agp-rot">Cómo va la academia</p>' +
+    '<div class="aggr-par">' + a + b + '</div>';
+};
+
+/* ------------------------------------------------------------
+   4 · METERLOS EN EL TABLERO
+   ------------------------------------------------------------
+   El tablero ya sabe pintarse; aquí solo se le añade un trozo
+   antes de «Los últimos en registrarse». Se hace envolviendo su
+   pantalla, no editándola, para que el tablero siga siendo el
+   dueño de su propio orden.
+   ------------------------------------------------------------ */
+(function agGrafEnTablero(){
+  var poner = function(){
+    if(typeof window.agTbPantalla !== 'function') return false;
+    if(window.agTbPantalla.__graf) return true;
+    var orig = window.agTbPantalla;
+    var envuelto = function(){
+      var h = orig.apply(this, arguments);
+      try{
+        var marca = '<p class="agp-rot">Los últimos en registrarse</p>';
+        var g = window.agGrafPar();
+        if(g && h.indexOf(marca) > 0) h = h.replace(marca, g + marca);
+        else if(g) h = h.replace('</div>', g + '</div>');
+      }catch(e){}
+      return h;
+    };
+    envuelto.__graf = true;
+    window.agTbPantalla = envuelto;
+    return true;
+  };
+  if(!poner()){
+    var i = 0;
+    var seguir = function(){ if(poner()) return; if(++i < 60) setTimeout(seguir, 150); };
+    setTimeout(seguir, 0);
+  }
+})();
+
+/* ------------------------------------------------------------
+   5 · ESTILOS
+   ------------------------------------------------------------ */
+(function agGrafCss(){
+  if(document.getElementById('agGrafCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agGrafCss';
+  s.textContent = [
+    '.aggr-par{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}',
+    '@media(max-width:1000px){.aggr-par{grid-template-columns:1fr}}',
+    '.aggr-caja{padding:20px;border-radius:16px;background:var(--agp-deep);border:1px solid var(--ag-info-b)}',
+    '.aggr-t{margin:0 0 18px;font-family:var(--display);font-size:16px;font-weight:700;color:var(--agp-tx)}',
+    '.aggr-t em{display:block;margin-top:4px;font-style:normal;font-family:var(--mono);font-size:10.5px;',
+      'letter-spacing:.11em;text-transform:uppercase;color:var(--agp-dim);font-weight:400}',
+
+    /* --- el embudo --- */
+    '.aggr-emb{display:grid;gap:13px}',
+    '.aggr-paso{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,1.5fr) 62px;',
+      'align-items:center;gap:13px}',
+    '.aggr-paso-n{font-size:13.5px;color:var(--agp-tx);line-height:1.3}',
+    '.aggr-paso-n em{display:block;margin-top:2px;font-style:normal;font-size:11.5px;color:var(--agp-dim)}',
+    '.aggr-paso-b{display:block;height:15px;border-radius:5px;overflow:hidden;',
+      'background:var(--ag-info-s);border:1px solid var(--ag-info-b)}',
+    /* una sola serie, un solo color: no son cinco categorias */
+    '.aggr-paso-b > i{display:block;height:100%;border-radius:4px;background:var(--ag-prog-c);',
+      'transition:width .6s cubic-bezier(.4,0,.2,1)}',
+    '.aggr-paso:last-child .aggr-paso-b > i{background:var(--ag-exito-c)}',
+    '.aggr-paso-c{text-align:right;font-family:var(--display);font-size:19px;font-weight:700;',
+      'color:var(--agp-tx);font-variant-numeric:tabular-nums;line-height:1.1}',
+    '.aggr-paso-c em{display:block;margin-top:2px;font-style:normal;font-family:var(--mono);',
+      'font-size:10px;font-weight:400;color:var(--ag-aviso-hi)}',
+
+    /* --- las altas por mes --- */
+    '.aggr-meses{display:flex;align-items:flex-end;gap:6px;height:186px}',
+    '.aggr-mes{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}',
+    '.aggr-mes-c{font-family:var(--display);font-size:13px;font-weight:700;color:var(--agp-tx2);',
+      'font-variant-numeric:tabular-nums;height:16px;line-height:16px}',
+    /* La barra se posiciona en ABSOLUTO, y no por gusto: con la caja
+       en flex y altura indefinida, un height en % no resuelve contra
+       ella. Medido: la caja 142px y la barra dentro 282px, desbordando
+       por arriba. Un porcentaje absoluto SI resuelve, porque lo hace
+       contra la caja de relleno del ancestro posicionado, que es
+       definida. */
+    '.aggr-mes-b{position:relative;flex:1;width:100%;min-height:0;overflow:hidden;',
+      'border-bottom:1px solid var(--ag-info-b)}',
+    '.aggr-mes-b > i{position:absolute;left:0;right:0;bottom:0;display:block;',
+      'border-radius:4px 4px 0 0;background:var(--ag-prog-c)}',
+    '.aggr-mes.cero .aggr-mes-b > i{background:transparent}',
+    '.aggr-mes-e{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--agp-dim)}',
+    /* el mes en curso, marcado: es el unico que todavia puede subir */
+    '.aggr-mes:last-child .aggr-mes-b > i{background:var(--ag-aviso-c)}',
+    '.aggr-mes:last-child .aggr-mes-e{color:var(--ag-aviso-hi)}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- ag-estudiantes.js ---------- */
+/* ============================================================
+   ESTUDIANTES: UNA LISTA DE PERSONAS, NO UNA HOJA DE CÁLCULO
+   ------------------------------------------------------------
+   DOS PROBLEMAS, Y EL SEGUNDO NO SE VEÍA
+
+   1. ERA UNA TABLA. Siete columnas, chips de estado, chips de
+      sección, dos botones de Excel y cuatro iconos por fila. Para
+      la pregunta que se hace de verdad —«llegó fulano, ¿quién es
+      y qué le abro?»— había que leer una rejilla entera.
+
+   2. ESTABA FILTRADA POR CURSO, y no lo decía en ningún sitio.
+      studentsView ya venía envuelta por el módulo multicurso: la
+      columna de progreso era del curso que hubiera en la barra
+      «Gestionando», y el encabezado ponía «PROGRESO (INTRODUCCIÓN)»
+      sin que nadie hubiera pedido Introducción. De ahí salía el
+      panel que decía «Aún no hay estudiantes» con quince dentro.
+
+   Estudiantes es de la academia. El avance por curso ya tiene dos
+   pantallas suyas —Progreso y la Ficha— y no hacía falta una
+   tercera a medias.
+
+   EL ORDEN: EL ÚLTIMO EN LLEGAR, ARRIBA
+
+   Es el orden en que se trabaja. Alguien se registra hoy, escribe
+   hoy, y hay que abrirle algo hoy; quien lleva ocho meses ya está
+   colocado. La lista alfabética obliga a buscar a quien acaba de
+   llegar, que es justo a quien se está buscando.
+
+   Se ordena por la fecha que haya —created, enrolled o
+   enrolled_at, en ese orden— porque según de dónde venga el
+   registro está en una o en otra, y empatan por nombre para que
+   el orden no baile entre repintados.
+
+   QUÉ SE CONSERVA
+
+   Todo lo que hacía: crear, editar, pausar, papelera, restaurar,
+   borrar definitivamente, los dos Excel y los filtros por estado.
+   Nada de eso se reescribe — se llaman las mismas funciones de
+   siempre. Lo que cambia es la forma de llegar a ellas.
+
+   Y se añade lo que faltaba: el botón que lleva a la Ficha, que
+   es donde se abre un curso. Antes había que salir, ir al menú y
+   volver a buscar a la persona.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · ESTADO DE LA PANTALLA
+   ------------------------------------------------------------ */
+var AGESQ = '';          /* lo que se busca */
+var AGESFILTRO = '';     /* estado elegido; vacío = todos menos papelera */
+
+function agEsAlumnos(){
+  var a = [];
+  try{ a = (typeof STUDENTS !== 'undefined' ? STUDENTS : []) || []; }catch(e){}
+  return a;
+}
+function agEsLlegada(s){
+  return String((s && (s.created || s.enrolled || s.enrolled_at)) || '');
+}
+function agEsIni(n){
+  n = String(n || '').trim();
+  if(!n) return '👤';
+  var p = n.split(/\s+/).filter(Boolean);
+  return ((p[0] || '')[0] || '').toUpperCase() + ((p[1] || '')[0] || '').toUpperCase();
+}
+
+/* cuántos cursos tiene abiertos — la cifra que decide qué hacer */
+function agEsCursosDe(s){
+  var n = 0;
+  try{
+    var C = (typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES');
+    Object.keys(C).forEach(function(k){
+      try{ if(C[k].enrolled(s)) n++; }catch(e){}
+    });
+  }catch(e){}
+  return n;
+}
+
+/* el avance sumado de lo que tiene abierto */
+function agEsAvanceDe(s){
+  var h = 0, t = 0;
+  try{
+    var C = (typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES');
+    Object.keys(C).forEach(function(k){
+      var c = C[k];
+      try{
+        if(!c.enrolled(s)) return;
+        h += c.count(s.id) || 0;
+        t += c.n || 0;
+      }catch(e){}
+    });
+  }catch(e){}
+  return { hechos: h, total: t };
+}
+
+function agEsLista(){
+  var l = agEsAlumnos().filter(function(s){
+    if(!s) return false;
+    if(AGESFILTRO){ if(s.status !== AGESFILTRO) return false; }
+    else if(s.status === 'borrado') return false;      /* la papelera solo si se pide */
+    if(AGESQ){
+      var q = AGESQ;
+      var en = (s.name || '').toLowerCase().indexOf(q) >= 0 ||
+               (s.email || '').toLowerCase().indexOf(q) >= 0 ||
+               (s.phone || '').toLowerCase().indexOf(q) >= 0;
+      if(!en) return false;
+    }
+    return true;
+  });
+  /* el último en llegar, primero; empate por nombre para que el
+     orden no cambie entre repintados */
+  l.sort(function(a, b){
+    var x = agEsLlegada(a), y = agEsLlegada(b);
+    if(x !== y) return x < y ? 1 : -1;
+    return String(a.name || '') < String(b.name || '') ? -1 : 1;
+  });
+  return l;
+}
+
+/* ------------------------------------------------------------
+   2 · LO QUE SE PUEDE HACER
+   ------------------------------------------------------------
+   Ninguna acción se reescribe: se llama a la de siempre y luego
+   se repinta. Duplicar la lógica de borrar un estudiante para
+   tener un botón más bonito es justo lo que no se va a hacer.
+   ------------------------------------------------------------ */
+window.agEsBuscar = function(q){
+  AGESQ = String(q || '').toLowerCase();
+  var l = document.getElementById('agEsLista');
+  if(l) l.innerHTML = agEsFilasHTML();
+};
+window.agEsFiltrar = function(k){
+  AGESFILTRO = k || '';
+  agEsRepinta();
+};
+window.agEsFicha = function(uid){
+  try{ AGALSEL = uid; }catch(e){}
+  try{ window.AGALSEL = uid; }catch(e){}
+  if(typeof admTab === 'function') admTab('alumno');
+};
+function agEsRepinta(){
+  try{
+    if(typeof ADM !== 'undefined' && ADM.tab === 'students'){
+      var root = document.getElementById('adminBody');
+      if(root) root.innerHTML = agEsPantalla();
+    }
+  }catch(e){}
+}
+window.agEsRepinta = agEsRepinta;
+
+/* ------------------------------------------------------------
+   3 · LA PANTALLA
+   ------------------------------------------------------------ */
+function agEsFilasHTML(){
+  var l = agEsLista();
+  if(!l.length){
+    return '<div class="agp-vacio"><b>' +
+      (AGESQ ? 'Nadie coincide con «' + agEsc(AGESQ) + '»' :
+       AGESFILTRO === 'borrado' ? 'La papelera está vacía' : 'Todavía no hay estudiantes') + '</b>' +
+      '<p>' + (AGESQ ? 'Pruebe con parte del nombre, del correo o del teléfono.' :
+        'Cuando alguien cree su cuenta aparecerá aquí, y el más reciente saldrá arriba.') + '</p></div>';
+  }
+
+  var ESTADOS = {};
+  try{ ESTADOS = (typeof STATUS !== 'undefined') ? STATUS : (0, eval)('STATUS'); }catch(e){}
+  /* el estado con el papel de color que le toca, no un color propio */
+  var PAPEL = { activo: 'exito', pendiente: 'aviso', inactivo: 'bloq',
+                completado: 'accion', retirado: 'bloq', borrado: 'error' };
+
+  return l.map(function(s){
+    var est = s.status || 'activo';
+    var nom = (ESTADOS[est] && ESTADOS[est][0]) || est;
+    var cur = agEsCursosDe(s);
+    var av = agEsAvanceDe(s);
+    var f = agEsLlegada(s).slice(0, 10);
+    var id = String(s.id).replace(/'/g, "\\'");
+    var borrado = (est === 'borrado');
+
+    return '<div class="ages-f' + (borrado ? ' fuera' : '') + '">' +
+      '<span class="ages-av">' + agEsIni(s.name) + '</span>' +
+
+      '<span class="ages-q">' +
+        '<b>' + agEsc(s.name || '(sin nombre)') + '</b>' +
+        '<em>' + (s.email ? agEsc(s.email) : 'sin correo') +
+          (s.phone ? ' · ' + agEsc(s.phone) : '') + '</em>' +
+      '</span>' +
+
+      '<span class="ages-e">' + agEstado(PAPEL[est] || 'bloq', nom) + '</span>' +
+
+      '<span class="ages-c"><b>' + cur + '</b><i>' + (cur === 1 ? 'curso' : 'cursos') + '</i></span>' +
+
+      '<span class="ages-b">' + agBarraAvance(av.hechos, av.total) +
+        '<i>' + av.hechos + ' de ' + av.total + ' módulos</i></span>' +
+
+      '<span class="ages-d">' + (f || '—') + '<i>llegó</i></span>' +
+
+      '<span class="ages-a">' +
+        (borrado
+          ? '<button class="ag-bt suave" onclick="restoreStudent(\'' + id + '\')" title="Restaurar">↩ Restaurar</button>' +
+            '<button class="ag-bt peligro" onclick="purgeStudent(\'' + id + '\')" title="Eliminar definitivamente">🗑</button>'
+          : '<button class="ag-bt" onclick="agEsFicha(\'' + id + '\')">Abrir ficha</button>' +
+            '<button class="ag-bt suave ico" onclick="editStudent(\'' + id + '\')" title="Editar datos">✎</button>' +
+            '<button class="ag-bt suave ico" onclick="toggleActive(\'' + id + '\')" title="' +
+              (est === 'inactivo' ? 'Reactivar' : 'Pausar') + '">' + (est === 'inactivo' ? '▶' : '❙❙') + '</button>' +
+            '<button class="ag-bt suave ico" onclick="deleteStudent(\'' + id + '\')" title="Enviar a la papelera">🗑</button>') +
+      '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function agEsPantalla(){
+  var todos = agEsAlumnos();
+  var vivos = todos.filter(function(s){ return s && s.status !== 'borrado'; });
+  var cnt = {};
+  todos.forEach(function(s){ var k = (s && s.status) || 'activo'; cnt[k] = (cnt[k] || 0) + 1; });
+
+  var ESTADOS = {};
+  try{ ESTADOS = (typeof STATUS !== 'undefined') ? STATUS : (0, eval)('STATUS'); }catch(e){}
+
+  /* solo se ofrecen los filtros que tienen a alguien dentro: un
+     chip que siempre da cero es ruido con aspecto de opción */
+  var chips = '<button class="ages-chip' + (AGESFILTRO ? '' : ' on') +
+      '" onclick="agEsFiltrar(\'\')">Todos <b>' + vivos.length + '</b></button>';
+  Object.keys(ESTADOS).forEach(function(k){
+    if(!cnt[k]) return;
+    chips += '<button class="ages-chip' + (AGESFILTRO === k ? ' on' : '') +
+      '" onclick="agEsFiltrar(\'' + k + '\')">' + ESTADOS[k][0] +
+      (k === 'borrado' ? ' 🗑' : '') + ' <b>' + cnt[k] + '</b></button>';
+  });
+
+  var excel = '';
+  try{ if(typeof ucBotonesCSV === 'function') excel = ucBotonesCSV(); }catch(e){}
+
+  return '<div class="ages">' +
+    '<div class="ages-top">' +
+      '<button class="ag-bt" onclick="editStudent()">＋ Agregar estudiante</button>' +
+      '<input class="ages-buscar" type="search" value="' + agEsc(AGESQ) +
+        '" placeholder="Buscar por nombre, correo o teléfono…" oninput="agEsBuscar(this.value)">' +
+      '<span class="ages-cuenta"><b>' + vivos.length + '</b> ' +
+        (vivos.length === 1 ? 'estudiante' : 'estudiantes') + '</span>' +
+    '</div>' +
+    '<div class="ages-chips">' + chips + '</div>' +
+    (excel ? '<div class="ages-excel">' + excel + '</div>' : '') +
+    '<p class="agp-rot">Del último en llegar al primero</p>' +
+    '<div class="ages-lista" id="agEsLista">' + agEsFilasHTML() + '</div>' +
+  '</div>';
+}
+window.agEsPantalla = agEsPantalla;
+
+/* ------------------------------------------------------------
+   4 · ENGANCHE
+   ------------------------------------------------------------
+   Por studentsView, no por renderAdmin: el módulo de nube llama a
+   una copia de renderAdmin guardada de antes para esta pestaña —
+   lo mismo que pasaba con el tablero.
+
+   Y renderStudentsTable se queda sin trabajo: era quien rellenaba
+   la tabla que ya no existe. Se le deja repintar esta lista, que
+   es lo que quieren decir las veinte llamadas que hay repartidas
+   por el código después de crear, editar o borrar a alguien.
+   ------------------------------------------------------------ */
+(function agEsEngancha(){
+  var poner = function(){
+    if(typeof window.studentsView !== 'function') return false;
+    if(window.studentsView.__ages) return true;
+    var envuelto = function(){
+      try{ return agEsPantalla(); }
+      catch(e){ return '<div class="agp-vacio"><b>No se pudo pintar la lista</b><p>' + agEsc(e.message) + '</p></div>'; }
+    };
+    envuelto.__ages = true;
+    window.studentsView = envuelto;
+    try{ studentsView = envuelto; }catch(e){}
+
+    if(typeof window.renderStudentsTable === 'function' && !window.renderStudentsTable.__ages){
+      var rst = function(){
+        var l = document.getElementById('agEsLista');
+        if(l){ try{ l.innerHTML = agEsFilasHTML(); }catch(e){} }
+      };
+      rst.__ages = true;
+      window.renderStudentsTable = rst;
+      try{ renderStudentsTable = rst; }catch(e){}
+    }
+    return true;
+  };
+  if(!poner()){
+    var i = 0;
+    var seguir = function(){ if(poner()) return; if(++i < 60) setTimeout(seguir, 150); };
+    setTimeout(seguir, 0);
+  }
+  [400, 1200, 2500].forEach(function(t){ setTimeout(poner, t); });
+})();
+
+/* ------------------------------------------------------------
+   5 · ESTILOS
+   ------------------------------------------------------------ */
+(function agEsCss(){
+  if(document.getElementById('agEsCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agEsCss';
+  s.textContent = [
+    '.ages{color:var(--agp-tx)}',
+
+    '.ages-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}',
+    '.ages-buscar{flex:1;min-width:230px;padding:11px 15px;border-radius:11px;font:inherit;font-size:14px;',
+      'background:var(--agp-deep);border:1px solid var(--ag-info-b);color:var(--agp-tx)}',
+    '.ages-buscar::placeholder{color:var(--agp-dim)}',
+    '.ages-buscar:focus{outline:none;border-color:var(--ag-accion-b)}',
+    '.ages-cuenta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;',
+      'text-transform:uppercase;color:var(--agp-dim)}',
+    '.ages-cuenta b{font-family:var(--display);font-size:17px;color:var(--agp-tx);letter-spacing:0}',
+
+    '.ages-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}',
+    '.ages-chip{padding:7px 13px;border-radius:999px;cursor:pointer;font:inherit;font-size:12.5px;',
+      'background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-tx2)}',
+    '.ages-chip b{font-weight:700;color:var(--agp-tx)}',
+    '.ages-chip:hover{border-color:var(--ag-accion-b)}',
+    '.ages-chip.on{background:var(--ag-accion-s);border-color:var(--ag-accion-b);color:var(--ag-accion-hi)}',
+    '.ages-chip.on b{color:var(--ag-accion-hi)}',
+    '.ages-excel{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 4px}',
+
+    /* --- una fila por persona --- */
+    '.ages-lista{display:grid;gap:8px}',
+    '.ages-f{display:grid;align-items:center;gap:14px;padding:12px 16px;border-radius:13px;',
+      'grid-template-columns:40px minmax(0,2fr) 104px 62px minmax(130px,1.2fr) 84px auto;',
+      'background:var(--agp-deep);border:1px solid var(--ag-info-b);transition:border-color .16s}',
+    '.ages-f:hover{border-color:var(--ag-accion-b)}',
+    '.ages-f.fuera{opacity:.62}',
+    '.ages-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;',
+      'background:var(--ag-prog-s);border:1px solid var(--ag-prog-b);color:var(--ag-prog-hi);',
+      'font-family:var(--mono);font-size:12.5px}',
+    '.ages-q{min-width:0}',
+    '.ages-q b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;color:var(--agp-tx);',
+      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.ages-q em{display:block;margin-top:2px;font-style:normal;font-size:12px;color:var(--agp-dim);',
+      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.ages-c{text-align:center}',
+    '.ages-c b{display:block;font-family:var(--display);font-size:20px;font-weight:700;color:var(--agp-tx)}',
+    '.ages-c > i,.ages-b > i,.ages-d > i{display:block;margin-top:3px;font-style:normal;',
+      'font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;',
+      'color:var(--agp-dim);white-space:nowrap}',
+    '.ages-b{display:block}',
+    '.ages-b > i{text-align:left;margin-top:6px}',
+    '.ages-d{font-family:var(--mono);font-size:12px;color:var(--agp-tx2);text-align:right}',
+    '.ages-d > i{text-align:right}',
+    '.ages-a{display:flex;gap:6px;align-items:center;justify-content:flex-end}',
+    '.ages-a .ag-bt{padding:8px 13px;font-size:13px}',
+    '.ages-a .ag-bt.ico{padding:8px 10px;min-width:34px}',
+
+    /* --- estrecho: la fila se apila en dos alturas --- */
+    '@media(max-width:1180px){',
+      '.ages-f{grid-template-columns:40px minmax(0,1fr) auto;row-gap:10px}',
+      '.ages-e{grid-column:3}',
+      '.ages-c,.ages-b,.ages-d{grid-column:2/-1;text-align:left}',
+      '.ages-d{text-align:left}', '.ages-d > i{text-align:left}',
+      '.ages-a{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -36301,7 +38662,7 @@ if(typeof window.abrirCursos === 'function'){
    ------------------------------------------------------------ */
 if(typeof AGCAT !== 'undefined' && !AGCAT.engorde){
   AGCAT.engorde = {
-    cover:'nutri-m06-nave-engorde', cat:'Complementario',
+    cover:'m7-corral-engorde', cat:'Complementario',
     desc:'Del crecimiento al peso de mercado: aprenda a controlar peso, alimento, conversión, costos y rentabilidad de su lote.',
     abrir:function(){ if(typeof cerrarCursos === 'function') cerrarCursos(); openEngorde(); },
     pagar:function(){ egAbrirPago(); }
@@ -36718,6 +39079,7 @@ if(typeof window.egAccesoTodos === 'function'){
 }
 
 </script>
+
 
 
 
