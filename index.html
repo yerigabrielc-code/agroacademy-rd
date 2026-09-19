@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-09-19a · Reproduccion: video externo en modulo 10 (senales del parto, en espanol) -->
+<!-- AgroAcademy RD 2.0 · build 2026-09-19b · Reproduccion: video del modulo 10 reemplazado (LifeStart, con subtitulos) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -15635,7 +15635,7 @@ RPMOD.push(
  {k:'agmix', t:'Video: los signos del parto, en movimiento',
   p:'Un recurso externo para ver lo que las tarjetas anteriores describen con palabras. Requiere conexión a internet.',
   partes:[
-   {k:'html', h:'<div class="ag-video rv"><div class="ag-video-frame"><iframe src="https://www.youtube-nocookie.com/embed/3bPP1yWjU-4?cc_load_policy=1&cc_lang_pref=es&rel=0" title="Parto de cerda — manejo y signos, en español" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div><p class="nx-cap">Video externo en español, con material de <b>Topigs Norsvin</b> (genética porcina) — no es material producido por AgroAcademy RD.</p></div>'}
+   {k:'html', h:'<div class="ag-video rv"><div class="ag-video-frame"><iframe src="https://www.youtube-nocookie.com/embed/t3VPvrAA31E?cc_load_policy=1&cc_lang_pref=es&rel=0" title="LifeStart: el proceso de parto de la cerda" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div><p class="nx-cap">Video externo en español, con subtítulos — "LifeStart: el proceso de parto de la cerda", de <b>Trouw Nutrition México</b> — no es material producido por AgroAcademy RD.</p></div>'}
   ]},
 
  {k:'alerta', tipo:'tip', ico:'📎', t:'El manejo del lechón está en el curso 1',
@@ -18317,6 +18317,24 @@ window.agOtraVez = function(){
     '.ag-bt.peligro:hover{background:var(--ag-error-s)}',
     '.ag-bt[disabled],.ag-bt.no{background:var(--ag-bloq-s);color:var(--ag-bloq-hi);',
       'border-color:var(--ag-bloq-b);cursor:not-allowed}',
+
+    /* ------------------------------------------------------------
+       PUENTE CON LAS PIEZAS ANTIGUAS
+       ------------------------------------------------------------
+       La barra de avance del panel (.adm-prog-bar) es anterior al
+       sistema y traía dos cosas mal.
+
+       La gorda: una regla pintaba LA PISTA con el degradado verde
+       —`.adm-prog-bar{background:linear-gradient(...)!important}`—
+       así que el hueco vacío se veía lleno. Una barra al 25 % se
+       leía como una al 100 % con un trozo más claro.
+
+       La otra: el relleno iba en verde de éxito a cualquier
+       porcentaje, y media barra verde parece media aprobación. El
+       avance es cantidad, no juicio: va en salvia. */
+    '.adm-prog-bar{background:var(--ag-info-s)!important;',
+      'border:1px solid var(--ag-info-b);box-sizing:border-box}',
+    '.adm-prog-bar i{background:var(--ag-prog-c)!important}',
 
     /* foco visible, del color de acción: quien va con teclado
        tiene que ver dónde está sin adivinarlo */
@@ -32575,6 +32593,7 @@ addEventListener('keydown', function(e){
 })();
 
 </script>
+
 
 
 
