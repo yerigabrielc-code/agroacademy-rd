@@ -32592,7 +32592,566 @@ addEventListener('keydown', function(e){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- ag-avance.js ---------- */
+/* ============================================================
+   EL AVANCE DE CUATRO CURSOS NUNCA SALÍA DEL NAVEGADOR
+   ------------------------------------------------------------
+   EL SÍNTOMA
+
+   Un estudiante termina Reproducción. En su pantalla, 10 de 10.
+   En el panel del instructor, 0 de 10. No es que se vea mal: es
+   que ese dato nunca llegó a existir fuera del teléfono de esa
+   persona.
+
+   LA CAUSA, Y ES LA MISMA REPETIDA CUATRO VECES
+
+   Cada curso, al aprobar un módulo, guarda en el equipo y luego
+   intenta subirlo. Así quedaron esas llamadas:
+
+     porcicultura  pushExamProgress('porcicultura', uid, m, rec)   existe
+     nutricion     pushExamProgress('nutricion',    uid, m, rec)   existe
+     reproduccion  pushProgress(uid, m, rec, 'reproduccion')       NO EXISTE
+     sanidad       pushProgress(uid, m, rec, 'sanidad')            NO EXISTE
+     engorde       cloudSaveRec(uid, m, rec, 'engorde')            NO EXISTE
+     ruta          cloudSaveRec(uid, m, 'ruta', r)                 NO EXISTE
+
+   Dos nombres inventados que nunca se implementaron, y entre los
+   dos usos de uno de ellos ni siquiera coincide el orden de los
+   argumentos. La función de verdad se llama pushExamProgress y
+   lleva el curso DELANTE.
+
+   POR QUÉ NADIE SE ENTERÓ EN MESES
+
+   Las cuatro llamadas van envueltas así:
+
+       if(typeof pushProgress === 'function'){ ... }
+
+   Esa guarda existe para no romper si la nube no está cargada. Y
+   cumple su función demasiado bien: como la función no existe
+   NUNCA, la condición es falsa SIEMPRE y no se sube nada, sin un
+   error, sin un aviso, sin una línea en la consola. El código
+   parecía correcto y el guardia tapaba que no lo era.
+
+   Es el peor fallo posible para un dato: no se pierde ruidosamente,
+   se pierde en silencio y solo se nota cuando alguien pregunta.
+
+   LO QUE ESTO ARREGLA — Y LO QUE RECUPERA
+
+   1. Se definen los dos nombres que faltaban, como adaptadores
+      sobre la función que sí existe. Las cuatro llamadas quedan
+      como están: viven en cuatro ficheros de curso distintos y
+      tocarlas sería cambiar cuatro sitios para arreglar uno.
+
+   2. Los adaptadores NO asumen el orden de los argumentos: lo
+      deducen. El curso es una cadena, el registro es un objeto —
+      eso no es ambiguo, y es la única forma de servir a la vez a
+      engorde y a ruta, que los pasan al revés.
+
+   3. El respaldo «sube lo que solo está en este equipo» cubría
+      porcicultura y nutrición nada más. Ahora cubre los seis. Ese
+      es el camino de RECUPERACIÓN: el estudiante que ya terminó
+      Reproducción tiene sus diez módulos en su navegador, y la
+      próxima vez que entre se suben solos.
+
+   4. Al traerse el avance de la nube, nsForCourse mandaba todo lo
+      que no fuera nutrición al cajón de porcicultura. Eso no es
+      perder un dato: es meterlo en el curso equivocado. Se mapean
+      los seis.
+
+   LO QUE NO PUEDE ARREGLARSE DESDE AQUÍ
+
+   Si la tabla `progress` de la nube no tiene la columna `course`,
+   no hay dónde guardar de qué curso es cada fila y los cursos
+   distintos de porcicultura se descartan al subir. Esto se avisa
+   en pantalla en vez de fallar callando, que es justo el error
+   que vino a corregir esta pieza.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · LOS SEIS CURSOS Y SU CAJÓN
+   ------------------------------------------------------------ */
+var AGAVCURSOS = [
+  ['porcicultura', 'porci::', 12],
+  ['nutricion',    'nx::',    12],
+  ['reproduccion', 'rp::',    10],
+  ['sanidad',      'sb::',    10],
+  ['engorde',      'eg::',    10],
+  ['ruta',         'rt::',     5]
+];
+window.AGAVCURSOS = AGAVCURSOS;
+
+function agAvNs(curso){
+  for(var i = 0; i < AGAVCURSOS.length; i++) if(AGAVCURSOS[i][0] === curso) return AGAVCURSOS[i][1];
+  return 'porci::';
+}
+function agAvMods(curso){
+  /* el número real de módulos, si el curso ya está registrado */
+  try{
+    var C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso];
+    if(C && C.n) return C.n;
+  }catch(e){}
+  for(var i = 0; i < AGAVCURSOS.length; i++) if(AGAVCURSOS[i][0] === curso) return AGAVCURSOS[i][2];
+  return 12;
+}
+window.agAvNs = agAvNs;
+window.agAvMods = agAvMods;
+
+/* ------------------------------------------------------------
+   2 · LOS DOS NOMBRES QUE FALTABAN
+   ------------------------------------------------------------
+   Deducen el orden en vez de imponerlo. De los cuatro sitios que
+   los llaman, tres pasan (uid, módulo, registro, curso) y uno
+   pasa (uid, módulo, curso, registro). Mirar el TIPO de cada
+   argumento resuelve los dos casos y cualquier otro que aparezca.
+   ------------------------------------------------------------ */
+function agAvAdaptar(args){
+  var uid = null, mod = null, rec = null, curso = null;
+  for(var i = 0; i < args.length; i++){
+    var a = args[i];
+    if(a == null) continue;
+    if(typeof a === 'object'){ if(!rec) rec = a; continue; }
+    if(typeof a === 'number'){ if(mod === null) mod = a; continue; }
+    if(typeof a === 'string'){
+      /* un id de usuario es largo o va primero; el curso es uno de los seis */
+      var esCurso = false;
+      for(var k = 0; k < AGAVCURSOS.length; k++) if(AGAVCURSOS[k][0] === a) esCurso = true;
+      if(esCurso){ curso = a; continue; }
+      if(uid === null){ uid = a; continue; }
+      if(mod === null && /^\d+$/.test(a)){ mod = +a; continue; }
+    }
+  }
+  return { uid: uid, mod: mod, rec: rec, curso: curso || 'porcicultura' };
+}
+
+function agAvSubir(){
+  var p = agAvAdaptar(arguments);
+  if(!p.uid || p.mod == null || !p.rec) return;
+  if(typeof window.pushExamProgress !== 'function') return;
+  try{ window.pushExamProgress(p.curso, p.uid, p.mod, p.rec); }catch(e){}
+}
+
+/* los nombres que las cuatro llamadas buscaban */
+if(typeof window.pushProgress !== 'function') window.pushProgress = agAvSubir;
+if(typeof window.cloudSaveRec !== 'function') window.cloudSaveRec = agAvSubir;
+window.agAvSubir = agAvSubir;
+
+/* ------------------------------------------------------------
+   3 · TRAER DE LA NUBE AL CAJÓN CORRECTO
+   ------------------------------------------------------------
+   nsForCourse vive dentro de un cierre y no se puede sustituir
+   desde fuera. Lo que sí se puede es volver a bajar el avance
+   bien: se lee la tabla una vez y se escribe cada fila en el
+   espacio de nombres de SU curso.
+   ------------------------------------------------------------ */
+window.agAvBajar = async function(uid){
+  if(!uid || !window.SB) return 0;
+  var sb = window.SB;
+  var n = 0;
+  try{
+    var hc = true;
+    try{ hc = !!(await window.progHasCourse()); }catch(e){ hc = !!window.PROG_HAS_COURSE; }
+    var r = await sb.from('progress').select('*').eq('user_id', uid);
+    var filas = (r && r.data) || [];
+    /* 0 FILAS NO ES 0 DATOS: si la nube no contesta, no se toca nada */
+    if(!filas.length) return 0;
+    filas.forEach(function(f){
+      var curso = hc ? (f.course || 'porcicultura') : 'porcicultura';
+      var rec = { passed: !!f.passed, best: f.best || 0, last: f.last_score || 0,
+                  attempts: f.attempts || 0,
+                  date: f.updated_at ? new Date(f.updated_at).getTime() : Date.now() };
+      try{
+        localStorage.setItem(agAvNs(curso) + uid + '::exam_m' + f.module, JSON.stringify(rec));
+        n++;
+      }catch(e){}
+    });
+  }catch(e){}
+  return n;
+};
+
+/* ------------------------------------------------------------
+   4 · RESPALDAR LO QUE SOLO ESTÁ EN ESTE EQUIPO — LOS SEIS
+   ------------------------------------------------------------
+   Este es el camino de recuperación. Quien ya terminó un curso lo
+   tiene entero en su navegador; con esto sube la primera vez que
+   entre, sin pedirle nada ni tocar lo que ya hay en la nube.
+   ------------------------------------------------------------ */
+window.agAvRespaldar = async function(uid){
+  if(!uid || !window.SB) return { subidas: 0, sinColumna: false };
+  var sb = window.SB;
+  var hc = true;
+  try{ hc = !!(await window.progHasCourse()); }catch(e){ hc = !!window.PROG_HAS_COURSE; }
+
+  var subidas = 0;
+  for(var i = 0; i < AGAVCURSOS.length; i++){
+    var curso = AGAVCURSOS[i][0], ns = AGAVCURSOS[i][1];
+    /* sin la columna `course` solo cabe porcicultura: lo demás no
+       tendría cómo distinguirse al volver a bajarlo */
+    if(!hc && curso !== 'porcicultura') continue;
+    var max = agAvMods(curso);
+
+    try{
+      var q = sb.from('progress').select('module,updated_at,best,passed').eq('user_id', uid);
+      if(hc) q = q.eq('course', curso);
+      var r = await q;
+      var nube = {};
+      ((r && r.data) || []).forEach(function(x){
+        nube[x.module] = { t: x.updated_at ? new Date(x.updated_at).getTime() : 0, best: x.best || 0 };
+      });
+
+      var filas = [];
+      for(var m = 1; m <= max; m++){
+        var rec = null;
+        try{ rec = JSON.parse(localStorage.getItem(ns + uid + '::exam_m' + m) || 'null'); }catch(e){}
+        if(!rec) continue;
+        var loc = rec.date || 0, enNube = nube[m];
+        /* solo se sube lo que la nube no tiene o tiene peor: nunca
+           se pisa una nota mejor con una peor */
+        if(!enNube || loc > enNube.t + 1000 || (rec.best || 0) > enNube.best){
+          var fila = { user_id: uid, module: m, passed: !!rec.passed, best: rec.best || 0,
+                       last_score: rec.last || 0, attempts: rec.attempts || rec.tries || 0,
+                       updated_at: new Date(loc || Date.now()).toISOString() };
+          if(hc) fila.course = curso;
+          filas.push(fila);
+        }
+      }
+      if(filas.length){
+        await sb.from('progress').upsert(filas, { onConflict: hc ? 'user_id,course,module' : 'user_id,module' });
+        subidas += filas.length;
+      }
+    }catch(e){}
+  }
+  return { subidas: subidas, sinColumna: !hc };
+};
+
+/* se envuelve el respaldo de siempre para que cubra los seis sin
+   cambiar a quien lo llama */
+(function agAvEnvuelve(){
+  var poner = function(){
+    if(typeof window.pushLocalProgress !== 'function') return false;
+    if(window.pushLocalProgress.__agav) return true;
+    var envuelto = async function(uid){
+      var r = await window.agAvRespaldar(uid);
+      return r.subidas;
+    };
+    envuelto.__agav = true;
+    window.pushLocalProgress = envuelto;
+    return true;
+  };
+  if(!poner()){
+    var i = 0;
+    var seguir = function(){ if(poner()) return; if(++i < 60) setTimeout(seguir, 200); };
+    setTimeout(seguir, 0);
+  }
+})();
+
+/* ------------------------------------------------------------
+   5 · AVISAR SI LA NUBE NO PUEDE GUARDAR EL CURSO
+   ------------------------------------------------------------
+   Sin la columna `course` en la tabla progress, cinco de los seis
+   cursos no tienen dónde guardarse. Antes esto se descartaba sin
+   decir nada — exactamente el fallo que esta pieza corrige. Se
+   dice, y solo al instructor, que es quien puede arreglarlo.
+   ------------------------------------------------------------ */
+window.agAvRevisar = async function(){
+  if(!window.SB) return null;
+  var hc = true;
+  try{ hc = !!(await window.progHasCourse()); }catch(e){ hc = !!window.PROG_HAS_COURSE; }
+  if(!hc && typeof toast === 'function'){
+    toast('La tabla «progress» no tiene la columna «course»: solo se guarda el avance de Porcicultura. Ejecute progress-course.sql.', '⛔');
+  }
+  return hc;
+};
+
+/* ------------------------------------------------------------
+   6 · UNA COPIA LOCAL NO ES UNA SESION
+   ------------------------------------------------------------
+   El respaldo se dispara solo al entrar un estudiante, y eso
+   escribe en la base de datos de verdad. Las pruebas abren el
+   documento con file:// y window.SB existe igual, asi que sin
+   esta comprobacion cada verificador habria escrito en la nube de
+   produccion — y el avance de los alumnos reales no es un banco
+   de pruebas.
+
+   Se exige http o https: la plataforma servida. Un fichero
+   abierto desde el disco mira, no toca.
+   ------------------------------------------------------------ */
+function agAvEsLaPlataforma(){
+  try{ return location.protocol === 'http:' || location.protocol === 'https:'; }
+  catch(e){ return false; }
+}
+window.agAvEsLaPlataforma = agAvEsLaPlataforma;
+
+(function agAvAlEntrar(){
+  /* el estudiante sube lo suyo al entrar; el instructor solo mira */
+  var hecho = false;
+  var mirar = function(){
+    if(hecho) return;
+    if(!agAvEsLaPlataforma()) return;
+    try{
+      if(typeof SESSION === 'undefined' || !SESSION) return;
+      if(SESSION.role !== 'STUDENT') return;
+      if(!SESSION.id || !window.SB) return;
+      hecho = true;
+      window.agAvRespaldar(SESSION.id).then(function(r){
+        if(r && r.subidas && typeof toast === 'function'){
+          toast('Se respaldó su avance (' + r.subidas + ' módulo' + (r.subidas === 1 ? '' : 's') + ')', '☁️');
+        }
+      });
+    }catch(e){}
+  };
+  [2500, 6000, 12000].forEach(function(t){ setTimeout(mirar, t); });
+})();
+
+
+/* ---------- ag-registrar.js ---------- */
+/* ============================================================
+   REGISTRAR A MANO UN CURSO TERMINADO
+   ------------------------------------------------------------
+   PARA QUÉ EXISTE ESTO
+
+   Durante meses, cuatro cursos no subían el avance a la nube
+   (ver ag-avance.js). Quien terminó Reproducción, Sanidad,
+   Engorde o Ruta lo tiene en su navegador y en ningún otro sitio.
+
+   El camino limpio es que esa persona entre una vez desde el
+   equipo donde estudió: su avance se respalda solo, con SUS
+   notas y SUS fechas. Eso es siempre lo primero que hay que
+   intentar.
+
+   Pero hay casos en que no se puede —cambió de teléfono, formateó,
+   estudió en un equipo prestado— y el instructor sabe que esa
+   persona terminó. Para eso está esto.
+
+   LA REGLA QUE NO SE ROMPE: NO SE INVENTAN NOTAS
+
+   Un registro manual NO finge ser un examen. Se guarda marcado
+   como tal (`manual:true`, con la fecha de hoy y quién lo puso) y
+   la ficha lo enseña como «registrado por el instructor», no como
+   «aprobado con 92». Si mañana alguien audita por qué esa persona
+   tiene certificado, el dato dice la verdad.
+
+   Y la nota la pone el instructor, no la inventa el programa: se
+   pide, con la mínima del curso como sugerencia.
+
+   LO QUE NO TOCA
+
+   Lo que ya esté aprobado de verdad. Si un módulo tiene un examen
+   real, se respeta y no se pisa: registrar un curso terminado
+   rellena los huecos, no borra el trabajo hecho.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 · QUÉ LE FALTA A ESTA PERSONA EN ESTE CURSO
+   ------------------------------------------------------------ */
+function agRgtFaltan(uid, curso){
+  var C = null;
+  try{ C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso]; }catch(e){}
+  if(!C) return [];
+  var ms = [];
+  try{ ms = C.modules() || []; }catch(e){}
+  var faltan = [];
+  ms.forEach(function(m){
+    var ok = false;
+    try{ ok = !!C.passed(uid, m.n); }catch(e){}
+    if(!ok) faltan.push(m.n);
+  });
+  return faltan;
+}
+window.agRgtFaltan = agRgtFaltan;
+
+/* ------------------------------------------------------------
+   2 · REGISTRARLO
+   ------------------------------------------------------------ */
+window.agRgtRegistrar = function(uid, curso){
+  var C = null, al = null;
+  try{ C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso]; }catch(e){}
+  try{ (typeof STUDENTS !== 'undefined' ? STUDENTS : []).forEach(function(s){ if(s.id === uid) al = s; }); }catch(e){}
+  if(!C || !al){ if(typeof toast === 'function') toast('No encuentro ese curso o ese estudiante', '⚠️'); return; }
+
+  var faltan = agRgtFaltan(uid, curso);
+  if(!faltan.length){
+    if(typeof toast === 'function') toast(al.name + ' ya tiene ' + C.label + ' completo', 'ℹ️');
+    return;
+  }
+
+  var minima = 80;
+  try{ minima = (C.cfg && C.cfg.passing) || 80; }catch(e){}
+
+  var nota = prompt(
+    'Registrar ' + C.label + ' como terminado para ' + al.name + '.\n\n' +
+    'Le faltan ' + faltan.length + ' de ' + (C.n || 0) + ' módulos: ' + faltan.join(', ') + '.\n' +
+    'Lo que ya tenga aprobado de verdad NO se toca.\n\n' +
+    '¿Con qué nota lo registra? (la mínima del curso es ' + minima + ')',
+    String(minima)
+  );
+  if(nota === null) return;
+  var n = parseInt(nota, 10);
+  if(isNaN(n) || n < 1 || n > 100){ if(typeof toast === 'function') toast('Esa nota no es válida', '⚠️'); return; }
+  if(n < minima){
+    if(!confirm('La nota ' + n + ' está por debajo de la mínima (' + minima + '). ' +
+                'Los módulos quedarían registrados como NO aprobados. ¿Continuar?')) return;
+  }
+
+  var quien = 'instructor';
+  try{ if(typeof SESSION !== 'undefined' && SESSION && SESSION.id) quien = SESSION.id; }catch(e){}
+
+  var ns = (typeof agAvNs === 'function') ? agAvNs(curso) : 'porci::';
+  var ahora = Date.now();
+  var puestos = 0;
+
+  faltan.forEach(function(m){
+    var rec = { passed: n >= minima, best: n, last: n, attempts: 0,
+                date: ahora, manual: true, puesto_por: quien };
+    try{ localStorage.setItem(ns + uid + '::exam_m' + m, JSON.stringify(rec)); }catch(e){}
+    /* y a la nube, que es donde lo verá usted desde cualquier equipo */
+    try{
+      if(typeof pushExamProgress === 'function') pushExamProgress(curso, uid, m, rec);
+    }catch(e){}
+    puestos++;
+  });
+
+  /* que el panel lo vea sin recargar */
+  try{
+    window.CLOUDPROG = window.CLOUDPROG || {};
+    var u = (CLOUDPROG[uid] = CLOUDPROG[uid] || {});
+    var c = (u[curso] = u[curso] || {});
+    faltan.forEach(function(m){ c[m] = { passed: n >= minima, best: n, last: n, attempts: 0, manual: true }; });
+  }catch(e){}
+
+  if(typeof toast === 'function'){
+    toast(puestos + ' módulo' + (puestos === 1 ? '' : 's') + ' de ' + C.label +
+          ' registrados para ' + al.name, '📝');
+  }
+  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+};
+
+/* ------------------------------------------------------------
+   3 · DESHACERLO
+   ------------------------------------------------------------
+   Si se registra por error hay que poder quitarlo, y solo lo
+   registrado a mano: lo que la persona aprobó de verdad no se
+   toca ni queriendo.
+   ------------------------------------------------------------ */
+window.agRgtDeshacer = function(uid, curso){
+  var C = null;
+  try{ C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso]; }catch(e){}
+  if(!C) return;
+  var ms = [];
+  try{ ms = C.modules() || []; }catch(e){}
+  var ns = (typeof agAvNs === 'function') ? agAvNs(curso) : 'porci::';
+
+  var manuales = [];
+  ms.forEach(function(m){
+    var r = null;
+    try{ r = JSON.parse(localStorage.getItem(ns + uid + '::exam_m' + m) || 'null'); }catch(e){}
+    if(r && r.manual) manuales.push(m.n);
+  });
+  if(!manuales.length){
+    if(typeof toast === 'function') toast('No hay nada registrado a mano en ' + C.label, 'ℹ️');
+    return;
+  }
+  if(!confirm('Quitar ' + manuales.length + ' módulo(s) que se registraron a mano en ' + C.label + '.\n' +
+              'Lo que la persona aprobó con examen NO se toca.')) return;
+
+  manuales.forEach(function(m){
+    try{ localStorage.removeItem(ns + uid + '::exam_m' + m); }catch(e){}
+    try{ if(CLOUDPROG[uid] && CLOUDPROG[uid][curso]) delete CLOUDPROG[uid][curso][m]; }catch(e){}
+  });
+  if(typeof toast === 'function') toast('Retirado el registro manual', '↩️');
+  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+};
+
+/* ------------------------------------------------------------
+   4 · EL BOTÓN, EN LA FICHA
+   ------------------------------------------------------------
+   Va en la columna de ACCESO, junto a cada curso: es donde el
+   instructor ya está mirando qué tiene abierto esa persona.
+   ------------------------------------------------------------ */
+function agRgtPinta(){
+  var body = document.getElementById('adminBody');
+  if(!body) return;
+  var uid = null;
+  try{ uid = (typeof AGALSEL !== 'undefined') ? AGALSEL : window.AGALSEL; }catch(e){}
+  if(!uid) return;
+
+  [].forEach.call(body.querySelectorAll('.agal-c'), function(fila){
+    if(fila.querySelector('.agrgt')) return;
+    /* de qué curso es esta fila: lo dice el interruptor de acceso */
+    var sw = fila.querySelector('input[type="checkbox"]');
+    var curso = null;
+    if(sw){
+      var oc = sw.getAttribute('onchange') || '';
+      var m = oc.match(/agAlAcceso\('[^']*','([^']+)'/);
+      if(m) curso = m[1];
+    }
+    if(!curso) return;
+
+    var faltan = agRgtFaltan(uid, curso);
+    var b = document.createElement('button');
+    b.className = 'agrgt';
+    b.type = 'button';
+    if(faltan.length){
+      b.textContent = 'Registrar terminado';
+      b.title = 'Le faltan ' + faltan.length + ' módulos. Úselo solo si no puede entrar desde su equipo.';
+      b.onclick = function(e){ e.preventDefault(); e.stopPropagation(); agRgtRegistrar(uid, curso); };
+    } else {
+      b.textContent = '✓ completo';
+      b.className = 'agrgt listo';
+      b.title = 'Pulse para quitar lo que se haya registrado a mano';
+      b.onclick = function(e){ e.preventDefault(); e.stopPropagation(); agRgtDeshacer(uid, curso); };
+    }
+    fila.appendChild(b);
+  });
+}
+window.agRgtPinta = agRgtPinta;
+
+if(typeof window.renderAdmin === 'function'){
+  var _renderAdminRgt = window.renderAdmin;
+  window.renderAdmin = function(){
+    var r = _renderAdminRgt.apply(this, arguments);
+    try{
+      if(typeof ADM !== 'undefined' && ADM.tab === 'alumno'){
+        agRgtPinta();
+        setTimeout(agRgtPinta, 80);
+      }
+    }catch(e){}
+    return r;
+  };
+}
+
+/* ------------------------------------------------------------
+   5 · ESTILOS
+   ------------------------------------------------------------ */
+(function agRgtCss(){
+  if(document.getElementById('agRgtCss')) return;
+  var s = document.createElement('style');
+  s.id = 'agRgtCss';
+  s.textContent = [
+    /* La fila de acceso es un flex de cuatro piezas pensado sin este
+       boton; al meterlo de quinto, el nombre del curso y su contador
+       se encogian hasta solaparse con el interruptor. En vez de
+       apretar mas una fila llena, el boton se lleva su propia linea:
+       la fila envuelve y el cambia de renglon. */
+    '.agal-c{flex-wrap:wrap}',
+    '.agal-c .agal-c-t{min-width:0;flex:1 1 auto}',
+    '.agrgt{flex:1 0 100%;margin:8px 0 0;padding:7px 11px;border-radius:9px;cursor:pointer;',
+      'font:inherit;font-family:var(--mono);font-size:10px;letter-spacing:.09em;',
+      'text-transform:uppercase;white-space:nowrap;',
+      'background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-dim)}',
+    '.agrgt:hover{border-color:var(--ag-aviso-b);color:var(--ag-aviso-hi);background:var(--ag-aviso-s)}',
+    '.agrgt.listo{border-color:var(--ag-exito-b);color:var(--ag-exito-hi);background:var(--ag-exito-s)}',
+    '.agrgt.listo:hover{border-color:var(--ag-error-b);color:var(--ag-error-hi);background:var(--ag-error-s)}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
 
 
 
