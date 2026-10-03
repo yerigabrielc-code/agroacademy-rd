@@ -4942,6 +4942,8 @@ router();
       await pullSettings();
     }catch(e){toast('No se pudieron cargar los datos de la nube','⛔');}
   }
+  /* expuesta para que el panel refresque por UN solo camino (ag-panel.js): descargar una vez y no en cada clic */
+  window.loadCloudAdminData=loadCloudAdminData;
   /* ---- guardar plantilla de certificado en la nube (para todos los estudiantes) ---- */
   saveCertCfg=async function(){certCollect();localStorage.setItem('porci_cert',JSON.stringify(CERTCFG));
     const {error}=await sb.from('settings').update({cert:CERTCFG}).eq('id',1);
@@ -10585,7 +10587,7 @@ window.nxIrEval=function(id){
     var C=courseCtx(), ms=C.modules(), N=ms.length;
     var alum=enrolledStudents(C);
     if(!alum.length) return '<div class="adm-empty">'+(C.sellsSeparately
-      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Actívalos en <b>Cursos → Catálogo</b>.'
+      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Se abre persona por persona en <b>Estudiantes</b>.'
       : 'Sin estudiantes.')+'</div>';
     var rows=alum.map(function(s,idx){
       var pc=C.count(s.id), pct=Math.round(pc/N*100), sc=[];
@@ -10716,7 +10718,7 @@ window.nxIrEval=function(id){
     var C=courseCtx();
     var alum=enrolledStudents(C);
     if(!alum.length) return '<div class="adm-empty">'+(C.sellsSeparately
-      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Actívalos en <b>Cursos → Catálogo</b>.'
+      ? 'Todavía no hay estudiantes con acceso a <b>'+esc(C.label)+'</b>. Se abre persona por persona en <b>Estudiantes</b>.'
       : 'Aún no hay estudiantes. Ve a <b>Estudiantes</b> y agrega el primero.')+'</div>';
     var vista=(typeof NXDASH!=='undefined' && NXDASH)?NXDASH.vista:'general';
     var cuerpo;
@@ -21045,7 +21047,7 @@ function agAdmCert2(){
       '<b id="agcActivoTxt">' + (agCertActivo(AGCERTTAB) ? 'Activo' : 'Inactivo') + '</b></label>' +
   '</div>' +
   '<p class="adm-note">Se emite solo, sin que usted intervenga, en cuanto el estudiante aprueba los ' +
-    curso.mods + ' módulos de este curso. Para cambiar de curso use el conmutador <b>Gestionando</b> de arriba.</p>';
+    curso.mods + ' módulos de este curso. Para cambiar de curso, elija otro en la barra de arriba.</p>';
 
   h += '<div class="agk-cols"><div class="agk-form">';
 
@@ -28926,48 +28928,33 @@ if(typeof window.nxAdmTab !== 'function'){
 
 /* ---------- ag-alumno.js ---------- */
 /* ============================================================
-   PANEL ÚNICO DEL ESTUDIANTE
+   LA FICHA DEL ESTUDIANTE: DATOS Y ACCIONES
    ------------------------------------------------------------
-   Hasta ahora, para entender a un alumno había que recorrer
-   cuatro pantallas: Estudiantes para su ficha, Accesos para sus
-   cursos, Progreso para su avance y Vista del estudiante para
-   qué ve. Cuatro sitios, cuatro veces buscar el mismo nombre.
+   Esta pieza ya no pinta una pantalla propia. Había dos listas de
+   las mismas personas —«Estudiantes» y la columna izquierda de la
+   «Ficha»— y el instructor tenía que decidir por cuál entrar para
+   hacer lo mismo. Ahora hay una sola pantalla, Estudiantes
+   (ag-estudiantes.js), con la lista a la izquierda y la ficha a la
+   derecha.
 
-   Aquí está todo junto, para UN alumno:
+   Lo que queda aquí es lo que esa pantalla usa y que no debe
+   escribirse dos veces:
 
-       su ficha          nombre, correo, estado, desde cuándo
-       ACCESO            ¿a qué cursos puede entrar?
-       VISIBILIDAD       ¿qué piezas ve en su pantalla?
-       su avance         módulos aprobados, curso por curso
-       sus certificados  los que ya ganó
+     · de dónde sale cada dato (acceso, avance) — siempre del
+       contrato de cada curso, COURSES[curso], nunca de una copia;
+     · las acciones que cambian algo, siempre con el id delante;
+     · la hoja de estilos de la ficha.
 
-   ACCESO Y VISIBILIDAD SON COSAS DISTINTAS, y por eso van en dos
-   columnas separadas y rotuladas. Quitar el acceso a un curso le
-   impide entrar; ocultar una pieza solo la quita de su pantalla.
-   Ninguna de las dos borra avance.
-
-   NADA DE ESTO ES UNA COPIA
-
-   No hay un segundo registro de alumnos, ni de accesos, ni de
-   progreso. Cada dato se lee de donde ya vive:
-
-       ficha         STUDENTS
-       acceso        COURSES[c].enrolled(alumno)
-       cambiarlo     <pre>DarAcceso(uid, v)   ← el de cada curso
-       visibilidad   agVisPuede / agVisPon
-       avance        COURSES[c].count(uid)
-       certificados  el contrato de certificados
-
-   Y todo va por el ID del alumno. Lo que se cambia aquí de uno no
-   puede tocar a otro porque nunca se escribe sin ese id delante.
+   La regla de siempre sigue aquí: acceso y visibilidad no son lo
+   mismo. Quitar el acceso no borra el avance; si se le devuelve,
+   la persona sigue donde estaba.
    ============================================================ */
-
-var AGALSEL = null;   /* el alumno elegido */
-var AGALQ = '';       /* búsqueda */
 
 /* ------------------------------------------------------------
    1 · DE DÓNDE SALE CADA COSA
    ------------------------------------------------------------ */
+var AGALSEL = null;   /* la persona elegida en la pantalla de Estudiantes */
+
 var AGALDAR = {
   porcicultura: 'pcDarAcceso',
   nutricion:    'nxDarAcceso',
@@ -28975,15 +28962,6 @@ var AGALDAR = {
   sanidad:      'sbDarAcceso',
   engorde:      'egDarAcceso'
 };
-
-function agAlAlumnos(){
-  var a = [];
-  try{ a = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.status !== 'borrado'; }); }catch(e){}
-  if(!AGALQ) return a;
-  return a.filter(function(s){
-    return (String(s.name || '') + ' ' + String(s.email || '')).toLowerCase().indexOf(AGALQ) >= 0;
-  });
-}
 
 function agAlFicha(uid){
   try{ return (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(s){ return s.id === uid; })[0] || null; }catch(e){ return null; }
@@ -29013,12 +28991,6 @@ function agAlIniciales(n){
    ------------------------------------------------------------ */
 window.agAlElegir = function(uid){ AGALSEL = uid; agAlRepinta(); };
 
-window.agAlBuscar = function(q){
-  AGALQ = String(q || '').toLowerCase();
-  var l = document.getElementById('agAlLista');
-  if(l) l.innerHTML = agAlListaHTML();
-};
-
 window.agAlAcceso = function(uid, curso, v){
   var fn = AGALDAR[curso];
   if(!fn || typeof window[fn] !== 'function'){
@@ -29034,212 +29006,9 @@ window.agAlVista = function(uid, clave, v){
   agAlRepinta();
 };
 
+/* repintar es cosa de la pantalla de Estudiantes */
 function agAlRepinta(){
-  try{ if(typeof ADM !== 'undefined' && ADM.tab === 'alumno' && typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
-}
-
-/* ------------------------------------------------------------
-   3 · LA LISTA
-   ------------------------------------------------------------ */
-function agAlListaHTML(){
-  var al = agAlAlumnos();
-  if(!al.length){
-    return '<p class="agal-nada">' + (AGALQ ? 'Nadie coincide con «' + agEsc(AGALQ) + '».' : 'Todavía no hay estudiantes registrados.') + '</p>';
-  }
-  return al.map(function(s){
-    var n = 0;
-    try{ Object.keys(COURSES).forEach(function(c){ if(agAlTiene(s.id, c)) n++; }); }catch(e){}
-    var sel = (s.id === AGALSEL);
-    return '<button class="agal-a' + (sel ? ' on' : '') + '" onclick="agAlElegir(\'' + s.id + '\')"' +
-        (sel ? ' aria-current="true"' : '') + '>' +
-      '<span class="agal-av">' + agAlIniciales(s.name) + '</span>' +
-      '<span class="agal-a-t">' +
-        '<b>' + agEsc(s.name || 'Sin nombre') + '</b>' +
-        '<em>' + n + (n === 1 ? ' curso' : ' cursos') + ' · ' + agEsc(s.status || 'activo') + '</em>' +
-      '</span>' +
-    '</button>';
-  }).join('');
-}
-
-/* ------------------------------------------------------------
-   4 · LA FICHA COMPLETA
-   ------------------------------------------------------------ */
-function agAlPanelHTML(){
-  if(!AGALSEL) return '<div class="agal-vacio"><b>Elija un estudiante</b><p>A la izquierda están todos. Al elegir uno verá su ficha, sus cursos, qué ve en pantalla, su avance y sus certificados — todo aquí.</p></div>';
-  var s = agAlFicha(AGALSEL);
-  if(!s){ AGALSEL = null; return agAlPanelHTML(); }
-
-  var cursos = [];
-  try{ cursos = Object.keys(COURSES); }catch(e){}
-
-  /* ---- accesos ---- */
-  var accesos = cursos.map(function(c){
-    var C = COURSES[c];
-    var tiene = agAlTiene(s.id, c);
-    var gestionable = !!AGALDAR[c];
-    var av = agAlAvance(s.id, c);
-    return '<label class="agal-c' + (tiene ? ' on' : '') + (gestionable ? '' : ' fija') + '">' +
-      '<span class="agal-c-i">' + (C.icon || '📘') + '</span>' +
-      '<span class="agal-c-t">' +
-        '<b>' + agEsc(C.label || C.name || c) + '</b>' +
-        '<em>' + (gestionable
-          ? (tiene ? 'puede entrar' : 'bloqueado')
-          : 'gratuito · abierto para todos') + '</em>' +
-      '</span>' +
-      (av.total ? '<span class="agal-c-p">' + av.hechos + '/' + av.total + '</span>' : '') +
-      (gestionable
-        ? '<span class="agal-sw">' +
-            '<input type="checkbox"' + (tiene ? ' checked' : '') +
-              ' onchange="agAlAcceso(\'' + s.id + '\',\'' + c + '\',this.checked)"' +
-              ' aria-label="Acceso a ' + agEsc(C.label || c) + '">' +
-            '<span class="agal-sw-p"></span></span>'
-        : '<span class="agal-fijo">siempre</span>') +
-    '</label>';
-  }).join('');
-
-  /* ---- visibilidad ---- */
-  var vivo = false;
-  try{ vivo = !!(typeof AGVISNUBE !== 'undefined' && AGVISNUBE.viva); }catch(e){}
-  var piezas = [];
-  try{ piezas = (typeof AGVISPIEZAS !== 'undefined') ? AGVISPIEZAS : []; }catch(e){}
-  var visibles = piezas.map(function(p){
-    var on = true;
-    try{ on = agVisPuede(p.k, s.id); }catch(e){}
-    return '<label class="agal-v' + (on ? '' : ' off') + '">' +
-      '<span class="agal-v-t"><b>' + p.n + '</b></span>' +
-      '<span class="agal-sw">' +
-        '<input type="checkbox"' + (on ? ' checked' : '') + (vivo ? '' : ' disabled') +
-          ' onchange="agAlVista(\'' + s.id + '\',\'' + p.k + '\',this.checked)"' +
-          ' aria-label="' + agEsc(p.n) + '">' +
-        '<span class="agal-sw-p"></span></span>' +
-    '</label>';
-  }).join('');
-
-  /* ---- avance ---- */
-  var totH = 0, totT = 0;
-  var avance = cursos.map(function(c){
-    var av = agAlAvance(s.id, c);
-    if(agAlTiene(s.id, c)){ totH += av.hechos; totT += av.total; }
-    if(!av.total) return '';
-    return '<li class="agal-p' + (agAlTiene(s.id, c) ? '' : ' off') + '">' +
-      '<span>' + agEsc((COURSES[c] || {}).label || c) + '</span>' +
-      '<span class="agal-bar"><i style="width:' + av.pct + '%"></i></span>' +
-      '<span class="agal-p-n">' + av.hechos + '/' + av.total + '</span>' +
-    '</li>';
-  }).join('');
-
-  /* ---- certificados ---- */
-  var certs = [];
-  try{
-    (typeof AGCURSOSCERT !== 'undefined' ? AGCURSOSCERT : []).forEach(function(cc){
-      var av = agAlAvance(s.id, cc.id);
-      if(av.total && av.hechos >= av.total) certs.push(cc);
-    });
-  }catch(e){}
-
-  return '<div class="agal-cab">' +
-      '<span class="agal-av lg">' + agAlIniciales(s.name) + '</span>' +
-      '<div class="agal-cab-t">' +
-        '<b>' + agEsc(s.name || 'Sin nombre') + '</b>' +
-        '<em>' + agEsc(s.email || 'sin correo') + ' · desde ' + agEsc(s.enrolled || '—') + '</em>' +
-      '</div>' +
-      '<span class="agal-est ' + (s.status === 'activo' ? 'on' : '') + '">' + agEsc(s.status || 'activo') + '</span>' +
-    '</div>' +
-
-    '<div class="agal-cols">' +
-      '<section class="agal-b">' +
-        '<h4 class="agal-t">Acceso · a qué cursos puede entrar</h4>' +
-        '<p class="agal-n">Quitar el acceso no borra su avance. Si se lo devuelve, sigue donde estaba.</p>' +
-        accesos +
-      '</section>' +
-
-      '<section class="agal-b">' +
-        '<h4 class="agal-t">Visibilidad · qué ve en su pantalla</h4>' +
-        '<p class="agal-n">' + (vivo
-          ? 'Es cosa distinta del acceso: esto solo decide qué piezas aparecen.'
-          : 'Sin la columna <b>vista</b> en la base, esto no se puede cambiar y el alumno lo ve todo.') + '</p>' +
-        (visibles || '<p class="agal-nada">No hay piezas configurables.</p>') +
-      '</section>' +
-    '</div>' +
-
-    '<section class="agal-b ancha">' +
-      '<h4 class="agal-t">Avance</h4>' +
-      (totT
-        ? '<p class="agal-n">' + totH + ' de ' + totT + ' módulos en lo que tiene habilitado ' +
-          '(' + Math.round(totH / totT * 100) + ' %).</p>'
-        : '<p class="agal-n">Todavía no tiene cursos habilitados.</p>') +
-      '<ul class="agal-ps">' + (avance || '') + '</ul>' +
-    '</section>' +
-
-    '<section class="agal-b ancha">' +
-      '<h4 class="agal-t">Certificados</h4>' +
-      (certs.length
-        ? '<ul class="agal-cs">' + certs.map(function(cc){
-            return '<li><b>' + agEsc((COURSES[cc.id] || {}).name || cc.id) + '</b><em>' + agEsc(cc.pref || '') + '</em></li>';
-          }).join('') + '</ul>'
-        : '<p class="agal-nada">Todavía no ha completado ningún curso.</p>') +
-    '</section>';
-}
-
-function agAlPantalla(){
-  var al = agAlAlumnos();
-  if(!AGALSEL && al.length) AGALSEL = al[0].id;
-  return '<div class="agal">' +
-    /* Iba aqui un parrafo que decia «todo lo de un estudiante en una
-       pantalla: su ficha, a que cursos puede entrar, que ve...». Sobra:
-       la pestaña ya se llama Ficha del estudiante, el titulo de arriba
-       tambien, y los cuatro rotulos de dentro —Acceso · a que cursos
-       puede entrar, Visibilidad · que ve en su pantalla, Avance,
-       Certificados— dicen exactamente lo mismo justo encima de la cosa
-       que describen, que es donde sirve. Un texto que explica lo que se
-       ve debajo solo hace falta cuando lo de debajo no se explica solo. */
-    '<div class="agal-marco">' +
-      '<div class="agal-izq">' +
-        '<input class="agal-buscar" type="search" placeholder="Buscar estudiante…" oninput="agAlBuscar(this.value)" value="' + agEsc(AGALQ) + '">' +
-        '<div class="agal-lista" id="agAlLista">' + agAlListaHTML() + '</div>' +
-      '</div>' +
-      '<div class="agal-der">' + agAlPanelHTML() + '</div>' +
-    '</div>' +
-  '</div>';
-}
-
-/* ------------------------------------------------------------
-   5 · ENGANCHE
-   ------------------------------------------------------------ */
-(function agAlMenu(){
-  var poner = function(){
-    var menu = document.getElementById('adminMenu');
-    if(!menu || menu.querySelector('[data-t="alumno"]')) return;
-    var b = document.createElement('button');
-    b.setAttribute('data-t', 'alumno');
-    b.innerHTML = '<span class="mi">🧑‍🌾</span> Ficha del estudiante';
-    b.setAttribute('onclick', "admTab('alumno')");
-    var ref = menu.querySelector('[data-t="students"]');
-    if(ref && ref.nextSibling) menu.insertBefore(b, ref.nextSibling);
-    else menu.appendChild(b);
-  };
-  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
-  [200, 700, 1600].forEach(function(t){ setTimeout(poner, t); });
-})();
-
-if(typeof window.renderAdmin === 'function'){
-  var _renderAdminAl = window.renderAdmin;
-  window.renderAdmin = function(){
-    var mia = false;
-    try{ mia = (typeof ADM !== 'undefined' && ADM.tab === 'alumno'); }catch(e){}
-    if(!mia) return _renderAdminAl.apply(this, arguments);
-    try{
-      document.querySelectorAll('#adminMenu button[data-t]').forEach(function(b){
-        b.classList.toggle('on', b.dataset.t === 'alumno');
-      });
-      var tt = document.getElementById('adminTitle');
-      if(tt) tt.textContent = 'Ficha del estudiante';
-      var root = document.getElementById('adminBody');
-      if(root) root.innerHTML = agAlPantalla();
-    }catch(e){
-      return _renderAdminAl.apply(this, arguments);
-    }
-  };
+  try{ if(typeof agEsRepinta === 'function') agEsRepinta(); }catch(e){}
 }
 
 /* ------------------------------------------------------------
@@ -29525,8 +29294,8 @@ window.agCaAbrir = function(){
             '<div><dt>Publicados</dt><dd>' + publicados + '</dd></div>' +
             '<div><dt>Su sesión</dt><dd><span class="agq-pill on">instructor</span></dd></div>' +
           '</dl>' +
-          '<p class="agq-n">Las reglas de cada curso se cambian en <b>Configuración</b>, y qué ve cada alumno en ' +
-          '<b>Ficha del estudiante</b>. Aquí solo lo que es suyo.</p>' +
+          '<p class="agq-n">Las reglas de cada curso se cambian en <b>Cursos → Evaluación</b>, y qué ve cada alumno, ' +
+          'en su ficha dentro de <b>Estudiantes</b>. Aquí solo lo que es suyo.</p>' +
         '</section>' +
       '</div>' +
 
@@ -29640,118 +29409,138 @@ window.agCaSalir = function(){
 
 /* ---------- ag-panel.js ---------- */
 /* ============================================================
-   EL PANEL DEL ADMINISTRADOR, COMPACTADO
+   EL PANEL DEL ADMINISTRADOR: CINCO ENTRADAS
    ------------------------------------------------------------
-   El panel había crecido por acumulación: cada tanda añadía su
-   pestaña al final del menú y ninguna quitaba la que ya hacía lo
-   mismo. El resultado eran catorce entradas con cuatro maneras
-   distintas de llegar al mismo sitio.
+   POR QUÉ CINCO Y NO ONCE
 
-   La pregunta que ordena esta pieza es una sola: ¿esta función
-   ya existe en otro lado? Donde la respuesta es sí, queda una.
+   El menú tenía once entradas, y cinco de ellas eran la MISMA
+   cosa vista por partes: un curso. Contenido, Módulos,
+   Evaluaciones, Certificados y Progreso dependían todas del curso
+   elegido en una barra «Gestionando» que vivía en otro sitio. Para
+   cambiar la nota mínima de Sanidad había que elegir Sanidad
+   arriba y Evaluaciones a la izquierda, y si el curso de arriba
+   era otro, se cambiaba el de otro curso.
 
-   LO QUE SALE DEL MENÚ, Y A DÓNDE SE VA CADA COSA
-   -----------------------------------------------
-   · «Accesos»             → a la Ficha del estudiante. Había DOS
-     sistemas de acceso: uno por curso (un curso, muchos alumnos)
-     y otro por alumno (un alumno, muchos cursos). Los dos escriben
-     en las MISMAS funciones nxDarAcceso/sbDarAcceso/... así que no
-     eran dos verdades, pero sí dos puertas. Queda la del alumno,
-     que es como se piensa el problema en la práctica: llega uno,
-     paga, se le abre lo suyo.
+   Y otras dos eran las mismas personas: Estudiantes y Ficha del
+   estudiante, con dos listas.
 
-   · «Vista del estudiante» → a la Ficha, donde ya estaba entera.
-     La columna VISIBILIDAD de la ficha es literalmente la misma
-     pantalla; llamaba a agVisPon igual que el bloque suelto.
+   Ahora el menú dice lo que hace el administrador:
 
-   · «Grupos»              → a Configuración, solo renombrar. Un
-     grupo no da acceso a nada (lo decía su propio aviso) y nada
-     del sistema depende de gestionarlos. Pero los nombres SÍ se
-     ven —en la ficha, en los Excel— y cinco se llaman como un
-     curso, así que la única acción con valor real se conserva.
+     Dashboard      cómo va todo
+     Cursos         el catálogo; cada curso se abre en SU espacio,
+                    con pestañas: Contenido · Vídeos · Evaluación ·
+                    Certificado · Avance. El curso se elige entrando
+                    en él, y todo lo que se toca ahí es de ese curso.
+     Estudiantes    la lista y la ficha, en una pantalla
+     Consultas
+     Configuración
 
-   · «Mercado»             → a Configuración. No es administración
-     de la academia, pero el estudiante tiene un botón que lee lo
-     que se publica ahí: borrarlo del todo dejaba huérfano el botón.
+   No se borra ninguna función. Las pestañas de siempre siguen
+   existiendo por dentro —nada que las llame se rompe—; lo que
+   cambia es por dónde se llega a ellas.
 
-   LA BARRA «GESTIONANDO»
-   ----------------------
-   No se borra: se pone donde significa algo. Es el selector de
-   curso, y hay pantallas que SON de un curso (Módulos, Contenido,
-   Evaluaciones, Progreso, Certificados) y pantallas que son de
-   toda la academia (Dashboard, Cursos, Estudiantes, Ficha). En
-   las segundas la barra no elegía nada: solo pedía una decisión
-   que no hacía falta tomar.
+   UNA DESCARGA, NO UNA POR CLIC
+
+   Cada clic en Estudiantes, Dashboard, Progreso o Certificados
+   volvía a bajar de la nube TODOS los perfiles, TODO el avance y
+   todas las secciones, y la pantalla esperaba a que terminara. En
+   un teléfono era una pausa en cada clic. Ahora se baja al entrar
+   y se pinta de memoria; se vuelve a bajar si han pasado más de
+   60 segundos, y siempre que se pulse «Actualizar».
+
+   Lo que el instructor cambia desde aquí (accesos, estados,
+   registros) se escribe en la nube al momento: la memoria solo
+   sirve para LEER sin esperar.
    ============================================================ */
 
 /* ------------------------------------------------------------
-   1 · EL MENÚ QUE QUEDA
-   ------------------------------------------------------------
-   En el orden en que se administra de verdad: primero se mira
-   cómo va todo, luego se trabaja el producto (cursos, contenido,
-   módulos), luego la gente (estudiantes, ficha), luego lo que
-   la gente produce (evaluaciones, progreso, certificados), y al
-   final lo que se toca de vez en cuando.
+   1 · EL MENÚ Y LAS RUTAS
    ------------------------------------------------------------ */
 var AGPANELMENU = [
   ['dashboard', '📊', 'Dashboard'],
   ['cursos',    '📚', 'Cursos'],
-  ['contenido', '📖', 'Contenido'],
-  ['modules',   '🎬', 'Módulos'],
   ['students',  '👥', 'Estudiantes'],
-  ['alumno',    '🧑‍🌾', 'Ficha del estudiante'],
-  ['evals',     '📝', 'Evaluaciones'],
-  ['progress',  '📈', 'Progreso'],
-  ['certs',     '🎓', 'Certificados'],
   ['consultas', '💬', 'Consultas'],
   ['config',    '⚙️', 'Configuración']
 ];
 
-/* las que se van del menú — cada una tiene su destino arriba */
-var AGPANELFUERA = ['acceso', 'vista', 'sections', 'mercado'];
+/* las pestañas de un curso, en el orden en que se trabaja */
+var AGPANELCURSO = [
+  ['contenido', 'Contenido'],
+  ['modules',   'Vídeos'],
+  ['evals',     'Evaluación'],
+  ['certs',     'Certificado'],
+  ['progress',  'Avance']
+];
+var AGPANELPORCURSO = AGPANELCURSO.map(function(x){ return x[0]; });
 
-/* las pantallas que SON de un curso: solo ahí manda «Gestionando» */
-var AGPANELPORCURSO = ['contenido', 'modules', 'evals', 'progress', 'certs'];
+/* lo que ya no tiene entrada propia y a dónde lleva */
+var AGPANELDESTINO = {
+  alumno: 'students', acceso: 'students', vista: 'students',
+  sections: 'config', mercado: 'config'
+};
+
+/* fuera del menú: lo retirado y lo que vive dentro de un curso */
+var AGPANELFUERA = Object.keys(AGPANELDESTINO).concat(AGPANELPORCURSO);
 
 window.AGPANELMENU = AGPANELMENU;
-window.AGPANELFUERA = AGPANELFUERA;
+window.AGPANELCURSO = AGPANELCURSO;
 window.AGPANELPORCURSO = AGPANELPORCURSO;
+window.AGPANELFUERA = AGPANELFUERA;
+window.AGPANELDESTINO = AGPANELDESTINO;
+
+/* los títulos de las pestañas de curso: están bajo «Cursos» */
+(function(){
+  try{
+    if(typeof ADM_TITLES !== 'undefined'){
+      AGPANELPORCURSO.forEach(function(k){ ADM_TITLES[k] = 'Cursos'; });
+      ADM_TITLES.students = 'Estudiantes';
+    }
+  }catch(e){}
+})();
 
 /* ------------------------------------------------------------
    2 · DEJAR EL MENÚ COMO DEBE QUEDAR
    ------------------------------------------------------------
-   Las pestañas se inyectan tarde y cada una por su cuenta (varias
-   con setTimeout), así que esto no puede ejecutarse una vez y ya:
-   tiene que poder volver a ordenar cuando alguien añade algo.
+   Las entradas se inyectan tarde y cada una por su cuenta, así
+   que esto tiene que poder volver a ordenar cuando alguien añade
+   algo.
    ------------------------------------------------------------ */
 function agPanelOrdena(){
   var menu = document.getElementById('adminMenu');
   if(!menu) return false;
 
-  /* fuera las que se fueron */
   AGPANELFUERA.forEach(function(k){
     var b = menu.querySelector('[data-t="' + k + '"]');
     while(b){ b.parentNode.removeChild(b); b = menu.querySelector('[data-t="' + k + '"]'); }
   });
 
-  /* el bloque de abajo (separador, vista previa, salir) se queda
-     donde está; el orden solo afecta a los botones con data-t */
   var primerFijo = null;
   var hijos = Array.prototype.slice.call(menu.children);
   for(var i = 0; i < hijos.length; i++){
     if(!hijos[i].hasAttribute || !hijos[i].hasAttribute('data-t')){ primerFijo = hijos[i]; break; }
   }
-
   AGPANELMENU.forEach(function(e){
     var b = menu.querySelector('[data-t="' + e[0] + '"]');
-    if(!b) return;                       /* aún no se ha inyectado: ya llegará */
+    if(!b) return;
     var mi = b.querySelector('.mi');
     if(mi && mi.textContent !== e[1]) mi.textContent = e[1];
-    menu.insertBefore(b, primerFijo);    /* null = al final, que es lo correcto */
+    menu.insertBefore(b, primerFijo);
   });
+  agPanelEncendido();
   return true;
 }
 window.agPanelOrdena = agPanelOrdena;
+
+/* qué entrada del menú va encendida: las de un curso, «Cursos» */
+function agPanelEncendido(){
+  var t = 'dashboard';
+  try{ if(typeof ADM !== 'undefined' && ADM.tab) t = ADM.tab; }catch(e){}
+  if(AGPANELPORCURSO.indexOf(t) >= 0) t = 'cursos';
+  [].forEach.call(document.querySelectorAll('#adminMenu button[data-t]'), function(b){
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+}
 
 (function agPanelVigila(){
   var arranca = function(){
@@ -29759,7 +29548,6 @@ window.agPanelOrdena = agPanelOrdena;
     var menu = document.getElementById('adminMenu');
     if(menu && typeof MutationObserver === 'function'){
       var ob = new MutationObserver(function(){
-        /* desarmar el observador mientras se reordena, o se llama a sí mismo */
         ob.disconnect();
         try{ agPanelOrdena(); }catch(e){}
         ob.observe(menu, { childList: true });
@@ -29772,76 +29560,196 @@ window.agPanelOrdena = agPanelOrdena;
 })();
 
 /* ------------------------------------------------------------
-   3 · SI ALGUIEN CAE EN UNA PESTAÑA QUE YA NO EXISTE
+   3 · EL ESPACIO DE CADA CURSO
    ------------------------------------------------------------
-   ADM.tab se guarda entre sesiones y NXADMTAB también. Un panel
-   que arranca en «acceso» se quedaría con el cuerpo vacío y sin
-   botón encendido, que es la peor forma de fallar: sin síntoma.
+   Sustituye a la barra «Gestionando». Sale solo dentro de un
+   curso y dice tres cosas: de qué curso es lo que se ve, cómo
+   volver al catálogo y qué más se puede hacer con ese curso.
    ------------------------------------------------------------ */
-var AGPANELDESTINO = { acceso: 'alumno', vista: 'alumno', sections: 'config', mercado: 'config' };
-window.AGPANELDESTINO = AGPANELDESTINO;
+function agPanelCursoActual(){
+  try{ return (typeof ADM !== 'undefined' && ADM.course) ? ADM.course : 'porcicultura'; }catch(e){ return 'porcicultura'; }
+}
+function agPanelCursos(){
+  try{ return Object.keys((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES')); }catch(e){ return []; }
+}
+
+/* elegir curso sin el aviso «Gestionando: X» que salía en cada cambio */
+function agPanelPonCurso(id){
+  try{ if(typeof ADM !== 'undefined') ADM.course = id; }catch(e){}
+  try{ window.ADMCURSO = id; window.CQADM = id; }catch(e){}
+  try{ (0, eval)('ADMCURSO = ' + JSON.stringify(id)); }catch(e){}
+  try{ localStorage.setItem('porci_adm_course', id); }catch(e){}
+}
+
+/* entrar en un curso: desde el catálogo o desde la propia barra */
+window.agPanelAbrirCurso = function(id, pestana){
+  var C = null;
+  try{ C = COURSES[id]; }catch(e){}
+  if(!C) return;
+  agPanelPonCurso(id);
+  var t = pestana || 'contenido';
+  try{ if(typeof ADM !== 'undefined' && AGPANELPORCURSO.indexOf(ADM.tab) >= 0 && !pestana) t = ADM.tab; }catch(e){}
+  if(typeof admTab === 'function') admTab(t);
+};
+
+function agPanelBarraHTML(){
+  var cur = agPanelCursoActual();
+  var t = 'contenido';
+  try{ t = ADM.tab; }catch(e){}
+  var C = {};
+  try{ C = COURSES[cur] || {}; }catch(e){}
+
+  var chips = agPanelCursos().map(function(k){
+    var K = COURSES[k] || {};
+    return '<button class="agcw-c' + (k === cur ? ' on' : '') + '" onclick="agPanelAbrirCurso(\'' + k + '\')"' +
+      (k === cur ? ' aria-current="true"' : '') + ' title="' + agEsc(K.name || k) + '">' +
+      '<span>' + (K.icon || '📘') + '</span>' + agEsc(K.label || k) + '</button>';
+  }).join('');
+
+  var tabs = AGPANELCURSO.map(function(x){
+    return '<button class="agcw-t' + (x[0] === t ? ' on' : '') + '" onclick="admTab(\'' + x[0] + '\')"' +
+      (x[0] === t ? ' aria-current="page"' : '') + '>' + x[1] + '</button>';
+  }).join('');
+
+  return '<div class="agcw-a">' +
+      '<button class="agcw-v" onclick="admTab(\'cursos\')">← Todos los cursos</button>' +
+      '<b class="agcw-n">' + (C.icon || '📘') + ' ' + agEsc(C.name || cur) + '</b>' +
+    '</div>' +
+    '<div class="agcw-b"><nav class="agcw-tabs" aria-label="Partes del curso">' + tabs + '</nav>' +
+      '<div class="agcw-cs" aria-label="Cambiar de curso">' + chips + '</div></div>';
+}
+
+function agPanelBarra(){
+  /* la barra vieja «Gestionando» ya no se usa: el curso se elige
+     entrando en él */
+  var sw = document.getElementById('ucsw');
+  if(sw) sw.style.display = 'none';
+
+  var body = document.getElementById('adminBody');
+  if(!body || !body.parentNode) return;
+  var bar = document.getElementById('agcw');
+  var t = 'dashboard';
+  try{ if(typeof ADM !== 'undefined' && ADM.tab) t = ADM.tab; }catch(e){}
+  var dentro = AGPANELPORCURSO.indexOf(t) >= 0;
+
+  if(!dentro){ if(bar) bar.style.display = 'none'; agPanelEncendido(); return; }
+  if(!bar){
+    bar = document.createElement('div');
+    bar.id = 'agcw';
+    bar.className = 'agcw';
+    body.parentNode.insertBefore(bar, body);
+  }
+  bar.style.display = '';
+  bar.innerHTML = agPanelBarraHTML();
+  agPanelEncendido();
+  try{ var tt = document.getElementById('adminTitle'); if(tt) tt.textContent = 'Cursos'; }catch(e){}
+}
+window.agPanelBarra = agPanelBarra;
+
+/* ------------------------------------------------------------
+   4 · IR A UNA PESTAÑA — CON UNA SOLA DESCARGA
+   ------------------------------------------------------------ */
+var AGPNUBETABS = ['students', 'dashboard', 'progress', 'certs'];
+var AGPCARGA = 0;          /* cuándo se bajó la nube por última vez */
+var AGPFRESCO = 60000;     /* cuánto vale lo que hay en memoria */
+
+function agPanelHayNube(){
+  try{ return !!window.SB && typeof window.loadCloudAdminData === 'function'; }catch(e){ return false; }
+}
+
+/* repintar sin quitarle el foco a quien está escribiendo en el buscador */
+function agPanelRepinta(){
+  try{
+    if(ADM.tab === 'students' && typeof renderStudentsTable === 'function' && document.getElementById('agEsLista')){
+      renderStudentsTable();
+    } else if(typeof window.renderAdmin === 'function'){
+      window.renderAdmin();
+    }
+  }catch(e){}
+  agPanelBarra();
+}
+
+/* bajar la nube y repintar al terminar; si falla, lo que hay se queda */
+window.agPanelActualizar = async function(silencioso){
+  if(!agPanelHayNube()) return false;
+  var btn = document.getElementById('agpRefrescar');
+  if(btn) btn.classList.add('girando');
+  AGPCARGA = Date.now();
+  var ok = true;
+  try{ await window.loadCloudAdminData(); }catch(e){ ok = false; }
+  if(btn) btn.classList.remove('girando');
+  agPanelRepinta();
+  if(!silencioso && typeof toast === 'function') toast(ok ? 'Datos al día' : 'No se pudo actualizar; se muestra lo último que había', ok ? '☁️' : '⚠️');
+  return ok;
+};
+
+function agPanelMovil(){
+  try{
+    if(matchMedia('(max-width:820px)').matches){
+      var s = document.getElementById('adminSide'); if(s) s.classList.add('hide');
+    }
+  }catch(e){}
+}
 
 if(typeof window.admTab === 'function'){
   var _admTabPanel = window.admTab;
   window.admTab = function(t){
-    var d = AGPANELDESTINO[t];
-    if(d){
-      if(typeof toast === 'function'){
-        var comoSeLlamaba = { acceso: 'Los accesos', vista: 'La vista del estudiante',
-                              sections: 'Los grupos', mercado: 'El mercado' }[t];
-        var donde = (d === 'alumno') ? 'la Ficha del estudiante' : 'Configuración';
-        toast(comoSeLlamaba + ' ahora se gestionan desde ' + donde, '📍');
-      }
-      t = d;
+    if(AGPANELDESTINO[t]) t = AGPANELDESTINO[t];
+
+    /* las cuatro pestañas que leen de la nube: de memoria si está fresca */
+    if(AGPNUBETABS.indexOf(t) >= 0 && agPanelHayNube() && AGPCARGA){
+      try{ ADM.tab = t; }catch(e){}
+      try{ window.renderAdmin(); }catch(e){}
+      agPanelBarra();
+      agPanelMovil();
+      if(Date.now() - AGPCARGA > AGPFRESCO) window.agPanelActualizar(true);
+      return;
     }
-    return _admTabPanel.call(this, t);
+    if(AGPNUBETABS.indexOf(t) >= 0 && agPanelHayNube()) AGPCARGA = Date.now();
+    var r = _admTabPanel.call(this, t);
+    agPanelBarra();
+    return r;
   };
 }
-
-/* ------------------------------------------------------------
-   4 · «GESTIONANDO» SOLO DONDE ELIGE ALGO
-   ------------------------------------------------------------
-   No se desmonta la barra: se esconde. Desmontarla obligaría a
-   volver a montarla al entrar en una pantalla por curso, y ese
-   montaje ya tiene su propio reintento — dos mecanismos para lo
-   mismo es justo lo que esta tanda viene a quitar.
-   ------------------------------------------------------------ */
-function agPanelBarra(){
-  var sw = document.getElementById('ucsw');
-  if(!sw) return;
-  var t = 'dashboard';
-  try{ if(typeof ADM !== 'undefined' && ADM.tab) t = ADM.tab; }catch(e){}
-  sw.style.display = (AGPANELPORCURSO.indexOf(t) >= 0) ? '' : 'none';
-}
-window.agPanelBarra = agPanelBarra;
 
 if(typeof window.renderAdmin === 'function'){
   var _renderAdminPanel = window.renderAdmin;
   window.renderAdmin = function(){
+    /* la primera vez que se pinta el panel es cuando se baja la nube */
+    if(!AGPCARGA && agPanelHayNube()) AGPCARGA = Date.now();
     var r = _renderAdminPanel.apply(this, arguments);
-    try{ agPanelBarra(); }catch(e){}
-    return r;
-  };
-}
-if(typeof window.admTab === 'function'){
-  var _admTabBarra = window.admTab;
-  window.admTab = function(t){
-    var r = _admTabBarra.apply(this, arguments);
     try{ agPanelBarra(); }catch(e){}
     return r;
   };
 }
 [300, 900, 1800].forEach(function(t){ setTimeout(function(){ try{ agPanelBarra(); }catch(e){} }, t); });
 
+/* el botón «Actualizar», junto a los de tema y pantalla completa */
+(function agPanelBotonActualizar(){
+  var poner = function(){
+    var ctl = document.querySelector('#screenAdmin .adm-ctl');
+    if(!ctl || document.getElementById('agpRefrescar')) return !!ctl;
+    var b = document.createElement('button');
+    b.id = 'agpRefrescar';
+    b.className = 'tt';
+    b.title = 'Traer de la nube lo último (alumnos, avance, accesos)';
+    b.setAttribute('aria-label', 'Actualizar datos');
+    b.textContent = '⟳';
+    b.onclick = function(){ window.agPanelActualizar(false); };
+    ctl.insertBefore(b, ctl.firstChild);
+    return true;
+  };
+  var i = 0;
+  var seguir = function(){ if(poner()) return; if(++i < 30) setTimeout(seguir, 300); };
+  if(document.body) seguir(); else addEventListener('DOMContentLoaded', seguir);
+})();
+
 /* ------------------------------------------------------------
-   5 · EL BOTÓN «IR A ACCESO» DEL CATÁLOGO
-   ------------------------------------------------------------
-   Apuntaba a la pestaña que acaba de desaparecer. Ahora lleva a
-   la Ficha, que es donde se abre un curso a alguien.
+   5 · LOS ENLACES VIEJOS LLEVAN A SU SITIO NUEVO
    ------------------------------------------------------------ */
 window.ucIrAcceso = function(){
-  try{ if(typeof admTab === 'function') admTab('alumno'); }catch(e){}
-  if(typeof toast === 'function') toast('Elija al estudiante y ábrale el curso en su ficha', '🔑');
+  try{ if(typeof admTab === 'function') admTab('students'); }catch(e){}
+  if(typeof toast === 'function') toast('Elija a la persona y ábrale el curso en su ficha', '🔑');
 };
 
 /* ------------------------------------------------------------
@@ -29871,7 +29779,37 @@ window.ucIrAcceso = function(){
     '.agp-vacio{padding:34px 22px;text-align:center;color:var(--agp-dim);',
       'border:1px dashed rgba(233,222,199,.16);border-radius:16px}',
     '.agp-vacio b{display:block;margin:0 0 6px;font-family:var(--display);font-size:16px;color:var(--agp-tx2)}',
-    '.agp-vacio p{margin:0 auto;max-width:52ch;font-size:13.5px;line-height:1.6}'
+    '.agp-vacio p{margin:0 auto;max-width:52ch;font-size:13.5px;line-height:1.6}',
+
+    /* el espacio de un curso: dónde estoy, cómo vuelvo, qué más hay */
+    '.agcw{margin:0 0 18px;padding:14px 24px 0;border-bottom:1px solid var(--ag-info-b)}',
+    '.agcw-a{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px}',
+    '.agcw-v{padding:7px 12px;border-radius:9px;cursor:pointer;font:inherit;font-size:13px;',
+      'background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-tx2)}',
+    '.agcw-v:hover{border-color:var(--ag-accion-b);color:var(--ag-accion-hi)}',
+    '.agcw-n{font-family:var(--display);font-size:18px;font-weight:700;color:var(--agp-tx)}',
+    '.agcw-b{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}',
+    '.agcw-tabs{display:flex;gap:2px;flex-wrap:wrap}',
+    '.agcw-t{padding:10px 15px;cursor:pointer;font:inherit;font-size:14px;font-weight:600;',
+      'background:transparent;border:0;border-bottom:2px solid transparent;color:var(--agp-dim);margin-bottom:-1px}',
+    '.agcw-t:hover{color:var(--agp-tx)}',
+    '.agcw-t.on{color:var(--agp-tx);border-bottom-color:var(--ag-accion-hi)}',
+    '.agcw-cs{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:8px}',
+    '.agcw-c{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;cursor:pointer;',
+      'font:inherit;font-size:12px;background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-dim)}',
+    '.agcw-c:hover{color:var(--agp-tx);border-color:var(--ag-accion-b)}',
+    '.agcw-c.on{background:var(--ag-accion-s);border-color:var(--ag-accion-b);color:var(--ag-accion-hi)}',
+    '#ucsw{display:none!important}',
+
+    /* el botón de actualizar gira mientras baja */
+    '#agpRefrescar.girando{animation:agpGira 0.9s linear infinite}',
+    '@keyframes agpGira{to{transform:rotate(360deg)}}',
+    '@media(prefers-reduced-motion:reduce){#agpRefrescar.girando{animation:none;opacity:.5}}',
+
+    /* el botón para entrar a un curso desde el catálogo */
+    '.agcur-ir{margin-left:10px;padding:8px 14px;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;',
+      'font-weight:600;background:var(--ag-accion-c);border:1px solid transparent;color:var(--ag-accion-t);white-space:nowrap}',
+    '.agcur-ir:hover{background:var(--ag-accion-hi)}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
@@ -30399,9 +30337,11 @@ function agTbIni(n){
 
 /* del tablero a la ficha de esa persona, sin pasar por la lista */
 window.agTbAbrirFicha = function(uid){
-  try{ if(typeof AGALSEL !== 'undefined') AGALSEL = uid; }catch(e){}
-  try{ window.AGALSEL = uid; }catch(e){}
-  try{ if(typeof admTab === 'function') admTab('alumno'); }catch(e){}
+  /* la ficha vive ahora dentro de Estudiantes: se abre ahí, con la
+     búsqueda y el filtro limpios para que esa persona se vea en la lista */
+  if(typeof agEsFicha === 'function'){ agEsFicha(uid); return; }
+  try{ AGALSEL = uid; }catch(e){}
+  try{ if(typeof admTab === 'function') admTab('students'); }catch(e){}
 };
 
 /* ------------------------------------------------------------
@@ -30653,13 +30593,32 @@ window.agTbAbrirFicha = function(uid){
             if(t && t.textContent.indexOf('se paga aparte') >= 0) c.parentNode.removeChild(c);
           });
 
+          /* Cada curso se abre en su espacio desde aquí. Las filas no
+             llevan el id del curso, pero sí su nombre completo, que es
+             único: se casa por el nombre. */
+          var porNombre = {};
+          try{ Object.keys(COURSES).forEach(function(k){ porNombre[String(COURSES[k].name || '').trim()] = k; }); }catch(e){}
+          [].forEach.call(body.querySelectorAll('.uc-c'), function(fila){
+            if(fila.querySelector('.agcur-ir')) return;
+            var b = fila.querySelector('.uc-t b');
+            var k = b ? porNombre[String(b.textContent || '').trim()] : null;
+            if(!k) return;
+            var ir = document.createElement('button');
+            ir.className = 'agcur-ir';
+            ir.type = 'button';
+            ir.textContent = 'Gestionar →';
+            ir.title = 'Contenido, vídeos, evaluación, certificado y avance de este curso';
+            ir.onclick = function(){ if(typeof agPanelAbrirCurso === 'function') agPanelAbrirCurso(k, 'contenido'); };
+            fila.appendChild(ir);
+          });
+
           var nota = body.querySelector('.adm-note');
           if(nota){
             nota.classList.add('agp-nota', 'agcur-nota');
             nota.innerHTML = 'Sus productos. <b>Publicado</b> es que el curso existe y se ofrece; ' +
               '<b>visible</b> es que aparece en el catalogo del estudiante. ' +
               'Ninguno de los dos da acceso &mdash; eso se abre persona por persona en la ' +
-              '<b>Ficha del estudiante</b>.';
+              'pantalla de <b>Estudiantes</b>.';
           }
         }
       }catch(e){}
@@ -31038,116 +30997,85 @@ window.agGrafPar = function(){
 
 /* ---------- ag-estudiantes.js ---------- */
 /* ============================================================
-   ESTUDIANTES: UNA LISTA DE PERSONAS, NO UNA HOJA DE CÁLCULO
+   ESTUDIANTES: UNA SOLA PANTALLA PARA LA GENTE
    ------------------------------------------------------------
-   DOS PROBLEMAS, Y EL SEGUNDO NO SE VEÍA
+   QUÉ HABÍA
 
-   1. ERA UNA TABLA. Siete columnas, chips de estado, chips de
-      sección, dos botones de Excel y cuatro iconos por fila. Para
-      la pregunta que se hace de verdad —«llegó fulano, ¿quién es
-      y qué le abro?»— había que leer una rejilla entera.
+   Dos entradas en el menú para las mismas personas:
 
-   2. ESTABA FILTRADA POR CURSO, y no lo decía en ningún sitio.
-      studentsView ya venía envuelta por el módulo multicurso: la
-      columna de progreso era del curso que hubiera en la barra
-      «Gestionando», y el encabezado ponía «PROGRESO (INTRODUCCIÓN)»
-      sin que nadie hubiera pedido Introducción. De ahí salía el
-      panel que decía «Aún no hay estudiantes» con quince dentro.
+     · «Estudiantes» — la lista, con buscar, filtrar por estado,
+       los Excel y las acciones de editar, pausar y papelera;
+     · «Ficha del estudiante» — OTRA lista de las mismas personas
+       a la izquierda, y a la derecha su acceso, su avance y lo
+       que ve.
 
-   Estudiantes es de la academia. El avance por curso ya tiene dos
-   pantallas suyas —Progreso y la Ficha— y no hacía falta una
-   tercera a medias.
+   Para abrirle un curso a alguien había que ir a la segunda; para
+   pausarlo, a la primera. Y dentro de la ficha, el avance salía
+   dos veces: «12/12» al lado de cada interruptor y otra vez abajo,
+   en su propia sección, con los mismos números en barras.
 
-   EL ORDEN: EL ÚLTIMO EN LLEGAR, ARRIBA
+   QUÉ HAY
 
-   Es el orden en que se trabaja. Alguien se registra hoy, escribe
-   hoy, y hay que abrirle algo hoy; quien lleva ocho meses ya está
-   colocado. La lista alfabética obliga a buscar a quien acaba de
-   llegar, que es justo a quien se está buscando.
+   Una pantalla. La lista a la izquierda —buscar, filtrar, el
+   último en llegar arriba— y la ficha de quien se elija a la
+   derecha, con TODO lo que se le puede hacer a esa persona:
 
-   Se ordena por la fecha que haya —created, enrolled o
-   enrolled_at, en ese orden— porque según de dónde venga el
-   registro está en una o en otra, y empatan por nombre para que
-   el orden no baile entre repintados.
+     · editar, pausar, papelera, restaurar;
+     · un renglón por curso con su acceso, su avance y, si hace
+       falta, el registro manual — el avance va en el mismo
+       renglón que el acceso, una vez;
+     · sus certificados;
+     · la vista personalizada, plegada: son ocho interruptores que
+       casi nunca se tocan y ocupaban media pantalla.
 
-   QUÉ SE CONSERVA
+   «Agregar estudiante» solo sale sin nube: con Supabase cada
+   persona crea su cuenta, y el botón únicamente avisaba de eso.
 
-   Todo lo que hacía: crear, editar, pausar, papelera, restaurar,
-   borrar definitivamente, los dos Excel y los filtros por estado.
-   Nada de eso se reescribe — se llaman las mismas funciones de
-   siempre. Lo que cambia es la forma de llegar a ellas.
-
-   Y se añade lo que faltaba: el botón que lleva a la Ficha, que
-   es donde se abre un curso. Antes había que salir, ir al menú y
-   volver a buscar a la persona.
+   Ninguna acción se reescribe. Editar, pausar, borrar, restaurar,
+   dar acceso, registrar a mano: se llaman las funciones de
+   siempre, que ya saben guardar en la nube.
    ============================================================ */
 
-/* ------------------------------------------------------------
-   1 · ESTADO DE LA PANTALLA
-   ------------------------------------------------------------ */
 var AGESQ = '';          /* lo que se busca */
 var AGESFILTRO = '';     /* estado elegido; vacío = todos menos papelera */
 
-function agEsAlumnos(){
-  var a = [];
-  try{ a = (typeof STUDENTS !== 'undefined' ? STUDENTS : []) || []; }catch(e){}
-  return a;
+/* ------------------------------------------------------------
+   1 · LOS DATOS
+   ------------------------------------------------------------ */
+function agEsTodos(){
+  try{ return (typeof STUDENTS !== 'undefined' ? STUDENTS : []) || []; }catch(e){ return []; }
 }
-function agEsLlegada(s){
-  return String((s && (s.created || s.enrolled || s.enrolled_at)) || '');
+function agEsLlegada(s){ return String((s && (s.created || s.enrolled || s.enrolled_at)) || ''); }
+function agEsCursos(){
+  try{ return Object.keys((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES')); }catch(e){ return []; }
 }
-function agEsIni(n){
-  n = String(n || '').trim();
-  if(!n) return '👤';
-  var p = n.split(/\s+/).filter(Boolean);
-  return ((p[0] || '')[0] || '').toUpperCase() + ((p[1] || '')[0] || '').toUpperCase();
+function agEsEstados(){
+  try{ return (typeof STATUS !== 'undefined') ? STATUS : (0, eval)('STATUS'); }catch(e){ return {}; }
 }
+function agEsConNube(){ try{ return !!window.SB; }catch(e){ return false; } }
 
-/* cuántos cursos tiene abiertos — la cifra que decide qué hacer */
-function agEsCursosDe(s){
-  var n = 0;
-  try{
-    var C = (typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES');
-    Object.keys(C).forEach(function(k){
-      try{ if(C[k].enrolled(s)) n++; }catch(e){}
-    });
-  }catch(e){}
-  return n;
-}
-
-/* el avance sumado de lo que tiene abierto */
-function agEsAvanceDe(s){
-  var h = 0, t = 0;
-  try{
-    var C = (typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES');
-    Object.keys(C).forEach(function(k){
-      var c = C[k];
-      try{
-        if(!c.enrolled(s)) return;
-        h += c.count(s.id) || 0;
-        t += c.n || 0;
-      }catch(e){}
-    });
-  }catch(e){}
-  return { hechos: h, total: t };
+/* el estado de una persona, con el papel de color que le toca */
+var AGESPAPEL = { activo:'exito', pendiente:'aviso', inactivo:'bloq', completado:'accion', retirado:'bloq', borrado:'error' };
+function agEsEstadoHTML(s){
+  var est = (s && s.status) || 'activo';
+  var E = agEsEstados();
+  var nom = (E[est] && E[est][0]) || est;
+  return (typeof agEstado === 'function') ? agEstado(AGESPAPEL[est] || 'bloq', nom) : nom;
 }
 
 function agEsLista(){
-  var l = agEsAlumnos().filter(function(s){
+  var l = agEsTodos().filter(function(s){
     if(!s) return false;
     if(AGESFILTRO){ if(s.status !== AGESFILTRO) return false; }
-    else if(s.status === 'borrado') return false;      /* la papelera solo si se pide */
+    else if(s.status === 'borrado') return false;
     if(AGESQ){
-      var q = AGESQ;
-      var en = (s.name || '').toLowerCase().indexOf(q) >= 0 ||
-               (s.email || '').toLowerCase().indexOf(q) >= 0 ||
-               (s.phone || '').toLowerCase().indexOf(q) >= 0;
-      if(!en) return false;
+      var t = (String(s.name || '') + ' ' + String(s.email || '') + ' ' + String(s.phone || '')).toLowerCase();
+      if(t.indexOf(AGESQ) < 0) return false;
     }
     return true;
   });
-  /* el último en llegar, primero; empate por nombre para que el
-     orden no cambie entre repintados */
+  /* el último en llegar arriba; empate por nombre, para que el
+     orden no baile entre repintados */
   l.sort(function(a, b){
     var x = agEsLlegada(a), y = agEsLlegada(b);
     if(x !== y) return x < y ? 1 : -1;
@@ -31156,169 +31084,294 @@ function agEsLista(){
   return l;
 }
 
+function agEsNumCursos(s){
+  var n = 0;
+  agEsCursos().forEach(function(c){ try{ if(COURSES[c].enrolled(s)) n++; }catch(e){} });
+  return n;
+}
+
 /* ------------------------------------------------------------
-   2 · LO QUE SE PUEDE HACER
-   ------------------------------------------------------------
-   Ninguna acción se reescribe: se llama a la de siempre y luego
-   se repinta. Duplicar la lógica de borrar un estudiante para
-   tener un botón más bonito es justo lo que no se va a hacer.
+   2 · LA LISTA
+   ------------------------------------------------------------ */
+function agEsListaHTML(){
+  var l = agEsLista();
+  if(!l.length){
+    return '<p class="agal-nada">' +
+      (AGESQ ? 'Nadie coincide con «' + agEsc(AGESQ) + '».' :
+       AGESFILTRO === 'borrado' ? 'La papelera está vacía.' : 'Todavía no hay estudiantes.') + '</p>';
+  }
+  return l.map(function(s){
+    var sel = (s.id === AGALSEL);
+    var n = agEsNumCursos(s);
+    var est = s.status || 'activo';
+    var f = agEsLlegada(s).slice(0, 10);
+    return '<button class="agal-a' + (sel ? ' on' : '') + (est === 'borrado' ? ' fuera' : '') +
+        '" onclick="agEsElegir(\'' + String(s.id).replace(/'/g, "\\'") + '\')"' + (sel ? ' aria-current="true"' : '') + '>' +
+      '<span class="agal-av">' + agAlIniciales(s.name) + '</span>' +
+      '<span class="agal-a-t">' +
+        '<b>' + agEsc(s.name || s.email || 'Sin nombre') + '</b>' +
+        '<em>' + n + (n === 1 ? ' curso' : ' cursos') + (f ? ' · ' + f : '') +
+          (est !== 'activo' ? ' · ' + agEsc(est) : '') + '</em>' +
+      '</span>' +
+    '</button>';
+  }).join('');
+}
+
+/* ------------------------------------------------------------
+   3 · LA FICHA
+   ------------------------------------------------------------ */
+function agEsFichaHTML(){
+  var s = AGALSEL ? agAlFicha(AGALSEL) : null;
+  if(!s){
+    return '<div class="agp-vacio"><b>Elija a alguien de la lista</b>' +
+      '<p>Aquí verá sus cursos, su avance y sus certificados, y podrá abrirle o cerrarle un curso.</p></div>';
+  }
+  var id = String(s.id).replace(/'/g, "\\'");
+  var est = s.status || 'activo';
+  var borrado = (est === 'borrado');
+
+  /* --- acciones sobre la persona --- */
+  var acciones = borrado
+    ? '<button class="ag-bt suave" onclick="restoreStudent(\'' + id + '\')">↩ Restaurar</button>' +
+      '<button class="ag-bt peligro" onclick="purgeStudent(\'' + id + '\')">Eliminar definitivamente</button>'
+    : '<button class="ag-bt suave" onclick="editStudent(\'' + id + '\')">✎ Editar</button>' +
+      '<button class="ag-bt suave" onclick="toggleActive(\'' + id + '\')">' +
+        (est === 'inactivo' ? '▶ Reactivar' : '❙❙ Pausar') + '</button>' +
+      '<button class="ag-bt suave" onclick="deleteStudent(\'' + id + '\')">🗑 Papelera</button>';
+
+  /* --- un renglón por curso: acceso + avance + registro, una vez --- */
+  var totH = 0, totT = 0;
+  var filas = agEsCursos().map(function(c){
+    var C = COURSES[c] || {};
+    var tiene = agAlTiene(s.id, c);
+    var gestionable = !!AGALDAR[c];
+    var av = agAlAvance(s.id, c);
+    if(tiene || !gestionable){ totH += av.hechos; totT += av.total; }
+    var lleno = av.total > 0 && av.hechos >= av.total;
+
+    var manuales = (typeof agRgtManuales === 'function') ? agRgtManuales(s.id, c) : [];
+    var extra = '';
+    if(!borrado && (tiene || !gestionable) && av.total > 0 && !lleno){
+      extra = '<button class="ages-reg" onclick="agRgtRegistrar(\'' + id + '\',\'' + c + '\')" ' +
+        'title="Solo si no puede entrar desde el equipo donde estudió">registrar a mano como terminado</button>';
+    }
+    if(manuales.length){
+      extra += '<span class="ages-man">' + manuales.length + ' registrado' + (manuales.length === 1 ? '' : 's') +
+        ' a mano · <button onclick="agRgtDeshacer(\'' + id + '\',\'' + c + '\')">quitar</button></span>';
+    }
+
+    return '<div class="agal-c ages-c' + (tiene ? ' on' : '') + (gestionable ? '' : ' fija') + '">' +
+      '<span class="agal-c-i">' + (C.icon || '📘') + '</span>' +
+      '<span class="agal-c-t">' +
+        '<b>' + agEsc(C.label || C.name || c) + '</b>' +
+        '<em>' + (gestionable ? (tiene ? 'puede entrar' : 'bloqueado') : 'gratuito · abierto para todos') + '</em>' +
+      '</span>' +
+      '<span class="ages-av">' +
+        '<span class="agal-bar' + (lleno ? ' lleno' : '') + '"><i style="width:' + av.pct + '%"></i></span>' +
+        '<span class="agal-c-p">' + av.hechos + '/' + av.total + '</span>' +
+      '</span>' +
+      (gestionable
+        ? '<label class="agal-sw" title="' + (tiene ? 'Quitar el acceso (no borra su avance)' : 'Abrirle el curso') + '">' +
+            '<input type="checkbox"' + (tiene ? ' checked' : '') + (borrado ? ' disabled' : '') +
+              ' onchange="agAlAcceso(\'' + id + '\',\'' + c + '\',this.checked)"' +
+              ' aria-label="Acceso a ' + agEsc(C.label || c) + '">' +
+            '<span class="agal-sw-p"></span></label>'
+        : '<span class="agal-fijo">siempre</span>') +
+      (extra ? '<span class="ages-extra">' + extra + '</span>' : '') +
+    '</div>';
+  }).join('');
+
+  /* --- certificados ganados --- */
+  var certs = [];
+  try{
+    (typeof AGCURSOSCERT !== 'undefined' ? AGCURSOSCERT : []).forEach(function(cc){
+      var av = agAlAvance(s.id, cc.id);
+      if(av.total && av.hechos >= av.total) certs.push(cc);
+    });
+  }catch(e){}
+
+  /* --- la vista personalizada, plegada --- */
+  var vivo = false, piezas = [];
+  try{ vivo = !!(typeof AGVISNUBE !== 'undefined' && AGVISNUBE.viva); }catch(e){}
+  try{ piezas = (typeof AGVISPIEZAS !== 'undefined') ? AGVISPIEZAS : []; }catch(e){}
+  var apagadas = 0;
+  var vista = piezas.map(function(p){
+    var on = true;
+    try{ on = agVisPuede(p.k, s.id); }catch(e){}
+    if(!on) apagadas++;
+    return '<label class="agal-v' + (on ? '' : ' off') + '">' +
+      '<span class="agal-v-t"><b>' + p.n + '</b></span>' +
+      '<span class="agal-sw">' +
+        '<input type="checkbox"' + (on ? ' checked' : '') + (vivo ? '' : ' disabled') +
+          ' onchange="agAlVista(\'' + id + '\',\'' + p.k + '\',this.checked)" aria-label="' + agEsc(p.n) + '">' +
+        '<span class="agal-sw-p"></span></span>' +
+    '</label>';
+  }).join('');
+
+  return '<div class="agal-cab">' +
+      '<span class="agal-av lg">' + agAlIniciales(s.name) + '</span>' +
+      '<div class="agal-cab-t">' +
+        '<b>' + agEsc(s.name || 'Sin nombre') + '</b>' +
+        '<em>' + agEsc(s.email || 'sin correo') + (s.phone ? ' · ' + agEsc(s.phone) : '') +
+          ' · llegó el ' + agEsc(agEsLlegada(s).slice(0, 10) || '—') + '</em>' +
+      '</div>' +
+      '<span class="ages-est">' + agEsEstadoHTML(s) + '</span>' +
+    '</div>' +
+    '<div class="ages-acc">' + acciones + '</div>' +
+
+    '<section class="agal-b">' +
+      '<h4 class="agal-t">Cursos · acceso y avance</h4>' +
+      '<p class="agal-n">' + (totT
+        ? '<b>' + totH + ' de ' + totT + ' módulos</b> en lo que tiene abierto (' + Math.round(totH / totT * 100) + ' %). '
+        : '') + 'Quitar el acceso no borra su avance: si se lo devuelve, sigue donde estaba.</p>' +
+      filas +
+    '</section>' +
+
+    '<section class="agal-b">' +
+      '<h4 class="agal-t">Certificados</h4>' +
+      (certs.length
+        ? '<ul class="agal-cs">' + certs.map(function(cc){
+            return '<li><b>' + agEsc((COURSES[cc.id] || {}).name || cc.id) + '</b><em>' + agEsc(cc.pref || '') + '</em></li>';
+          }).join('') + '</ul>'
+        : '<p class="agal-nada">Todavía no ha completado ningún curso.</p>') +
+    '</section>' +
+
+    '<details class="agal-b ages-vista">' +
+      '<summary><span class="agal-t">Vista personalizada</span>' +
+        '<em>' + (apagadas ? apagadas + ' pieza' + (apagadas === 1 ? '' : 's') + ' oculta' + (apagadas === 1 ? '' : 's')
+                           : 'lo ve todo') + '</em></summary>' +
+      '<p class="agal-n">' + (vivo
+        ? 'Decide qué piezas aparecen en su pantalla. No es lo mismo que el acceso: esto no abre ni cierra cursos.'
+        : 'Sin la columna <b>vista</b> en la base esto no se puede cambiar, y la persona lo ve todo.') + '</p>' +
+      (vista || '<p class="agal-nada">No hay piezas configurables.</p>') +
+    '</details>';
+}
+
+/* ------------------------------------------------------------
+   4 · LA PANTALLA
+   ------------------------------------------------------------ */
+function agEsPantalla(){
+  var todos = agEsTodos();
+  var vivos = todos.filter(function(s){ return s && s.status !== 'borrado'; });
+  var cnt = {};
+  todos.forEach(function(s){ var k = (s && s.status) || 'activo'; cnt[k] = (cnt[k] || 0) + 1; });
+
+  /* que haya siempre alguien elegido si la lista no está vacía */
+  var l = agEsLista();
+  if(!AGALSEL || !agAlFicha(AGALSEL)) AGALSEL = l.length ? l[0].id : null;
+
+  /* Los filtros solo salen si hay algo que filtrar. Con todo el mundo
+     activo, «Todos 15» y «Activo 15» decían lo mismo dos veces. */
+  var E = agEsEstados();
+  var chips = '';
+  if(Object.keys(cnt).length > 1){
+    chips = '<button class="ages-chip' + (AGESFILTRO ? '' : ' on') + '" onclick="agEsFiltrar(\'\')">Todos <b>' + vivos.length + '</b></button>';
+    Object.keys(E).forEach(function(k){
+      if(!cnt[k]) return;     /* un filtro que siempre da cero es ruido */
+      chips += '<button class="ages-chip' + (AGESFILTRO === k ? ' on' : '') + '" onclick="agEsFiltrar(\'' + k + '\')">' +
+        E[k][0] + (k === 'borrado' ? ' 🗑' : '') + ' <b>' + cnt[k] + '</b></button>';
+    });
+  }
+
+  var excel = '';
+  try{ if(typeof ucBotonesCSV === 'function') excel = ucBotonesCSV(); }catch(e){}
+
+  return '<div class="agal ages">' +
+    '<div class="ages-top">' +
+      (agEsConNube() ? '' : '<button class="ag-bt" onclick="editStudent()">＋ Agregar</button>') +
+      '<input class="agal-buscar ages-buscar" type="search" value="' + agEsc(AGESQ) +
+        '" placeholder="Buscar por nombre, correo o teléfono…" oninput="agEsBuscar(this.value)">' +
+      '<span class="ages-cuenta"><b>' + vivos.length + '</b> ' + (vivos.length === 1 ? 'estudiante' : 'estudiantes') + '</span>' +
+    '</div>' +
+    '<div class="ages-fila2"><div class="ages-chips">' + chips + '</div>' +
+      (excel ? '<div class="ages-excel">' + excel + '</div>' : '') + '</div>' +
+    '<div class="agal-marco">' +
+      '<div class="agal-izq"><div class="agal-lista" id="agEsLista">' + agEsListaHTML() + '</div></div>' +
+      '<div class="agal-der" id="agEsFicha">' + agEsFichaHTML() + '</div>' +
+    '</div>' +
+  '</div>';
+}
+window.agEsPantalla = agEsPantalla;
+
+/* ------------------------------------------------------------
+   5 · LO QUE SE PUEDE HACER
    ------------------------------------------------------------ */
 window.agEsBuscar = function(q){
-  AGESQ = String(q || '').toLowerCase();
+  AGESQ = String(q || '').toLowerCase().trim();
+  /* solo la lista: repintar todo le quitaría el foco al buscador */
   var l = document.getElementById('agEsLista');
-  if(l) l.innerHTML = agEsFilasHTML();
+  if(l) l.innerHTML = agEsListaHTML();
 };
-window.agEsFiltrar = function(k){
-  AGESFILTRO = k || '';
-  agEsRepinta();
+window.agEsFiltrar = function(k){ AGESFILTRO = k || ''; AGALSEL = null; agEsRepinta(); };
+window.agEsElegir = function(uid){
+  AGALSEL = uid;
+  /* elegir no cambia la lista: se repinta la ficha y se marca la fila */
+  var f = document.getElementById('agEsFicha');
+  if(f) f.innerHTML = agEsFichaHTML();
+  [].forEach.call(document.querySelectorAll('#agEsLista .agal-a'), function(b){
+    var on = (b.getAttribute('onclick') || '').indexOf("'" + uid + "'") >= 0;
+    b.classList.toggle('on', on);
+    if(on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+  });
 };
+/* del tablero o de otra pantalla: abrir directamente a una persona */
 window.agEsFicha = function(uid){
-  try{ AGALSEL = uid; }catch(e){}
-  try{ window.AGALSEL = uid; }catch(e){}
-  if(typeof admTab === 'function') admTab('alumno');
+  AGALSEL = uid; AGESQ = ''; AGESFILTRO = '';
+  if(typeof admTab === 'function') admTab('students');
 };
+
+/* repintar entero si la pantalla está abierta */
 function agEsRepinta(){
   try{
-    if(typeof ADM !== 'undefined' && ADM.tab === 'students'){
-      var root = document.getElementById('adminBody');
-      if(root) root.innerHTML = agEsPantalla();
+    if(typeof ADM === 'undefined' || ADM.tab !== 'students') return;
+    var root = document.getElementById('adminBody');
+    if(!root) return;
+    var foco = document.activeElement && document.activeElement.classList &&
+               document.activeElement.classList.contains('ages-buscar');
+    root.innerHTML = agEsPantalla();
+    if(foco){
+      var b = root.querySelector('.ages-buscar');
+      if(b){ b.focus(); try{ b.setSelectionRange(b.value.length, b.value.length); }catch(e){} }
     }
   }catch(e){}
 }
 window.agEsRepinta = agEsRepinta;
 
 /* ------------------------------------------------------------
-   3 · LA PANTALLA
-   ------------------------------------------------------------ */
-function agEsFilasHTML(){
-  var l = agEsLista();
-  if(!l.length){
-    return '<div class="agp-vacio"><b>' +
-      (AGESQ ? 'Nadie coincide con «' + agEsc(AGESQ) + '»' :
-       AGESFILTRO === 'borrado' ? 'La papelera está vacía' : 'Todavía no hay estudiantes') + '</b>' +
-      '<p>' + (AGESQ ? 'Pruebe con parte del nombre, del correo o del teléfono.' :
-        'Cuando alguien cree su cuenta aparecerá aquí, y el más reciente saldrá arriba.') + '</p></div>';
-  }
-
-  var ESTADOS = {};
-  try{ ESTADOS = (typeof STATUS !== 'undefined') ? STATUS : (0, eval)('STATUS'); }catch(e){}
-  /* el estado con el papel de color que le toca, no un color propio */
-  var PAPEL = { activo: 'exito', pendiente: 'aviso', inactivo: 'bloq',
-                completado: 'accion', retirado: 'bloq', borrado: 'error' };
-
-  return l.map(function(s){
-    var est = s.status || 'activo';
-    var nom = (ESTADOS[est] && ESTADOS[est][0]) || est;
-    var cur = agEsCursosDe(s);
-    var av = agEsAvanceDe(s);
-    var f = agEsLlegada(s).slice(0, 10);
-    var id = String(s.id).replace(/'/g, "\\'");
-    var borrado = (est === 'borrado');
-
-    return '<div class="ages-f' + (borrado ? ' fuera' : '') + '">' +
-      '<span class="ages-av">' + agEsIni(s.name) + '</span>' +
-
-      '<span class="ages-q">' +
-        '<b>' + agEsc(s.name || '(sin nombre)') + '</b>' +
-        '<em>' + (s.email ? agEsc(s.email) : 'sin correo') +
-          (s.phone ? ' · ' + agEsc(s.phone) : '') + '</em>' +
-      '</span>' +
-
-      '<span class="ages-e">' + agEstado(PAPEL[est] || 'bloq', nom) + '</span>' +
-
-      '<span class="ages-c"><b>' + cur + '</b><i>' + (cur === 1 ? 'curso' : 'cursos') + '</i></span>' +
-
-      '<span class="ages-b">' + agBarraAvance(av.hechos, av.total) +
-        '<i>' + av.hechos + ' de ' + av.total + ' módulos</i></span>' +
-
-      '<span class="ages-d">' + (f || '—') + '<i>llegó</i></span>' +
-
-      '<span class="ages-a">' +
-        (borrado
-          ? '<button class="ag-bt suave" onclick="restoreStudent(\'' + id + '\')" title="Restaurar">↩ Restaurar</button>' +
-            '<button class="ag-bt peligro" onclick="purgeStudent(\'' + id + '\')" title="Eliminar definitivamente">🗑</button>'
-          : '<button class="ag-bt" onclick="agEsFicha(\'' + id + '\')">Abrir ficha</button>' +
-            '<button class="ag-bt suave ico" onclick="editStudent(\'' + id + '\')" title="Editar datos">✎</button>' +
-            '<button class="ag-bt suave ico" onclick="toggleActive(\'' + id + '\')" title="' +
-              (est === 'inactivo' ? 'Reactivar' : 'Pausar') + '">' + (est === 'inactivo' ? '▶' : '❙❙') + '</button>' +
-            '<button class="ag-bt suave ico" onclick="deleteStudent(\'' + id + '\')" title="Enviar a la papelera">🗑</button>') +
-      '</span>' +
-    '</div>';
-  }).join('');
-}
-
-function agEsPantalla(){
-  var todos = agEsAlumnos();
-  var vivos = todos.filter(function(s){ return s && s.status !== 'borrado'; });
-  var cnt = {};
-  todos.forEach(function(s){ var k = (s && s.status) || 'activo'; cnt[k] = (cnt[k] || 0) + 1; });
-
-  var ESTADOS = {};
-  try{ ESTADOS = (typeof STATUS !== 'undefined') ? STATUS : (0, eval)('STATUS'); }catch(e){}
-
-  /* solo se ofrecen los filtros que tienen a alguien dentro: un
-     chip que siempre da cero es ruido con aspecto de opción */
-  var chips = '<button class="ages-chip' + (AGESFILTRO ? '' : ' on') +
-      '" onclick="agEsFiltrar(\'\')">Todos <b>' + vivos.length + '</b></button>';
-  Object.keys(ESTADOS).forEach(function(k){
-    if(!cnt[k]) return;
-    chips += '<button class="ages-chip' + (AGESFILTRO === k ? ' on' : '') +
-      '" onclick="agEsFiltrar(\'' + k + '\')">' + ESTADOS[k][0] +
-      (k === 'borrado' ? ' 🗑' : '') + ' <b>' + cnt[k] + '</b></button>';
-  });
-
-  var excel = '';
-  try{ if(typeof ucBotonesCSV === 'function') excel = ucBotonesCSV(); }catch(e){}
-
-  return '<div class="ages">' +
-    '<div class="ages-top">' +
-      '<button class="ag-bt" onclick="editStudent()">＋ Agregar estudiante</button>' +
-      '<input class="ages-buscar" type="search" value="' + agEsc(AGESQ) +
-        '" placeholder="Buscar por nombre, correo o teléfono…" oninput="agEsBuscar(this.value)">' +
-      '<span class="ages-cuenta"><b>' + vivos.length + '</b> ' +
-        (vivos.length === 1 ? 'estudiante' : 'estudiantes') + '</span>' +
-    '</div>' +
-    '<div class="ages-chips">' + chips + '</div>' +
-    (excel ? '<div class="ages-excel">' + excel + '</div>' : '') +
-    '<p class="agp-rot">Del último en llegar al primero</p>' +
-    '<div class="ages-lista" id="agEsLista">' + agEsFilasHTML() + '</div>' +
-  '</div>';
-}
-window.agEsPantalla = agEsPantalla;
-
-/* ------------------------------------------------------------
-   4 · ENGANCHE
+   6 · ENGANCHE
    ------------------------------------------------------------
-   Por studentsView, no por renderAdmin: el módulo de nube llama a
-   una copia de renderAdmin guardada de antes para esta pestaña —
-   lo mismo que pasaba con el tablero.
+   Por studentsView, no por renderAdmin: para esta pestaña el
+   módulo de nube llama a una copia de renderAdmin guardada de
+   antes de cualquier envoltura.
 
-   Y renderStudentsTable se queda sin trabajo: era quien rellenaba
-   la tabla que ya no existe. Se le deja repintar esta lista, que
-   es lo que quieren decir las veinte llamadas que hay repartidas
-   por el código después de crear, editar o borrar a alguien.
+   renderStudentsTable es lo que llaman, tras crear, editar, pausar
+   o borrar a alguien, las funciones de siempre. Rellenaba la tabla
+   vieja; ahora rehace la lista y la ficha de esta pantalla.
    ------------------------------------------------------------ */
 (function agEsEngancha(){
   var poner = function(){
     if(typeof window.studentsView !== 'function') return false;
-    if(window.studentsView.__ages) return true;
-    var envuelto = function(){
+    if(window.studentsView.__ages2) return true;
+    var vista = function(){
       try{ return agEsPantalla(); }
       catch(e){ return '<div class="agp-vacio"><b>No se pudo pintar la lista</b><p>' + agEsc(e.message) + '</p></div>'; }
     };
-    envuelto.__ages = true;
-    window.studentsView = envuelto;
-    try{ studentsView = envuelto; }catch(e){}
+    vista.__ages2 = true;
+    window.studentsView = vista;
+    try{ studentsView = vista; }catch(e){}
 
-    if(typeof window.renderStudentsTable === 'function' && !window.renderStudentsTable.__ages){
-      var rst = function(){
-        var l = document.getElementById('agEsLista');
-        if(l){ try{ l.innerHTML = agEsFilasHTML(); }catch(e){} }
-      };
-      rst.__ages = true;
-      window.renderStudentsTable = rst;
-      try{ renderStudentsTable = rst; }catch(e){}
-    }
+    var tabla = function(){
+      var l = document.getElementById('agEsLista'), f = document.getElementById('agEsFicha');
+      if(!l || !f) return;
+      try{
+        if(AGALSEL && !agAlFicha(AGALSEL)) AGALSEL = null;
+        l.innerHTML = agEsListaHTML();
+        f.innerHTML = agEsFichaHTML();
+      }catch(e){}
+    };
+    tabla.__ages2 = true;
+    window.renderStudentsTable = tabla;
+    try{ renderStudentsTable = tabla; }catch(e){}
     return true;
   };
   if(!poner()){
@@ -31326,72 +31379,75 @@ window.agEsPantalla = agEsPantalla;
     var seguir = function(){ if(poner()) return; if(++i < 60) setTimeout(seguir, 150); };
     setTimeout(seguir, 0);
   }
-  [400, 1200, 2500].forEach(function(t){ setTimeout(poner, t); });
 })();
 
 /* ------------------------------------------------------------
-   5 · ESTILOS
+   7 · ESTILOS — solo lo que la ficha no traía ya
    ------------------------------------------------------------ */
 (function agEsCss(){
   if(document.getElementById('agEsCss')) return;
   var s = document.createElement('style');
   s.id = 'agEsCss';
   s.textContent = [
-    '.ages{color:var(--agp-tx)}',
-
-    '.ages-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}',
-    '.ages-buscar{flex:1;min-width:230px;padding:11px 15px;border-radius:11px;font:inherit;font-size:14px;',
-      'background:var(--agp-deep);border:1px solid var(--ag-info-b);color:var(--agp-tx)}',
-    '.ages-buscar::placeholder{color:var(--agp-dim)}',
-    '.ages-buscar:focus{outline:none;border-color:var(--ag-accion-b)}',
-    '.ages-cuenta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;',
-      'text-transform:uppercase;color:var(--agp-dim)}',
+    '.ages-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}',
+    '.ages-buscar{flex:1;min-width:220px;width:auto}',
+    '.ages-cuenta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--agp-dim)}',
     '.ages-cuenta b{font-family:var(--display);font-size:17px;color:var(--agp-tx);letter-spacing:0}',
-
-    '.ages-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}',
+    '.ages-fila2{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 16px}',
+    '.ages-chips{display:flex;flex-wrap:wrap;gap:7px}',
     '.ages-chip{padding:7px 13px;border-radius:999px;cursor:pointer;font:inherit;font-size:12.5px;',
       'background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-tx2)}',
     '.ages-chip b{font-weight:700;color:var(--agp-tx)}',
     '.ages-chip:hover{border-color:var(--ag-accion-b)}',
     '.ages-chip.on{background:var(--ag-accion-s);border-color:var(--ag-accion-b);color:var(--ag-accion-hi)}',
     '.ages-chip.on b{color:var(--ag-accion-hi)}',
-    '.ages-excel{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 4px}',
+    '.ages-excel{display:flex;gap:8px;flex-wrap:wrap}',
 
-    /* --- una fila por persona --- */
-    '.ages-lista{display:grid;gap:8px}',
-    '.ages-f{display:grid;align-items:center;gap:14px;padding:12px 16px;border-radius:13px;',
-      'grid-template-columns:40px minmax(0,2fr) 104px 62px minmax(130px,1.2fr) 84px auto;',
-      'background:var(--agp-deep);border:1px solid var(--ag-info-b);transition:border-color .16s}',
-    '.ages-f:hover{border-color:var(--ag-accion-b)}',
-    '.ages-f.fuera{opacity:.62}',
-    '.ages-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;',
-      'background:var(--ag-prog-s);border:1px solid var(--ag-prog-b);color:var(--ag-prog-hi);',
-      'font-family:var(--mono);font-size:12.5px}',
-    '.ages-q{min-width:0}',
-    '.ages-q b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;color:var(--agp-tx);',
-      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-    '.ages-q em{display:block;margin-top:2px;font-style:normal;font-size:12px;color:var(--agp-dim);',
-      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-    '.ages-c{text-align:center}',
-    '.ages-c b{display:block;font-family:var(--display);font-size:20px;font-weight:700;color:var(--agp-tx)}',
-    '.ages-c > i,.ages-b > i,.ages-d > i{display:block;margin-top:3px;font-style:normal;',
-      'font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;',
-      'color:var(--agp-dim);white-space:nowrap}',
-    '.ages-b{display:block}',
-    '.ages-b > i{text-align:left;margin-top:6px}',
-    '.ages-d{font-family:var(--mono);font-size:12px;color:var(--agp-tx2);text-align:right}',
-    '.ages-d > i{text-align:right}',
-    '.ages-a{display:flex;gap:6px;align-items:center;justify-content:flex-end}',
-    '.ages-a .ag-bt{padding:8px 13px;font-size:13px}',
-    '.ages-a .ag-bt.ico{padding:8px 10px;min-width:34px}',
+    /* la lista: la papelera se ve, pero apagada */
+    '.ages .agal-a.fuera{opacity:.6}',
 
-    /* --- estrecho: la fila se apila en dos alturas --- */
-    '@media(max-width:1180px){',
-      '.ages-f{grid-template-columns:40px minmax(0,1fr) auto;row-gap:10px}',
-      '.ages-e{grid-column:3}',
-      '.ages-c,.ages-b,.ages-d{grid-column:2/-1;text-align:left}',
-      '.ages-d{text-align:left}', '.ages-d > i{text-align:left}',
-      '.ages-a{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap}',
+    /* cabecera de la ficha con sus acciones */
+    '.ages .agal-cab{margin-bottom:10px}',
+    '.ages-est{margin-left:auto}',
+    '.ages-acc{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}',
+    '.ages-acc .ag-bt{padding:8px 13px;font-size:13px}',
+
+    /* un renglón por curso: el renglón ya NO es una etiqueta, así
+       un clic en cualquier parte de la fila no quita el acceso por
+       accidente. Solo el interruptor lo cambia. */
+    '.ages .ages-c{cursor:default;flex-wrap:wrap}',
+    '.ages .ages-c:hover{background:rgba(255,255,255,.03)}',
+    '.ages-av{display:flex;align-items:center;gap:9px;flex:0 0 170px}',
+    '.ages-av .agal-bar{flex:1}',
+    '.ages .agal-bar i{background:var(--ag-prog-c)}',
+    '.ages .agal-bar.lleno i{background:var(--ag-exito-c)}',
+    '.ages-extra{flex:1 0 100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-left:28px}',
+    /* Registrar a mano es una herramienta de RECUPERACIÓN, no de cada
+       día: como botón con borde en cada curso a medias invitaba a
+       usarla por error, incluso con alguien que va por el módulo 1.
+       Queda como enlace discreto que se ilumina al pasar por encima. */
+    '.ages-reg{padding:0;cursor:pointer;font:inherit;font-size:11.5px;background:none;border:0;',
+      'color:var(--agp-dim);text-decoration:underline;text-decoration-color:var(--ag-info-b);text-underline-offset:3px}',
+    '.ages-reg:hover{color:var(--ag-aviso-hi);text-decoration-color:var(--ag-aviso-b)}',
+    '.ages-man{font-size:11.5px;color:var(--ag-aviso-hi)}',
+    '.ages-man button{font:inherit;color:var(--agp-tx2);background:none;border:0;padding:0;',
+      'text-decoration:underline;cursor:pointer}',
+
+    /* la vista personalizada, plegada */
+    '.ages-vista summary{display:flex;align-items:center;justify-content:space-between;gap:10px;',
+      'cursor:pointer;list-style:none}',
+    '.ages-vista summary::-webkit-details-marker{display:none}',
+    '.ages-vista summary .agal-t{margin:0}',
+    '.ages-vista summary em{font-style:normal;font-size:12px;color:var(--agp-dim)}',
+    '.ages-vista summary::after{content:"▾";color:var(--agp-dim);transition:transform .2s}',
+    '.ages-vista[open] summary::after{transform:rotate(180deg)}',
+    '.ages-vista[open] summary{margin-bottom:12px}',
+
+    '@media(max-width:900px){',
+      '.ages .agal-marco{grid-template-columns:1fr}',
+      '.ages .agal-izq{position:static}',
+      '.ages .agal-lista{max-height:240px}',
+      '.ages-av{flex:1 0 100%;padding-left:28px}',
     '}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
@@ -31870,7 +31926,7 @@ function agCfgGruposHTML(){
   return '<div class="agcf-caja">' +
     '<h4 class="agcf-t">Grupos<em>solo para ordenar a su gente</em></h4>' +
     '<p class="agcf-n">Un grupo <b>no da acceso a ningún curso</b>: eso se abre persona por persona en la ' +
-      '<b>Ficha del estudiante</b>. Sirve para etiquetar —por tanda, por empresa, por año— y el nombre ' +
+      'ficha de cada persona, en <b>Estudiantes</b>. Sirve para etiquetar —por tanda, por empresa, por año— y el nombre ' +
       'aparece en la ficha y en los Excel.</p>' +
     (confusos
       ? '<p class="agcf-aviso">⚠ ' + confusos + (confusos === 1 ? ' grupo se llama' : ' grupos se llaman') +
@@ -32118,6 +32174,13 @@ function agCqCaras(){
         if(t && t !== '·' && !/^\d/.test(t) && !m[i].classList.contains('cq-badge')){ autor = t; break; }
       }
     }
+    /* los puntos medios que separaban los datos sobran: ahora los
+       separa el espacio, y sueltos en una fila flexible quedaban
+       como basura entre etiqueta y etiqueta */
+    [].forEach.call(it.querySelectorAll('.cq-meta > span'), function(sp){
+      if((sp.textContent || '').trim() === '·') sp.parentNode.removeChild(sp);
+    });
+
     var c = document.createElement('span');
     c.className = 'agcq-cara ' + agCqTono(autor);
     c.textContent = agCqIniciales(autor);
@@ -32214,6 +32277,14 @@ window.agCqCaras = agCqCaras;
     '.cq-item.agcq-cerrada{opacity:.62}',
     '.cq-item.agcq-con-cara h4{margin:0 0 7px;font-family:var(--display);font-size:15.5px;',
       'font-weight:600;line-height:1.35;color:var(--agp-tx)}',
+    /* La fila tiene TRES piezas (cara, título, datos) en una rejilla de
+       DOS columnas. Sin colocarlas a mano, los datos caían en la
+       primera columna, la de 42 px de la cara, y cada palabra quedaba
+       en su propia línea: «PAYANO / RAFAEL / · / 17 sept». La cara
+       ocupa las dos filas y el resto va a la segunda columna. */
+    '.cq-item.agcq-con-cara > .agcq-cara{grid-column:1;grid-row:1 / span 2}',
+    '.cq-item.agcq-con-cara > h4{grid-column:2;grid-row:1}',
+    '.cq-item.agcq-con-cara > .cq-meta{grid-column:2;grid-row:2}',
     '.cq-item.agcq-con-cara .cq-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;',
       'font-size:12px;color:var(--agp-dim)}',
     /* los puntos medios que separaban los datos sobran cuando hay
@@ -32502,10 +32573,22 @@ function agCt2Arregla(){
     em.textContent = t.replace('sin secciones',
       n ? (n + (n === 1 ? ' bloque' : ' bloques')) : 'sin contenido');
   });
-  /* y el total de la cabecera, por lo mismo */
+  /* La cabecera se rehace entera con las cifras que se pintan. Antes
+     se buscaba «0 secciones» dentro de la frase con una expresión que,
+     al escribirse desde la consola, llevaba dos caracteres de RETROCESO
+     (0x08) donde debía ir un límite de palabra. No coincidía nunca y la
+     cabecera seguía diciendo «0 secciones» sin dar ningún error.
+     Módulos y preguntas se leen de la frase; los bloques son los que se
+     acaban de contar. */
   var cab = document.querySelector('#adminBody .agct-cab-t em');
-  if(cab && total){
-    cab.textContent = cab.textContent.replace(/0 secciones/, total + ' bloques');
+  if(cab){
+    var txt = cab.textContent || '';
+    var mm = txt.match(/(\d+)\s*m[oó]dulos/), qq = txt.match(/(\d+)\s*preguntas/);
+    var partes = [];
+    if(mm) partes.push(mm[1] + ' módulos');
+    partes.push(total + (total === 1 ? ' bloque' : ' bloques'));
+    if(qq) partes.push(qq[1] + ' preguntas');
+    cab.textContent = partes.join(' · ');
   }
 }
 window.agCt2Arregla = agCt2Arregla;
@@ -32585,6 +32668,11 @@ addEventListener('keydown', function(e){
     '.agct2-sep{flex:none;width:1px;height:26px;background:var(--ag-info-b)}',
     '.agct2-barra .ag-bt{padding:9px 14px;font-size:13.5px}',
     '.agct2-barra .ag-bt.ico{padding:9px 13px;min-width:38px;font-size:15px}',
+    /* el nombre y el icono del curso ya los dice la barra de arriba
+       («Todos los cursos · 🐷 Porcicultura aplicada…»): aquí se quedan
+       solo las cifras y el aviso de solo lectura */
+    '#adminBody .agct-cab .agct-ico,#adminBody .agct-cab-t b{display:none}',
+    '#adminBody .agct-cab-t em{font-size:13px}',
     '.agct2-nada{margin:14px 0 0;padding:20px;text-align:center;font-size:13.5px;color:var(--agp-dim);',
       'border:1px dashed var(--ag-info-b);border-radius:14px}'
   ].join('');
@@ -32724,11 +32812,35 @@ function agAvAdaptar(args){
   return { uid: uid, mod: mod, rec: rec, curso: curso || 'porcicultura' };
 }
 
+/* ------------------------------------------------------------
+   LOS INTENTOS DICEN SI FUE UN EXAMEN O UN REGISTRO A MANO
+   ------------------------------------------------------------
+   La tabla de la nube no tiene un campo «manual», y no hace falta
+   añadirlo: un examen de verdad siempre tiene al menos un intento,
+   y un registro hecho por el instructor tiene cero. Esa es la
+   marca, y queda guardada en la nube con el dato.
+
+   Para que la marca no mienta, los exámenes reales nunca pueden
+   llegar con cero. Y llegaban: Engorde cuenta los intentos en
+   `tries`, no en `attempts`, así que subía 0 y un examen aprobado
+   de Engorde era indistinguible de uno puesto a mano.
+   ------------------------------------------------------------ */
+function agAvIntentos(rec){
+  if(!rec) return 0;
+  if(rec.manual) return 0;
+  var n = parseInt(rec.attempts != null ? rec.attempts : rec.tries, 10);
+  return (isNaN(n) || n < 1) ? 1 : n;
+}
+window.agAvIntentos = agAvIntentos;
+
 function agAvSubir(){
   var p = agAvAdaptar(arguments);
   if(!p.uid || p.mod == null || !p.rec) return;
   if(typeof window.pushExamProgress !== 'function') return;
-  try{ window.pushExamProgress(p.curso, p.uid, p.mod, p.rec); }catch(e){}
+  var r = {};
+  for(var k in p.rec) r[k] = p.rec[k];
+  r.attempts = agAvIntentos(p.rec);
+  try{ window.pushExamProgress(p.curso, p.uid, p.mod, r); }catch(e){}
 }
 
 /* los nombres que las cuatro llamadas buscaban */
@@ -32809,7 +32921,7 @@ window.agAvRespaldar = async function(uid){
            se pisa una nota mejor con una peor */
         if(!enNube || loc > enNube.t + 1000 || (rec.best || 0) > enNube.best){
           var fila = { user_id: uid, module: m, passed: !!rec.passed, best: rec.best || 0,
-                       last_score: rec.last || 0, attempts: rec.attempts || rec.tries || 0,
+                       last_score: rec.last || 0, attempts: agAvIntentos(rec),
                        updated_at: new Date(loc || Date.now()).toISOString() };
           if(hc) fila.course = curso;
           filas.push(fila);
@@ -32908,45 +33020,55 @@ window.agAvEsLaPlataforma = agAvEsLaPlataforma;
 /* ============================================================
    REGISTRAR A MANO UN CURSO TERMINADO
    ------------------------------------------------------------
-   PARA QUÉ EXISTE ESTO
+   PARA QUÉ EXISTE
 
-   Durante meses, cuatro cursos no subían el avance a la nube
-   (ver ag-avance.js). Quien terminó Reproducción, Sanidad,
-   Engorde o Ruta lo tiene en su navegador y en ningún otro sitio.
+   Durante meses cuatro cursos no subían el avance a la nube (ver
+   ag-avance.js). Lo primero siempre es que la persona entre una
+   vez desde el equipo donde estudió: su avance sube solo, con SUS
+   notas. Esto es para cuando ese equipo ya no existe y el
+   instructor sabe que terminó.
 
-   El camino limpio es que esa persona entre una vez desde el
-   equipo donde estudió: su avance se respalda solo, con SUS
-   notas y SUS fechas. Eso es siempre lo primero que hay que
-   intentar.
+   NO SE INVENTAN NOTAS, Y LA MARCA QUEDA EN LA NUBE
 
-   Pero hay casos en que no se puede —cambió de teléfono, formateó,
-   estudió en un equipo prestado— y el instructor sabe que esa
-   persona terminó. Para eso está esto.
+   Un registro manual no finge ser un examen. La tabla de la nube
+   no tiene un campo «manual» y no hace falta: un examen real
+   siempre tiene al menos un intento (ag-avance.js lo garantiza
+   para los seis cursos) y un registro del instructor tiene CERO.
+   Esa marca viaja con el dato y la ficha la enseña como
+   «registrado a mano», no como un aprobado normal.
 
-   LA REGLA QUE NO SE ROMPE: NO SE INVENTAN NOTAS
+   La versión anterior guardaba la marca solo en el navegador del
+   instructor y subía a la nube con un ayudante que se traga los
+   errores. Si la nube rechazaba la escritura, el panel decía
+   «registrado» y no lo estaba. Ahora se escribe directamente y
+   se comprueba la respuesta: si falla, se dice.
 
-   Un registro manual NO finge ser un examen. Se guarda marcado
-   como tal (`manual:true`, con la fecha de hoy y quién lo puso) y
-   la ficha lo enseña como «registrado por el instructor», no como
-   «aprobado con 92». Si mañana alguien audita por qué esa persona
-   tiene certificado, el dato dice la verdad.
+   DESHACER BORRA DE VERDAD
 
-   Y la nota la pone el instructor, no la inventa el programa: se
-   pide, con la mínima del curso como sugerencia.
-
-   LO QUE NO TOCA
-
-   Lo que ya esté aprobado de verdad. Si un módulo tiene un examen
-   real, se respeta y no se pisa: registrar un curso terminado
-   rellena los huecos, no borra el trabajo hecho.
+   Antes quitaba el registro de la pantalla y de la memoria, pero
+   la fila seguía en la nube y volvía al recargar. Ahora se borra
+   también allí, y solo lo que tiene cero intentos: lo aprobado con
+   examen no se toca ni queriendo.
    ============================================================ */
 
+function agRgtCurso(curso){
+  try{ return ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso] || null; }
+  catch(e){ return null; }
+}
+function agRgtAlumno(uid){
+  var al = null;
+  try{ (typeof STUDENTS !== 'undefined' ? STUDENTS : []).forEach(function(s){ if(s.id === uid) al = s; }); }catch(e){}
+  return al;
+}
+function agRgtNube(){
+  try{ return (window.SB && typeof window.SB.from === 'function') ? window.SB : null; }catch(e){ return null; }
+}
+
 /* ------------------------------------------------------------
-   1 · QUÉ LE FALTA A ESTA PERSONA EN ESTE CURSO
+   1 · QUÉ LE FALTA Y QUÉ SE PUSO A MANO
    ------------------------------------------------------------ */
 function agRgtFaltan(uid, curso){
-  var C = null;
-  try{ C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso]; }catch(e){}
+  var C = agRgtCurso(curso);
   if(!C) return [];
   var ms = [];
   try{ ms = C.modules() || []; }catch(e){}
@@ -32960,13 +33082,39 @@ function agRgtFaltan(uid, curso){
 }
 window.agRgtFaltan = agRgtFaltan;
 
+/* Un módulo puesto a mano es uno aprobado con CERO intentos, y cero
+   tiene que ser un cero escrito, no un campo que falta. Los registros
+   viejos de Engorde no traen «attempts» (cuentan en «tries»), y leer
+   «falta» como «cero» los habría tomado por registros manuales — y el
+   botón de deshacer habría ofrecido borrar exámenes de verdad. */
+function agRgtEsManual(r){
+  if(!r || !r.passed) return false;
+  if(r.manual === true) return true;
+  return r.attempts === 0 && !r.tries;
+}
+window.agRgtEsManual = agRgtEsManual;
+
+/* un módulo puesto a mano es uno aprobado con cero intentos */
+function agRgtManuales(uid, curso){
+  var C = agRgtCurso(curso);
+  if(!C) return [];
+  var ms = [];
+  try{ ms = C.modules() || []; }catch(e){}
+  var l = [];
+  ms.forEach(function(m){
+    var r = null;
+    try{ r = C.rec(uid, m.n); }catch(e){}
+    if(agRgtEsManual(r)) l.push(m.n);
+  });
+  return l;
+}
+window.agRgtManuales = agRgtManuales;
+
 /* ------------------------------------------------------------
-   2 · REGISTRARLO
+   2 · REGISTRAR
    ------------------------------------------------------------ */
-window.agRgtRegistrar = function(uid, curso){
-  var C = null, al = null;
-  try{ C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso]; }catch(e){}
-  try{ (typeof STUDENTS !== 'undefined' ? STUDENTS : []).forEach(function(s){ if(s.id === uid) al = s; }); }catch(e){}
+window.agRgtRegistrar = async function(uid, curso){
+  var C = agRgtCurso(curso), al = agRgtAlumno(uid);
   if(!C || !al){ if(typeof toast === 'function') toast('No encuentro ese curso o ese estudiante', '⚠️'); return; }
 
   var faltan = agRgtFaltan(uid, curso);
@@ -32980,174 +33128,103 @@ window.agRgtRegistrar = function(uid, curso){
 
   var nota = prompt(
     'Registrar ' + C.label + ' como terminado para ' + al.name + '.\n\n' +
-    'Le faltan ' + faltan.length + ' de ' + (C.n || 0) + ' módulos: ' + faltan.join(', ') + '.\n' +
-    'Lo que ya tenga aprobado de verdad NO se toca.\n\n' +
+    'Le faltan ' + faltan.length + ' de ' + (C.n || 0) + ' módulos.\n' +
+    'Lo que ya tenga aprobado con examen NO se toca.\n' +
+    'Quedará marcado como «registrado a mano».\n\n' +
     '¿Con qué nota lo registra? (la mínima del curso es ' + minima + ')',
     String(minima)
   );
   if(nota === null) return;
   var n = parseInt(nota, 10);
-  if(isNaN(n) || n < 1 || n > 100){ if(typeof toast === 'function') toast('Esa nota no es válida', '⚠️'); return; }
-  if(n < minima){
-    if(!confirm('La nota ' + n + ' está por debajo de la mínima (' + minima + '). ' +
-                'Los módulos quedarían registrados como NO aprobados. ¿Continuar?')) return;
+  if(isNaN(n) || n < minima || n > 100){
+    if(typeof toast === 'function') toast('La nota debe estar entre ' + minima + ' y 100', '⚠️');
+    return;
   }
-
-  var quien = 'instructor';
-  try{ if(typeof SESSION !== 'undefined' && SESSION && SESSION.id) quien = SESSION.id; }catch(e){}
 
   var ns = (typeof agAvNs === 'function') ? agAvNs(curso) : 'porci::';
   var ahora = Date.now();
-  var puestos = 0;
-
-  faltan.forEach(function(m){
-    var rec = { passed: n >= minima, best: n, last: n, attempts: 0,
-                date: ahora, manual: true, puesto_por: quien };
-    try{ localStorage.setItem(ns + uid + '::exam_m' + m, JSON.stringify(rec)); }catch(e){}
-    /* y a la nube, que es donde lo verá usted desde cualquier equipo */
-    try{
-      if(typeof pushExamProgress === 'function') pushExamProgress(curso, uid, m, rec);
-    }catch(e){}
-    puestos++;
+  var filas = faltan.map(function(m){
+    return { user_id: uid, course: curso, module: m, passed: true, best: n,
+             last_score: n, attempts: 0, updated_at: new Date(ahora).toISOString() };
   });
 
-  /* que el panel lo vea sin recargar */
-  try{
-    window.CLOUDPROG = window.CLOUDPROG || {};
-    var u = (CLOUDPROG[uid] = CLOUDPROG[uid] || {});
-    var c = (u[curso] = u[curso] || {});
-    faltan.forEach(function(m){ c[m] = { passed: n >= minima, best: n, last: n, attempts: 0, manual: true }; });
-  }catch(e){}
+  /* la nube primero: si rechaza, no se finge nada en pantalla */
+  var sb = agRgtNube();
+  if(sb){
+    var res = null;
+    try{ res = await sb.from('progress').upsert(filas, { onConflict: 'user_id,course,module' }); }
+    catch(e){ res = { error: e }; }
+    if(res && res.error){
+      if(typeof toast === 'function'){
+        toast('La nube no aceptó el registro: ' + (res.error.message || res.error) + '. No se guardó nada.', '⛔');
+      }
+      return;
+    }
+  }
+
+  /* y aquí, para que se vea sin esperar a la próxima descarga */
+  faltan.forEach(function(m){
+    var rec = { passed: true, best: n, last: n, attempts: 0, date: ahora, manual: true };
+    try{ localStorage.setItem(ns + uid + '::exam_m' + m, JSON.stringify(rec)); }catch(e){}
+    try{
+      window.CLOUDPROG = window.CLOUDPROG || {};
+      var u = (CLOUDPROG[uid] = CLOUDPROG[uid] || {});
+      (u[curso] = u[curso] || {})[m] = { passed: true, best: n, last: n, attempts: 0 };
+    }catch(e){}
+  });
 
   if(typeof toast === 'function'){
-    toast(puestos + ' módulo' + (puestos === 1 ? '' : 's') + ' de ' + C.label +
-          ' registrados para ' + al.name, '📝');
+    toast(faltan.length + ' módulo' + (faltan.length === 1 ? '' : 's') + ' de ' + C.label +
+          ' registrados para ' + al.name + (sb ? '' : ' (solo en este equipo: sin conexión a la nube)'), '📝');
   }
-  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+  try{ if(typeof agEsRepinta === 'function') agEsRepinta(); }catch(e){}
 };
 
 /* ------------------------------------------------------------
-   3 · DESHACERLO
-   ------------------------------------------------------------
-   Si se registra por error hay que poder quitarlo, y solo lo
-   registrado a mano: lo que la persona aprobó de verdad no se
-   toca ni queriendo.
+   3 · DESHACER — EN LA NUBE TAMBIÉN
    ------------------------------------------------------------ */
-window.agRgtDeshacer = function(uid, curso){
-  var C = null;
-  try{ C = ((typeof COURSES !== 'undefined') ? COURSES : (0, eval)('COURSES'))[curso]; }catch(e){}
+window.agRgtDeshacer = async function(uid, curso){
+  var C = agRgtCurso(curso);
   if(!C) return;
-  var ms = [];
-  try{ ms = C.modules() || []; }catch(e){}
-  var ns = (typeof agAvNs === 'function') ? agAvNs(curso) : 'porci::';
-
-  var manuales = [];
-  ms.forEach(function(m){
-    var r = null;
-    try{ r = JSON.parse(localStorage.getItem(ns + uid + '::exam_m' + m) || 'null'); }catch(e){}
-    if(r && r.manual) manuales.push(m.n);
-  });
+  var manuales = agRgtManuales(uid, curso);
   if(!manuales.length){
     if(typeof toast === 'function') toast('No hay nada registrado a mano en ' + C.label, 'ℹ️');
     return;
   }
-  if(!confirm('Quitar ' + manuales.length + ' módulo(s) que se registraron a mano en ' + C.label + '.\n' +
-              'Lo que la persona aprobó con examen NO se toca.')) return;
+  if(!confirm('Quitar los ' + manuales.length + ' módulos de ' + C.label + ' que se registraron a mano.\n' +
+              'Lo aprobado con examen NO se toca.')) return;
 
+  var sb = agRgtNube();
+  if(sb){
+    var res = null;
+    try{
+      res = await sb.from('progress').delete()
+        .eq('user_id', uid).eq('course', curso).eq('attempts', 0).in('module', manuales);
+    }catch(e){ res = { error: e }; }
+    if(res && res.error){
+      if(typeof toast === 'function') toast('La nube no permitió quitarlo: ' + (res.error.message || res.error), '⛔');
+      return;
+    }
+  }
+
+  var ns = (typeof agAvNs === 'function') ? agAvNs(curso) : 'porci::';
   manuales.forEach(function(m){
-    try{ localStorage.removeItem(ns + uid + '::exam_m' + m); }catch(e){}
+    try{
+      var r = JSON.parse(localStorage.getItem(ns + uid + '::exam_m' + m) || 'null');
+      if(agRgtEsManual(r)) localStorage.removeItem(ns + uid + '::exam_m' + m);
+    }catch(e){}
     try{ if(CLOUDPROG[uid] && CLOUDPROG[uid][curso]) delete CLOUDPROG[uid][curso][m]; }catch(e){}
   });
-  if(typeof toast === 'function') toast('Retirado el registro manual', '↩️');
-  try{ if(typeof renderAdmin === 'function') renderAdmin(); }catch(e){}
+  if(typeof toast === 'function') toast('Retirado el registro manual de ' + C.label, '↩️');
+  try{ if(typeof agEsRepinta === 'function') agEsRepinta(); }catch(e){}
 };
 
-/* ------------------------------------------------------------
-   4 · EL BOTÓN, EN LA FICHA
-   ------------------------------------------------------------
-   Va en la columna de ACCESO, junto a cada curso: es donde el
-   instructor ya está mirando qué tiene abierto esa persona.
-   ------------------------------------------------------------ */
-function agRgtPinta(){
-  var body = document.getElementById('adminBody');
-  if(!body) return;
-  var uid = null;
-  try{ uid = (typeof AGALSEL !== 'undefined') ? AGALSEL : window.AGALSEL; }catch(e){}
-  if(!uid) return;
-
-  [].forEach.call(body.querySelectorAll('.agal-c'), function(fila){
-    if(fila.querySelector('.agrgt')) return;
-    /* de qué curso es esta fila: lo dice el interruptor de acceso */
-    var sw = fila.querySelector('input[type="checkbox"]');
-    var curso = null;
-    if(sw){
-      var oc = sw.getAttribute('onchange') || '';
-      var m = oc.match(/agAlAcceso\('[^']*','([^']+)'/);
-      if(m) curso = m[1];
-    }
-    if(!curso) return;
-
-    var faltan = agRgtFaltan(uid, curso);
-    var b = document.createElement('button');
-    b.className = 'agrgt';
-    b.type = 'button';
-    if(faltan.length){
-      b.textContent = 'Registrar terminado';
-      b.title = 'Le faltan ' + faltan.length + ' módulos. Úselo solo si no puede entrar desde su equipo.';
-      b.onclick = function(e){ e.preventDefault(); e.stopPropagation(); agRgtRegistrar(uid, curso); };
-    } else {
-      b.textContent = '✓ completo';
-      b.className = 'agrgt listo';
-      b.title = 'Pulse para quitar lo que se haya registrado a mano';
-      b.onclick = function(e){ e.preventDefault(); e.stopPropagation(); agRgtDeshacer(uid, curso); };
-    }
-    fila.appendChild(b);
-  });
-}
-window.agRgtPinta = agRgtPinta;
-
-if(typeof window.renderAdmin === 'function'){
-  var _renderAdminRgt = window.renderAdmin;
-  window.renderAdmin = function(){
-    var r = _renderAdminRgt.apply(this, arguments);
-    try{
-      if(typeof ADM !== 'undefined' && ADM.tab === 'alumno'){
-        agRgtPinta();
-        setTimeout(agRgtPinta, 80);
-      }
-    }catch(e){}
-    return r;
-  };
-}
-
-/* ------------------------------------------------------------
-   5 · ESTILOS
-   ------------------------------------------------------------ */
-(function agRgtCss(){
-  if(document.getElementById('agRgtCss')) return;
-  var s = document.createElement('style');
-  s.id = 'agRgtCss';
-  s.textContent = [
-    /* La fila de acceso es un flex de cuatro piezas pensado sin este
-       boton; al meterlo de quinto, el nombre del curso y su contador
-       se encogian hasta solaparse con el interruptor. En vez de
-       apretar mas una fila llena, el boton se lleva su propia linea:
-       la fila envuelve y el cambia de renglon. */
-    '.agal-c{flex-wrap:wrap}',
-    '.agal-c .agal-c-t{min-width:0;flex:1 1 auto}',
-    '.agrgt{flex:1 0 100%;margin:8px 0 0;padding:7px 11px;border-radius:9px;cursor:pointer;',
-      'font:inherit;font-family:var(--mono);font-size:10px;letter-spacing:.09em;',
-      'text-transform:uppercase;white-space:nowrap;',
-      'background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-dim)}',
-    '.agrgt:hover{border-color:var(--ag-aviso-b);color:var(--ag-aviso-hi);background:var(--ag-aviso-s)}',
-    '.agrgt.listo{border-color:var(--ag-exito-b);color:var(--ag-exito-hi);background:var(--ag-exito-s)}',
-    '.agrgt.listo:hover{border-color:var(--ag-error-b);color:var(--ag-error-hi);background:var(--ag-error-s)}'
-  ].join('');
-  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
-  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
-})();
-
 </script>
+
+
+
+
+
 
 
 
