@@ -26335,22 +26335,22 @@ function agPubArreglaNodo(raiz){
     '.adm-kpi span, .adm-kpi small{color:var(--agp-dim)!important;letter-spacing:.1em;text-transform:uppercase}',
 
     /* ---------- tablas ---------- */
-    '.adm-tablewrap, .nx-tw{border:1px solid rgba(233,222,199,.13)!important;',
+    '.adm-tablewrap, #screenAdmin .nx-tw, .modal-ov .nx-tw{border:1px solid rgba(233,222,199,.13)!important;',
       'border-radius:14px!important;overflow:auto;background:var(--agp-deep)}',
-    '.adm-table, .nx-t{background:transparent!important;color:var(--agp-tx)}',
-    '.adm-table th, .nx-t th{background:var(--agp-raise)!important;color:var(--agp-dim)!important;',
+    '.adm-table, #screenAdmin .nx-t, .modal-ov .nx-t{background:transparent!important;color:var(--agp-tx)}',
+    '.adm-table th, #screenAdmin .nx-t th, .modal-ov .nx-t th{background:var(--agp-raise)!important;color:var(--agp-dim)!important;',
       'font-family:var(--mono);font-size:10.5px!important;letter-spacing:.12em;text-transform:uppercase;',
       'border-bottom:1px solid rgba(233,222,199,.16)!important}',
-    '.adm-table td, .nx-t td{border-bottom:1px solid rgba(233,222,199,.08)!important;color:var(--agp-tx2)}',
-    '.adm-table tbody tr:hover, .nx-t tbody tr:hover{background:rgba(255,255,255,.035)}',
-    '.adm-table td b, .nx-t td b{color:var(--agp-tx)}',
+    '.adm-table td, #screenAdmin .nx-t td, .modal-ov .nx-t td{border-bottom:1px solid rgba(233,222,199,.08)!important;color:var(--agp-tx2)}',
+    '.adm-table tbody tr:hover, #screenAdmin .nx-t tbody tr:hover, .modal-ov .nx-t tbody tr:hover{background:rgba(255,255,255,.035)}',
+    '.adm-table td b, #screenAdmin .nx-t td b, .modal-ov .nx-t td b{color:var(--agp-tx)}',
 
     /* ---------- botones ---------- */
-    '.nxa-btn, .adm-add, .adm-ctl button, .adm-toolbar button{',
+    '#screenAdmin .nxa-btn, .modal-ov .nxa-btn, .adm-add, .adm-ctl button, .adm-toolbar button{',
       'background:rgba(255,255,255,.055)!important;color:var(--agp-tx)!important;',
       'border:1px solid rgba(233,222,199,.26)!important;border-radius:11px!important;',
       'transition:background .15s ease,border-color .15s ease,transform .15s ease}',
-    '.nxa-btn:hover, .adm-add:hover, .adm-ctl button:hover, .adm-toolbar button:hover{',
+    '#screenAdmin .nxa-btn:hover, .modal-ov .nxa-btn:hover, .adm-add:hover, .adm-ctl button:hover, .adm-toolbar button:hover{',
       'background:rgba(125,148,100,.16)!important;border-color:rgba(125,148,100,.5)!important;',
       'transform:translateY(-1px)}',
     '.adm-add{background:linear-gradient(120deg,var(--agp-veg),var(--agp-veg))!important;color:var(--agp-veg-d)!important;',
@@ -26367,9 +26367,9 @@ function agPubArreglaNodo(raiz){
     '.adminp ::placeholder{color:var(--agp-dim)}',
 
     /* ---------- el interruptor de publicar ---------- */
-    '.nxa-sw em{color:var(--agp-dim);font-family:var(--mono);font-size:11px;letter-spacing:.06em}',
-    '.nxa-sw input:checked + span{background:var(--agp-veg)!important}',
-    '.nxa-sw span{background:rgba(255,255,255,.16)!important}',
+    '#screenAdmin .nxa-sw em, .modal-ov .nxa-sw em{color:var(--agp-dim);font-family:var(--mono);font-size:11px;letter-spacing:.06em}',
+    '#screenAdmin .nxa-sw input:checked + span, .modal-ov .nxa-sw input:checked + span{background:var(--agp-veg)!important}',
+    '#screenAdmin .nxa-sw span, .modal-ov .nxa-sw span{background:rgba(255,255,255,.16)!important}',
     '.uc-pill{background:rgba(125,148,100,.15)!important;color:var(--agp-veg)!important;',
       'border:1px solid rgba(125,148,100,.4)!important;font-family:var(--mono);',
       'font-size:10.5px;letter-spacing:.08em}',
@@ -33463,6 +33463,7 @@ window.agRgtDeshacer = async function(uid, curso){
 
 
 
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -36773,13 +36774,41 @@ function egPortada(){
 }
 
 /* ---------- pintar ---------- */
+/* La cabecera del módulo, con su foto y lo que trae dentro.
+   La foto es la ÚLTIMA del módulo: la primera suele aparecer nada más
+   empezar, y ponerla también arriba sería verla dos veces seguidas.
+   La línea de contenido se cuenta del propio módulo, no se escribe a
+   mano: si mañana se añade una calculadora, la cabecera lo dice sola. */
+function egCabecera(m){
+  var fotos = 0, calcs = 0, grafs = 0, foto = null;
+  (m.sec || []).forEach(function(s){
+    if(s.k === 'egfoto'){ fotos++; if(typeof EGFOTO !== 'undefined' && EGFOTO[s.id]) foto = EGFOTO[s.id].f; }
+    else if(s.k === 'egcalc' || s.k === 'egcalor' || s.k === 'egcomparar' || s.k === 'egsimul' || s.k === 'egproyecto') calcs++;
+    else if(s.k === 'eggraf') grafs++;
+  });
+  var preg = (typeof EGQUIZ !== 'undefined' && EGQUIZ[m.n]) ? EGQUIZ[m.n].length : 0;
+  var pl = function(n, uno, varios){ return n + ' ' + (n === 1 ? uno : varios); };
+  var trae = [];
+  if(fotos) trae.push('<span>📷 ' + pl(fotos, 'foto', 'fotos') + '</span>');
+  if(calcs) trae.push('<span>🧮 ' + pl(calcs, 'calculadora', 'calculadoras') + '</span>');
+  if(grafs) trae.push('<span>📊 ' + pl(grafs, 'gráfico', 'gráficos') + '</span>');
+  if(preg)  trae.push('<span>✅ examen de ' + preg + ' preguntas</span>');
+
+  return '<div class="nx-hero eg-hero' + (foto ? ' con-foto' : '') + '" style="--ac:' + m.ac + '">' +
+    (foto ? '<span class="eg-hero-foto" style="background-image:url(images/' + foto + '.jpg)" aria-hidden="true"></span>' : '') +
+    '<div class="eg-hero-in">' +
+      '<span class="nx-hero-k">Módulo ' + m.num + ' <i>de ' + EGMOD.length + '</i></span>' +
+      '<h2>' + esc(m.t) + '</h2><p>' + esc(m.sub) + '</p>' +
+      (trae.length ? '<div class="eg-hero-trae">' + trae.join('') + '</div>' : '') +
+    '</div></div>';
+}
+
 function egPinta(){
   var c = document.getElementById('egMain'); if(!c) return;
-  if(EGCUR === 0){ c.innerHTML = egPortada(); return; }
+  if(EGCUR === 0){ c.innerHTML = egPortada(); if(typeof egLibroAplica === 'function') egLibroAplica(); return; }
   var m = EGMOD[EGCUR - 1]; if(!m) return;
-  var h = '<div class="nx-hero" style="--ac:' + m.ac + '"><span class="nx-hero-k">Módulo ' + m.num + '</span>' +
-    '<h2>' + esc(m.t) + '</h2><p>' + esc(m.sub) + '</p></div>' +
-    '<div class="nx-wrap"><section class="nx-b"><div class="nx-obj rv" style="border-color:' + m.ac + '">' +
+  var h = egCabecera(m) +
+    '<div class="nx-wrap eg-wrap" style="--ac:' + m.ac + '"><section class="nx-b"><div class="nx-obj rv" style="border-color:' + m.ac + '">' +
     '<b>Al terminar este módulo usted podrá</b><ul>' +
     m.obj.map(function(o){ return '<li>' + esc(o) + '</li>'; }).join('') + '</ul></div></section>';
   h += m.sec.map(function(s){ return nxSeccion(s, m); }).join('');
@@ -36794,6 +36823,7 @@ function egPinta(){
   c.innerHTML = h;
   if(window.Anim && Anim.reveal) try{ Anim.reveal(c); }catch(e){}
   else c.querySelectorAll('.rv').forEach(function(x){ x.classList.add('in'); });
+  if(typeof egLibroAplica === 'function') egLibroAplica();
 }
 
 /* ---------- el cierre obligatorio de cada módulo ----------
@@ -36846,6 +36876,7 @@ function egPantallaCompleta(){
 }
 function egControles(){
   return '<div class="nx-ctl">' +
+    '<button class="nx-cb2" id="egLibroBtn" onclick="egToggleLibro()" title="Leer como libro: página a página" aria-pressed="false">📖</button>' +
     '<button class="nx-cb2" onclick="egToggleEnfoque()" title="Modo enfoque: menos distracciones">🎯</button>' +
     '<button class="nx-cb2" onclick="egPantallaCompleta()" title="Pantalla completa">⛶</button>' +
     '<button class="nx-cb2" onclick="nxTema()" title="Cambiar tema">🌙</button>' +
@@ -37591,8 +37622,11 @@ function egCalcHTML(id){
       'oninput="egCalcRun(\'' + id + '\')">' +
       (f.h ? '<em>' + agEsc(f.h) + '</em>' : '') + '</label>';
   }).join('');
-  return '<div class="eg-calc" id="egcalc-' + id + '">' +
-    '<div class="eg-calc-h"><b>🧮 ' + agEsc(c.t) + '</b><p>' + agEsc(c.que) + '</p></div>' +
+  /* el tipo se lee de los propios campos: si alguno va en pesos, es de dinero */
+  var plata = c.campos.some(function(f){ return /RD\$/.test(f.u || ''); });
+  return '<div class="eg-calc ' + (plata ? 'eg-t-plata' : 'eg-t-kilos') + '" id="egcalc-' + id + '">' +
+    '<div class="eg-calc-h"><span class="eg-calc-k">' + (plata ? '💰 Calculadora · dinero' : '⚖️ Calculadora · kilos y tiempo') + '</span>' +
+      '<b>🧮 ' + agEsc(c.t) + '</b><p>' + agEsc(c.que) + '</p></div>' +
     '<div class="eg-calc-body">' +
       '<div class="eg-calc-in">' + campos +
         '<div class="eg-calc-btns">' +
@@ -37624,7 +37658,8 @@ function egCalcRun(id){
   catch(e){ out.innerHTML = '<p class="eg-err">Revise los datos.</p>'; return; }
   out.innerHTML = '<table class="eg-res"><tbody>' + r.filas.map(function(f){
     var fuerte = /^[A-ZÁÉÍÓÚÑ ]{5,}$/.test(f[0]);
-    return '<tr' + (fuerte ? ' class="fuerte"' : '') + '><th>' + agTxt(f[0]) + '</th>' +
+    var signo = (fuerte && /UTILIDAD|DIFERENCIA|GANANCIA|MARGEN|RESULTADO/.test(f[0])) ? (/[-−]\s*\d/.test(String(f[1])) ? ' neg' : ' pos') : '';
+    return '<tr' + (fuerte ? ' class="fuerte' + signo + '"' : '') + '><th>' + agTxt(f[0]) + '</th>' +
       '<td>' + agTxt(f[1]) + '</td>' +
       '<td class="nota">' + agTxt(f[2] || '') + '</td></tr>';
   }).join('') + '</tbody></table>' +
@@ -38584,7 +38619,8 @@ function egProyCalc(){
   var bloque = function(t, filas){
     return '<div class="eg-proy-b"><h5>' + t + '</h5><table class="eg-res"><tbody>' + filas.map(function(f){
       var fuerte = /^[A-ZÁÉÍÓÚÑ ]{5,}$/.test(f[0]);
-      return '<tr' + (fuerte ? ' class="fuerte"' : '') + '><th>' + f[0] + '</th><td>' + f[1] + '</td>' +
+      var signo = (fuerte && /UTILIDAD|DIFERENCIA|GANANCIA|MARGEN|RESULTADO/.test(f[0])) ? (/[-−]\s*\d/.test(String(f[1])) ? ' neg' : ' pos') : '';
+      return '<tr' + (fuerte ? ' class="fuerte' + signo + '"' : '') + '><th>' + f[0] + '</th><td>' + f[1] + '</td>' +
         '<td class="nota">' + (f[2] || '') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
   };
@@ -39155,6 +39191,7 @@ var EGMOD = [
     'Reconocer los errores que más dinero cuestan en esta etapa.'
   ],
   sec:[
+    {k:'egcita', t:'Un cerdo hermoso que costó demasiado es un mal negocio.'},
     {k:'egfoto', id:'nave'},
     {k:'prosa', t:'De qué se trata esta etapa', p:[
       'El engorde es el tramo final: desde que el cerdo sale del destete —normalmente entre los 25 y los 30 kg, aunque depende de cómo venga su crianza— hasta que alcanza el peso al que usted lo vende.',
@@ -39232,6 +39269,7 @@ var EGMOD = [
     'Usar un checklist antes de recibir cada lote.'
   ],
   sec:[
+    {k:'egcita', t:'Un cerdo que pasa sus primeros días peleando por agua, apretado o sobre un piso sucio come menos, crece menos y se enferma más.'},
     {k:'prosa', t:'Por qué esto no se puede improvisar', p:[
       'El lote que entra a un corral mal preparado arranca con desventaja, y esa desventaja no se recupera: se arrastra hasta el día de la venta.',
       'Un cerdo que pasa sus primeros días peleando por agua, apretado o sobre un piso sucio come menos, crece menos y se enferma más. Y eso ya no se arregla después con más alimento.',
@@ -39310,6 +39348,7 @@ var EGMOD = [
     'Manejar las primeras 72 horas, que son las que marcan el arranque.'
   ],
   sec:[
+    {k:'egcita', t:'Una planilla en la oficina es una planilla que no se llena.'},
     {k:'prosa', t:'Por qué el día de entrada vale por diez', p:[
       'Todo lo que este curso enseña a calcular —ganancia diaria, conversión, costo por kilo— <b>necesita el peso de entrada</b>. Si no lo anota ese día, no hay manera de recuperarlo después.',
       'Y no es solo el número: los primeros tres días deciden cómo arranca el lote. Un cerdo que llega estresado del viaje, no encuentra agua enseguida y tiene que pelear por un sitio en el comedero, pierde días que ya no recupera.'
@@ -39327,6 +39366,7 @@ var EGMOD = [
     {k:'agnota', tipo:'dato', nt:'Si no puede pesar todo el lote', p:
       'Pese al menos 10 animales tomados al azar —no los más bonitos, no los que estén más cerca de la puerta— y use ese promedio. Es mucho mejor que no pesar. Lo que no sirve es calcular «a ojo»: el ojo se equivoca sistemáticamente hacia arriba.'},
     {k:'egregistro'},
+    {k:'egfoto', id:'llegada'},
     {k:'agcomp', t:'Las primeras 72 horas',
       bienT:'Lo que ayuda', bien:[
         'Agua fresca, disponible y con buen caudal desde el minuto uno.',
@@ -39374,6 +39414,7 @@ var EGMOD = [
     'Manejar los cambios de alimento sin frenar el crecimiento.'
   ],
   sec:[
+    {k:'egcita', t:'Un cerdo de 35 kg convierte mejor que uno de 95 kg.'},
     {k:'prosa', t:'Qué se enseña aquí y qué no', p:[
       'El curso de <b>Formulación y fabricación de alimentos balanceados</b> enseña a formular: qué lleva cada fórmula, cómo se calcula y cómo se fabrica.',
       'Este módulo responde otra pregunta, la que se hace el productor con el saco ya comprado: <b>¿estoy alimentando bien y cuánto me está costando?</b>',
@@ -39402,6 +39443,7 @@ var EGMOD = [
       ['📦', 'El mal almacenamiento', 'Sacos en el piso, contra la pared o a la intemperie. Humedad, moho y alimento viejo que pierde calidad.'],
       ['🍽️', 'Dar de más', 'Llenar el comedero «para que no falte» acaba en alimento rancio en el fondo que nadie come.']
     ]},
+    {k:'egfoto', id:'tubo'},
     {k:'egcalc', id:'desperdicio'},
     {k:'agcomp', t:'El cambio de alimento entre etapas',
       bienT:'Cambio gradual', bien:[
@@ -39449,6 +39491,7 @@ var EGMOD = [
     'Relacionar agua, consumo de alimento y crecimiento.'
   ],
   sec:[
+    {k:'egcita', t:'Un bebedero tapado hace más daño que una semana de mal alimento.'},
     {k:'prosa', t:'Por qué este módulo es el diferencial en RD', p:[
       'Buena parte de lo que se escribe sobre engorde porcino viene de países templados. Aquí el calor no es un problema de tres semanas en verano: es una condición de trabajo la mayor parte del año.',
       'Y el calor no mata cerdos —eso se vería—: <b>les quita el apetito</b>. El cerdo que come menos crece menos, y como sigue vivo y se ve normal, nadie se entera hasta que llega el día de pesar.',
@@ -39469,6 +39512,7 @@ var EGMOD = [
       ['Anótelo en la planilla', 'Con fecha. Así ve si empeora con el tiempo.', ''],
       ['Arregle y vuelva a medir', 'La prueba de que se resolvió es que el consumo de alimento se recupera.', '']
     ]},
+    {k:'egfoto', id:'chupete'},
     {k:'agcards', t:'Calidad del agua: lo que sí puede comprobar', l:[
       ['👁️', 'Que se vea limpia', 'Turbia, con color o con partículas es agua que el cerdo bebe con menos ganas.'],
       ['🧼', 'Bebederos por dentro', 'Se acumula suciedad donde nadie mira. Se friegan, no se enjuagan.'],
@@ -39476,6 +39520,7 @@ var EGMOD = [
       ['🌡️', 'Fresca si se puede', 'Tubería al sol es agua caliente. El cerdo con calor busca agua fresca, y si está tibia bebe menos.'],
       ['🧪', 'Análisis', 'Si sospecha de la fuente, un análisis de agua es barato comparado con un lote entero. Eso lo orienta su veterinario.']
     ]},
+    {k:'egfoto', id:'barro'},
     {k:'eggraf', id:'calor'},
     {k:'egcalor'},
     {k:'egfoto', id:'aire'},
@@ -39527,10 +39572,12 @@ EGMOD.push(
     'Montar una rutina de pesaje que se pueda sostener.'
   ],
   sec:[
+    {k:'egcita', t:'Cada vez que pese, anote también el más liviano y el más pesado: esa diferencia le dice más que el promedio.'},
     {k:'prosa', t:'El número que le dice si va rápido o lento', p:[
       'La <b>ganancia diaria de peso (GDP)</b> es cuántos gramos gana el cerdo cada día. Es lo que decide cuántos días va a ocupar el corral y, por lo tanto, cuánto va a comer antes de venderse.',
       'Se calcula con una resta y una división. Lo difícil no es la cuenta: es tener los dos pesos anotados.'
     ]},
+    {k:'egfoto', id:'bascula'},
     {k:'agdatos', t:'Las dos fórmulas del módulo', p:'Léalas despacio una vez. Después no hace falta memorizarlas: la calculadora las aplica.', l:[
       ['P<sub>f</sub> − P<sub>i</sub>', 'Ganancia total', 'peso de hoy menos peso de entrada'],
       ['(P<sub>f</sub> − P<sub>i</sub>) ÷ días', 'Ganancia diaria (GDP)', 'la ganancia repartida entre los días'],
@@ -39594,11 +39641,13 @@ EGMOD.push(
     'Traducir cada punto de conversión a pesos dominicanos.'
   ],
   sec:[
+    {k:'egcita', t:'Esa diferencia de medio kilo, multiplicada por miles de kilos, es la diferencia entre ganar y no ganar.'},
     {k:'prosa', t:'Qué es, en una frase', p:[
       '<b>Conversión alimenticia (CA):</b> la cantidad de alimento que hace falta para que el cerdo gane 1 kg de peso.',
       'Si la CA de su lote es 3.0, cada kilo de cerdo le costó 3 kilos de alimento. Si es 2.5, le costó 2.5. Esa diferencia de medio kilo, multiplicada por miles de kilos, es la diferencia entre ganar y no ganar.',
       'Es el indicador que más manda en el bolsillo del engordador, porque el alimento suele ser <b>la mayor parte del costo</b> de esta etapa.'
     ]},
+    {k:'egfoto', id:'pesasaco'},
     {k:'agdatos', t:'La fórmula', p:'Una división. Lo difícil es tener bien los dos números de arriba y de abajo.', l:[
       ['Alimento ÷ Kilos ganados', 'Conversión alimenticia', 'los dos en kg'],
       ['2,400 ÷ 1,200', 'El ejemplo clásico', 'da 2.00'],
@@ -39664,10 +39713,12 @@ EGMOD.push(
     'Resolver doce situaciones reales con números.'
   ],
   sec:[
+    {k:'egcita', t:'Observar es otra cosa: es entrar con una pregunta en la cabeza y salir con un dato anotado.'},
     {k:'prosa', t:'Mirar no es observar', p:[
       'Todo el mundo mira el corral. Observar es otra cosa: es entrar con una pregunta en la cabeza y salir con un dato anotado.',
       'Este módulo le da las preguntas. Y le marca con claridad <b>dónde termina lo que usted puede resolver y dónde empieza lo que tiene que ver un veterinario</b>. Esa frontera se respeta en todo el curso.'
     ]},
+    {k:'egfoto', id:'lote'},
     {k:'aglinea', t:'La rutina de observación diaria', p:'Diez minutos, a la misma hora, todos los días. Es lo que separa a un productor que se entera de uno que se sorprende.', l:[
       ['Entre y quédese quieto', 'Un minuto sin moverse. Los cerdos se acomodan y usted ve el corral como es, no como reacciona a usted.', ''],
       ['Cuente los que están de pie', 'A la hora de comer deberían estar casi todos activos. Muchos acostados a esa hora es una señal.', ''],
@@ -39707,6 +39758,7 @@ EGMOD.push(
     'Entender cómo la mortalidad se reparte entre los cerdos que sí vende.'
   ],
   sec:[
+    {k:'egcita', t:'Casi todo productor sabe cuánto gastó en alimento. Muy pocos saben cuánto les costó el cerdo.'},
     {k:'prosa', t:'El costo no es el alimento', p:[
       'Casi todo productor sabe cuánto gastó en alimento. Muy pocos saben cuánto les costó el cerdo.',
       'El costo completo incluye la compra del lechón, el alimento, la sanidad, la mano de obra, la energía, el agua, el transporte, los gastos varios y <b>la pérdida por mortalidad</b>. Dejar algo fuera no lo hace desaparecer: solo hace que su número esté mal.',
@@ -39723,6 +39775,7 @@ EGMOD.push(
       ['🔧', 'Otros', 'Reparaciones, desinfectantes, herramientas, lo que aparezca.'],
       ['💀', 'Mortalidad', 'No es una línea de gasto, pero es una pérdida real: lo invertido en los animales que no llegan a venderse.']
     ]},
+    {k:'egfoto', id:'silos'},
     {k:'eggraf', id:'costo'},
     {k:'egcalc', id:'costocerdo'},
     {k:'agnota', tipo:'dato', nt:'Dos costos por kilo, y hay que saber cuál usar', p:
@@ -39761,6 +39814,7 @@ EGMOD.push(
     'Cerrar un lote completo en el proyecto final.'
   ],
   sec:[
+    {k:'egcita', t:'Los últimos kilos cuestan más que los primeros.'},
     {k:'prosa', t:'Que entre dinero no es ganar', p:[
       'Cuando usted vende un lote le entra una cantidad de dinero. Eso es el <b>ingreso</b>, no la ganancia.',
       'La ganancia es lo que queda después de pagarlo todo. Y hay productores que llevan años con ingresos y sin ganancia, descapitalizándose poco a poco sin enterarse, porque nunca restaron.',
@@ -39835,8 +39889,21 @@ function egSeccion(s, mod){
     case 'egplanillas': return egSecPlanillas();
     case 'egfoto':      return egSecFoto(s.id);
     case 'eggraf':      return egSecGrafico(s.id);
+    case 'egcita':      return egSecCita(s, mod);
   }
   return null;
+}
+
+/* La idea central del módulo, al empezar. Es una frase tomada tal cual
+   del texto del propio módulo: aquí se adelanta, y más abajo aparece en
+   su contexto. Va con el color del módulo, no con uno propio. */
+function egSecCita(s, mod){
+  var ac = (mod && mod.ac) ? mod.ac : '#7D9464';
+  return '<section class="nx-b nx-full">' +
+    '<blockquote class="eg-cita rv" style="--ac:' + ac + '">' +
+      '<span class="eg-cita-k">La idea de este módulo</span>' +
+      '<p>' + s.t + '</p>' +
+    '</blockquote></section>';
 }
 
 /* una calculadora dentro de un módulo */
@@ -39939,6 +40006,55 @@ var EGFOTO = {
     f:'m10-despacho-camion',
     t:'El día que se cierra el número',
     p:'El lote sale hacia el matadero. Todo lo que este curso enseña a medir termina aquí: los kilos que suben al camión, multiplicados por el precio, contra todo lo que usted gastó. Si no tiene ese cálculo hecho <b>antes</b> de que llegue el camión, va a negociar a ciegas.'
+  },
+  /* ---------- añadidas: una por cada hueco que pedía imagen ----------
+     Las de Wikimedia Commons llevan autor y licencia en el crédito, que
+     es lo que piden sus licencias. Las demás ya eran del proyecto. */
+  llegada: {
+    f:'m7-corral-destete',
+    t:'Así llega un lote: todos iguales por fuera',
+    p:'Un galpón abierto, de los que funcionan con el aire de aquí, lleno de cerdos recién destetados. A simple vista parecen todos iguales, y no lo son: unos llegan más livianos, otros más golpeados por el viaje. <b>Por eso se pesa y se mira a cada uno el primer día</b>: el que viene atrasado hay que verlo ahora, no a mitad del lote.'
+  },
+  tubo: {
+    f:'eg-m4-comedero-tubo',
+    t:'El comedero se ajusta, no se llena',
+    p:'El alimento baja por el tubo y se queda en la canoa. Fíjese en la capa: <b>apenas cubre el fondo</b>. Con el comedero rebosado, el cerdo saca alimento con el hocico, lo pisa y se pierde — y ese alimento que nadie se comió también entra en su conversión.',
+    cr:'Foto: United Soybean Board · CC BY 2.0 · Wikimedia Commons'
+  },
+  chupete: {
+    f:'eg-m5-chupete',
+    t:'Así bebe un cerdo de un chupete',
+    p:'Muerde, empuja y el agua sale. Lo que la foto no enseña es lo único que importa: <b>cuánto sale</b>. Un chorrito que gotea parece agua, pero el cerdo bebe menos de lo que necesita, y el que no bebe, no come. Por eso se mide cada bebedero con el envase y el reloj, como acaba de ver.',
+    cr:'Foto: USDA · dominio público · Wikimedia Commons'
+  },
+  barro: {
+    f:'eg-m5-barro',
+    t:'El cerdo casi no suda: se moja',
+    p:'Por eso en el campo busca el barro. No es suciedad: es su manera de quitarse el calor de encima. En su corral no hace falta un lodazal —que trae otros problemas—, pero sí lo mismo que hace el barro: <b>mojarlo en las horas de más calor</b> y darle sombra donde echarse.',
+    cr:'Foto: Bob Haarmans · CC BY 2.0 · Wikimedia Commons'
+  },
+  bascula: {
+    f:'eg-m6-bascula',
+    t:'Pesar es la única forma de saber',
+    p:'Una báscula de esfera para cerdos, colgada de su marco: del gancho de abajo se cuelga el cajón donde va el animal. No hace falta una báscula electrónica para pesar bien. Hace falta <b>pesar siempre con la misma, a la misma hora</b>, y anotarlo, para que cada pesaje se pueda comparar con el anterior. Sin eso, la ganancia diaria es una suposición.',
+    cr:'Foto: Nick Birse · CC BY-SA 4.0 · Wikimedia Commons'
+  },
+  pesasaco: {
+    f:'nutri-m04-pesando-batch',
+    t:'La mitad de la fórmula está aquí',
+    p:'Para calcular la conversión hacen falta dos números: lo que ganaron los cerdos y <b>lo que se comieron</b>. El segundo no se adivina: se pesa el alimento que se entrega, saco por saco, y se anota. Si lo que usted tiene son «unos veinte sacos, más o menos», su conversión también va a ser más o menos.'
+  },
+  lote: {
+    f:'eg-m8-lote',
+    t:'Un lote se mira entero',
+    p:'Cerdos de engorde en una nave con cama profunda de paja. Antes de mirar a cada animal, se mira el corral desde la puerta: <b>¿están repartidos o amontonados? ¿Echados o comiendo? ¿Hay alguno aparte?</b> El lote cuenta cosas que el cerdo suelto no cuenta.',
+    cr:'Foto: NuclearHamster · CC BY 3.0 · Wikimedia Commons'
+  },
+  silos: {
+    f:'eg-m9-silos',
+    t:'Ahí dentro está la mayor parte del costo',
+    p:'Una nave de engorde con sus silos de alimento. Esos silos son la imagen del costo: <b>el alimento es, con diferencia, lo que más pesa en lo que cuesta producir un kilo de cerdo</b>. Pero no es lo único, y eso es lo que enseña este módulo: los otros componentes son los que muchos se olvidan de sumar.',
+    cr:'Foto: Lucas Friese · CC BY-SA 3.0 · Wikimedia Commons'
   }
 };
 function egSecFoto(id){
@@ -40474,6 +40590,182 @@ if(typeof exDesarmar === 'function' && typeof window.egExamen === 'function'){
   .eg-graf-h b{ font-size:17px }
 }
 `;
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- eg-caracter.js ---------- */
+/* ============================================================
+   CURSO 5 · CARÁCTER: LETRA, CABECERA, FOTOS Y LA IDEA DEL MÓDULO
+   ------------------------------------------------------------
+   Todo va acotado a #egOv: es el curso de Engorde y solo él. Los
+   demás cursos comparten las clases .nx-* y no deben enterarse.
+
+   1. LETRA MÁS GRANDE. El cuerpo pasa de 19,5 a 21 px y las listas
+      de 18,5 a 20 px, con la medida limitada para que las líneas no
+      se alarguen de más: un texto grande con líneas largas cansa
+      igual que uno pequeño.
+
+   2. TÍTULOS COHERENTES. Unos salían en el color del módulo y otros
+      en negro, según el tipo de bloque, sin ninguna lógica que el
+      estudiante pudiera aprender. Ahora todos van en tinta, y el
+      color del módulo queda en la rayita de encima, que antes era
+      verde en todos los módulos aunque el módulo fuera morado.
+
+   3. CABECERA CON FOTO. Cada módulo abre con su propia imagen y una
+      línea que dice lo que trae: fotos, calculadoras, gráficos y
+      examen. Se sabe de entrada qué se va a encontrar.
+
+   4. LA IDEA DEL MÓDULO. Una frase del propio texto, en grande, al
+      empezar.
+
+   5. FOTOS CON PRESENCIA. Más altas, con el pie como parte de la
+      lección y el crédito del autor visible pero discreto.
+   ============================================================ */
+(function egCaracterCss(){
+  if(document.getElementById('egCaracterCss')) return;
+  var s = document.createElement('style');
+  s.id = 'egCaracterCss';
+  s.textContent = [
+    /* ---------- 1 · letra ---------- */
+    '#egOv .nx-b p{font-size:21px;line-height:1.68;max-width:66ch}',
+    '#egOv .nx-b li{font-size:20px;line-height:1.6}',
+    '#egOv .nx-obj li{font-size:20px}',
+    /* solo las tablas de lectura: las de las herramientas tienen su medida */
+    '#egOv .nx-b .nx-t td,#egOv .nx-b .nx-t th{font-size:16.5px}',
+    '@media(max-width:700px){',
+      '#egOv .nx-b p{font-size:19px;line-height:1.66}',
+      '#egOv .nx-b li,#egOv .nx-obj li{font-size:18.5px}',
+    '}',
+
+    /* ---------- 2 · títulos ---------- */
+    '#egOv .eg-wrap .nx-b h3{color:var(--text)!important;font-size:clamp(27px,3.4vw,38px)}',
+    '#egOv .eg-wrap .nx-b h3::before{background:var(--ac)!important;width:56px;height:4px;border-radius:2px}',
+
+    /* ---------- 3 · cabecera con foto ---------- */
+    '#egOv .eg-hero{position:relative;overflow:hidden;isolation:isolate;min-height:330px;display:flex;align-items:flex-end}',
+    '#egOv .eg-hero-foto{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;',
+      'transform:scale(1.03);animation:egHeroEntra 1.4s ease-out both}',
+    /* la foto entra por la derecha y el color del módulo la cubre por la
+       izquierda: el título siempre se lee sobre color, nunca sobre foto */
+    '#egOv .eg-hero.con-foto::before{content:"";position:absolute;inset:0;z-index:-1;',
+      'background:linear-gradient(90deg,var(--ac) 0%,var(--ac) 38%,',
+      'color-mix(in srgb,var(--ac) 82%,transparent) 55%,color-mix(in srgb,var(--ac) 25%,transparent) 100%)}',
+    '#egOv .eg-hero.con-foto::after{content:"";position:absolute;inset:0;z-index:-1;',
+      'background:linear-gradient(0deg,rgba(0,0,0,.35) 0%,transparent 45%)}',
+    '#egOv .eg-hero-in{position:relative;max-width:900px}',
+    '#egOv .eg-hero .nx-hero-k i{font-style:normal;opacity:.7}',
+    '#egOv .eg-hero h2{text-shadow:0 2px 18px rgba(0,0,0,.25)}',
+    '#egOv .eg-hero-trae{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}',
+    '#egOv .eg-hero-trae span{padding:6px 12px;border-radius:999px;font-size:13.5px;font-weight:600;',
+      'color:#fff;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(4px)}',
+    '@keyframes egHeroEntra{from{opacity:0;transform:scale(1.09)}to{opacity:1;transform:scale(1.03)}}',
+    '@media(max-width:700px){',
+      '#egOv .eg-hero{min-height:280px}',
+      '#egOv .eg-hero.con-foto::before{background:linear-gradient(180deg,',
+        'color-mix(in srgb,var(--ac) 45%,transparent) 0%,var(--ac) 62%,var(--ac) 100%)}',
+    '}',
+
+    /* ---------- 4 · la idea del módulo ---------- */
+    '#egOv .eg-cita{position:relative;margin:6px 0 4px;padding:30px 34px 30px 40px;border-radius:18px;',
+      'background:color-mix(in srgb,var(--ac) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--ac) 28%,transparent)}',
+    '#egOv .eg-cita::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:5px;',
+      'border-radius:0 4px 4px 0;background:var(--ac)}',
+    '#egOv .eg-cita-k{display:block;margin:0 0 10px;font-family:var(--mono,monospace);font-size:11.5px;',
+      'letter-spacing:.14em;text-transform:uppercase;color:var(--ac);font-weight:700}',
+    '#egOv .eg-cita p{margin:0;max-width:34ch;font-family:var(--display);font-size:clamp(26px,3.2vw,36px);',
+      'font-weight:800;line-height:1.22;letter-spacing:-.02em;color:var(--text);text-wrap:balance}',
+
+    /* ---------- 5 · fotos con presencia ---------- */
+    '#egOv .ag-fig img{max-height:520px;width:100%;object-fit:cover;border-radius:16px}',
+    /* solo el título del pie: los <b> dentro del texto van a su tamaño */
+    '#egOv .ag-fig figcaption > b{font-size:19px}',
+    '#egOv .ag-fig figcaption span{font-size:16.5px;line-height:1.6;max-width:72ch}',
+    '#egOv .ag-fig figcaption span b{font-size:inherit}',
+    '#egOv .ag-fig .sb-credito{display:block;margin-top:8px;font-size:12px;letter-spacing:.02em;opacity:.7}',
+
+    /* ---------- 6 · las herramientas se ven como herramientas ----------
+       Marco grueso de color vivo, halo, cabecera sólida. El color dice
+       QUÉ TIPO de herramienta es y nunca usa verde, ámbar ni rojo: esos
+       tres ya significan bien / ojo / mal en la interpretación. */
+    '#egOv .eg-calc{--tc:#0E7490}',
+    '#egOv .eg-calc.eg-t-plata{--tc:#6D28D9}',
+    '#egOv .eg-calor{--tc:#C2410C;--tl:"🌡️  Herramienta · marque lo que ve en su corral"}',
+    '#egOv .eg-cmp{--tc:#BE185D;--tl:"⚖️  Herramienta · escriba los números de sus dos lotes"}',
+    '#egOv .eg-sim{--tc:#1D4ED8;--tl:"🎛️  Simulador · mueva los números y mire qué pasa"}',
+    '#egOv .eg-proy{--tc:#6D28D9;--tc2:#BE185D;--tl:"🏁  Proyecto final · con los números de su granja"}',
+
+    /* el marco, común a todas */
+    '#egOv .eg-calc,#egOv .eg-calor,#egOv .eg-cmp,#egOv .eg-sim,#egOv .eg-proy{',
+      'border:2px solid var(--tc)!important;border-radius:20px!important;',
+      'box-shadow:0 0 0 6px color-mix(in srgb,var(--tc) 13%,transparent),',
+      '0 22px 44px -18px color-mix(in srgb,var(--tc) 55%,transparent)!important}',
+
+    /* la calculadora: cabecera de color con su etiqueta de tipo */
+    /* dentro de una herramienta el texto es de apoyo: no hereda los 21 px
+       de la lectura, o la explicación pesa más que el resultado */
+    '#egOv .eg-calc p,#egOv .eg-calor p,#egOv .eg-cmp p,#egOv .eg-sim p,#egOv .eg-proy p,#egOv .eg-interp p{',
+      'font-size:16.5px;line-height:1.62;max-width:none}',
+    /* El documento base da a TODA tabla un mínimo de 520 px. Dentro de
+       una tarjeta de 320 px, o en un teléfono, eso empujaba las cifras
+       fuera del marco. Las tablas de las herramientas miden lo que su caja. */
+    '#egOv .eg-res,#egOv .eg-cmp-in,#egOv .eg-cmp-out{min-width:0!important}',
+    '#egOv .eg-proy-b td.nota:empty{display:none}',
+    /* La cifra clave iba siempre en verde, también una pérdida o un costo.
+       Ahora va en tinta, y solo el resultado lleva color: verde si gana,
+       rojo si pierde (con su signo menos, nunca el color solo). */
+    '#egOv .eg-res tr.fuerte td{color:var(--text)}',
+    '#egOv .eg-res tr.fuerte.pos td{color:var(--green)}',
+    '#egOv .eg-res tr.fuerte.neg td{color:#c4544a}',
+    '#egOv .eg-proy-b .eg-res td.nota{white-space:normal}',
+    '@media(max-width:720px){',
+      '#egOv .eg-cmp-in,#egOv .eg-cmp-out{table-layout:fixed}',
+      '#egOv .eg-cmp-in th:first-child,#egOv .eg-cmp-out th:first-child{width:40%}',
+      '#egOv .eg-cmp-in input{min-width:0;padding:8px 6px}',
+      '#egOv .eg-cmp-out td{white-space:normal;word-break:break-word}',
+    '}',
+    '#egOv .eg-calc-f p b{display:inline;font-family:inherit;font-size:inherit;letter-spacing:0;text-transform:none;color:var(--text);margin:0}',
+    '#egOv .eg-calc-h{position:relative;padding:20px 24px 22px;border-bottom:0;color:#fff;',
+      'background:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.6px) 0 0/14px 14px,',
+      'linear-gradient(120deg,color-mix(in srgb,var(--tc) 80%,#000) 0%,var(--tc) 55%,color-mix(in srgb,var(--tc) 78%,#fff) 100%)}',
+    '#egOv .eg-calc-k{display:inline-block;margin:0 0 10px;padding:4px 11px;border-radius:999px;',
+      'font-family:var(--mono,monospace);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;',
+      'color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32)}',
+    '#egOv .eg-calc-h b{color:#fff;font-size:clamp(20px,2.2vw,24px)}',
+    '#egOv .eg-calc-h p{color:rgba(255,255,255,.9);font-size:15.5px}',
+    '#egOv .eg-calc-in{border-right-color:color-mix(in srgb,var(--tc) 22%,var(--border))}',
+    '#egOv .eg-calc-out{background:color-mix(in srgb,var(--tc) 7%,var(--panel))}',
+    '#egOv .eg-calc .eg-res td{font-size:17px}',
+    /* sin mínimos rígidos: en el teléfono la columna no empuja fuera del marco */
+    '#egOv .eg-calc-body{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}',
+    '@media(max-width:900px){#egOv .eg-calc-body{grid-template-columns:minmax(0,1fr)}}',
+    '@media(max-width:520px){#egOv .eg-calc .eg-res td{font-size:15.5px;white-space:normal}}',
+    '#egOv .eg-calc-f{background:color-mix(in srgb,var(--tc) 4%,var(--panel));border-top-color:color-mix(in srgb,var(--tc) 22%,var(--border))}',
+    '#egOv .eg-calc-f b{color:var(--tc)}',
+    '#egOv .eg-calc-f code{border-left:4px solid var(--tc)}',
+
+    /* campos y botones con el color de la herramienta */
+    '#egOv .eg-calc .eg-f input,#egOv .eg-calor input,#egOv .eg-cmp input,#egOv .eg-sim .eg-f input,#egOv .eg-proy .eg-f input{',
+      'border-color:color-mix(in srgb,var(--tc) 30%,var(--border))}',
+    '#egOv .eg-calc .eg-f input:focus,#egOv .eg-cmp input:focus,#egOv .eg-sim input:focus,#egOv .eg-proy input:focus{',
+      'outline:2px solid var(--tc);outline-offset:1px;border-color:var(--tc)}',
+    '#egOv .eg-calc input[type=checkbox],#egOv .eg-calor input[type=checkbox]{accent-color:var(--tc)}',
+    '#egOv .eg-calc-btns .nxa-btn{border:1.5px solid var(--tc);color:var(--tc);background:transparent;font-weight:700;border-radius:10px;padding:9px 15px}',
+    '#egOv .eg-calc-btns .nxa-btn:first-child{background:var(--tc);color:#fff}',
+    '#egOv .eg-calc-btns .nxa-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}',
+
+    /* las herramientas de sección: una franja de color arriba con su etiqueta */
+    '#egOv .eg-calor,#egOv .eg-cmp,#egOv .eg-sim,#egOv .eg-proy{position:relative;overflow-x:auto;',
+      'padding:58px 22px 22px!important;background:color-mix(in srgb,var(--tc) 5%,var(--panel))!important}',
+    '#egOv .eg-calor::before,#egOv .eg-cmp::before,#egOv .eg-sim::before,#egOv .eg-proy::before{',
+      'content:var(--tl);position:absolute;left:0;right:0;top:0;padding:10px 20px;border-radius:18px 18px 0 0;',
+      'font-family:var(--mono,monospace);font-size:11.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#fff;',
+      'background:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.6px) 0 0/14px 14px,',
+      'linear-gradient(120deg,color-mix(in srgb,var(--tc) 80%,#000),var(--tc) 55%,var(--tc2,color-mix(in srgb,var(--tc) 78%,#fff)))}',
+
+    '@media(prefers-reduced-motion:reduce){#egOv .eg-hero-foto{animation:none}#egOv .eg-calc-btns .nxa-btn:hover{transform:none}}'
+  ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
@@ -41044,7 +41336,297 @@ if(typeof window.egAccesoTodos === 'function'){
   };
 }
 
+
+/* ---------- eg-libro.js ---------- */
+/* ============================================================
+   CURSO 5 · MODO LIBRO: PÁGINA A PÁGINA
+   ------------------------------------------------------------
+   El botón 📖 de arriba cambia entre leer el módulo de corrido
+   (bajando) y leerlo como un libro, una página cada vez, con la
+   barra de abajo, las flechas del teclado o deslizando el dedo.
+   La elección se recuerda en el dispositivo.
+
+   Usa las mismas clases que las diapositivas de los otros cursos
+   (.nx-leccion, .nx-lnav, .nx-ultima), así que hereda sus estilos.
+   Las secciones cortas se juntan en una misma página midiendo su
+   alto real, sin partir ninguna; lo que no se junta con nada: el
+   examen, el cierre, y las fotos (antes de cargar miden casi cero
+   y la página se desbordaría al aparecer).
+
+   Además: las flechas del teclado de este curso ya llamaban a
+   agPasa('engorde'), que no conocía el curso. Aquí aprende.
+   ============================================================ */
+
+var EGLIBRO = false;
+try{ EGLIBRO = localStorage.getItem('eg_libro') === '1'; }catch(e){}
+var EGLPAG = 0, EGLGRP = [], EGLFIN = false;
+
+function egLibroWrap(){ return document.querySelector('#egMain .nx-wrap'); }
+function egLibroSecs(w){
+  return [].slice.call((w || egLibroWrap() || document.createElement('i')).querySelectorAll(':scope > section.nx-b'));
+}
+
+/* ---------- agrupar por alto real ---------- */
+function egLibroGrupos(){
+  var w = egLibroWrap(); if(!w) return [];
+  var secs = egLibroSecs(w); if(!secs.length) return [];
+  var ov = document.getElementById('egOv');
+  var antes = secs.map(function(s){ return s.style.display; });
+  if(ov) ov.classList.add('ag-midiendo');
+  secs.forEach(function(s){ s.style.display = ''; });
+  var alto = secs.map(function(s){ return s.offsetHeight || 0; });
+  secs.forEach(function(s, i){ s.style.display = antes[i]; });
+  if(ov) ov.classList.remove('ag-midiendo');
+
+  var v = innerHeight;
+  var T = Math.max(360, v - (v < 720 ? 250 : 214));
+  /* la primera página comparte pantalla con la cabecera del módulo */
+  var hero = document.querySelector('#egMain .eg-hero');
+  var T0 = Math.max(260, T - (hero ? hero.offsetHeight : 0));
+
+  var grupos = [], g = [], h = 0;
+  var lim = function(){ return grupos.length ? T : T0; };
+  var cierra = function(){ if(g.length){ grupos.push(g); g = []; h = 0; } };
+  secs.forEach(function(s, i){
+    var a = alto[i];
+    var sola = s.querySelector('.nx-ex, .eg-cierre, img, .ag-fin') || s.classList.contains('nx-solo') || a > lim() * 0.84;
+    if(sola){ cierra(); grupos.push([i]); return; }
+    if(g.length && (h + a + 18) > lim()) cierra();
+    g.push(i); h += a + 18;
+  });
+  cierra();
+  return grupos;
+}
+
+/* ---------- la barra de abajo ---------- */
+function egLibroBarra(){
+  var w = egLibroWrap();
+  if(!w || w.querySelector(':scope > .nx-lnav')) return;
+  var b = document.createElement('div');
+  b.className = 'nx-lnav';
+  b.innerHTML =
+    '<button class="nx-lb" onclick="egPasa(-1)">← Anterior</button>' +
+    '<div class="nx-lp"><span id="egLc"></span><div class="nx-lpb"><i id="egLi"></i></div></div>' +
+    '<button class="nx-lb on" onclick="egPasa(1)">Continuar →</button>';
+  w.appendChild(b);
+}
+
+/* ---------- mostrar una página ---------- */
+function egLibroMuestra(i, dir){
+  var w = egLibroWrap(); if(!w || !EGLGRP.length) return;
+  i = Math.max(0, Math.min(EGLGRP.length - 1, i));
+  EGLPAG = i;
+  var dentro = {};
+  EGLGRP[i].forEach(function(n){ dentro[n] = 1; });
+  egLibroSecs(w).forEach(function(s, n){ s.style.display = dentro[n] ? '' : 'none'; });
+  var hero = document.querySelector('#egMain .eg-hero');
+  if(hero) hero.style.display = (i === 0) ? '' : 'none';
+  var ov = document.getElementById('egOv');
+  if(ov) ov.classList.toggle('nx-ultima', i === EGLGRP.length - 1);
+
+  var c = document.getElementById('egLc'), b = document.getElementById('egLi');
+  if(c) c.textContent = 'Página ' + (i + 1) + ' de ' + EGLGRP.length;
+  if(b) b.style.width = ((i + 1) / EGLGRP.length * 100) + '%';
+
+  var m = document.getElementById('egMain'); if(m) m.scrollTop = 0;
+
+  /* La página ocupa exactamente la pantalla que queda, cabecera aparte,
+     para que la barra caiga siempre abajo, como el pie de una hoja. */
+  if(m){
+    w.style.minHeight = '';
+    var cs = getComputedStyle(w);
+    var pad = cs.boxSizing === 'border-box' ? 0 : (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+    var libre = m.clientHeight - ((hero && i === 0) ? hero.offsetHeight : 0) - pad;
+    w.style.minHeight = Math.max(200, libre) + 'px';
+  }
+
+  /* el paso de página: entra desde el lado hacia el que se avanza */
+  if(dir){
+    w.classList.remove('eg-pag-sig', 'eg-pag-ant');
+    void w.offsetWidth;
+    w.classList.add(dir > 0 ? 'eg-pag-sig' : 'eg-pag-ant');
+  }
+  EGLGRP[i].forEach(function(n){
+    var s = egLibroSecs(w)[n]; if(!s) return;
+    [].forEach.call(s.querySelectorAll('.rv'), function(x){ x.classList.add('in'); });
+  });
+}
+
+/* ---------- avanzar / retroceder ---------- */
+function egPasa(d){
+  if(!EGLIBRO){
+    /* leyendo de corrido, las flechas bajan o suben una pantalla */
+    var m = document.getElementById('egMain');
+    if(m) m.scrollBy({ top: d * m.clientHeight * 0.85, behavior: 'smooth' });
+    return;
+  }
+  if(!EGCUR){ if(d > 0) egIr(1); return; }
+  var i = EGLPAG + d;
+  if(i < 0){ if(EGCUR > 1){ EGLFIN = true; egIr(EGCUR - 1); } return; }
+  if(i >= EGLGRP.length){
+    if(EGCUR < EGMOD.length) egIr(EGCUR + 1);
+    return;
+  }
+  egLibroMuestra(i, d);
+}
+window.egPasa = egPasa;
+
+/* ---------- aplicar el modo al módulo pintado ---------- */
+function egLibroAplica(){
+  var ov = document.getElementById('egOv');
+  var w = egLibroWrap();
+  var btn = document.getElementById('egLibroBtn');
+  if(btn){
+    btn.classList.toggle('on', EGLIBRO);
+    btn.setAttribute('aria-pressed', EGLIBRO ? 'true' : 'false');
+    btn.title = EGLIBRO ? 'Volver a leer de corrido' : 'Leer como libro: página a página';
+  }
+  if(!ov) return;
+  ov.classList.toggle('nx-leccion', EGLIBRO && !!w);
+  ov.classList.toggle('eg-libro', EGLIBRO && !!w);
+  if(!EGLIBRO || !w){
+    ov.classList.remove('nx-ultima');
+    if(w){
+      egLibroSecs(w).forEach(function(s){ s.style.display = ''; });
+      var bar = w.querySelector(':scope > .nx-lnav'); if(bar) bar.remove();
+      w.classList.remove('eg-pag-sig', 'eg-pag-ant');
+      w.style.minHeight = '';
+    }
+    var hero = document.querySelector('#egMain .eg-hero'); if(hero) hero.style.display = '';
+    EGLGRP = []; EGLFIN = false;
+    return;
+  }
+  egLibroBarra();
+  EGLGRP = egLibroGrupos();
+  var ir = EGLFIN ? EGLGRP.length - 1 : 0;
+  EGLFIN = false;
+  egLibroMuestra(ir, 0);
+}
+window.egLibroAplica = egLibroAplica;
+
+function egToggleLibro(){
+  EGLIBRO = !EGLIBRO;
+  try{ localStorage.setItem('eg_libro', EGLIBRO ? '1' : '0'); }catch(e){}
+  /* se conserva el sitio: al entrar al libro, la página donde está
+     la sección que se estaba leyendo; al salir, esa misma sección */
+  var w = egLibroWrap(), m = document.getElementById('egMain');
+  var secs = egLibroSecs(w), aqui = 0;
+  if(EGLIBRO && m && secs.length){
+    var tope = m.getBoundingClientRect().top + 80;
+    secs.forEach(function(s, n){ if(s.getBoundingClientRect().top <= tope) aqui = n; });
+  } else if(!EGLIBRO && EGLGRP[EGLPAG]){
+    aqui = EGLGRP[EGLPAG][0];
+  }
+  egLibroAplica();
+  if(EGLIBRO){
+    for(var g = 0; g < EGLGRP.length; g++) if(EGLGRP[g].indexOf(aqui) >= 0){ egLibroMuestra(g, 0); break; }
+  } else if(secs[aqui] && aqui > 0 && m){
+    m.scrollTop = secs[aqui].offsetTop - 20;
+  }
+  if(typeof toast === 'function') toast(EGLIBRO ? 'Modo libro: avance página a página' : 'Lectura de corrido', '📖');
+}
+window.egToggleLibro = egToggleLibro;
+
+/* ---------- el teclado: agPasa aprende el curso ---------- */
+if(typeof window.agPasa === 'function'){
+  var _agPasaEg = window.agPasa;
+  window.agPasa = function(curso, d){
+    if(curso === 'engorde') return egPasa(d);
+    return _agPasaEg.apply(this, arguments);
+  };
+} else {
+  window.agPasa = function(curso, d){ if(curso === 'engorde') return egPasa(d); };
+}
+if(typeof window.agWrap === 'function'){
+  var _agWrapEg = window.agWrap;
+  window.agWrap = function(curso){
+    if(curso === 'engorde') return egLibroWrap();
+    return _agWrapEg.apply(this, arguments);
+  };
+}
+/* Inicio y Fin: primera y última página del módulo */
+document.addEventListener('keydown', function(e){
+  if(!EGLIBRO || !document.getElementById('egOv') || !EGLGRP.length) return;
+  if(e.key !== 'Home' && e.key !== 'End') return;
+  if(typeof agEscribiendo === 'function' && agEscribiendo(e)) return;
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  e.preventDefault();
+  egLibroMuestra(e.key === 'Home' ? 0 : EGLGRP.length - 1, e.key === 'Home' ? -1 : 1);
+});
+
+/* ---------- deslizar el dedo, como pasando una hoja ---------- */
+(function egLibroDedo(){
+  var x0 = null, y0 = 0;
+  document.addEventListener('touchstart', function(e){
+    x0 = null;
+    if(!EGLIBRO || !e.target.closest || !e.target.closest('#egMain')) return;
+    /* ni en casillas, ni en tablas que se desplazan, ni en gráficos */
+    if(e.target.closest('input, select, textarea, .nx-tw, svg, canvas')) return;
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function(e){
+    if(x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if(Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) egPasa(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+
+/* ---------- al cambiar el tamaño, volver a medir ---------- */
+addEventListener('resize', function(){
+  if(!EGLIBRO || !egLibroWrap()) return;
+  clearTimeout(window.__egLibroRe);
+  window.__egLibroRe = setTimeout(function(){
+    var antes = EGLGRP[EGLPAG] ? EGLGRP[EGLPAG][0] : 0;
+    EGLGRP = egLibroGrupos();
+    for(var g = 0; g < EGLGRP.length; g++) if(EGLGRP[g].indexOf(antes) >= 0){ egLibroMuestra(g, 0); return; }
+    egLibroMuestra(0, 0);
+  }, 260);
+});
+
+/* ---------- estilos propios ---------- */
+(function egLibroCss(){
+  if(document.getElementById('egLibroCss')) return;
+  var s = document.createElement('style');
+  s.id = 'egLibroCss';
+  s.textContent = [
+    '#egOv .nx-cb2.on{background:var(--green,#2F7D4F);border-color:var(--green,#2F7D4F);color:#fff}',
+    /* el alto lo pone la página, no cada sección: si no, dos secciones
+       juntas dejan un hueco entre ellas */
+    '#egOv.eg-libro .nx-wrap > section.nx-b{min-height:0!important}',
+    /* en el teléfono: la barra en dos filas ordenadas (progreso arriba,
+       botones abajo a partes iguales) y los controles arriba, donde no
+       tapan la barra */
+    '@media(max-width:820px){',
+      '#egOv.eg-libro .nx-lnav{flex-wrap:wrap;gap:10px}',
+      '#egOv.eg-libro .nx-lnav .nx-lp{order:-1;flex:1 0 100%}',
+      '#egOv.eg-libro .nx-lnav .nx-lb{flex:1 1 0;justify-content:center;text-align:center}',
+      '#egOv.eg-libro .nx-ctl{top:12px;bottom:auto}',
+      /* sin cabecera encima, la página deja sitio a esos controles */
+      '#egOv.eg-libro .eg-hero[style*="none"] + .nx-wrap{padding-top:64px}',
+    '}',
+    '#egOv.eg-libro .eg-pag-sig > section.nx-b{animation:egPagSig .42s cubic-bezier(.2,.7,.2,1) both}',
+    '#egOv.eg-libro .eg-pag-ant > section.nx-b{animation:egPagAnt .42s cubic-bezier(.2,.7,.2,1) both}',
+    '@keyframes egPagSig{from{opacity:.35;transform:translateX(34px)}to{opacity:1;transform:none}}',
+    '@keyframes egPagAnt{from{opacity:.35;transform:translateX(-34px)}to{opacity:1;transform:none}}',
+    '@media(prefers-reduced-motion:reduce){#egOv.eg-libro .nx-wrap > section.nx-b{animation:none!important}}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
