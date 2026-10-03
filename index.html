@@ -18171,12 +18171,13 @@ window.agOtraVez = function(){
       '--ag-accion-s:rgba(47,125,79,.14);',
       '--ag-accion-b:rgba(47,125,79,.42);',
 
-      /* PROGRESO — una cantidad. Salvia: avanza sin celebrar */
-      '--ag-prog-c:#7D9464;',
-      '--ag-prog-hi:#93A879;',
-      '--ag-prog-t:#10140C;',
-      '--ag-prog-s:rgba(125,148,100,.13);',
-      '--ag-prog-b:rgba(125,148,100,.36);',
+      /* PROGRESO — una cantidad. Cian vivo sobre el azul noche: se ve
+       * avanzar sin confundirse con el verde de «éxito». */
+      '--ag-prog-c:#38BDF8;',
+      '--ag-prog-hi:#7DD3FC;',
+      '--ag-prog-t:#0B1322;',
+      '--ag-prog-s:rgba(56,189,248,.13);',
+      '--ag-prog-b:rgba(56,189,248,.38);',
 
       /* ÉXITO — un juicio: terminado, aprobado, concedido */
       '--ag-exito-c:#5FA97A;',
@@ -18238,9 +18239,12 @@ window.agOtraVez = function(){
        * 3,3:1 del fondo. Los colores de los cursos NO sirven para
        * esto: comprobados, se leen casi grises y el salvia y el
        * ámbar quedan demasiado cerca para separar seis cursos. */
-      '--ag-et1:#5E7350; --ag-et1-t:#F0EADC;',
-      '--ag-et2:#8FA876; --ag-et2-t:#14120E;',
-      '--ag-et3:#C3D6A8; --ag-et3-t:#14120E;',
+      /* Con el azul noche pasa a cian: un tono, de hondo a claro.
+       * Revalidada (--ordinal, superficie #16233A): monótona, saltos
+       * visibles, extremo débil a 3,56:1 del fondo. */
+      '--ag-et1:#2A7FB0; --ag-et1-t:#FFFFFF;',
+      '--ag-et2:#38BDF8; --ag-et2-t:#0B1322;',
+      '--ag-et3:#A5E8FF; --ag-et3-t:#0B1322;',
 
     '}',
 
@@ -18259,8 +18263,8 @@ window.agOtraVez = function(){
       '--ag-accion-c:#256A41; --ag-accion-hi:#2F7D4F; --ag-accion-t:#FFFFFF;',
       '--ag-accion-s:rgba(37,106,65,.10); --ag-accion-b:rgba(37,106,65,.34);',
 
-      '--ag-prog-c:#5E7546; --ag-prog-hi:#6E8754; --ag-prog-t:#FFFFFF;',
-      '--ag-prog-s:rgba(94,117,70,.11); --ag-prog-b:rgba(94,117,70,.32);',
+      '--ag-prog-c:#1A77A8; --ag-prog-hi:#2389C2; --ag-prog-t:#FFFFFF;',
+      '--ag-prog-s:rgba(26,119,168,.10); --ag-prog-b:rgba(26,119,168,.32);',
 
       '--ag-exito-c:#3D8558; --ag-exito-hi:#4C9A69; --ag-exito-t:#FFFFFF;',
       '--ag-exito-s:rgba(61,133,88,.11); --ag-exito-b:rgba(61,133,88,.34);',
@@ -18280,9 +18284,9 @@ window.agOtraVez = function(){
       '--ag-c-ruta:#9A6D14; --ag-c-porcicultura:#5E7546; --ag-c-nutricion:#807433;',
       '--ag-c-reproduccion:#725A7C; --ag-c-sanidad:#3F7488; --ag-c-engorde:#9A5B36;',
       /* en claro la escala se invierte: «terminado» es lo más oscuro */
-      '--ag-et1:#A9BC92; --ag-et1-t:#14120E;',
-      '--ag-et2:#6E8754; --ag-et2-t:#FFFFFF;',
-      '--ag-et3:#3F5230; --ag-et3-t:#FFFFFF;',
+      '--ag-et1:#4FAEDB; --ag-et1-t:#0B1322;',
+      '--ag-et2:#1A77A8; --ag-et2-t:#FFFFFF;',
+      '--ag-et3:#0A4566; --ag-et3-t:#FFFFFF;',
     '}',
 
     /* ------------------------------------------------------------
@@ -33549,6 +33553,7 @@ window.agRgtDeshacer = async function(uid, curso){
 
 
 
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -36619,6 +36624,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
 
 
 
@@ -41579,7 +41585,7 @@ function egLibroAplica(){
   if(!EGLIBRO || !w){
     ov.classList.remove('nx-ultima');
     if(w){
-      egLibroSecs(w).forEach(function(s){ s.style.display = ''; });
+      egLibroSecs(w).forEach(function(s){ s.style.display = ''; s.style.marginTop = ''; });
       var bar = w.querySelector(':scope > .nx-lnav'); if(bar) bar.remove();
       w.classList.remove('eg-pag-sig', 'eg-pag-ant');
       w.style.minHeight = '';
@@ -41702,6 +41708,195 @@ addEventListener('resize', function(){
     '@keyframes egPagSig{from{opacity:.35;transform:translateX(34px)}to{opacity:1;transform:none}}',
     '@keyframes egPagAnt{from{opacity:.35;transform:translateX(-34px)}to{opacity:1;transform:none}}',
     '@media(prefers-reduced-motion:reduce){#egOv.eg-libro .nx-wrap > section.nx-b{animation:none!important}}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- eg-laminas.js ---------- */
+/* ============================================================
+   CURSO 5 · UNA IMAGEN EN CADA PÁGINA
+   ------------------------------------------------------------
+   En el modo libro, 58 de las 153 páginas eran solo texto. Cada
+   sección que no trae imagen, gráfico ni herramienta recibe aquí
+   su LÁMINA: una foto al lado del texto (encima, en el teléfono),
+   con un título corto y una frase que dice qué mirar en ella.
+
+   La lámina va DENTRO de la sección, antes de agrupar las páginas,
+   para que el reparto mida ya con la foto puesta. Solo existe en el
+   modo libro: leyendo de corrido, el texto sigue como estaba.
+
+   Cada foto se eligió para la sección concreta (no al azar), y las
+   que vienen de Wikimedia Commons llevan autor y licencia.
+   ============================================================ */
+
+var EGLAMCR = {
+  'eg-l-cuba-corral':   'Foto: Susanne Bollinger · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-l-cuba-comiendo': 'Foto: Susanne Bollinger · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-l-cuba-echado':   'Foto: Susanne Bollinger · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-l-camion':        'Foto: Manuel Bieling · CC0 · Wikimedia Commons',
+  'eg-l-chupete':       'Foto: L T Hunter · CC BY 2.0 · Wikimedia Commons',
+  'eg-l-camion-agua':   'Foto: RG72 · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-l-lote-comedero': 'Foto: Saharalyn · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-l-patio':         'Foto: Sumitsurai · CC BY-SA 4.0 · Wikimedia Commons'
+};
+
+/* [comienzo del título de la sección, foto, título de la lámina, qué mirar] */
+var EGLAMINA = [
+  /* M1 */
+  ['De qué se trata esta etapa', 'nutri-m03-cerdos-crecimiento', 'Aquí se hacen los kilos', 'Del destete al peso de venta el cerdo multiplica su peso: es la etapa que más alimento consume y la que decide la ganancia.'],
+  ['El engorde en cuatro números', 'nutri-s01-numeros', 'Cuatro números, no una impresión', 'Ganancia diaria, conversión, mortalidad y costo por kilo: con ellos se compara un lote con otro.'],
+  ['El ciclo de un lote', 'sb-f-plano', 'Un lote entra, crece y sale', 'Cada nave vive el mismo ciclo: limpiar, recibir, engordar, vender y volver a empezar.'],
+  ['Los cinco indicadores', 'm8-registro-formato', 'Lo que no se anota no se mejora', 'Los indicadores salen de una planilla bien llevada, no de la memoria.'],
+  ['Dos productores, el mismo cerdo', 'eg-l-cuba-comiendo', 'El mismo cerdo, dos resultados', 'Lo que cambia entre un productor y otro casi nunca es el animal: es cómo se maneja.'],
+  ['La diferencia son unos', 'nutri-s08-costo-numeros', 'La diferencia está en la cuenta', 'Pequeñas diferencias por cerdo, multiplicadas por todo el lote, son mucho dinero.'],
+  ['Los errores que más dinero cuestan', 'm2-mala-practica', 'Los errores se pagan en kilos', 'Piso sucio, agua escasa, corral lleno: cada uno resta crecimiento sin que se note el mismo día.'],
+  ['La idea que atraviesa todo el curso', 'm7-corral-engorde', 'Medir para decidir', 'Todo el curso gira en torno a lo mismo: medir el lote para decidir con números.'],
+  /* M2 */
+  ['Por qué esto no se puede improvisar', 'm1-vista-general-granja', 'El corral se prepara antes', 'Lo que no esté listo cuando llegue el camión ya no se arregla con los cerdos dentro.'],
+  ['La preparación, en orden', 'm6-filtro-sanitario', 'Limpiar, desinfectar, secar', 'El orden importa: un corral lavado pero húmedo recibe a los cerdos con problemas.'],
+  ['El error de densidad más común', 'm7-corral-destete', 'Demasiados para el espacio', 'Con poco espacio los más débiles comen menos y el lote se desiguala.'],
+  ['Agua: lo que hay que comprobar', 'm2-bebedero-automatico', 'El bebedero, antes que nada', 'Altura, caudal y limpieza se comprueban antes de que entren los cerdos.'],
+  ['Comedero: el ajuste que se paga solo', 'm5-comedero', 'El comedero, bien regulado', 'Alimento siempre disponible, pero sin que se desborde ni se pise.'],
+  ['Ambiente: sombra, aire y piso', 'm2-ventilacion', 'Aire que circule', 'En clima caliente, la ventilación y la sombra pesan tanto como el alimento.'],
+  ['¿Mi corral está listo', 'm2-pasillos', 'La revisión antes de recibir', 'Una vuelta con la lista en la mano evita sorpresas el día de la llegada.'],
+  ['Sobre limpieza y desinfección', 'sb-f-arco', 'La limpieza también es manejo', 'Desinfectar vehículos y accesos corta la entrada de enfermedades al lote.'],
+  /* M3 */
+  ['El día que llega el camión', 'eg-l-camion', 'La llegada empieza en el camión', 'Viaje, calor y estrés: los cerdos llegan cansados y hay que recibirlos con calma.'],
+  ['Si no puede pesar todo el lote', 'm11-tecnologia-campo', 'Una muestra bien tomada', 'Pesar una parte del lote, elegida al azar, ya dice mucho más que el ojo.'],
+  ['Las primeras 72 horas', 'eg-l-chupete', 'Agua primero', 'Los primeros días lo más urgente es que todos encuentren el agua y empiecen a comer.'],
+  ['Cerdos atrasados', 'nutri-s03-cerdo-retrato', 'Mirar a cada uno', 'El atrasado se detecta el primer día; esperar a mitad del lote es tarde.'],
+  ['La planilla vive en el corral', 'sb-f-ronda', 'La planilla, en el corral', 'Se anota donde pasan las cosas y en el momento, no al final del día.'],
+  /* M4 */
+  ['La conversión empeora con el peso', 'nutri-m10-corrales-comedero', 'Más peso, más alimento por kilo', 'El cerdo grande gasta más alimento en mantenerse: cada kilo nuevo le cuesta más.'],
+  ['Dónde se pierde el alimento', 'nutri-b-cerdos-comedero', 'Lo que no se come también se paga', 'Lo que cae al piso, se moja o saca el hocico entra igual en su costo.'],
+  ['El cambio de alimento entre etapas', 'm5-sacos-alimento', 'Cambiar de alimento, poco a poco', 'Un cambio brusco frena el consumo unos días; mezclar los dos ayuda a pasar.'],
+  ['Calidad física del alimento', 'nutri-m01-alimento-peletizado', 'Se mira y se toca', 'Polvo, humedad o moho se notan antes de que el cerdo rechace el alimento.'],
+  ['Si quiere bajar el costo del alimento', 'nutri-m08-mercado-granos', 'El costo empieza en el grano', 'Para bajarlo de verdad, el camino es la formulación.'],
+  /* M5 */
+  ['Por qué este módulo es el diferencial', 'nutri-m06-nave-engorde', 'Calor tropical, todo el año', 'En RD el calor es la regla: manejarlo bien separa un lote bueno de uno regular.'],
+  ['La relación que hay que entender', 'eg-l-lote-comedero', 'Bebe, come, crece', 'Un cerdo que bebe poco come poco, y uno que come poco no crece.'],
+  ['Cómo se mide el agua de verdad', 'm2-bebedero-automatico', 'El caudal se mide, no se supone', 'Un envase de un litro y un reloj: así se sabe cuánta agua sale de verdad.'],
+  ['Calidad del agua', 'sb-f-lab', 'Lo que no se ve, lo dice el laboratorio', 'Sales o bacterias en el agua solo se detectan con un análisis.'],
+  ['Manejo del calor en instalaciones', 'm2-techo', 'Techo alto, aire que pase', 'Altura, aleros y orientación cambian varios grados dentro del corral.'],
+  ['Una semana de calor mal manejado', 'eg-l-cuba-echado', 'Echado y sin comer', 'Con calor el cerdo deja de comer en las horas fuertes, y esos kilos no vuelven.'],
+  ['Dónde termina el manejo', 'm6-vacunacion', 'Ahí empieza el veterinario', 'Si además del calor hay animales enfermos, eso es asunto del veterinario.'],
+  /* M6 */
+  ['Las dos fórmulas del módulo', 'm11-tecnologia-campo', 'Dos cuentas sencillas', 'Con el peso de entrada, el de hoy y los días que pasaron, la ganancia diaria sale sola.'],
+  ['Un ejemplo, con números de verdad', 'eg-l-patio', 'Un lote real, sus números', 'El ejemplo usa cifras de una granja pequeña, como la mayoría en el país.'],
+  ['El promedio esconde cosas', 'rp-f-corrales', 'No todos crecen igual', 'En un mismo corral hay cerdos grandes y pequeños: el promedio no los muestra.'],
+  ['Dos maneras de llevar el peso', 'm8-registro-formato', 'Por lote o cerdo por cerdo', 'Las dos sirven; lo que no sirve es no llevarlo.'],
+  ['Cómo pesar sin volverse loco', 'm2-pasillos', 'Un pasillo hasta la báscula', 'Mover a los cerdos por un pasillo hasta la báscula ahorra tiempo y golpes.'],
+  /* M7 */
+  ['Qué es, en una frase', 'm5-comedero', 'Alimento que entra, kilos que salen', 'La conversión dice cuántos kilos de alimento hacen falta para un kilo de cerdo.'],
+  ['La fórmula', 'nutri-s08-costo-numeros', 'Una división', 'Alimento consumido entre kilos ganados: así de simple, si tiene los dos datos.'],
+  ['El ejemplo, paso a paso', 'm5-sacos-alimento', 'Contar los sacos', 'El primer dato del ejemplo es cuántos sacos se gastaron en todo el lote.'],
+  ['No existe una conversión', 'nutri-m03-cerdos-crecimiento', 'Cada granja, su número', 'Genética, peso y alimento cambian la conversión: compárese con usted mismo.'],
+  ['Qué empeora la conversión', 'm2-mala-practica', 'Lo que empeora la conversión', 'Desperdicio, calor, enfermedad y alimento de mala calidad.'],
+  ['Por eso la conversión manda', 'nutri-m08-mercado-granos', 'El alimento es la mayor parte del costo', 'Por eso cada décima de conversión se nota en el bolsillo.'],
+  /* M8 */
+  ['La rutina de observación diaria', 'sb-f-ronda', 'La ronda de cada mañana', 'Entrar al corral con una pregunta en la cabeza y salir con un dato anotado.'],
+  ['¿Qué está pasando con mi lote', 'eg-l-cuba-corral', 'Mirar antes de suponer', 'La herramienta le ayuda a ordenar lo que ve antes de sacar conclusiones.'],
+  ['Dónde termina este curso', 'm6-vacunacion', 'Hasta aquí el manejo', 'Diagnosticar enfermedades es trabajo del veterinario, no de esta lista.'],
+  ['Ocho retos', 'm11-tecnologia-campo', 'Ahora le toca a usted', 'Ocho situaciones de granja para resolver con lo aprendido.'],
+  /* M9 */
+  ['El costo no es el alimento', 'nutri-s07-silos', 'El alimento no es todo', 'Es el costo más grande, pero no el único: hay que sumarlos todos.'],
+  ['Los ocho componentes del costo', 'nutri-s08-costo-numeros', 'Ocho cosas que sumar', 'Cerdos, alimento, sanidad, mano de obra, energía, agua, transporte y pérdidas.'],
+  ['Dos costos por kilo', 'm10-despacho-camion', 'Kilo producido y kilo vendido', 'No es lo mismo lo que el lote ganó que lo que sale por la puerta.'],
+  ['Por qué la mortalidad se reparte', 'rp-f-corrales', 'Los que no llegan también cuestan', 'El cerdo que muere se lleva lo que comió: ese costo lo pagan los que sí se venden.'],
+  ['Cuando el alimento pasa del 70', 'm5-sacos-alimento', 'Cuando el saco pesa demasiado', 'Si el alimento pasa del 70 % del costo, algo falla en la conversión o en el precio.'],
+  /* M10 */
+  ['Los cuatro números del cierre', 'nutri-s01-numeros', 'El cierre del lote', 'Ingreso, costo, utilidad y margen: los cuatro números que dicen cómo le fue.'],
+  ['El punto de equilibrio es su piso', 'eg-l-camion', 'El precio mínimo de venta', 'Por debajo del punto de equilibrio, cada cerdo que sale pierde dinero.'],
+  ['Cuándo vender', 'eg-l-camion-agua', 'Los últimos kilos', 'Engordar más días cuesta más alimento por kilo: hay un punto en que conviene vender.'],
+  ['Diez planillas para llevarse', 'm8-registro-formato', 'Las diez planillas', 'Imprímalas y llévelas al corral: ahí es donde se llenan.'],
+  ['Lo que usted se lleva de este curso', 'nutri-m06-nave-engorde', 'Su granja, con números', 'Medir, calcular y decidir: eso es lo que se lleva.']
+];
+
+/* el texto con que empieza una sección, sin emoji ni espacios de más */
+function egLamTitulo(s){
+  var h = s.querySelector('h3, h4, b');
+  return h ? h.textContent.replace(/[^\wÁÉÍÓÚÑáéíóúñü¿?«»%.,:\s-]/g, '').replace(/\s+/g, ' ').trim() : '';
+}
+function egLamBusca(t){
+  for(var i = 0; i < EGLAMINA.length; i++) if(t.indexOf(EGLAMINA[i][0]) === 0) return EGLAMINA[i];
+  return null;
+}
+/* lo que ya cuenta como imagen */
+var EGLAMVISUAL = 'img, svg, .eg-calc, .eg-calor, .eg-cmp, .eg-sim, .eg-proy, .nx-ex, .ag-fin, .eg-cierre, table, .eg-cita, .nx-obj, .eg-lamina';
+
+/* poner (o quitar) las láminas del módulo pintado */
+function egLaminas(poner){
+  var w = typeof egLibroWrap === 'function' ? egLibroWrap() : null;
+  if(!w) return 0;
+  var n = 0;
+  [].forEach.call(w.querySelectorAll(':scope > section.nx-b'), function(s){
+    var vieja = s.querySelector(':scope > .eg-lamina');
+    if(!poner){ if(vieja){ vieja.remove(); s.classList.remove('eg-con-lamina'); } return; }
+    if(vieja) { n++; return; }
+    if(s.querySelector(EGLAMVISUAL)) return;
+    var l = egLamBusca(egLamTitulo(s));
+    if(!l) return;
+    var f = document.createElement('figure');
+    f.className = 'eg-lamina';
+    f.innerHTML = '<div class="eg-lam-foto"><img src="images/' + l[1] + '.jpg" alt="' + esc(l[2]) + '" loading="lazy"></div>' +
+      '<figcaption><b>' + esc(l[2]) + '</b><span>' + esc(l[3]) + '</span>' +
+      (EGLAMCR[l[1]] ? '<i>' + esc(EGLAMCR[l[1]]) + '</i>' : '') + '</figcaption>';
+    s.appendChild(f);
+    s.classList.add('eg-con-lamina');
+    n++;
+  });
+  return n;
+}
+window.egLaminas = egLaminas;
+
+/* antes de agrupar las páginas, en el modo libro; al salir, se quitan */
+if(typeof window.egLibroGrupos === 'function'){
+  var _egGruposLam = window.egLibroGrupos;
+  window.egLibroGrupos = function(){
+    if(typeof EGLIBRO !== 'undefined' && EGLIBRO) egLaminas(true);
+    return _egGruposLam.apply(this, arguments);
+  };
+}
+if(typeof window.egLibroAplica === 'function'){
+  var _egAplicaLam = window.egLibroAplica;
+  window.egLibroAplica = function(){
+    if(typeof EGLIBRO !== 'undefined' && !EGLIBRO) egLaminas(false);
+    return _egAplicaLam.apply(this, arguments);
+  };
+}
+
+(function egLamCss(){
+  if(document.getElementById('egLamCss')) return;
+  var s = document.createElement('style');
+  s.id = 'egLamCss';
+  s.textContent = [
+    /* texto a la izquierda, lámina a la derecha */
+    /* sin !important: el display:none con que se ocultan las otras páginas tiene que seguir ganando */
+    '#egOv .nx-wrap > section.nx-b.eg-con-lamina{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);',
+      'column-gap:clamp(24px,3vw,48px);row-gap:0;align-items:start}',
+    '#egOv section.nx-b.eg-con-lamina > *:not(.eg-lamina){grid-column:1;width:auto!important;max-width:none!important}',
+    '#egOv section.nx-b.eg-con-lamina > .eg-lamina{grid-column:2;grid-row:1 / span 40;align-self:center;margin:0}',
+    '#egOv .eg-lamina{position:relative;border-radius:22px;overflow:hidden;background:#0B1322;',
+      'box-shadow:0 0 0 1px color-mix(in srgb,var(--ac,#38BDF8) 35%,transparent),0 26px 60px -24px rgba(2,6,16,.75)}',
+    '#egOv .eg-lam-foto{overflow:hidden;aspect-ratio:4/3.4}',
+    '#egOv .eg-lam-foto img{display:block;width:100%;height:100%;object-fit:cover}',
+    '#egOv .eg-lamina figcaption{position:absolute;left:0;right:0;bottom:0;padding:48px 20px 16px;color:#fff;',
+      'background:linear-gradient(to top,rgba(11,19,34,.94) 0%,rgba(11,19,34,.78) 50%,transparent 100%)}',
+    '#egOv .eg-lamina figcaption b{display:block;font-family:var(--display);font-size:20px;font-weight:800;line-height:1.2;margin-bottom:5px}',
+    '#egOv .eg-lamina figcaption span{display:block;font-size:15px;line-height:1.5;color:rgba(255,255,255,.88)}',
+    '#egOv .eg-lamina figcaption i{display:block;margin-top:8px;font-style:normal;font-size:11px;color:rgba(255,255,255,.6)}',
+    /* la raya de color del módulo, arriba de la foto */
+    '#egOv .eg-lamina::before{content:"";position:absolute;left:0;top:0;right:0;height:4px;z-index:2;background:var(--ac,#38BDF8)}',
+    /* teléfono: la lámina arriba, más baja */
+    '@media(max-width:900px){',
+      '#egOv section.nx-b.eg-con-lamina{grid-template-columns:minmax(0,1fr)}',
+      '#egOv section.nx-b.eg-con-lamina > .eg-lamina{grid-column:1;grid-row:1;margin:0 0 18px}',
+      '#egOv .eg-lam-foto{aspect-ratio:16/10}',
+      '#egOv .eg-lamina figcaption b{font-size:17px}',
+      '#egOv .eg-lamina figcaption span{font-size:13.5px}',
+    '}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
@@ -41852,7 +42047,28 @@ if(typeof window.egIr === 'function'){
 /* ---------- 3 · las páginas entran por partes ---------- */
 if(typeof window.egLibroMuestra === 'function'){
   var _egMuestraMov = window.egLibroMuestra;
+  var EGSALE = 0;
   window.egLibroMuestra = function(i, dir){
+    /* Primero se va la página que está: un cuarto de segundo hacia el
+       lado contrario. Después entra la nueva. Sin dirección (abrir un
+       módulo, cambiar el tamaño) no hay salida: se pinta directo. */
+    var w0 = egLibroWrap();
+    if(dir && w0 && !egQuieto() && EGLGRP.length){
+      var turno = ++EGSALE;
+      w0.classList.remove('eg-pag-sig', 'eg-pag-ant', 'eg-sale-sig', 'eg-sale-ant');
+      void w0.offsetWidth;
+      w0.classList.add(dir > 0 ? 'eg-sale-sig' : 'eg-sale-ant');
+      var args = arguments, self = this;
+      setTimeout(function(){
+        if(turno !== EGSALE) return;          /* llegó otra orden: manda la última */
+        w0.classList.remove('eg-sale-sig', 'eg-sale-ant');
+        egMuestraYa.apply(self, args);
+      }, 230);
+      return;
+    }
+    return egMuestraYa.apply(this, arguments);
+  };
+  var egMuestraYa = function(i, dir){
     var r = _egMuestraMov.apply(this, arguments);
     var w = egLibroWrap();
     /* la página que trae la pantalla final, con confeti la primera vez */
@@ -41863,6 +42079,16 @@ if(typeof window.egLibroMuestra === 'function'){
         if(s && s.querySelector('.ag-fin-ok') && !window.__egConfetiVisto && !egQuieto() && typeof agConfeti === 'function'){
           window.__egConfetiVisto = true; agConfeti();
         }
+      });
+    }catch(e){}
+    /* El contenido de la página, centrado en el alto: la primera
+       sección visible empuja hacia abajo lo mismo que la barra. */
+    try{
+      var primera = true;
+      egLibroSecs(w).forEach(function(s){
+        var ve = s.style.display !== 'none';
+        s.style.marginTop = (ve && primera && EGLPAG > 0) ? 'auto' : '';
+        if(ve) primera = false;
       });
     }catch(e){}
     /* La última página del curso no tiene «después»: ahí el botón de
@@ -41996,8 +42222,29 @@ if(typeof window.egCalcRun === 'function'){
 
     /* las páginas entran por partes: título, texto, figura... */
     '#egOv.eg-libro .eg-pag-sig > section.nx-b, #egOv.eg-libro .eg-pag-ant > section.nx-b{animation:none!important}',
-    '#egOv.eg-libro .eg-pag-sig > section.nx-b > *{animation:egPagSig .55s cubic-bezier(.2,.7,.2,1) both}',
-    '#egOv.eg-libro .eg-pag-ant > section.nx-b > *{animation:egPagAnt .55s cubic-bezier(.2,.7,.2,1) both}',
+    /* la salida: la página se va hacia un lado, desenfocándose */
+    '#egOv.eg-libro .eg-sale-sig > section.nx-b{animation:egSaleSig .23s cubic-bezier(.5,0,.75,0) forwards!important}',
+    '#egOv.eg-libro .eg-sale-ant > section.nx-b{animation:egSaleAnt .23s cubic-bezier(.5,0,.75,0) forwards!important}',
+    '@keyframes egSaleSig{to{opacity:0;transform:translateX(-80px) scale(.96);filter:blur(5px)}}',
+    '@keyframes egSaleAnt{to{opacity:0;transform:translateX(80px) scale(.96);filter:blur(5px)}}',
+    /* la entrada: cada parte llega girando un poco, por turnos */
+    '#egOv.eg-libro .eg-pag-sig > section.nx-b > *{animation:egEntraSig .75s cubic-bezier(.16,1,.3,1) both}',
+    '#egOv.eg-libro .eg-pag-ant > section.nx-b > *{animation:egEntraAnt .75s cubic-bezier(.16,1,.3,1) both}',
+    '@keyframes egEntraSig{from{opacity:0;transform:perspective(900px) translateX(110px) rotateY(-12deg);filter:blur(7px)}to{opacity:1;transform:none;filter:none}}',
+    '@keyframes egEntraAnt{from{opacity:0;transform:perspective(900px) translateX(-110px) rotateY(12deg);filter:blur(7px)}to{opacity:1;transform:none;filter:none}}',
+    /* la lámina se descubre como una cortina y la foto se acerca despacio */
+    '#egOv.eg-libro .eg-pag-sig > section.nx-b > .eg-lamina,#egOv.eg-libro .eg-pag-ant > section.nx-b > .eg-lamina{',
+      'animation:egLamEntra 1s cubic-bezier(.16,1,.3,1) .12s both!important}',
+    '@keyframes egLamEntra{from{clip-path:inset(0 0 0 100% round 22px);transform:translateX(50px)}to{clip-path:inset(0 0 0 0 round 22px);transform:none}}',
+    '#egOv.eg-libro .eg-lamina img{animation:egKen 9s ease-out both}',
+    '@keyframes egKen{from{transform:scale(1.22)}to{transform:scale(1.02)}}',
+    /* la raya del título crece al llegar */
+    '#egOv.eg-libro .eg-pag-sig .nx-b h3::before,#egOv.eg-libro .eg-pag-ant .nx-b h3::before{animation:egRaya .7s cubic-bezier(.16,1,.3,1) .25s both}',
+    '@keyframes egRaya{from{width:0}to{width:56px}}',
+    /* la barra de progreso destella al pasar */
+    '#egOv.eg-libro .eg-pag-sig ~ * .nx-lpb i,#egOv.eg-libro .nx-wrap.eg-pag-sig > .nx-lnav .nx-lpb i,#egOv.eg-libro .nx-wrap.eg-pag-ant > .nx-lnav .nx-lpb i{',
+      'animation:egBrillo .8s ease}',
+    '@keyframes egBrillo{0%{box-shadow:0 0 0 0 rgba(56,189,248,0)}30%{box-shadow:0 0 14px 2px rgba(56,189,248,.8)}100%{box-shadow:0 0 0 0 rgba(56,189,248,0)}}',
     '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(2){animation-delay:.07s!important}',
     '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(3){animation-delay:.14s!important}',
     '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(4){animation-delay:.21s!important}',
@@ -42041,7 +42288,7 @@ if(typeof window.egCalcRun === 'function'){
     '#egOv .nx-lnav .nx-lb:disabled{opacity:.5;cursor:default}',
 
     '@media(prefers-reduced-motion:reduce){#egCortina{display:none}',
-      '#egOv.eg-libro .nx-wrap > section.nx-b > *{animation:none!important}',
+      '#egOv.eg-libro .nx-wrap > section.nx-b > *,#egOv.eg-libro .nx-wrap > section.nx-b,#egOv.eg-libro .eg-lamina img{animation:none!important}',
       '#egOv .ag-fin-ok > b{animation:none}}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
@@ -42049,6 +42296,9 @@ if(typeof window.egCalcRun === 'function'){
 })();
 
 </script>
+
+
+
 
 
 
@@ -45604,6 +45854,7 @@ if(typeof window.pcAccesoTodos === 'function'){
 }
 
 </script>
+
 
 
 
