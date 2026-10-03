@@ -18229,6 +18229,19 @@ window.agOtraVez = function(){
       '--ag-c-sanidad:#5B93A8;',       /* Sanidad */
       '--ag-c-engorde:#C07A52;',       /* Engorde */
 
+      /* ---------- LA ESCALA DE ETAPAS ----------
+       * Sin empezar → en progreso → terminado. Es una escala
+       * ORDENADA, así que es un solo tono que crece hacia lo que
+       * más importa: en fondo oscuro, «terminado» es lo más claro.
+       * Validada con el script de dataviz (--ordinal): un tono,
+       * claridad monótona, saltos visibles y el extremo débil a
+       * 3,3:1 del fondo. Los colores de los cursos NO sirven para
+       * esto: comprobados, se leen casi grises y el salvia y el
+       * ámbar quedan demasiado cerca para separar seis cursos. */
+      '--ag-et1:#5E7350; --ag-et1-t:#F0EADC;',
+      '--ag-et2:#8FA876; --ag-et2-t:#14120E;',
+      '--ag-et3:#C3D6A8; --ag-et3-t:#14120E;',
+
     '}',
 
     /* ------------------------------------------------------------
@@ -18266,6 +18279,10 @@ window.agOtraVez = function(){
 
       '--ag-c-ruta:#9A6D14; --ag-c-porcicultura:#5E7546; --ag-c-nutricion:#807433;',
       '--ag-c-reproduccion:#725A7C; --ag-c-sanidad:#3F7488; --ag-c-engorde:#9A5B36;',
+      /* en claro la escala se invierte: «terminado» es lo más oscuro */
+      '--ag-et1:#A9BC92; --ag-et1-t:#14120E;',
+      '--ag-et2:#6E8754; --ag-et2-t:#FFFFFF;',
+      '--ag-et3:#3F5230; --ag-et3-t:#FFFFFF;',
     '}',
 
     /* ------------------------------------------------------------
@@ -29409,48 +29426,43 @@ window.agCaSalir = function(){
 
 /* ---------- ag-panel.js ---------- */
 /* ============================================================
-   EL PANEL DEL ADMINISTRADOR: CINCO ENTRADAS
+   EL PANEL DEL ADMINISTRADOR
    ------------------------------------------------------------
-   POR QUÉ CINCO Y NO ONCE
+   LOS BLOQUES QUE SE PIDIÓ MANTENER, SE MANTIENEN
 
-   El menú tenía once entradas, y cinco de ellas eran la MISMA
-   cosa vista por partes: un curso. Contenido, Módulos,
-   Evaluaciones, Certificados y Progreso dependían todas del curso
-   elegido en una barra «Gestionando» que vivía en otro sitio. Para
-   cambiar la nota mínima de Sanidad había que elegir Sanidad
-   arriba y Evaluaciones a la izquierda, y si el curso de arriba
-   era otro, se cambiaba el de otro curso.
+   En una tanda anterior el menú se redujo a cinco entradas y
+   Contenido, Módulos, Evaluaciones, Certificados y Progreso pasaron
+   a ser pestañas dentro de Cursos. Ninguna función se borró, pero
+   desde el menú dejaron de verse — y el administrador había pedido
+   expresamente que esos bloques se quedaran. De Certificaciones dijo:
+   «Este bloque está perfecto. Déjalo intacto». Fue un error: vuelven
+   al menú, cada uno con su nombre.
 
-   Y otras dos eran las mismas personas: Estudiantes y Ficha del
-   estudiante, con dos listas.
+   Lo que SÍ se pidió quitar sigue fuera:
 
-   Ahora el menú dice lo que hace el administrador:
+     · Ficha del estudiante — no desaparece: está dentro de
+       Estudiantes, lista y ficha en una pantalla. Eran dos listas
+       de las mismas personas.
+     · Accesos, Vista del estudiante, Grupos, Mercado — retirados
+       a petición; sus funciones viven en Estudiantes o en
+       Configuración.
 
-     Dashboard      cómo va todo
-     Cursos         el catálogo; cada curso se abre en SU espacio,
-                    con pestañas: Contenido · Vídeos · Evaluación ·
-                    Certificado · Avance. El curso se elige entrando
-                    en él, y todo lo que se toca ahí es de ese curso.
-     Estudiantes    la lista y la ficha, en una pantalla
-     Consultas
-     Configuración
+   EL CURSO DE LOS BLOQUES POR CURSO
 
-   No se borra ninguna función. Las pestañas de siempre siguen
-   existiendo por dentro —nada que las llame se rompe—; lo que
-   cambia es por dónde se llega a ellas.
+   Contenido, Módulos, Evaluaciones, Progreso y Certificados trabajan
+   sobre UN curso. Llevan arriba una barra con el curso que se está
+   viendo y los demás para cambiar. Es la función de la antigua
+   barra «Gestionando», en la misma barra para los cinco y diciendo
+   siempre el nombre del curso, para que no se cambie el de otro
+   sin darse cuenta.
 
    UNA DESCARGA, NO UNA POR CLIC
 
    Cada clic en Estudiantes, Dashboard, Progreso o Certificados
-   volvía a bajar de la nube TODOS los perfiles, TODO el avance y
-   todas las secciones, y la pantalla esperaba a que terminara. En
-   un teléfono era una pausa en cada clic. Ahora se baja al entrar
-   y se pinta de memoria; se vuelve a bajar si han pasado más de
-   60 segundos, y siempre que se pulse «Actualizar».
-
-   Lo que el instructor cambia desde aquí (accesos, estados,
-   registros) se escribe en la nube al momento: la memoria solo
-   sirve para LEER sin esperar.
+   volvía a bajar de la nube todos los perfiles y todo el avance, y
+   la pantalla esperaba. Ahora se baja al entrar y se pinta de
+   memoria; se vuelve a bajar cada 60 segundos o con «⟳». Lo que el
+   instructor cambia se escribe en la nube al momento.
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -29459,52 +29471,37 @@ window.agCaSalir = function(){
 var AGPANELMENU = [
   ['dashboard', '📊', 'Dashboard'],
   ['cursos',    '📚', 'Cursos'],
+  ['contenido', '📖', 'Contenido'],
+  ['modules',   '🎬', 'Módulos'],
   ['students',  '👥', 'Estudiantes'],
+  ['evals',     '📝', 'Evaluaciones'],
+  ['progress',  '📈', 'Progreso'],
+  ['certs',     '🎓', 'Certificados'],
   ['consultas', '💬', 'Consultas'],
   ['config',    '⚙️', 'Configuración']
 ];
 
-/* las pestañas de un curso, en el orden en que se trabaja */
-var AGPANELCURSO = [
-  ['contenido', 'Contenido'],
-  ['modules',   'Vídeos'],
-  ['evals',     'Evaluación'],
-  ['certs',     'Certificado'],
-  ['progress',  'Avance']
-];
-var AGPANELPORCURSO = AGPANELCURSO.map(function(x){ return x[0]; });
+/* los bloques que trabajan sobre UN curso */
+var AGPANELPORCURSO = ['contenido', 'modules', 'evals', 'progress', 'certs'];
 
-/* lo que ya no tiene entrada propia y a dónde lleva */
+/* lo retirado a petición, y a dónde lleva ahora */
 var AGPANELDESTINO = {
   alumno: 'students', acceso: 'students', vista: 'students',
   sections: 'config', mercado: 'config'
 };
-
-/* fuera del menú: lo retirado y lo que vive dentro de un curso */
-var AGPANELFUERA = Object.keys(AGPANELDESTINO).concat(AGPANELPORCURSO);
+var AGPANELFUERA = Object.keys(AGPANELDESTINO);
 
 window.AGPANELMENU = AGPANELMENU;
-window.AGPANELCURSO = AGPANELCURSO;
 window.AGPANELPORCURSO = AGPANELPORCURSO;
 window.AGPANELFUERA = AGPANELFUERA;
 window.AGPANELDESTINO = AGPANELDESTINO;
 
-/* los títulos de las pestañas de curso: están bajo «Cursos» */
 (function(){
-  try{
-    if(typeof ADM_TITLES !== 'undefined'){
-      AGPANELPORCURSO.forEach(function(k){ ADM_TITLES[k] = 'Cursos'; });
-      ADM_TITLES.students = 'Estudiantes';
-    }
-  }catch(e){}
+  try{ if(typeof ADM_TITLES !== 'undefined') ADM_TITLES.students = 'Estudiantes'; }catch(e){}
 })();
 
 /* ------------------------------------------------------------
    2 · DEJAR EL MENÚ COMO DEBE QUEDAR
-   ------------------------------------------------------------
-   Las entradas se inyectan tarde y cada una por su cuenta, así
-   que esto tiene que poder volver a ordenar cuando alguien añade
-   algo.
    ------------------------------------------------------------ */
 function agPanelOrdena(){
   var menu = document.getElementById('adminMenu');
@@ -29532,11 +29529,9 @@ function agPanelOrdena(){
 }
 window.agPanelOrdena = agPanelOrdena;
 
-/* qué entrada del menú va encendida: las de un curso, «Cursos» */
 function agPanelEncendido(){
   var t = 'dashboard';
   try{ if(typeof ADM !== 'undefined' && ADM.tab) t = ADM.tab; }catch(e){}
-  if(AGPANELPORCURSO.indexOf(t) >= 0) t = 'cursos';
   [].forEach.call(document.querySelectorAll('#adminMenu button[data-t]'), function(b){
     b.classList.toggle('on', b.dataset.t === t);
   });
@@ -29560,11 +29555,7 @@ function agPanelEncendido(){
 })();
 
 /* ------------------------------------------------------------
-   3 · EL ESPACIO DE CADA CURSO
-   ------------------------------------------------------------
-   Sustituye a la barra «Gestionando». Sale solo dentro de un
-   curso y dice tres cosas: de qué curso es lo que se ve, cómo
-   volver al catálogo y qué más se puede hacer con ese curso.
+   3 · LA BARRA DE CURSO DE LOS BLOQUES POR CURSO
    ------------------------------------------------------------ */
 function agPanelCursoActual(){
   try{ return (typeof ADM !== 'undefined' && ADM.course) ? ADM.course : 'porcicultura'; }catch(e){ return 'porcicultura'; }
@@ -29581,47 +29572,35 @@ function agPanelPonCurso(id){
   try{ localStorage.setItem('porci_adm_course', id); }catch(e){}
 }
 
-/* entrar en un curso: desde el catálogo o desde la propia barra */
-window.agPanelAbrirCurso = function(id, pestana){
+/* cambiar de curso, o entrar a uno desde el catálogo */
+window.agPanelAbrirCurso = function(id, bloque){
   var C = null;
   try{ C = COURSES[id]; }catch(e){}
   if(!C) return;
   agPanelPonCurso(id);
-  var t = pestana || 'contenido';
-  try{ if(typeof ADM !== 'undefined' && AGPANELPORCURSO.indexOf(ADM.tab) >= 0 && !pestana) t = ADM.tab; }catch(e){}
+  var t = bloque || 'contenido';
+  try{ if(!bloque && AGPANELPORCURSO.indexOf(ADM.tab) >= 0) t = ADM.tab; }catch(e){}
   if(typeof admTab === 'function') admTab(t);
 };
 
 function agPanelBarraHTML(){
   var cur = agPanelCursoActual();
-  var t = 'contenido';
-  try{ t = ADM.tab; }catch(e){}
   var C = {};
   try{ C = COURSES[cur] || {}; }catch(e){}
-
   var chips = agPanelCursos().map(function(k){
     var K = COURSES[k] || {};
     return '<button class="agcw-c' + (k === cur ? ' on' : '') + '" onclick="agPanelAbrirCurso(\'' + k + '\')"' +
       (k === cur ? ' aria-current="true"' : '') + ' title="' + agEsc(K.name || k) + '">' +
       '<span>' + (K.icon || '📘') + '</span>' + agEsc(K.label || k) + '</button>';
   }).join('');
-
-  var tabs = AGPANELCURSO.map(function(x){
-    return '<button class="agcw-t' + (x[0] === t ? ' on' : '') + '" onclick="admTab(\'' + x[0] + '\')"' +
-      (x[0] === t ? ' aria-current="page"' : '') + '>' + x[1] + '</button>';
-  }).join('');
-
-  return '<div class="agcw-a">' +
-      '<button class="agcw-v" onclick="admTab(\'cursos\')">← Todos los cursos</button>' +
-      '<b class="agcw-n">' + (C.icon || '📘') + ' ' + agEsc(C.name || cur) + '</b>' +
-    '</div>' +
-    '<div class="agcw-b"><nav class="agcw-tabs" aria-label="Partes del curso">' + tabs + '</nav>' +
-      '<div class="agcw-cs" aria-label="Cambiar de curso">' + chips + '</div></div>';
+  return '<div class="agcw-b">' +
+      '<div class="agcw-a"><span class="agcw-r">Curso</span>' +
+        '<b class="agcw-n">' + (C.icon || '📘') + ' ' + agEsc(C.name || cur) + '</b></div>' +
+      '<div class="agcw-cs" aria-label="Cambiar de curso">' + chips + '</div>' +
+    '</div>';
 }
 
 function agPanelBarra(){
-  /* la barra vieja «Gestionando» ya no se usa: el curso se elige
-     entrando en él */
   var sw = document.getElementById('ucsw');
   if(sw) sw.style.display = 'none';
 
@@ -29630,9 +29609,8 @@ function agPanelBarra(){
   var bar = document.getElementById('agcw');
   var t = 'dashboard';
   try{ if(typeof ADM !== 'undefined' && ADM.tab) t = ADM.tab; }catch(e){}
-  var dentro = AGPANELPORCURSO.indexOf(t) >= 0;
 
-  if(!dentro){ if(bar) bar.style.display = 'none'; agPanelEncendido(); return; }
+  if(AGPANELPORCURSO.indexOf(t) < 0){ if(bar) bar.style.display = 'none'; agPanelEncendido(); return; }
   if(!bar){
     bar = document.createElement('div');
     bar.id = 'agcw';
@@ -29642,7 +29620,6 @@ function agPanelBarra(){
   bar.style.display = '';
   bar.innerHTML = agPanelBarraHTML();
   agPanelEncendido();
-  try{ var tt = document.getElementById('adminTitle'); if(tt) tt.textContent = 'Cursos'; }catch(e){}
 }
 window.agPanelBarra = agPanelBarra;
 
@@ -29781,20 +29758,14 @@ window.ucIrAcceso = function(){
     '.agp-vacio b{display:block;margin:0 0 6px;font-family:var(--display);font-size:16px;color:var(--agp-tx2)}',
     '.agp-vacio p{margin:0 auto;max-width:52ch;font-size:13.5px;line-height:1.6}',
 
-    /* el espacio de un curso: dónde estoy, cómo vuelvo, qué más hay */
-    '.agcw{margin:0 0 18px;padding:14px 24px 0;border-bottom:1px solid var(--ag-info-b)}',
-    '.agcw-a{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px}',
-    '.agcw-v{padding:7px 12px;border-radius:9px;cursor:pointer;font:inherit;font-size:13px;',
-      'background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-tx2)}',
-    '.agcw-v:hover{border-color:var(--ag-accion-b);color:var(--ag-accion-hi)}',
-    '.agcw-n{font-family:var(--display);font-size:18px;font-weight:700;color:var(--agp-tx)}',
-    '.agcw-b{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}',
-    '.agcw-tabs{display:flex;gap:2px;flex-wrap:wrap}',
-    '.agcw-t{padding:10px 15px;cursor:pointer;font:inherit;font-size:14px;font-weight:600;',
-      'background:transparent;border:0;border-bottom:2px solid transparent;color:var(--agp-dim);margin-bottom:-1px}',
-    '.agcw-t:hover{color:var(--agp-tx)}',
-    '.agcw-t.on{color:var(--agp-tx);border-bottom-color:var(--ag-accion-hi)}',
-    '.agcw-cs{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:8px}',
+    /* la barra de curso de los bloques por curso: qué curso se está
+       viendo, con su nombre entero, y los demás para cambiar */
+    '.agcw{margin:0 0 18px;padding:14px 24px 12px;border-bottom:1px solid var(--ag-info-b)}',
+    '.agcw-b{display:flex;align-items:center;justify-content:space-between;gap:12px 18px;flex-wrap:wrap}',
+    '.agcw-a{display:flex;align-items:baseline;gap:10px;min-width:0}',
+    '.agcw-r{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--agp-dim)}',
+    '.agcw-n{font-family:var(--display);font-size:17px;font-weight:700;color:var(--agp-tx)}',
+    '.agcw-cs{display:flex;gap:6px;flex-wrap:wrap}',
     '.agcw-c{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;cursor:pointer;',
       'font:inherit;font-size:12px;background:transparent;border:1px solid var(--ag-info-b);color:var(--agp-dim)}',
     '.agcw-c:hover{color:var(--agp-tx);border-color:var(--ag-accion-b)}',
@@ -30172,7 +30143,7 @@ function agTbResumen(){
     try{ pub = !!C.published(); }catch(e){}
     if(pub) r.publicados++;
 
-    var total = 0, conAcceso = 0, hechos = 0, completos = 0, n = C.n || 0;
+    var total = 0, conAcceso = 0, hechos = 0, completos = 0, sinEmp = 0, enProg = 0, n = C.n || 0;
     al.forEach(function(s){
       var tiene = false;
       try{ tiene = !!C.enrolled(s); }catch(e){}
@@ -30183,18 +30154,22 @@ function agTbResumen(){
       hechos += h;
       total += n;
       if(n > 0 && h >= n) completos++;
+      else if(h > 0) enProg++;
+      else sinEmp++;
       if(h === 0) r.sinEmpezar++;
     });
 
     r.accesos += conAcceso;
     r.aprobados += hechos;
+    r.posibles = (r.posibles || 0) + total;
+    if(agTbDaCert(k)) r.accesosCert = (r.accesosCert || 0) + conAcceso;
     if(agTbDaCert(k)) r.certs += completos;
 
     r.porCurso.push({
       id: k, label: C.label || k, name: C.name || C.label || k, icon: C.icon || '•',
       pub: pub, n: n, conAcceso: conAcceso, hechos: hechos,
       pct: total ? Math.round(hechos / total * 100) : 0,
-      completos: completos, daCert: agTbDaCert(k)
+      completos: completos, enProg: enProg, sinEmp: sinEmp, daCert: agTbDaCert(k)
     });
   });
 
@@ -30208,29 +30183,58 @@ window.agTbResumen = agTbResumen;
 /* ------------------------------------------------------------
    2 · LAS PIEZAS
    ------------------------------------------------------------ */
-function agTbCifra(valor, rotulo, pie, papel){
-  return '<div class="agtb-c' + (papel ? ' ' + papel : '') + '">' +
-    '<b>' + valor + '</b>' +
+function agTbPct(a, b){ return b ? Math.round(a / b * 100) : 0; }
+
+/* Una cifra grande y, si es una proporción, su medidor debajo.
+   La cifra va en la letra de texto y sin tabular-nums: en un número
+   suelto, los dígitos de ancho fijo lo descompensan («121» abre
+   huecos), y la letra de titulares la convierte en adorno. */
+function agTbCifra(valor, rotulo, pie, frac){
+  var medidor = '';
+  if(frac != null && isFinite(frac)){
+    var p = Math.max(0, Math.min(100, Math.round(frac * 100)));
+    medidor = '<span class="agtb-m" role="img" aria-label="' + p + ' %"><i style="width:' + p + '%"></i></span>';
+  }
+  return '<div class="agtb-c">' +
     '<span class="agtb-c-r">' + rotulo + '</span>' +
+    '<b>' + valor + '</b>' + medidor +
     (pie ? '<span class="agtb-c-p">' + pie + '</span>' : '') +
   '</div>';
 }
 
-function agTbFilaCurso(c){
-  var col = 'var(--ag-c-' + c.id + ',var(--ag-info-c))';
-  var estado = c.pub
-    ? '<span class="ag-es exito">Publicado</span>'
-    : '<span class="ag-es bloq">Oculto</span>';
-  return '<div class="agtb-f">' +
-    '<span class="agtb-f-p" style="background:' + col + '"></span>' +
-    '<span class="agtb-f-n"><b>' + agEsc(c.name) + '</b>' +
-      '<em>' + c.n + ' módulos' + (c.daCert ? ' · da certificado' : '') + '</em></span>' +
-    '<span class="agtb-f-e">' + estado + '</span>' +
-    '<span class="agtb-f-a">' + c.conAcceso + '<i>con acceso</i></span>' +
-    '<span class="agtb-f-b">' + agBarraAvance(c.hechos, c.conAcceso * c.n) +
-      '<i>' + c.pct + ' % del temario cursado</i></span>' +
-    '<span class="agtb-f-t">' + c.completos + '<i>lo terminaron</i></span>' +
+/* Una fila del gráfico de etapas. Cada curso lleva su NOMBRE
+   escrito, así que no hace falta pintar cada curso de un color: el
+   color dice la etapa, que es lo que hay que leer. El número va
+   dentro del tramo solo si cabe; si no, está en la ventanita al
+   pasar el ratón y en la tabla de debajo. */
+function agTbEtapas(c){
+  var t = c.conAcceso;
+  var tramo = function(n, cls, nombre){
+    if(!n) return '';
+    var p = n / t * 100;
+    var tip = c.label + ' · ' + nombre + ': ' + n + (n === 1 ? ' persona' : ' personas') + ' (' + Math.round(p) + ' %)';
+    return '<span class="agtb-s ' + cls + '" style="width:' + p.toFixed(2) + '%" data-tip="' + agEsc(tip) + '" tabindex="0">' +
+      (p >= 12 ? '<em>' + n + '</em>' : '') + '</span>';
+  };
+  return '<div class="agtb-r">' +
+    '<span class="agtb-r-n"><i aria-hidden="true">' + c.icon + '</i><b>' + agEsc(c.label) + '</b>' +
+      (c.pub ? '' : '<em class="agtb-oc">oculto</em>') + '</span>' +
+    (t
+      ? '<span class="agtb-r-b">' + tramo(c.sinEmp, 'e1', 'sin empezar') + tramo(c.enProg, 'e2', 'en progreso') +
+          tramo(c.completos, 'e3', 'terminaron') + '</span>'
+      : '<span class="agtb-r-b vacio"><span>nadie tiene acceso todavía</span></span>') +
+    '<span class="agtb-r-t"><b>' + t + '</b>' + (t === 1 ? 'persona' : 'personas') + '</span>' +
   '</div>';
+}
+
+function agTbTabla(cursos){
+  return '<details class="agtb-tabla"><summary>Ver como tabla</summary>' +
+    '<div class="agtb-tabla-w"><table><thead><tr><th>Curso</th><th>Con acceso</th><th>Sin empezar</th>' +
+      '<th>En progreso</th><th>Terminaron</th><th>Temario cursado</th></tr></thead><tbody>' +
+    cursos.map(function(c){
+      return '<tr><td>' + c.icon + ' ' + agEsc(c.label) + '</td><td>' + c.conAcceso + '</td><td>' + c.sinEmp +
+        '</td><td>' + c.enProg + '</td><td>' + c.completos + '</td><td>' + c.pct + ' %</td></tr>';
+    }).join('') + '</tbody></table></div></details>';
 }
 
 /* ------------------------------------------------------------
@@ -30248,10 +30252,9 @@ function agTbPantalla(){
     '</div>';
   }
 
-  /* --- los que tienen la puerta abierta y no han entrado ---
-     Es el único aviso del tablero, y está porque se puede
-     actuar: son personas a las que escribirle hoy. */
-  var parados = [];
+  /* los que tienen la puerta abierta y no han entrado: es el único
+     aviso del tablero, y está porque se puede actuar sobre él */
+  var parados = 0;
   agTbAlumnos().forEach(function(s){
     var abiertos = 0, hechos = 0;
     agTbCursos().forEach(function(k){
@@ -30261,13 +30264,12 @@ function agTbPantalla(){
       abiertos++;
       try{ hechos += C.count(s.id) || 0; }catch(e){}
     });
-    if(abiertos > 0 && hechos === 0) parados.push({ s: s, abiertos: abiertos });
+    if(abiertos > 0 && hechos === 0) parados++;
   });
 
-  /* --- los últimos en llegar --- */
   var nuevos = agTbAlumnos().slice().sort(function(a, b){
     var x = agTbLlegada(a), y = agTbLlegada(b);
-    return x < y ? 1 : (x > y ? -1 : 0);       /* el más reciente primero */
+    return x < y ? 1 : (x > y ? -1 : 0);
   }).slice(0, 6);
 
   var pend = 0;
@@ -30275,40 +30277,55 @@ function agTbPantalla(){
 
   var h = '<div class="agtb">';
 
-  /* --- las cinco cifras --- */
+  /* --- las cinco cifras, con su medidor cuando son una proporción --- */
   h += '<div class="agtb-cifras">' +
-    agTbCifra(r.activos, 'Estudiantes activos',
-      (r.alumnos > r.activos ? (r.alumnos - r.activos) + ' en otro estado' : 'todas las cuentas al día'), 'accion') +
-    agTbCifra(r.publicados + '<i>/' + r.cursos + '</i>', 'Cursos publicados',
-      (r.cursos - r.publicados > 0 ? (r.cursos - r.publicados) + ' sin publicar todavía' : 'el catálogo entero en la calle'), 'exito') +
-    agTbCifra(r.accesos, 'Accesos concedidos', 'suma de los seis cursos', 'prog') +
-    agTbCifra(r.aprobados, 'Módulos aprobados',
-      (r.sinEmpezar ? r.sinEmpezar + ' matrículas sin empezar' : 'todo el mundo ha empezado'), 'prog') +
-    agTbCifra(r.certs, 'Certificados ganados', 'cursos terminados al 100 %', 'exito') +
+    agTbCifra(r.activos, 'Estudiantes activos', 'de ' + r.alumnos + ' registrados',
+      r.alumnos ? r.activos / r.alumnos : null) +
+    agTbCifra(r.publicados + '<small> / ' + r.cursos + '</small>', 'Cursos publicados',
+      (r.cursos - r.publicados > 0 ? (r.cursos - r.publicados) + ' sin publicar' : 'todo el catálogo a la vista'),
+      r.cursos ? r.publicados / r.cursos : null) +
+    agTbCifra(r.accesos, 'Accesos abiertos', 'entre los ' + r.cursos + ' cursos', null) +
+    agTbCifra(r.aprobados, 'Módulos aprobados', agTbPct(r.aprobados, r.posibles) + ' % de lo que tienen abierto',
+      r.posibles ? r.aprobados / r.posibles : null) +
+    agTbCifra(r.certs, 'Certificados ganados',
+      (r.accesosCert ? 'de ' + r.accesosCert + ' matrículas con certificado' : 'ningún curso lo da aún'),
+      r.accesosCert ? r.certs / r.accesosCert : null) +
   '</div>';
 
-  /* --- lo accionable, si lo hay --- */
-  if(pend || parados.length){
+  /* --- lo que pide hacer algo hoy --- */
+  if(pend || parados){
     h += '<div class="agtb-hoy">';
     if(pend){
-      h += '<button class="agtb-hoy-i aviso" onclick="admTab(\'consultas\')">' +
+      h += '<button class="agtb-hoy-i" onclick="admTab(\'consultas\')">' +
         '<b>' + pend + '</b><span>' + (pend === 1 ? 'consulta sin responder' : 'consultas sin responder') +
         '</span><i>Responder →</i></button>';
     }
-    if(parados.length){
-      h += '<button class="agtb-hoy-i prog" onclick="admTab(\'alumno\')">' +
-        '<b>' + parados.length + '</b><span>' +
-        (parados.length === 1 ? 'tiene curso abierto y no ha empezado' : 'tienen curso abierto y no han empezado') +
-        '</span><i>Ver fichas →</i></button>';
+    if(parados){
+      h += '<button class="agtb-hoy-i" onclick="admTab(\'students\')">' +
+        '<b>' + parados + '</b><span>' +
+        (parados === 1 ? 'tiene curso abierto y no ha empezado' : 'tienen curso abierto y no han empezado') +
+        '</span><i>Ver estudiantes →</i></button>';
     }
     h += '</div>';
   }
 
-  /* --- los cursos, uno por fila --- */
-  h += '<p class="agp-rot">Sus cursos, de más gente a menos</p>' +
-    '<div class="agtb-cursos">' + r.porCurso.map(agTbFilaCurso).join('') + '</div>';
+  /* --- el gráfico principal: en qué punto está la gente --- */
+  h += '<section class="agtb-g">' +
+    '<div class="agtb-g-cab">' +
+      '<div><h3>¿En qué punto está la gente de cada curso?</h3>' +
+        '<p>Personas con acceso, según cuánto llevan. De más gente a menos.</p></div>' +
+      '<div class="agtb-ley" aria-label="Leyenda">' +
+        '<span><i class="e1"></i>Sin empezar</span>' +
+        '<span><i class="e2"></i>En progreso</span>' +
+        '<span><i class="e3"></i>Terminaron</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="agtb-rs">' + r.porCurso.map(agTbEtapas).join('') + '</div>' +
+    agTbTabla(r.porCurso) +
+  '</section>';
 
-  /* --- quién acaba de llegar --- */
+  /* --- quién acaba de llegar (antes van los dos gráficos de
+     ag-graficos.js, que se insertan delante de este rótulo) --- */
   h += '<p class="agp-rot">Los últimos en registrarse</p>' +
     '<div class="agtb-nuevos">' + nuevos.map(function(s){
       var ab = 0;
@@ -30317,7 +30334,7 @@ function agTbPantalla(){
         try{ if(C.enrolled(s)) ab++; }catch(e){}
       });
       var f = agTbLlegada(s).slice(0, 10);
-      return '<button class="agtb-n" onclick="agTbAbrirFicha(\'' + s.id + '\')">' +
+      return '<button class="agtb-n" onclick="agTbAbrirFicha(\'' + String(s.id).replace(/'/g, "\\'") + '\')">' +
         '<span class="agtb-n-av">' + agTbIni(s.name) + '</span>' +
         '<span class="agtb-n-t"><b>' + agEsc(s.name || s.email || 'Sin nombre') + '</b>' +
         '<em>' + (f || 'sin fecha') + ' · ' + ab + (ab === 1 ? ' curso' : ' cursos') + '</em></span>' +
@@ -30327,6 +30344,55 @@ function agTbPantalla(){
   return h + '</div>';
 }
 window.agTbPantalla = agTbPantalla;
+
+/* ------------------------------------------------------------
+   3b · LA VENTANITA AL PASAR EL RATÓN
+   ------------------------------------------------------------
+   Una sola para todo el panel: cualquier elemento con data-tip la
+   enseña al pasar el ratón o al llegar con el teclado. Nunca es el
+   único sitio donde se lee un dato: lo que cabe va escrito, y lo
+   demás está en «Ver como tabla».
+   ------------------------------------------------------------ */
+(function agTbVentanita(){
+  var tip = null;
+  var asegura = function(){
+    if(!tip){
+      tip = document.createElement('div');
+      tip.id = 'agvTip';
+      tip.setAttribute('role', 'tooltip');
+      document.body.appendChild(tip);
+    }
+    return tip;
+  };
+  var coloca = function(x, y){
+    var t = asegura();
+    var w = t.offsetWidth, hh = t.offsetHeight;
+    var px = Math.min(Math.max(8, x + 14), window.innerWidth - w - 8);
+    var py = y - hh - 12;
+    if(py < 8) py = y + 18;
+    t.style.left = px + 'px';
+    t.style.top = py + 'px';
+  };
+  var muestra = function(el, x, y){
+    var t = asegura();
+    t.textContent = el.getAttribute('data-tip');
+    t.style.display = 'block';
+    coloca(x, y);
+  };
+  var oculta = function(){ if(tip) tip.style.display = 'none'; };
+  var de = function(e){ return e.target && e.target.closest ? e.target.closest('[data-tip]') : null; };
+
+  document.addEventListener('mouseover', function(e){ var el = de(e); if(el) muestra(el, e.clientX, e.clientY); });
+  document.addEventListener('mousemove', function(e){ if(tip && tip.style.display === 'block' && de(e)) coloca(e.clientX, e.clientY); });
+  document.addEventListener('mouseout', function(e){ if(de(e)) oculta(); });
+  document.addEventListener('focusin', function(e){
+    var el = de(e); if(!el) return;
+    var r = el.getBoundingClientRect();
+    muestra(el, r.left + r.width / 2, r.top);
+  });
+  document.addEventListener('focusout', function(e){ if(de(e)) oculta(); });
+  document.addEventListener('scroll', oculta, true);
+})();
 
 function agTbIni(n){
   n = String(n || '').trim();
@@ -30416,64 +30482,84 @@ window.agTbAbrirFicha = function(uid){
     '.agtb{color:var(--agp-tx)}',
 
     /* --- las cinco cifras --- */
-    '.agtb-cifras{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}',
+    '.agtb-cifras{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}',
     '@media(max-width:1180px){.agtb-cifras{grid-template-columns:repeat(3,minmax(0,1fr))}}',
     '@media(max-width:700px){.agtb-cifras{grid-template-columns:repeat(2,minmax(0,1fr))}}',
-    '.agtb-c{position:relative;padding:20px 20px 18px;border-radius:16px;overflow:hidden;',
+    '.agtb-c{display:flex;flex-direction:column;gap:8px;padding:18px 18px 16px;border-radius:14px;',
       'background:var(--agp-deep);border:1px solid var(--ag-info-b)}',
-    /* el filo de color es lo único que distingue una cifra de otra:
-       basta un filo, no hace falta teñir la tarjeta entera */
-    '.agtb-c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ag-info-c)}',
-    '.agtb-c.accion::before{background:var(--ag-accion-c)}',
-    '.agtb-c.prog::before{background:var(--ag-prog-c)}',
-    '.agtb-c.exito::before{background:var(--ag-exito-c)}',
-    '.agtb-c.aviso::before{background:var(--ag-aviso-c)}',
-    '.agtb-c b{display:block;font-family:var(--display);font-size:40px;font-weight:800;line-height:1;',
-      'color:var(--agp-tx);font-variant-numeric:tabular-nums}',
-    '.agtb-c b i{font-style:normal;font-size:20px;color:var(--agp-dim);font-weight:600}',
-    '.agtb-c-r{display:block;margin:11px 0 0;font-family:var(--mono);font-size:10.5px;',
-      'letter-spacing:.14em;text-transform:uppercase;color:var(--agp-tx2)}',
-    '.agtb-c-p{display:block;margin:6px 0 0;font-size:12.5px;line-height:1.45;color:var(--agp-dim)}',
+    '.agtb-c-r{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--agp-tx2)}',
+    /* letra de texto, no de titulares, y sin dígitos de ancho fijo */
+    '.agtb-c b{font-family:var(--body),system-ui,sans-serif;font-size:38px;font-weight:700;line-height:1;',
+      'letter-spacing:-.02em;color:var(--agp-tx)}',
+    '.agtb-c b small{font-size:20px;font-weight:600;color:var(--agp-dim)}',
+    '.agtb-m{display:block;height:6px;border-radius:999px;overflow:hidden;background:var(--ag-info-s)}',
+    '.agtb-m > i{display:block;height:100%;border-radius:999px;background:var(--ag-et2)}',
+    '.agtb-c-p{font-size:12.5px;line-height:1.4;color:var(--agp-dim)}',
 
-    /* --- lo de hoy: solo sale si hay algo que hacer --- */
-    '.agtb-hoy{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:14px}',
-    '.agtb-hoy-i{display:flex;align-items:center;gap:13px;padding:15px 18px;border-radius:14px;',
-      'cursor:pointer;font:inherit;text-align:left;width:100%;',
-      'background:var(--ag-info-s);border:1px solid var(--ag-info-b);color:var(--agp-tx);',
-      'transition:border-color .16s,background .16s}',
-    '.agtb-hoy-i.aviso{background:var(--ag-aviso-s);border-color:var(--ag-aviso-b)}',
-    '.agtb-hoy-i.prog{background:var(--ag-prog-s);border-color:var(--ag-prog-b)}',
-    '.agtb-hoy-i:hover{border-color:var(--ag-accion-b)}',
-    '.agtb-hoy-i b{font-family:var(--display);font-size:30px;font-weight:800;line-height:1;flex:none}',
-    '.agtb-hoy-i.aviso b{color:var(--ag-aviso-hi)}',
-    '.agtb-hoy-i.prog b{color:var(--ag-prog-hi)}',
+    /* --- lo de hoy --- */
+    '.agtb-hoy{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}',
+    '.agtb-hoy-i{display:flex;align-items:center;gap:13px;padding:14px 18px;border-radius:14px;cursor:pointer;',
+      'font:inherit;text-align:left;width:100%;color:var(--agp-tx);',
+      'background:var(--ag-aviso-s);border:1px solid var(--ag-aviso-b);transition:border-color .16s}',
+    '.agtb-hoy-i:hover{border-color:var(--ag-aviso-hi)}',
+    '.agtb-hoy-i b{font-family:var(--body),system-ui,sans-serif;font-size:28px;font-weight:700;line-height:1;flex:none}',
     '.agtb-hoy-i span{flex:1;font-size:13.5px;line-height:1.4;color:var(--agp-tx2)}',
-    '.agtb-hoy-i i{font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;',
-      'text-transform:uppercase;color:var(--agp-dim);white-space:nowrap}',
-    '.agtb-hoy-i:hover i{color:var(--ag-accion-hi)}',
+    '.agtb-hoy-i i{font-style:normal;font-size:12.5px;font-weight:600;color:var(--ag-aviso-hi);white-space:nowrap}',
 
-    /* --- una fila por curso --- */
-    '.agtb-cursos{display:grid;gap:9px}',
-    '.agtb-f{display:grid;align-items:center;gap:14px;padding:14px 18px;border-radius:13px;',
-      'grid-template-columns:4px minmax(0,2.1fr) 112px 92px minmax(160px,1.4fr) 104px;',
-      'background:var(--agp-deep);border:1px solid var(--ag-info-b)}',
-    '.agtb-f-p{align-self:stretch;border-radius:999px;min-height:34px}',
-    '.agtb-f-n b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;color:var(--agp-tx)}',
-    '.agtb-f-n em{display:block;margin-top:3px;font-style:normal;font-size:12px;color:var(--agp-dim)}',
-    '.agtb-f-a,.agtb-f-t{text-align:center;font-family:var(--display);font-size:21px;font-weight:700;',
-      'color:var(--agp-tx);font-variant-numeric:tabular-nums}',
-    '.agtb-f-a > i,.agtb-f-t > i,.agtb-f-b > i{display:block;margin-top:4px;font-style:normal;',
-      'font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;',
-      'color:var(--agp-dim);font-weight:400;white-space:nowrap}',
-    '.agtb-f-b{display:block}',
-    '.agtb-f-b > i{text-align:left;margin-top:7px}',
+    /* --- el gráfico de etapas --- */
+    '.agtb-g{margin-top:22px;padding:20px 22px 16px;border-radius:16px;background:var(--agp-deep);border:1px solid var(--ag-info-b)}',
+    '.agtb-g-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 18px}',
+    '.agtb-g-cab h3{margin:0 0 4px;font-family:var(--display);font-size:17px;font-weight:700;color:var(--agp-tx)}',
+    '.agtb-g-cab p{margin:0;font-size:12.5px;color:var(--agp-dim)}',
+    '.agtb-ley{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--agp-tx2)}',
+    '.agtb-ley span{display:inline-flex;align-items:center;gap:7px}',
+    '.agtb-ley i{width:12px;height:12px;border-radius:3px;flex:none}',
+    '.agtb-ley i.e1,.agtb-s.e1{background:var(--ag-et1)}',
+    '.agtb-ley i.e2,.agtb-s.e2{background:var(--ag-et2)}',
+    '.agtb-ley i.e3,.agtb-s.e3{background:var(--ag-et3)}',
+
+    '.agtb-rs{display:grid;gap:12px}',
+    '.agtb-r{display:grid;grid-template-columns:minmax(120px,170px) minmax(0,1fr) 92px;align-items:center;gap:14px}',
+    '.agtb-r-n{display:flex;align-items:center;gap:8px;min-width:0}',
+    '.agtb-r-n i{font-style:normal;flex:none}',
+    '.agtb-r-n b{font-size:14px;font-weight:600;color:var(--agp-tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.agtb-oc{font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;',
+      'color:var(--agp-dim);border:1px solid var(--ag-info-b);border-radius:999px;padding:1px 6px;flex:none}',
+    /* la barra: tramos separados por 2 px de fondo, no por un borde */
+    '.agtb-r-b{display:flex;gap:2px;height:22px;min-width:0}',
+    '.agtb-r-b.vacio{align-items:center;padding:0 10px;border-radius:5px;background:var(--ag-info-s);',
+      'font-size:12px;color:var(--agp-dim)}',
+    '.agtb-s{position:relative;display:flex;align-items:center;justify-content:center;height:100%;min-width:3px;',
+      'outline:none;transition:filter .15s}',
+    '.agtb-s:first-child{border-radius:4px 0 0 4px}',
+    '.agtb-s:last-child{border-radius:0 4px 4px 0}',
+    '.agtb-s:only-child{border-radius:4px}',
+    '.agtb-s:hover,.agtb-s:focus-visible{filter:brightness(1.15)}',
+    '.agtb-s:focus-visible{box-shadow:0 0 0 2px var(--ag-accion-hi)}',
+    '.agtb-s em{font-style:normal;font-size:12px;font-weight:700}',
+    '.agtb-s.e1 em{color:var(--ag-et1-t)}',
+    '.agtb-s.e2 em{color:var(--ag-et2-t)}',
+    '.agtb-s.e3 em{color:var(--ag-et3-t)}',
+    '.agtb-r-t{text-align:right;font-size:12px;color:var(--agp-dim)}',
+    '.agtb-r-t b{display:block;font-size:17px;font-weight:700;color:var(--agp-tx)}',
+
+    /* --- la tabla, para quien prefiera leer números --- */
+    '.agtb-tabla{margin-top:14px}',
+    '.agtb-tabla summary{cursor:pointer;font-size:12.5px;color:var(--agp-tx2);width:max-content}',
+    '.agtb-tabla summary:hover{color:var(--agp-tx)}',
+    '.agtb-tabla-w{overflow-x:auto;margin-top:10px}',
+    '.agtb-tabla table{width:100%;border-collapse:collapse;font-size:13px}',
+    '.agtb-tabla th{text-align:left;font-weight:600;color:var(--agp-dim);font-size:11.5px;padding:7px 10px;',
+      'border-bottom:1px solid var(--ag-info-b)}',
+    '.agtb-tabla td{padding:7px 10px;color:var(--agp-tx2);border-bottom:1px solid var(--ag-info-s);',
+      'font-variant-numeric:tabular-nums}',
+    '.agtb-tabla td:not(:first-child),.agtb-tabla th:not(:first-child){text-align:right}',
 
     /* --- los últimos en llegar --- */
     '.agtb-nuevos{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}',
-    '.agtb-n{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:13px;',
-      'cursor:pointer;font:inherit;text-align:left;width:100%;',
-      'background:var(--agp-deep);border:1px solid var(--ag-info-b);color:var(--agp-tx);',
-      'transition:border-color .16s}',
+    '.agtb-n{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:13px;cursor:pointer;',
+      'font:inherit;text-align:left;width:100%;background:var(--agp-deep);border:1px solid var(--ag-info-b);',
+      'color:var(--agp-tx);transition:border-color .16s}',
     '.agtb-n:hover{border-color:var(--ag-accion-b)}',
     '.agtb-n-av{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;',
       'background:var(--ag-prog-s);border:1px solid var(--ag-prog-b);color:var(--ag-prog-hi);',
@@ -30481,14 +30567,16 @@ window.agTbAbrirFicha = function(uid){
     '.agtb-n-t{min-width:0;flex:1}',
     '.agtb-n-t b{display:block;font-size:13.5px;font-weight:600;line-height:1.3;color:var(--agp-tx);',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-    '.agtb-n-t em{display:block;margin-top:2px;font-style:normal;font-family:var(--mono);',
-      'font-size:10.5px;color:var(--agp-dim)}',
+    '.agtb-n-t em{display:block;margin-top:2px;font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--agp-dim)}',
 
-    /* --- pantallas estrechas: la fila de curso se apila --- */
-    '@media(max-width:1000px){',
-      '.agtb-f{grid-template-columns:4px minmax(0,1fr) auto;row-gap:10px}',
-      '.agtb-f-e{grid-column:3}',
-      '.agtb-f-a,.agtb-f-b,.agtb-f-t{grid-column:2/-1;text-align:left}',
+    /* --- la ventanita --- */
+    '#agvTip{position:fixed;z-index:9999;display:none;max-width:280px;padding:8px 11px;border-radius:8px;',
+      'pointer-events:none;font-size:12.5px;line-height:1.4;color:var(--agp-tx);',
+      'background:var(--agp-raise);border:1px solid var(--ag-info-b);box-shadow:0 8px 24px rgba(0,0,0,.4)}',
+
+    '@media(max-width:760px){',
+      '.agtb-r{grid-template-columns:1fr auto;row-gap:6px}',
+      '.agtb-r-b{grid-column:1 / -1;grid-row:2}',
     '}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
@@ -30841,6 +30929,7 @@ function agGrafAltas(){
   var tope = 0;
   vis.forEach(function(x){ if(x.n > tope) tope = x.n; });
   vis.tope = tope || 1;
+  if(vis.length) vis[vis.length - 1].ultimo = true;
   return vis;
 }
 window.agGrafAltas = agGrafAltas;
@@ -30849,6 +30938,9 @@ window.agGrafAltas = agGrafAltas;
    3 · DIBUJARLOS
    ------------------------------------------------------------ */
 var AGGRAFMES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+var AGGRAFMESL = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+                  'septiembre', 'octubre', 'noviembre', 'diciembre'];
+function agGrafMesLargo(m){ var k = +String(m).slice(5, 7); return (AGGRAFMESL[k - 1] || '') + ' de ' + String(m).slice(0, 4); }
 
 function agGrafEmbudoHTML(){
   var e = agGrafEmbudo();
@@ -30888,7 +30980,8 @@ function agGrafAltasHTML(){
     '<div class="aggr-meses">' + d.map(function(x){
       var alto = Math.round(x.n / tope * 100);
       var mm = +x.mes.slice(5, 7);
-      return '<div class="aggr-mes' + (x.n ? '' : ' cero') + '" title="' + x.mes + ': ' + x.n + '">' +
+      return '<div class="aggr-mes' + (x.n ? '' : ' cero') + '" tabindex="0" data-tip="' + agGrafMesLargo(x.mes) + ': ' +
+        x.n + (x.n === 1 ? ' alta' : ' altas') + (x.ultimo ? ' (mes en curso)' : '') + '">' +
         '<span class="aggr-mes-c">' + (x.n || '') + '</span>' +
         '<span class="aggr-mes-b"><i style="height:' + Math.max(alto, x.n ? 4 : 0) + '%"></i></span>' +
         '<span class="aggr-mes-e">' + (AGGRAFMES[mm - 1] || '') + '</span>' +
@@ -30961,19 +31054,18 @@ window.agGrafPar = function(){
     '.aggr-paso-b{display:block;height:15px;border-radius:5px;overflow:hidden;',
       'background:var(--ag-info-s);border:1px solid var(--ag-info-b)}',
     /* una sola serie, un solo color: no son cinco categorias */
-    '.aggr-paso-b > i{display:block;height:100%;border-radius:4px;background:var(--ag-prog-c);',
+    '.aggr-paso-b > i{display:block;height:100%;border-radius:4px;background:var(--ag-et2);',
       'transition:width .6s cubic-bezier(.4,0,.2,1)}',
-    '.aggr-paso:last-child .aggr-paso-b > i{background:var(--ag-exito-c)}',
-    '.aggr-paso-c{text-align:right;font-family:var(--display);font-size:19px;font-weight:700;',
-      'color:var(--agp-tx);font-variant-numeric:tabular-nums;line-height:1.1}',
+    '.aggr-paso-c{text-align:right;font-family:var(--body),system-ui,sans-serif;font-size:19px;font-weight:700;',
+      'color:var(--agp-tx);line-height:1.1}',
     '.aggr-paso-c em{display:block;margin-top:2px;font-style:normal;font-family:var(--mono);',
-      'font-size:10px;font-weight:400;color:var(--ag-aviso-hi)}',
+      'font-size:10px;font-weight:400;color:var(--agp-dim)}',
 
     /* --- las altas por mes --- */
     '.aggr-meses{display:flex;align-items:flex-end;gap:6px;height:186px}',
     '.aggr-mes{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}',
-    '.aggr-mes-c{font-family:var(--display);font-size:13px;font-weight:700;color:var(--agp-tx2);',
-      'font-variant-numeric:tabular-nums;height:16px;line-height:16px}',
+    '.aggr-mes-c{font-family:var(--body),system-ui,sans-serif;font-size:13px;font-weight:700;color:var(--agp-tx2);',
+      'height:16px;line-height:16px}',
     /* La barra se posiciona en ABSOLUTO, y no por gusto: con la caja
        en flex y altura indefinida, un height en % no resuelve contra
        ella. Medido: la caja 142px y la barra dentro 282px, desbordando
@@ -30983,12 +31075,14 @@ window.agGrafPar = function(){
     '.aggr-mes-b{position:relative;flex:1;width:100%;min-height:0;overflow:hidden;',
       'border-bottom:1px solid var(--ag-info-b)}',
     '.aggr-mes-b > i{position:absolute;left:0;right:0;bottom:0;display:block;',
-      'border-radius:4px 4px 0 0;background:var(--ag-prog-c)}',
+      'border-radius:4px 4px 0 0;background:var(--ag-et2)}',
     '.aggr-mes.cero .aggr-mes-b > i{background:transparent}',
     '.aggr-mes-e{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--agp-dim)}',
-    /* el mes en curso, marcado: es el unico que todavia puede subir */
-    '.aggr-mes:last-child .aggr-mes-b > i{background:var(--ag-aviso-c)}',
-    '.aggr-mes:last-child .aggr-mes-e{color:var(--ag-aviso-hi)}'
+    /* el mes en curso, marcado: es el único que todavía puede subir.
+       Va en un tono más suave del MISMO color —está a medias—, no en
+       ámbar: el ámbar es un color de aviso y aquí no avisa de nada. */
+    '.aggr-mes:last-child .aggr-mes-b > i{background:var(--ag-et1)}',
+    '.aggr-mes:last-child .aggr-mes-e{color:var(--agp-tx2);font-weight:700}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
@@ -33220,6 +33314,7 @@ window.agRgtDeshacer = async function(uid, curso){
 };
 
 </script>
+
 
 
 
