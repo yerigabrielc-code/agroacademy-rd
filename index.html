@@ -30377,25 +30377,53 @@ window.agTbPantalla = agTbPantalla;
     t.style.left = px + 'px';
     t.style.top = py + 'px';
   };
+  var origen = null;     /* el elemento que la abrió */
   var muestra = function(el, x, y){
     var t = asegura();
+    origen = el;
     t.textContent = el.getAttribute('data-tip');
     t.style.display = 'block';
     coloca(x, y);
   };
-  var oculta = function(){ if(tip) tip.style.display = 'none'; };
+  var oculta = function(){ origen = null; if(tip) tip.style.display = 'none'; };
+  var abierta = function(){ return tip && tip.style.display === 'block'; };
   var de = function(e){ return e.target && e.target.closest ? e.target.closest('[data-tip]') : null; };
+  /* ¿sigue su barra en pantalla? Al pasar a un curso el panel no se
+     borra: se OCULTA, así que la barra sigue «existiendo» sin verse. */
+  var seVe = function(el){ return !!el && el.isConnected && el.getClientRects().length > 0; };
 
   document.addEventListener('mouseover', function(e){ var el = de(e); if(el) muestra(el, e.clientX, e.clientY); });
-  document.addEventListener('mousemove', function(e){ if(tip && tip.style.display === 'block' && de(e)) coloca(e.clientX, e.clientY); });
+  /* Se quedaba pegada: si la barra desaparece bajo el ratón (un clic
+     que cambia de pantalla, un repintado), el «mouseout» nunca llega.
+     Ahora cualquier movimiento fuera de un elemento con data-tip la
+     cierra, y también si el que la abrió ya no está en la página. */
+  document.addEventListener('mousemove', function(e){
+    if(!abierta()) return;
+    var el = de(e);
+    if(!el || !seVe(origen)) { oculta(); return; }
+    coloca(e.clientX, e.clientY);
+  });
   document.addEventListener('mouseout', function(e){ if(de(e)) oculta(); });
   document.addEventListener('focusin', function(e){
-    var el = de(e); if(!el) return;
+    var el = de(e);
+    if(!el){ if(abierta()) oculta(); return; }
+    /* solo si se llegó con el TECLADO: un clic también da el foco, y
+       eso reabría la ventanita justo después de cerrarla */
+    try{ if(!el.matches(':focus-visible')) return; }catch(x){}
     var r = el.getBoundingClientRect();
     muestra(el, r.left + r.width / 2, r.top);
   });
   document.addEventListener('focusout', function(e){ if(de(e)) oculta(); });
   document.addEventListener('scroll', oculta, true);
+  /* cualquier acción o cambio de pantalla la cierra */
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function(ev){
+    document.addEventListener(ev, function(){ if(abierta()) oculta(); }, true);
+  });
+  addEventListener('hashchange', oculta);
+  addEventListener('blur', oculta);
+  document.addEventListener('visibilitychange', oculta);
+  /* red de seguridad: si su elemento desapareció sin avisar, fuera */
+  setInterval(function(){ if(abierta() && !seVe(origen)) oculta(); }, 400);
 })();
 
 function agTbIni(n){
@@ -33401,6 +33429,9 @@ window.agRgtDeshacer = async function(uid, curso){
 })();
 
 </script>
+
+
+
 
 
 
@@ -36624,6 +36655,9 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
 
 
 
@@ -41739,79 +41773,105 @@ var EGLAMCR = {
   'eg-l-chupete':       'Foto: L T Hunter · CC BY 2.0 · Wikimedia Commons',
   'eg-l-camion-agua':   'Foto: RG72 · CC BY-SA 4.0 · Wikimedia Commons',
   'eg-l-lote-comedero': 'Foto: Saharalyn · CC BY-SA 4.0 · Wikimedia Commons',
-  'eg-l-patio':         'Foto: Sumitsurai · CC BY-SA 4.0 · Wikimedia Commons'
+  'eg-l-patio':         'Foto: Sumitsurai · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-nave-pasillo':  'Foto: autor desconocido · dominio público · Wikimedia Commons',
+  'eg-n-ranurado':      'Foto: Onsemeliot · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-brasil':        'Foto: Alcimar Luiz Callegari · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-comedero-auto': 'Foto: Agencia Pyme · CC BY-SA 2.0 · Wikimedia Commons',
+  'eg-n-tunel':         'Foto: SteveStrummer · CC0 · Wikimedia Commons',
+  'eg-n-sinfin':        'Foto: 1jake312 · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-naves-campo':   'Foto: Corey Coyle · CC BY 3.0 · Wikimedia Commons',
+  'eg-n-curiosos':      'Foto: USDA · dominio público · Wikimedia Commons',
+  'eg-n-colombia':      'Foto: Johan Andrés Toro · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-lote-iowa':     'Foto: Lynn Betts · USDA NRCS · dominio público · Wikimedia Commons',
+  'eg-n-aerea':         'Foto: MottaW · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-cebo':          'Foto: Allpe · CC BY 3.0 · Wikimedia Commons',
+  'eg-n-grupo-a':       'Foto: kallerna · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-fila':          'Foto: kallerna · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-grupo-b':       'Foto: kallerna · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-cerca':         'Foto: kallerna · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-uno':           'Foto: kallerna · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-dos':           'Foto: kallerna · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-moderna':       'Foto: Wikitarisch · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-naves-silos':   'Foto: Ubahnverleih · CC BY 3.0 · Wikimedia Commons',
+  'eg-n-unidad':        'Foto: Rude Health · CC BY-SA 2.0 · Wikimedia Commons',
+  'eg-n-granja-fr':     'Foto: Chabe01 · CC BY-SA 4.0 · Wikimedia Commons',
+  'eg-n-reja':          'Foto: Mathias Bigge · CC BY-SA 2.5 · Wikimedia Commons'
 };
 
-/* [comienzo del título de la sección, foto, título de la lámina, qué mirar] */
+/* [comienzo del título de la sección, foto, título de la lámina, qué mirar]
+   CADA FOTO UNA SOLA VEZ en todo el curso, y ninguna de las que ya
+   salen dentro del contenido o en la portada (lo comprueba el
+   verificador del modo libro). */
 var EGLAMINA = [
   /* M1 */
-  ['De qué se trata esta etapa', 'nutri-m03-cerdos-crecimiento', 'Aquí se hacen los kilos', 'Del destete al peso de venta el cerdo multiplica su peso: es la etapa que más alimento consume y la que decide la ganancia.'],
+  ['De qué se trata esta etapa', 'eg-n-fila', 'Aquí se hacen los kilos', 'Del destete al peso de venta el cerdo multiplica su peso: es la etapa que más alimento consume y la que decide la ganancia.'],
   ['El engorde en cuatro números', 'nutri-s01-numeros', 'Cuatro números, no una impresión', 'Ganancia diaria, conversión, mortalidad y costo por kilo: con ellos se compara un lote con otro.'],
-  ['El ciclo de un lote', 'sb-f-plano', 'Un lote entra, crece y sale', 'Cada nave vive el mismo ciclo: limpiar, recibir, engordar, vender y volver a empezar.'],
+  ['El ciclo de un lote', 'eg-n-aerea', 'Un lote entra, crece y sale', 'Cada nave vive el mismo ciclo: limpiar, recibir, engordar, vender y volver a empezar.'],
   ['Los cinco indicadores', 'm8-registro-formato', 'Lo que no se anota no se mejora', 'Los indicadores salen de una planilla bien llevada, no de la memoria.'],
   ['Dos productores, el mismo cerdo', 'eg-l-cuba-comiendo', 'El mismo cerdo, dos resultados', 'Lo que cambia entre un productor y otro casi nunca es el animal: es cómo se maneja.'],
-  ['La diferencia son unos', 'nutri-s08-costo-numeros', 'La diferencia está en la cuenta', 'Pequeñas diferencias por cerdo, multiplicadas por todo el lote, son mucho dinero.'],
-  ['Los errores que más dinero cuestan', 'm2-mala-practica', 'Los errores se pagan en kilos', 'Piso sucio, agua escasa, corral lleno: cada uno resta crecimiento sin que se note el mismo día.'],
-  ['La idea que atraviesa todo el curso', 'm7-corral-engorde', 'Medir para decidir', 'Todo el curso gira en torno a lo mismo: medir el lote para decidir con números.'],
+  ['La diferencia son unos', 'nutri-b-granjero-molino', 'La diferencia está en la cuenta', 'Pequeñas diferencias por cerdo, multiplicadas por todo el lote, son mucho dinero.'],
+  ['Los errores que más dinero cuestan', 'eg-l-cuba-echado', 'Los errores se pagan en kilos', 'Piso sucio, agua escasa, corral lleno: cada uno resta crecimiento sin que se note el mismo día.'],
+  ['La idea que atraviesa todo el curso', 'eg-n-dos', 'Medir para decidir', 'Todo el curso gira en torno a lo mismo: medir el lote para decidir con números.'],
   /* M2 */
   ['Por qué esto no se puede improvisar', 'm1-vista-general-granja', 'El corral se prepara antes', 'Lo que no esté listo cuando llegue el camión ya no se arregla con los cerdos dentro.'],
   ['La preparación, en orden', 'm6-filtro-sanitario', 'Limpiar, desinfectar, secar', 'El orden importa: un corral lavado pero húmedo recibe a los cerdos con problemas.'],
-  ['El error de densidad más común', 'm7-corral-destete', 'Demasiados para el espacio', 'Con poco espacio los más débiles comen menos y el lote se desiguala.'],
-  ['Agua: lo que hay que comprobar', 'm2-bebedero-automatico', 'El bebedero, antes que nada', 'Altura, caudal y limpieza se comprueban antes de que entren los cerdos.'],
-  ['Comedero: el ajuste que se paga solo', 'm5-comedero', 'El comedero, bien regulado', 'Alimento siempre disponible, pero sin que se desborde ni se pise.'],
-  ['Ambiente: sombra, aire y piso', 'm2-ventilacion', 'Aire que circule', 'En clima caliente, la ventilación y la sombra pesan tanto como el alimento.'],
+  ['El error de densidad más común', 'eg-n-lote-iowa', 'Demasiados para el espacio', 'Con poco espacio los más débiles comen menos y el lote se desiguala.'],
+  ['Agua: lo que hay que comprobar', 'eg-l-chupete', 'El bebedero, antes que nada', 'Altura, caudal y limpieza se comprueban antes de que entren los cerdos.'],
+  ['Comedero: el ajuste que se paga solo', 'eg-n-comedero-auto', 'El comedero, bien regulado', 'Alimento siempre disponible, pero sin que se desborde ni se pise.'],
+  ['Ambiente: sombra, aire y piso', 'eg-n-ranurado', 'Un piso que se mantiene seco', 'El piso ranurado deja pasar el estiércol: el cerdo descansa limpio y seco.'],
   ['¿Mi corral está listo', 'm2-pasillos', 'La revisión antes de recibir', 'Una vuelta con la lista en la mano evita sorpresas el día de la llegada.'],
   ['Sobre limpieza y desinfección', 'sb-f-arco', 'La limpieza también es manejo', 'Desinfectar vehículos y accesos corta la entrada de enfermedades al lote.'],
   /* M3 */
   ['El día que llega el camión', 'eg-l-camion', 'La llegada empieza en el camión', 'Viaje, calor y estrés: los cerdos llegan cansados y hay que recibirlos con calma.'],
   ['Si no puede pesar todo el lote', 'm11-tecnologia-campo', 'Una muestra bien tomada', 'Pesar una parte del lote, elegida al azar, ya dice mucho más que el ojo.'],
-  ['Las primeras 72 horas', 'eg-l-chupete', 'Agua primero', 'Los primeros días lo más urgente es que todos encuentren el agua y empiecen a comer.'],
-  ['Cerdos atrasados', 'nutri-s03-cerdo-retrato', 'Mirar a cada uno', 'El atrasado se detecta el primer día; esperar a mitad del lote es tarde.'],
+  ['Las primeras 72 horas', 'nutri-m05-lechones-destete', 'Los primeros días deciden', 'Lo más urgente es que todos encuentren el agua y empiecen a comer.'],
+  ['Cerdos atrasados', 'eg-n-uno', 'Mirar a cada uno', 'El atrasado se detecta el primer día; esperar a mitad del lote es tarde.'],
   ['La planilla vive en el corral', 'sb-f-ronda', 'La planilla, en el corral', 'Se anota donde pasan las cosas y en el momento, no al final del día.'],
   /* M4 */
-  ['La conversión empeora con el peso', 'nutri-m10-corrales-comedero', 'Más peso, más alimento por kilo', 'El cerdo grande gasta más alimento en mantenerse: cada kilo nuevo le cuesta más.'],
-  ['Dónde se pierde el alimento', 'nutri-b-cerdos-comedero', 'Lo que no se come también se paga', 'Lo que cae al piso, se moja o saca el hocico entra igual en su costo.'],
-  ['El cambio de alimento entre etapas', 'm5-sacos-alimento', 'Cambiar de alimento, poco a poco', 'Un cambio brusco frena el consumo unos días; mezclar los dos ayuda a pasar.'],
-  ['Calidad física del alimento', 'nutri-m01-alimento-peletizado', 'Se mira y se toca', 'Polvo, humedad o moho se notan antes de que el cerdo rechace el alimento.'],
-  ['Si quiere bajar el costo del alimento', 'nutri-m08-mercado-granos', 'El costo empieza en el grano', 'Para bajarlo de verdad, el camino es la formulación.'],
+  ['La conversión empeora con el peso', 'eg-n-grupo-b', 'Más peso, más alimento por kilo', 'El cerdo grande gasta más alimento en mantenerse: cada kilo nuevo le cuesta más.'],
+  ['Dónde se pierde el alimento', 'eg-n-sinfin', 'Del silo al comedero', 'El alimento viaja por las líneas hasta cada corral: lo que se derrama por el camino también se paga.'],
+  ['El cambio de alimento entre etapas', 'nutri-s07-silos', 'Un silo por etapa', 'Cambiar de alimento poco a poco: un cambio brusco frena el consumo unos días.'],
+  ['Calidad física del alimento', 'nutri-m02-maiz-grano', 'Se mira y se toca', 'Polvo, humedad o moho se notan antes de que el cerdo rechace el alimento.'],
+  ['Si quiere bajar el costo del alimento', 'nutri-m07-molino', 'El costo empieza en el molino', 'Para bajarlo de verdad, el camino es la formulación.'],
   /* M5 */
-  ['Por qué este módulo es el diferencial', 'nutri-m06-nave-engorde', 'Calor tropical, todo el año', 'En RD el calor es la regla: manejarlo bien separa un lote bueno de uno regular.'],
+  ['Por qué este módulo es el diferencial', 'eg-n-brasil', 'Engorde en clima cálido', 'Naves abiertas y techos altos: en el trópico, manejar el calor separa un lote bueno de uno regular.'],
   ['La relación que hay que entender', 'eg-l-lote-comedero', 'Bebe, come, crece', 'Un cerdo que bebe poco come poco, y uno que come poco no crece.'],
-  ['Cómo se mide el agua de verdad', 'm2-bebedero-automatico', 'El caudal se mide, no se supone', 'Un envase de un litro y un reloj: así se sabe cuánta agua sale de verdad.'],
+  ['Cómo se mide el agua de verdad', 'eg-n-curiosos', 'El que no bebe, no come', 'Un envase de un litro y un reloj: así se sabe cuánta agua sale de verdad en cada bebedero.'],
   ['Calidad del agua', 'sb-f-lab', 'Lo que no se ve, lo dice el laboratorio', 'Sales o bacterias en el agua solo se detectan con un análisis.'],
   ['Manejo del calor en instalaciones', 'm2-techo', 'Techo alto, aire que pase', 'Altura, aleros y orientación cambian varios grados dentro del corral.'],
-  ['Una semana de calor mal manejado', 'eg-l-cuba-echado', 'Echado y sin comer', 'Con calor el cerdo deja de comer en las horas fuertes, y esos kilos no vuelven.'],
+  ['Una semana de calor mal manejado', 'eg-l-camion-agua', 'Mojar en las horas fuertes', 'El cerdo casi no suda: mojarlo cuando más calienta le devuelve el apetito.'],
   ['Dónde termina el manejo', 'm6-vacunacion', 'Ahí empieza el veterinario', 'Si además del calor hay animales enfermos, eso es asunto del veterinario.'],
   /* M6 */
-  ['Las dos fórmulas del módulo', 'm11-tecnologia-campo', 'Dos cuentas sencillas', 'Con el peso de entrada, el de hoy y los días que pasaron, la ganancia diaria sale sola.'],
+  ['Las dos fórmulas del módulo', 'eg-n-reja', 'Dos cuentas sencillas', 'Con el peso de entrada, el de hoy y los días que pasaron, la ganancia diaria sale sola.'],
   ['Un ejemplo, con números de verdad', 'eg-l-patio', 'Un lote real, sus números', 'El ejemplo usa cifras de una granja pequeña, como la mayoría en el país.'],
-  ['El promedio esconde cosas', 'rp-f-corrales', 'No todos crecen igual', 'En un mismo corral hay cerdos grandes y pequeños: el promedio no los muestra.'],
-  ['Dos maneras de llevar el peso', 'm8-registro-formato', 'Por lote o cerdo por cerdo', 'Las dos sirven; lo que no sirve es no llevarlo.'],
-  ['Cómo pesar sin volverse loco', 'm2-pasillos', 'Un pasillo hasta la báscula', 'Mover a los cerdos por un pasillo hasta la báscula ahorra tiempo y golpes.'],
+  ['El promedio esconde cosas', 'eg-n-grupo-a', 'No todos crecen igual', 'En un mismo corral hay cerdos grandes y pequeños: el promedio no los muestra.'],
+  ['Dos maneras de llevar el peso', 'rp-f-corrales', 'Por lote o cerdo por cerdo', 'Las dos sirven; lo que no sirve es no llevarlo.'],
+  ['Cómo pesar sin volverse loco', 'eg-n-tunel', 'Pesar sin estresar', 'Mover a los cerdos con calma, en grupos pequeños, ahorra tiempo, golpes y kilos.'],
   /* M7 */
-  ['Qué es, en una frase', 'm5-comedero', 'Alimento que entra, kilos que salen', 'La conversión dice cuántos kilos de alimento hacen falta para un kilo de cerdo.'],
-  ['La fórmula', 'nutri-s08-costo-numeros', 'Una división', 'Alimento consumido entre kilos ganados: así de simple, si tiene los dos datos.'],
-  ['El ejemplo, paso a paso', 'm5-sacos-alimento', 'Contar los sacos', 'El primer dato del ejemplo es cuántos sacos se gastaron en todo el lote.'],
-  ['No existe una conversión', 'nutri-m03-cerdos-crecimiento', 'Cada granja, su número', 'Genética, peso y alimento cambian la conversión: compárese con usted mismo.'],
-  ['Qué empeora la conversión', 'm2-mala-practica', 'Lo que empeora la conversión', 'Desperdicio, calor, enfermedad y alimento de mala calidad.'],
-  ['Por eso la conversión manda', 'nutri-m08-mercado-granos', 'El alimento es la mayor parte del costo', 'Por eso cada décima de conversión se nota en el bolsillo.'],
+  ['Qué es, en una frase', 'eg-n-nave-pasillo', 'Alimento que entra, kilos que salen', 'La conversión dice cuántos kilos de alimento hacen falta para un kilo de cerdo.'],
+  ['La fórmula', 'nutri-m08-mercado-granos', 'Una división', 'Alimento consumido entre kilos ganados: así de simple, si tiene los dos datos.'],
+  ['El ejemplo, paso a paso', 'nutri-s02-recibo-maiz', 'Contar lo que entra', 'El primer dato del ejemplo es cuánto alimento entró al lote, con su factura.'],
+  ['No existe una conversión', 'eg-n-colombia', 'Cada granja, su número', 'Genética, peso y alimento cambian la conversión: compárese con usted mismo.'],
+  ['Qué empeora la conversión', 'eg-n-cebo', 'Lo que empeora la conversión', 'Desperdicio, calor, enfermedad y alimento de mala calidad.'],
+  ['Por eso la conversión manda', 'nutri-s04-soya', 'El alimento es la mayor parte del costo', 'Por eso cada décima de conversión se nota en el bolsillo.'],
   /* M8 */
-  ['La rutina de observación diaria', 'sb-f-ronda', 'La ronda de cada mañana', 'Entrar al corral con una pregunta en la cabeza y salir con un dato anotado.'],
+  ['La rutina de observación diaria', 'eg-n-cerca', 'La ronda de cada mañana', 'Entrar al corral con una pregunta en la cabeza y salir con un dato anotado.'],
   ['¿Qué está pasando con mi lote', 'eg-l-cuba-corral', 'Mirar antes de suponer', 'La herramienta le ayuda a ordenar lo que ve antes de sacar conclusiones.'],
-  ['Dónde termina este curso', 'm6-vacunacion', 'Hasta aquí el manejo', 'Diagnosticar enfermedades es trabajo del veterinario, no de esta lista.'],
-  ['Ocho retos', 'm11-tecnologia-campo', 'Ahora le toca a usted', 'Ocho situaciones de granja para resolver con lo aprendido.'],
+  ['Dónde termina este curso', 'sb-f-epp', 'Hasta aquí el manejo', 'Diagnosticar enfermedades es trabajo del veterinario, no de esta lista.'],
+  ['Ocho retos', 'rp-f-curiosos', 'Ahora le toca a usted', 'Ocho situaciones de granja para resolver con lo aprendido.'],
   /* M9 */
-  ['El costo no es el alimento', 'nutri-s07-silos', 'El alimento no es todo', 'Es el costo más grande, pero no el único: hay que sumarlos todos.'],
-  ['Los ocho componentes del costo', 'nutri-s08-costo-numeros', 'Ocho cosas que sumar', 'Cerdos, alimento, sanidad, mano de obra, energía, agua, transporte y pérdidas.'],
-  ['Dos costos por kilo', 'm10-despacho-camion', 'Kilo producido y kilo vendido', 'No es lo mismo lo que el lote ganó que lo que sale por la puerta.'],
-  ['Por qué la mortalidad se reparte', 'rp-f-corrales', 'Los que no llegan también cuestan', 'El cerdo que muere se lleva lo que comió: ese costo lo pagan los que sí se venden.'],
-  ['Cuando el alimento pasa del 70', 'm5-sacos-alimento', 'Cuando el saco pesa demasiado', 'Si el alimento pasa del 70 % del costo, algo falla en la conversión o en el precio.'],
+  ['El costo no es el alimento', 'eg-n-naves-silos', 'El alimento no es todo', 'Es el costo más grande, pero no el único: naves, energía, agua y mano de obra también suman.'],
+  ['Los ocho componentes del costo', 'sb-f-plano', 'Ocho cosas que sumar', 'Cerdos, alimento, sanidad, mano de obra, energía, agua, transporte y pérdidas.'],
+  ['Dos costos por kilo', 'eg-n-naves-campo', 'Kilo producido y kilo vendido', 'No es lo mismo lo que el lote ganó que lo que sale por la puerta.'],
+  ['Por qué la mortalidad se reparte', 'sb-f-cuarentena', 'Los que no llegan también cuestan', 'El cerdo que muere se lleva lo que comió: ese costo lo pagan los que sí se venden.'],
+  ['Cuando el alimento pasa del 70', 'nutri-m09-granos-variados', 'Cuando el alimento pesa demasiado', 'Si el alimento pasa del 70 % del costo, algo falla en la conversión o en el precio.'],
   /* M10 */
-  ['Los cuatro números del cierre', 'nutri-s01-numeros', 'El cierre del lote', 'Ingreso, costo, utilidad y margen: los cuatro números que dicen cómo le fue.'],
-  ['El punto de equilibrio es su piso', 'eg-l-camion', 'El precio mínimo de venta', 'Por debajo del punto de equilibrio, cada cerdo que sale pierde dinero.'],
-  ['Cuándo vender', 'eg-l-camion-agua', 'Los últimos kilos', 'Engordar más días cuesta más alimento por kilo: hay un punto en que conviene vender.'],
-  ['Diez planillas para llevarse', 'm8-registro-formato', 'Las diez planillas', 'Imprímalas y llévelas al corral: ahí es donde se llenan.'],
-  ['Lo que usted se lleva de este curso', 'nutri-m06-nave-engorde', 'Su granja, con números', 'Medir, calcular y decidir: eso es lo que se lleva.']
+  ['Los cuatro números del cierre', 'eg-n-granja-fr', 'El cierre del lote', 'Ingreso, costo, utilidad y margen: los cuatro números que dicen cómo le fue.'],
+  ['El punto de equilibrio es su piso', 'eg-n-unidad', 'El precio mínimo de venta', 'Por debajo del punto de equilibrio, cada cerdo que sale pierde dinero.'],
+  ['Cuándo vender', 'nutri-s03-cerdo-retrato', 'Los últimos kilos', 'Engordar más días cuesta más alimento por kilo: hay un punto en que conviene vender.'],
+  ['Diez planillas para llevarse', 'rp-f-hocicos', 'Las diez planillas', 'Imprímalas y llévelas al corral: ahí es donde se llenan.'],
+  ['Lo que usted se lleva de este curso', 'eg-n-moderna', 'Su granja, con números', 'Medir, calcular y decidir: eso es lo que se lleva.']
 ];
 
 /* el texto con que empieza una sección, sin emoji ni espacios de más */
@@ -42296,6 +42356,10 @@ if(typeof window.egCalcRun === 'function'){
 })();
 
 </script>
+
+
+
+
 
 
 
@@ -45854,6 +45918,9 @@ if(typeof window.pcAccesoTodos === 'function'){
 }
 
 </script>
+
+
+
 
 
 
