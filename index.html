@@ -33313,7 +33313,92 @@ window.agRgtDeshacer = async function(uid, curso){
   try{ if(typeof agEsRepinta === 'function') agEsRepinta(); }catch(e){}
 };
 
+
+/* ---------- ag-noche.js ---------- */
+/* ============================================================
+   AGROACADEMY · AZUL MEDIANOCHE
+   ------------------------------------------------------------
+   El negro cálido (#141210 / #161311) cansaba en sesiones largas:
+   con el texto casi blanco encima, las letras «vibran». Se cambia
+   por un azul noche, igual de oscuro y más futurista, en TODA la
+   plataforma: el modo oscuro de cursos y panel, y las partes que
+   son oscuras siempre (barra lateral, portada, inicio de sesión,
+   bienvenida, la cortina entre módulos).
+
+   Lo que NO se toca: la tinta de los certificados impresos
+   (AGCERTINK y compañía). Eso va en papel y sigue siendo negra.
+
+   La paleta
+     fondo      #0E1726   tarjetas   #16233A   levantado  #1C2B45
+     bordes     #26385A   bordes 2   #314766
+     texto      #E4EAF3   texto 2    #A9B8CE   apagado    #8193AD
+     cromo fijo #0B1322 (barra lateral, un punto más hondo que el fondo)
+   ============================================================ */
+(function agNocheCss(){
+  if(document.getElementById('agNocheCss')) return;
+  var T = '--bg:#0E1726;--panel:#16233A;--text:#E4EAF3;--text-2:#A9B8CE;--muted:#8193AD;' +
+          '--border:#26385A;--line:#26385A;--line-2:#314766;--ivory-2:#16233A;--paper:#16233A;' +
+          '--green-wash:#12332E;--amber-wash:#33301F;--crit-wash:#3A1F2A;' +
+          '--shadow:0 1px 2px rgba(2,6,16,.5),0 10px 34px -14px rgba(2,6,16,.8);--shadow-lg:0 30px 70px -28px rgba(2,6,16,.9);';
+  var s = document.createElement('style');
+  s.id = 'agNocheCss';
+  s.textContent = [
+    /* el cromo que es oscuro siempre */
+    ':root{--char:#0B1322;--char-2:#16233A;--char-3:#1C2B45}',
+    /* el modo oscuro: elegido a mano, o el del sistema si no se eligió */
+    ':root[data-theme="dark"]{' + T + '}',
+    '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){' + T + '}}',
+
+    /* los sitios donde el negro estaba escrito a mano */
+    '.sidebar{border-right-color:#16233A}',
+    '.brand,.sidebar-foot{border-color:#16233A}',
+    '#navClose,.student-card,.login-card,.login-field input,.login-hint code{background:#16233A;border-color:#26385A}',
+    '.nav-item:hover{background:#16233A}',
+    '.progress-track{background:#16233A}',
+    '.sidebar::-webkit-scrollbar-thumb{background:#314766}',
+    '.chip,.tag,.nav-num,.toast,.wel-chip,.wel-cta,.btn-ghost{border-color:#314766}',
+    '.wel-box{border-color:#26385A}',
+    '.pay-head,.pay-bank,.pay-copy{background:#16233A;border-color:#26385A}',
+    '.pbar{background:#16233A}',
+    '.nx-hero.nx-foto{background:#0B1322}',
+
+    /* los fondos con resplandor: el halo marrón pasa a azul */
+    '.cover{background:radial-gradient(120% 90% at 82% 8%,#123A44 0%,transparent 55%),radial-gradient(90% 80% at 8% 100%,#1E2F55 0%,transparent 55%),var(--char)}',
+    '.finale{background:radial-gradient(120% 90% at 82% 8%,#123A44 0%,transparent 55%),radial-gradient(90% 80% at 8% 100%,#1E2F55 0%,transparent 55%),var(--char)}',
+    '#screenLogin{background:radial-gradient(120% 90% at 82% 8%,#123A44,transparent 55%),radial-gradient(90% 80% at 8% 100%,#1E2F55,transparent 55%),var(--char)}',
+    '.welcome{background:radial-gradient(120% 90% at 82% 6%,#123A44 0%,transparent 55%),radial-gradient(90% 80% at 6% 100%,#1E2F55 0%,transparent 55%),var(--char)}',
+
+    /* El campus y el panel de administración son oscuros SIEMPRE, con
+       su propia paleta (--agp-*, en ag-paleta.js). Se cambia el suelo y
+       la tinta a la misma noche; los acentos (trigo y salvia) se quedan:
+       sobre azul destacan todavía más. */
+    ':root{--agp-void:#0E1726;--agp-deep:#16233A;--agp-raise:#22345A;--agp-sunk:rgba(2,6,16,.38);',
+      '--agp-line:rgba(170,195,235,.13);--agp-line2:rgba(170,195,235,.28);',
+      '--agp-tx:#E4EAF3;--agp-tx2:#A9B8CE;--agp-dim:#8193AD}',
+    '.nva-w{--nva-line:rgba(170,195,235,.13);--nva-line2:rgba(170,195,235,.28);',
+      'background-image:radial-gradient(ellipse 34% 44% at 0% 16%,rgba(56,189,248,.10),transparent 72%),',
+      'radial-gradient(ellipse 32% 40% at 100% 46%,rgba(200,145,47,.10),transparent 72%),',
+      'radial-gradient(ellipse 36% 38% at 0% 86%,rgba(109,40,217,.10),transparent 74%),',
+      'linear-gradient(180deg,rgba(34,52,90,.55) 0%,rgba(14,23,38,0) 34%)}',
+    '.nva-card-velo{background:linear-gradient(to top,rgba(14,23,38,.92) 4%,rgba(14,23,38,.14) 60%,transparent)}',
+    '.nva-card.lock .nva-card-velo{background:linear-gradient(to top,rgba(14,23,38,.94) 6%,rgba(14,23,38,.30) 58%,rgba(14,23,38,.12))}',
+    '.nva-card-cat{background:rgba(14,23,38,.72)}',
+    '.nva-card-lock b{background:rgba(14,23,38,.82)}',
+
+    /* la portada de cada curso: la foto bajo un velo de noche */
+    '.nx-port{background-color:#0E1726}',
+    '.nx-port-velo{background:linear-gradient(102deg,rgba(11,19,34,.95) 0%,rgba(11,19,34,.88) 38%,rgba(11,19,34,.58) 66%,rgba(11,19,34,.34) 100%),',
+      'linear-gradient(180deg,rgba(11,19,34,.55) 0%,rgba(11,19,34,0) 28%,rgba(11,19,34,0) 70%,rgba(11,19,34,.6) 100%)}',
+    '@media(max-width:820px){.nx-port-velo{background:linear-gradient(178deg,rgba(11,19,34,.72) 0%,rgba(11,19,34,.9) 42%,rgba(11,19,34,.97) 100%)}}'
+  ].join('');
+  /* al final del body: tiene que ganar a las hojas que ya estaban */
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
 
 
 
@@ -36614,6 +36699,8 @@ if(typeof window.nxAdmAcceso === 'function'){
 
 
 
+
+
 <style>
 
 /* ===== curso 5: solo lo que no existe ya ===== */
@@ -36814,6 +36901,11 @@ function egPinta(){
   h += m.sec.map(function(s){ return nxSeccion(s, m); }).join('');
   h += egCierre(m);
   h += egExamen(m.n);
+  /* el último módulo cierra con la pantalla de «¡Lo lograste!» y el
+     certificado (o, mientras falte algo, con lo que falta) */
+  if(EGCUR === EGMOD.length && typeof egFinal === 'function'){
+    try{ h += egFinal(); }catch(e){}
+  }
   h += '<div class="nx-navb">' +
     (EGCUR > 1 ? '<button class="btn btn-ghost" onclick="egIr(' + (EGCUR - 1) + ')">← ' + esc(EGMOD[EGCUR - 2].t) + '</button>' : '<span></span>') +
     (EGCUR < EGMOD.length ? '<button class="btn btn-primary" onclick="egIr(' + (EGCUR + 1) + ')">' + esc(EGMOD[EGCUR].t) + ' →</button>'
@@ -40678,12 +40770,12 @@ if(typeof exDesarmar === 'function' && typeof window.egExamen === 'function'){
       'font-weight:800;line-height:1.22;letter-spacing:-.02em;color:var(--text);text-wrap:balance}',
 
     /* ---------- 5 · fotos con presencia ---------- */
-    '#egOv .ag-fig img{max-height:520px;width:100%;object-fit:cover;border-radius:16px}',
+    '#egOv [class~="ag-fig"] img{max-height:520px;width:100%;object-fit:cover;border-radius:16px}',
     /* solo el título del pie: los <b> dentro del texto van a su tamaño */
-    '#egOv .ag-fig figcaption > b{font-size:19px}',
-    '#egOv .ag-fig figcaption span{font-size:16.5px;line-height:1.6;max-width:72ch}',
-    '#egOv .ag-fig figcaption span b{font-size:inherit}',
-    '#egOv .ag-fig .sb-credito{display:block;margin-top:8px;font-size:12px;letter-spacing:.02em;opacity:.7}',
+    '#egOv [class~="ag-fig"] figcaption > b{font-size:19px}',
+    '#egOv [class~="ag-fig"] figcaption span{font-size:16.5px;line-height:1.6;max-width:72ch}',
+    '#egOv [class~="ag-fig"] figcaption span b{font-size:inherit}',
+    '#egOv [class~="ag-fig"] [class~="sb-credito"]{display:block;margin-top:8px;font-size:12px;letter-spacing:.02em;opacity:.7}',
 
     /* ---------- 6 · las herramientas se ven como herramientas ----------
        Marco grueso de color vivo, halo, cabecera sólida. El color dice
@@ -41615,7 +41707,353 @@ addEventListener('resize', function(){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- eg-movimiento.js ---------- */
+/* ============================================================
+   CURSO 5 · MOVIMIENTO: CORTINA, PÁGINAS, GRÁFICOS Y FINAL
+   ------------------------------------------------------------
+   1. ¡LO LOGRASTE! El último módulo cierra con la pantalla común de
+      fin de curso (agFinal), configurada para Engorde: felicitación,
+      lo conseguido y el botón para descargar el certificado. Al
+      aprobar el último examen aparece sola, con confeti.
+
+   2. LA CORTINA. Al pasar de un módulo a otro, una cortina del color
+      del módulo cruza la pantalla con su número y su título, y la
+      fila de los diez módulos marcando dónde va. Es un segundo: lo
+      justo para que se note que empieza otra cosa.
+
+   3. LAS PÁGINAS ENTRAN POR PARTES. En el modo libro, el título, el
+      texto y la figura de cada página llegan uno detrás de otro.
+
+   4. LOS GRÁFICOS SE DIBUJAN. Cuando un gráfico aparece en pantalla,
+      sus líneas se trazan, sus barras crecen desde la base y el
+      punto que importa late. El dibujo cuenta la historia en el
+      orden en que hay que leerla.
+
+   5. LAS CALCULADORAS RESPONDEN. Al cambiar un número, el resultado
+      destella un instante: se ve que ha cambiado.
+
+   Con «reducir movimiento» activado en el sistema, nada de esto se
+   anima: todo aparece directamente en su sitio.
+   ============================================================ */
+
+function egQuieto(){
+  try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; }
+}
+
+/* ---------- 1 · ¡Lo lograste! ---------- */
+if(typeof window.agCfg === 'function'){
+  var _agCfgEg = window.agCfg;
+  window.agCfg = function(curso){
+    if(curso !== 'engorde') return _agCfgEg.apply(this, arguments);
+    var preg = 0;
+    try{ for(var k in EGQUIZ) if(EGQUIZ.hasOwnProperty(k)) preg += EGQUIZ[k].length; }catch(e){}
+    var forzado = (typeof AGFORZAR !== 'undefined' && AGFORZAR.engorde);
+    return {id:'engorde', hechos:(forzado ? EGMOD.length : egProgreso()), total:EGMOD.length,
+      felicidad:'¡Lo lograste! ¡Felicidades!',
+      texto:'Terminó <b>Engorde porcino</b>. Ya sabe pesar y proyectar su lote, calcular su conversión real, ' +
+            'ponerle precio a cada kilo y <b>decidir con números cuándo vender</b>.',
+      logros:[[EGMOD.length + ' módulos', 'del destete al matadero'], ['15', 'calculadoras que puede seguir usando'],
+              ['12', 'casos prácticos resueltos'], [String(preg), 'preguntas aprobadas']],
+      cert:'egCertificado()',
+      pie:'Su certificado se abre listo para <b>guardarlo como PDF</b> o imprimirlo. ' +
+          'Y lo siguiente no es otro curso: es <b>pesar su próximo lote</b> y poner sus números en el proyecto final.'};
+  };
+}
+/* la pantalla, con el botón que dice lo que hace */
+function egFinal(){
+  if(typeof agFinal !== 'function' || typeof agCfg !== 'function') return '';
+  return agFinal(agCfg('engorde')).replace('🎓 Generar mi certificado', '📄 Descargar mi certificado');
+}
+window.egFinal = egFinal;
+
+/* al aprobar el último examen, la pantalla se enciende sola */
+if(typeof window.egEnviar === 'function'){
+  var _egEnviarFin = window.egEnviar;
+  window.egEnviar = function(id){
+    var antes = egCertElegible();
+    var r = _egEnviarFin.apply(this, arguments);
+    if(id === EGMOD.length && !antes && egCertElegible()) setTimeout(egCelebra, 900);
+    return r;
+  };
+}
+function egCelebra(){
+  var viejo = document.getElementById('agfin-engorde');
+  var sec = viejo && viejo.closest('section');
+  if(sec){
+    var t = document.createElement('div');
+    t.innerHTML = egFinal();
+    var nuevo = t.firstElementChild;
+    if(nuevo){ sec.replaceWith(nuevo); [].forEach.call(nuevo.querySelectorAll('.rv'), function(x){ x.classList.add('in'); }); }
+  }
+  egAlFinal();
+  if(typeof agConfeti === 'function' && !egQuieto()) try{ agConfeti(); }catch(e){}
+}
+/* ir hasta la pantalla final, en libro o de corrido */
+function egAlFinal(){
+  var fin = document.getElementById('agfin-engorde');
+  if(!fin) return;
+  var sec = fin.closest('section');
+  if(typeof EGLIBRO !== 'undefined' && EGLIBRO && typeof egLibroGrupos === 'function'){
+    EGLGRP = egLibroGrupos();
+    var secs = egLibroSecs();
+    var n = secs.indexOf(sec);
+    for(var g = 0; g < EGLGRP.length; g++) if(EGLGRP[g].indexOf(n) >= 0){ egLibroMuestra(g, 1); return; }
+  }
+  var m = document.getElementById('egMain');
+  if(m && sec) m.scrollTo({ top: sec.offsetTop - 30, behavior: egQuieto() ? 'auto' : 'smooth' });
+}
+/* el instructor puede ver la pantalla final sin haber hecho el curso */
+if(typeof window.agVerFinal === 'function'){
+  var _agVerFinalEg = window.agVerFinal;
+  window.agVerFinal = function(curso){
+    if(curso !== 'engorde') return _agVerFinalEg.apply(this, arguments);
+    AGFORZAR.engorde = true;
+    if(!document.getElementById('egOv') && typeof openEngorde === 'function') openEngorde();
+    setTimeout(function(){
+      egIr(EGMOD.length);
+      setTimeout(function(){ egAlFinal(); if(typeof agConfeti === 'function' && !egQuieto()) agConfeti(); }, 1300);
+    }, 160);
+  };
+}
+
+/* ---------- 2 · la cortina entre módulos ---------- */
+function egCortina(m, dir){
+  var ov = document.getElementById('egOv');
+  if(!ov || !m || egQuieto()) return;
+  var vieja = document.getElementById('egCortina'); if(vieja) vieja.remove();
+  var c = document.createElement('div');
+  c.id = 'egCortina';
+  c.className = dir < 0 ? 'atras' : '';
+  c.style.setProperty('--ac', m.ac);
+  var puntos = EGMOD.map(function(x){
+    return '<i class="' + (x.n < m.n ? 'ya' : (x.n === m.n ? 'aqui' : '')) + '"></i>';
+  }).join('');
+  c.innerHTML = '<div class="egc-in">' +
+      '<span class="egc-k">Módulo</span>' +
+      '<b class="egc-n">' + m.num + '</b>' +
+      '<p class="egc-t">' + esc(m.t) + '</p>' +
+      '<div class="egc-p">' + puntos + '</div>' +
+    '</div>';
+  ov.appendChild(c);
+  setTimeout(function(){ c.remove(); }, 1500);
+}
+if(typeof window.egIr === 'function'){
+  var _egIrMov = window.egIr;
+  window.egIr = function(id){
+    var antes = EGCUR;
+    var r = _egIrMov.apply(this, arguments);
+    /* solo si de verdad cambió de módulo (un módulo con candado no cambia) */
+    if(id >= 1 && EGCUR === id && antes !== id) egCortina(EGMOD[id - 1], id > antes ? 1 : -1);
+    return r;
+  };
+}
+
+/* ---------- 3 · las páginas entran por partes ---------- */
+if(typeof window.egLibroMuestra === 'function'){
+  var _egMuestraMov = window.egLibroMuestra;
+  window.egLibroMuestra = function(i, dir){
+    var r = _egMuestraMov.apply(this, arguments);
+    var w = egLibroWrap();
+    /* la página que trae la pantalla final, con confeti la primera vez */
+    try{
+      var g = EGLGRP[EGLPAG] || [], secs = egLibroSecs(w);
+      g.forEach(function(n){
+        var s = secs[n];
+        if(s && s.querySelector('.ag-fin-ok') && !window.__egConfetiVisto && !egQuieto() && typeof agConfeti === 'function'){
+          window.__egConfetiVisto = true; agConfeti();
+        }
+      });
+    }catch(e){}
+    /* La última página del curso no tiene «después»: ahí el botón de
+       avanzar lleva al certificado si ya lo ganó, y si no, se apaga. */
+    try{
+      var sig = w && w.querySelector(':scope > .nx-lnav .nx-lb.on');
+      if(sig){
+        var fin = EGCUR === EGMOD.length && EGLPAG === EGLGRP.length - 1;
+        if(fin && egCertElegible()){
+          sig.textContent = '📄 Mi certificado'; sig.onclick = function(){ egCertificado(); }; sig.disabled = false;
+        } else if(fin){
+          sig.textContent = 'Fin del curso'; sig.onclick = null; sig.disabled = true;
+        } else {
+          sig.textContent = 'Continuar →'; sig.onclick = function(){ egPasa(1); }; sig.disabled = false;
+        }
+      }
+    }catch(e){}
+    egObservaGraficos();
+    return r;
+  };
+}
+
+/* ---------- 4 · los gráficos se dibujan ---------- */
+function egDibuja(fig){
+  if(!fig || egQuieto()) return;
+  var svg = fig.querySelector('svg'); if(!svg) return;
+  fig.classList.remove('eg-dibuja'); void fig.offsetWidth; fig.classList.add('eg-dibuja');
+  /* líneas: se trazan de izquierda a derecha */
+  [].forEach.call(svg.querySelectorAll('polyline, path.eg-g-l1, path.eg-g-l2, line.eg-g-l3'), function(l, k){
+    var len = 0;
+    try{ len = l.getTotalLength(); }catch(e){}
+    if(!len) return;
+    l.style.transition = 'none';
+    l.style.strokeDasharray = len;
+    l.style.strokeDashoffset = len;
+    void l.getBoundingClientRect();
+    l.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.5,0,.2,1) ' + (0.15 + k * 0.25) + 's';
+    l.style.strokeDashoffset = '0';
+    setTimeout(function(){ l.style.strokeDasharray = ''; l.style.strokeDashoffset = ''; l.style.transition = ''; }, 1700 + k * 250);
+  });
+  /* barras: crecen desde la base (o desde la izquierda si son horizontales) */
+  var nb = 0;
+  [].forEach.call(svg.querySelectorAll('rect'), function(b){
+    var w = +b.getAttribute('width') || 0, h = +b.getAttribute('height') || 0;
+    if(w <= 12 || h <= 12) return;                         /* cuadritos de leyenda */
+    if(/eg-g-z/.test(b.getAttribute('class') || '')){ b.style.animation = 'egGFunde .7s ease .1s both'; return; }
+    var horiz = w > h * 2.5;
+    b.style.transformBox = 'fill-box';
+    b.style.transformOrigin = horiz ? 'left center' : 'center bottom';
+    b.style.animation = (horiz ? 'egGCreceH' : 'egGCreceV') + ' .8s cubic-bezier(.3,.7,.2,1) ' + (0.1 + nb * 0.08) + 's both';
+    nb++;
+  });
+  /* puntos: aparecen al final; el principal late */
+  [].forEach.call(svg.querySelectorAll('circle'), function(c, k){
+    c.style.transformBox = 'fill-box';
+    c.style.transformOrigin = 'center';
+    c.style.animation = 'egGPunto .45s cubic-bezier(.3,1.6,.5,1) ' + (0.9 + Math.min(k, 12) * 0.04) + 's both';
+  });
+  /* los textos, cuando ya hay algo que rotular */
+  [].forEach.call(svg.querySelectorAll('text'), function(t){ t.style.animation = 'egGFunde .5s ease .55s both'; });
+}
+window.egDibuja = egDibuja;
+
+var EGVIGIA = null;
+function egObservaGraficos(){
+  if(egQuieto() || typeof IntersectionObserver === 'undefined') return;
+  if(!EGVIGIA){
+    EGVIGIA = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) { e.target.__egVisto = false; return; }
+        if(e.target.__egVisto) return;
+        e.target.__egVisto = true;
+        egDibuja(e.target);
+      });
+    }, { threshold: 0.35 });
+  }
+  [].forEach.call(document.querySelectorAll('#egMain .eg-graf'), function(f){
+    if(!f.__egVigilado){ f.__egVigilado = true; EGVIGIA.observe(f); }
+  });
+}
+/* tras pintar cada módulo, vigilar sus gráficos */
+if(typeof window.egPinta === 'function'){
+  var _egPintaMov = window.egPinta;
+  window.egPinta = function(){
+    var r = _egPintaMov.apply(this, arguments);
+    setTimeout(egObservaGraficos, 120);
+    return r;
+  };
+}
+
+/* ---------- 5 · las calculadoras responden ---------- */
+if(typeof window.egCalcRun === 'function'){
+  var _egCalcRunMov = window.egCalcRun;
+  window.egCalcRun = function(id){
+    var r = _egCalcRunMov.apply(this, arguments);
+    var out = document.getElementById('egout-' + id);
+    if(out && !egQuieto()){
+      out.classList.remove('eg-vivo'); void out.offsetWidth; out.classList.add('eg-vivo');
+    }
+    return r;
+  };
+}
+
+/* ---------- estilos ---------- */
+(function egMovCss(){
+  if(document.getElementById('egMovCss')) return;
+  var s = document.createElement('style');
+  s.id = 'egMovCss';
+  s.textContent = [
+    /* la cortina */
+    '#egCortina{position:fixed;inset:0;z-index:9400;pointer-events:none;display:grid;place-items:center;color:#fff;',
+      'background:radial-gradient(70% 90% at 75% 20%,color-mix(in srgb,var(--ac) 70%,#38BDF8 30%) 0%,transparent 60%),',
+      'linear-gradient(120deg,#0B1322 0%,color-mix(in srgb,var(--ac) 75%,#0B1322) 55%,color-mix(in srgb,var(--ac) 90%,#fff) 130%);',
+      'animation:egCortina 1.45s cubic-bezier(.76,0,.24,1) both}',
+    '#egCortina.atras{animation-name:egCortinaAtras}',
+    '@keyframes egCortina{0%{clip-path:inset(0 100% 0 0)}28%{clip-path:inset(0 0 0 0)}70%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 100%)}}',
+    '@keyframes egCortinaAtras{0%{clip-path:inset(0 0 0 100%)}28%{clip-path:inset(0 0 0 0)}70%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}',
+    '#egCortina .egc-in{text-align:center;padding:24px;max-width:min(860px,90vw)}',
+    '#egCortina .egc-k{display:block;font-family:var(--mono,monospace);font-size:13px;letter-spacing:.3em;text-transform:uppercase;opacity:.8;',
+      'animation:egcSube .5s ease .2s both}',
+    '#egCortina .egc-n{display:block;font-family:var(--display);font-weight:900;line-height:.9;letter-spacing:-.04em;',
+      'font-size:clamp(110px,20vw,240px);text-shadow:0 10px 60px rgba(0,0,0,.35);animation:egcNum .7s cubic-bezier(.2,1.3,.4,1) .22s both}',
+    '#egCortina .egc-t{margin:10px auto 0;font-family:var(--display);font-weight:800;font-size:clamp(22px,3.2vw,38px);line-height:1.15;',
+      'text-wrap:balance;animation:egcSube .55s ease .36s both}',
+    '#egCortina .egc-p{display:flex;gap:8px;justify-content:center;margin-top:26px;animation:egcSube .5s ease .45s both}',
+    '#egCortina .egc-p i{width:26px;height:6px;border-radius:3px;background:rgba(255,255,255,.25)}',
+    '#egCortina .egc-p i.ya{background:rgba(255,255,255,.7)}',
+    '#egCortina .egc-p i.aqui{background:#fff;width:46px;box-shadow:0 0 16px rgba(255,255,255,.8)}',
+    '@keyframes egcSube{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}',
+    '@keyframes egcNum{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}',
+
+    /* las páginas entran por partes: título, texto, figura... */
+    '#egOv.eg-libro .eg-pag-sig > section.nx-b, #egOv.eg-libro .eg-pag-ant > section.nx-b{animation:none!important}',
+    '#egOv.eg-libro .eg-pag-sig > section.nx-b > *{animation:egPagSig .55s cubic-bezier(.2,.7,.2,1) both}',
+    '#egOv.eg-libro .eg-pag-ant > section.nx-b > *{animation:egPagAnt .55s cubic-bezier(.2,.7,.2,1) both}',
+    '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(2){animation-delay:.07s!important}',
+    '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(3){animation-delay:.14s!important}',
+    '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(4){animation-delay:.21s!important}',
+    '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(5){animation-delay:.28s!important}',
+    '#egOv.eg-libro .nx-wrap > section.nx-b > *:nth-child(n+6){animation-delay:.34s!important}',
+    '#egOv.eg-libro .nx-wrap > section.nx-b + section.nx-b > *{animation-delay:.18s}',
+
+    /* los gráficos */
+    '@keyframes egGCreceV{from{transform:scaleY(0)}to{transform:scaleY(1)}}',
+    '@keyframes egGCreceH{from{transform:scaleX(0)}to{transform:scaleX(1)}}',
+    '@keyframes egGPunto{from{transform:scale(0)}to{transform:scale(1)}}',
+    '@keyframes egGFunde{from{opacity:0}to{opacity:1}}',
+    '#egOv .eg-dibuja .eg-g-p1{animation:egGPunto .45s cubic-bezier(.3,1.6,.5,1) 1.2s both,egGLate 1.8s ease-in-out 1.8s 3!important}',
+    '@keyframes egGLate{0%,100%{transform:scale(1)}50%{transform:scale(1.55)}}',
+
+    /* la calculadora destella al cambiar */
+    '#egOv .eg-calc-out.eg-vivo{animation:egVivo .6s ease}',
+    '@keyframes egVivo{0%{box-shadow:inset 0 0 0 999px color-mix(in srgb,var(--tc,#0E7490) 16%,transparent)}100%{box-shadow:inset 0 0 0 999px transparent}}',
+
+    /* ¡Lo lograste! */
+    '#egOv .ag-fin-ok{position:relative;overflow:hidden;color:#fff;border:0;border-radius:26px;padding:clamp(34px,5vw,64px) clamp(22px,4vw,56px);',
+      'background:radial-gradient(60% 80% at 85% 10%,rgba(56,189,248,.55),transparent 60%),',
+      'radial-gradient(60% 80% at 10% 100%,rgba(190,24,93,.55),transparent 60%),',
+      'linear-gradient(130deg,#0B1322 0%,#1E1B4B 45%,#6D28D9 100%);',
+      'box-shadow:0 0 0 6px rgba(109,40,217,.18),0 30px 80px -24px rgba(109,40,217,.7)}',
+    '#egOv .ag-fin-ok > b{display:block;font-family:var(--display);font-weight:900;letter-spacing:-.03em;line-height:1;',
+      'font-size:clamp(40px,6.4vw,84px);color:#fff;text-wrap:balance;animation:egcNum .8s cubic-bezier(.2,1.3,.4,1) both}',
+    '#egOv .ag-fin-ok .ag-fin-k{color:#7DD3FC;letter-spacing:.24em}',
+    '#egOv .ag-fin-ok > p{color:rgba(255,255,255,.9);font-size:clamp(17px,1.6vw,21px);max-width:60ch}',
+    '#egOv .ag-fin-ok > p b{color:#fff}',
+    '#egOv .ag-fin-ok .ag-fin-g > div{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px)}',
+    '#egOv .ag-fin-ok .ag-fin-g b{color:#fff}',
+    '#egOv .ag-fin-ok .ag-fin-g span{color:rgba(255,255,255,.78)}',
+    '#egOv .ag-fin-ok .btn-primary{background:#fff;color:#4C1D95;border-color:#fff;font-size:17px;padding:15px 26px;',
+      'box-shadow:0 14px 34px -10px rgba(255,255,255,.55)}',
+    '#egOv .ag-fin-ok .btn-ghost{color:#fff;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.06)}',
+    '#egOv .ag-fin-ok .ag-fin-pie{color:rgba(255,255,255,.8)}',
+    '#egOv .ag-fin-ok .ag-fin-pie b{color:#fff}',
+    '@media(max-width:700px){#egOv .ag-fin-ok .ag-fin-g{grid-template-columns:repeat(2,minmax(0,1fr))!important}',
+      '#egOv .ag-fin-ok .ag-fin-g b{font-size:22px}}',
+    '#egOv .nx-lnav .nx-lb:disabled{opacity:.5;cursor:default}',
+
+    '@media(prefers-reduced-motion:reduce){#egCortina{display:none}',
+      '#egOv.eg-libro .nx-wrap > section.nx-b > *{animation:none!important}',
+      '#egOv .ag-fin-ok > b{animation:none}}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 </script>
+
+
+
+
+
 
 
 
@@ -45166,6 +45604,9 @@ if(typeof window.pcAccesoTodos === 'function'){
 }
 
 </script>
+
+
+
 
 
 
