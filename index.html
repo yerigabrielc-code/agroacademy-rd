@@ -41510,8 +41510,11 @@ function egLibroGrupos(){
   secs.forEach(function(s, i){ s.style.display = antes[i]; });
   if(ov) ov.classList.remove('ag-midiendo');
 
-  var v = innerHeight;
-  var T = Math.max(360, v - (v < 720 ? 250 : 214));
+  /* el alto útil de verdad: el del área del curso menos la barra de abajo
+     (antes se restaba de más y las páginas quedaban con hueco) */
+  var mm = document.getElementById('egMain');
+  var v = mm ? mm.clientHeight : innerHeight;
+  var T = Math.max(360, v - (v < 720 ? 170 : 140));
   /* la primera página comparte pantalla con la cabecera del módulo */
   var hero = document.querySelector('#egMain .eg-hero');
   var T0 = Math.max(260, T - (hero ? hero.offsetHeight : 0));
@@ -41521,7 +41524,11 @@ function egLibroGrupos(){
   var cierra = function(){ if(g.length){ grupos.push(g); g = []; h = 0; } };
   secs.forEach(function(s, i){
     var a = alto[i];
-    var sola = s.querySelector('.nx-ex, .eg-cierre, img, .ag-fin') || s.classList.contains('nx-solo') || a > lim() * 0.84;
+    /* Las fotos del contenido van solas porque antes de cargar miden casi
+       cero. Las LÁMINAS no: su alto lo fija el recuadro (aspect-ratio), así
+       que se miden bien y pueden compartir página con la sección vecina. */
+    var fotoSuelta = [].some.call(s.querySelectorAll('img'), function(im){ return !im.closest('.eg-lamina'); });
+    var sola = s.querySelector('.nx-ex') || fotoSuelta || s.classList.contains('nx-solo') || a > lim() * 0.84;
     if(sola){ cierra(); grupos.push([i]); return; }
     if(g.length && (h + a + 18) > lim()) cierra();
     g.push(i); h += a + 18;
@@ -41823,7 +41830,12 @@ var EGLAMCR = {
   'eg-p-55': 'Foto: Pexels · licencia libre',
   'eg-p-56': 'Foto: Pixabay · licencia libre',
   'eg-p-57': 'Foto: Pexels · licencia libre',
-  'eg-p-58': 'Foto: Pixabay · licencia libre'
+  'eg-p-58': 'Foto: Pixabay · licencia libre',
+  'eg-p-59': 'Foto: Pixabay · licencia libre',
+  'eg-p-60': 'Foto: Pixabay · licencia libre',
+  'eg-p-61': 'Foto: Pixabay · licencia libre',
+  'eg-p-62': 'Foto: Pixabay · licencia libre',
+  'eg-p-63': 'Foto: Pexels · licencia libre'
 };
 
 /* [comienzo del título de la sección, foto, título de la lámina, qué mirar]
@@ -41898,7 +41910,13 @@ var EGLAMINA = [
   ['El punto de equilibrio es su piso', 'eg-p-55', 'El precio mínimo de venta', 'Por debajo del punto de equilibrio, cada cerdo que sale pierde dinero.'],
   ['Cuándo vender', 'eg-p-56', 'Los últimos kilos', 'Engordar más días cuesta más alimento por kilo: hay un punto en que conviene vender.'],
   ['Diez planillas para llevarse', 'eg-p-57', 'Las diez planillas', 'Imprímalas y llévelas al corral: ahí es donde se llenan.'],
-  ['Lo que usted se lleva de este curso', 'eg-p-58', 'Su granja, con números', 'Medir, calcular y decidir: eso es lo que se lleva.']
+  ['Lo que usted se lleva de este curso', 'eg-p-58', 'Su granja, con números', 'Medir, calcular y decidir: eso es lo que se lleva.'],
+  /* las que faltaban en pantallas grandes */
+  ['Por qué el día de entrada vale por diez','eg-p-61','El primer día no se repite','El peso y el estado con que llega cada cerdo son la base de todo lo que va a calcular después.'],
+  ['Qué se enseña aquí y qué no','eg-p-62','Alimentar bien y saber cuánto cuesta','Este módulo mide lo que come el lote y lo que pierde; la fórmula es tema del curso de Formulación.'],
+  ['El número que le dice si va rápido o lento','eg-p-60','Rápido o lento, lo dice la báscula','Dos pesos y los días entre ellos: con eso sabe si el lote crece al ritmo que necesita.'],
+  ['Mirar no es observar','eg-p-59','Un cerdo echado también informa','Postura, respiración, dónde se acuestan: observar es leer esas señales y anotarlas.'],
+  ['Que entre dinero no es ganar','eg-p-63','Vender no es ganar','Lo que entra por la venta todavía tiene que pagar todo lo que costó el lote.']
 ];
 
 /* el texto con que empieza una sección, sin emoji ni espacios de más */
@@ -41954,6 +41972,102 @@ if(typeof window.egLibroAplica === 'function'){
   };
 }
 
+/* ---------- la página, llena de verdad ----------
+   Si a una página le sobra alto, la lámina crece hasta ocuparlo: foto
+   grande a la derecha, texto y «En la práctica» a la izquierda. Sin
+   lámina en la página, no se toca nada. En el teléfono la lámina va
+   arriba y crecer no tiene sentido. */
+function egLamLlena(){
+  var w = egLibroWrap(); if(!w || typeof EGLIBRO === 'undefined' || !EGLIBRO) return;
+  var vis = egLibroSecs(w).filter(function(s){ return s.style.display !== 'none'; });
+  var lams = [];
+  vis.forEach(function(s){ var f = s.querySelector(':scope > .eg-lamina .eg-lam-foto'); if(f){ f.style.height = ''; f.style.aspectRatio = ''; lams.push(f); } });
+  var m = document.getElementById('egMain'), nav = w.querySelector(':scope > .nx-lnav');
+  var hero = document.querySelector('#egMain .eg-hero');
+  var util = m.clientHeight - (nav ? nav.offsetHeight + 40 : 130) - (hero && hero.style.display !== 'none' ? hero.offsetHeight : 0);
+
+  /* el cierre del módulo solo en su página: se vuelve resumen a pantalla completa */
+  [].forEach.call(w.querySelectorAll('.eg-cierre'), function(c){
+    var sec = c.closest('section'), sola = vis.length === 1 && vis[0] === sec;
+    c.classList.toggle('eg-cierre-llena', sola);
+    var t = sec.querySelector(':scope > .eg-cierre-t');
+    if(sola && !t){
+      t = document.createElement('div'); t.className = 'eg-cierre-t';
+      var md = EGMOD[EGCUR - 1] || {};
+      t.innerHTML = '<span>Resumen del módulo ' + esc(md.num || '') + '</span><b>Lo que se lleva de este módulo</b>';
+      sec.insertBefore(t, sec.firstChild);
+    }
+    if(t) t.style.display = sola ? '' : 'none';
+    /* debajo de las tres columnas, una foto ancha (una distinta por módulo)
+       que ocupa lo que quede de pantalla */
+    var f = sec.querySelector(':scope > .eg-cierre-foto');
+    if(sola && !f){
+      f = document.createElement('figure'); f.className = 'eg-cierre-foto';
+      f.innerHTML = '<img src="images/eg-p-' + (63 + EGCUR) + '.jpg" alt="" loading="lazy">' +
+        '<figcaption><b>Siguiente: la evaluación del módulo</b><span>Con esto claro, ya puede demostrar lo aprendido.</span><i>Foto: banco libre (Pexels / Pixabay)</i></figcaption>';
+      sec.appendChild(f);
+    }
+    if(f){
+      f.style.display = sola ? '' : 'none';
+      if(sola){
+        f.style.height = '';
+        var ocupado = (t ? t.offsetHeight + 18 : 0) + c.offsetHeight + 18;
+        f.style.height = Math.max(160, util - ocupado - 20) + 'px';
+      }
+    }
+  });
+
+  /* la frase del módulo sola en su página: portada de impacto con la foto del módulo */
+  [].forEach.call(w.querySelectorAll('.eg-cita'), function(c){
+    var sec = c.closest('section'), sola = vis.length === 1 && vis[0] === sec;
+    c.classList.toggle('eg-cita-llena', sola);
+    var hf = document.querySelector('#egMain .eg-hero-foto');
+    if(sola && hf) c.style.setProperty('--citafoto', hf.style.backgroundImage);
+    c.style.minHeight = sola ? Math.max(0, util - 40) + 'px' : '';
+  });
+  /* «aquí lo espera su certificado», solo: a todo el alto */
+  [].forEach.call(w.querySelectorAll('.ag-fin'), function(c){
+    var sec = c.closest('section'), sola = vis.length === 1 && vis[0] === sec;
+    c.style.minHeight = sola ? Math.max(0, util - 40) + 'px' : '';
+    c.style.display = sola ? 'flex' : '';
+    c.style.flexDirection = sola ? 'column' : '';
+    c.style.justifyContent = sola ? 'center' : '';
+  });
+
+  if(!lams.length || innerWidth <= 900) return;
+  var usado = vis.reduce(function(a, s){ return a + s.getBoundingClientRect().height + 16; }, 0);
+  var sobra = util - usado;
+  if(sobra < 40) return;
+  var extra = sobra / lams.length;
+  lams.forEach(function(f){
+    var h = f.getBoundingClientRect().height + extra;
+    f.style.aspectRatio = 'auto';
+    f.style.height = Math.min(h, util * 0.92) + 'px';
+  });
+}
+window.egLamLlena = egLamLlena;
+/* al volver a leer de corrido, nada de lo de pantalla completa se queda */
+function egLamVacia(){
+  var w = egLibroWrap(); if(!w) return;
+  [].forEach.call(w.querySelectorAll('.eg-cierre-foto, .eg-cierre-t'), function(x){ x.remove(); });
+  [].forEach.call(w.querySelectorAll('.eg-cierre, .eg-cita, .ag-fin'), function(c){
+    c.classList.remove('eg-cierre-llena', 'eg-cita-llena');
+    ['minHeight', 'display', 'flexDirection', 'justifyContent'].forEach(function(k){ c.style[k] = ''; });
+  });
+}
+if(typeof window.egLaminas === 'function'){
+  var _egLaminasVacia = window.egLaminas;
+  window.egLaminas = function(poner){ if(!poner) try{ egLamVacia(); }catch(e){} return _egLaminasVacia.apply(this, arguments); };
+}
+if(typeof window.egLibroMuestra === 'function'){
+  var _egMuestraLlena = window.egLibroMuestra;
+  window.egLibroMuestra = function(){
+    var r = _egMuestraLlena.apply(this, arguments);
+    try{ egLamLlena(); }catch(e){}
+    return r;
+  };
+}
+
 (function egLamCss(){
   if(document.getElementById('egLamCss')) return;
   var s = document.createElement('style');
@@ -41965,6 +42079,34 @@ if(typeof window.egLibroAplica === 'function'){
       'column-gap:clamp(24px,3vw,48px);row-gap:0;align-items:start}',
     '#egOv section.nx-b.eg-con-lamina > *:not(.eg-lamina){grid-column:1;width:auto!important;max-width:none!important}',
     '#egOv section.nx-b.eg-con-lamina > .eg-lamina{grid-column:2;grid-row:1 / span 40;align-self:center;margin:0}',
+    /* el alto que sobre (cuando la lámina crece) va a una fila vacía al final, no entre párrafos */
+    '#egOv .nx-wrap > section.nx-b.eg-con-lamina{grid-template-rows:repeat(39,min-content) 1fr}',
+    /* el cierre del módulo, cuando ocupa la página él solo: resumen a pantalla completa */
+    '#egOv .eg-cierre.eg-cierre-llena{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}',
+    '#egOv .eg-cierre-foto{position:relative;margin:18px 0 0;border-radius:20px;overflow:hidden;background:#0B1322}',
+    '#egOv .eg-cierre-foto img{display:block;width:100%;height:100%;object-fit:cover}',
+    '#egOv .eg-cierre-foto figcaption{position:absolute;left:0;right:0;bottom:0;padding:40px 24px 16px;color:#fff;',
+      'background:linear-gradient(to top,rgba(11,19,34,.92),transparent)}',
+    '#egOv .eg-cierre-foto b{display:block;font-family:var(--display);font-size:22px;font-weight:800}',
+    '#egOv .eg-cierre-foto span{display:block;font-size:15px;color:rgba(255,255,255,.85)}',
+    '#egOv .eg-cierre-foto i{display:block;margin-top:6px;font-style:normal;font-size:11px;color:rgba(255,255,255,.55)}',
+    '#egOv .eg-cita.eg-cita-llena{width:100%!important;max-width:none!important}',
+    '#egOv .nx-wrap > section.nx-b:has(> .eg-cita-llena){width:100%!important;max-width:none!important}',
+    '#egOv .eg-cierre.eg-cierre-llena > div{display:flex;flex-direction:column;padding:26px 24px;border-radius:20px;',
+      'background:color-mix(in srgb,var(--ac) 10%,var(--panel));border:1px solid color-mix(in srgb,var(--ac) 32%,transparent)}',
+    '#egOv .eg-cierre.eg-cierre-llena > div > span{font-size:15px;letter-spacing:.12em;margin-bottom:14px}',
+    '#egOv .eg-cierre.eg-cierre-llena li{font-size:18px!important;line-height:1.55;margin-bottom:10px}',
+    '#egOv .eg-cierre-t{margin:0 0 18px}',
+    '#egOv .eg-cierre-t span{display:block;font-family:var(--mono,monospace);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ac)}',
+    '#egOv .eg-cierre-t b{display:block;font-family:var(--display);font-size:clamp(28px,3.2vw,40px);font-weight:800;color:var(--text);line-height:1.1}',
+    '@media(max-width:900px){#egOv .eg-cierre.eg-cierre-llena{grid-template-columns:1fr}}',
+    /* la frase del módulo a pantalla completa */
+    '#egOv .eg-cita.eg-cita-llena{display:flex;flex-direction:column;justify-content:center;padding:clamp(32px,6vw,90px);',
+      'border:0;color:#fff;overflow:hidden;background:linear-gradient(100deg,rgba(11,19,34,.94) 0%,rgba(11,19,34,.82) 45%,',
+      'color-mix(in srgb,var(--ac) 45%,transparent) 100%),var(--citafoto,none) center/cover no-repeat,#0B1322}',
+    '#egOv .eg-cita.eg-cita-llena p{color:#fff;font-size:clamp(34px,4.6vw,64px);max-width:20ch;text-shadow:0 6px 30px rgba(0,0,0,.5)}',
+    '#egOv .eg-cita.eg-cita-llena .eg-cita-k{color:#7DD3FC;font-size:13px;margin-bottom:20px}',
+    '#egOv .eg-cita.eg-cita-llena::before{left:clamp(32px,6vw,90px);top:auto;bottom:clamp(32px,6vw,70px);width:90px;height:5px;border-radius:3px}',
     '#egOv .eg-lamina{position:relative;border-radius:22px;overflow:hidden;background:#0B1322;',
       'box-shadow:0 0 0 1px color-mix(in srgb,var(--ac,#38BDF8) 35%,transparent),0 26px 60px -24px rgba(2,6,16,.75)}',
     '#egOv .eg-lam-foto{overflow:hidden;aspect-ratio:4/3.4}',
@@ -41984,6 +42126,172 @@ if(typeof window.egLibroAplica === 'function'){
       '#egOv .eg-lamina figcaption b{font-size:17px}',
       '#egOv .eg-lamina figcaption span{font-size:13.5px}',
     '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- eg-practica.js ---------- */
+/* ============================================================
+   CURSO 5 · «EN LA PRÁCTICA»: TRES COSAS QUE HACER, EN CADA SECCIÓN
+   ------------------------------------------------------------
+   Las secciones de solo texto explican bien el porqué, pero dejaban
+   la pantalla a medio llenar y al estudiante sin un paso concreto.
+   Cada una recibe aquí un recuadro con tres acciones para hacer en
+   la granja. Salen de lo que la propia sección enseña: no traen
+   cifras nuevas, ni productos, ni tratamientos (eso es del
+   veterinario y del curso de Sanidad).
+
+   Va en las dos formas de leer, de corrido y como libro. Se busca
+   por el comienzo del título de la sección, igual que las láminas.
+   ============================================================ */
+
+var EGPRACTICA = [
+  /* M1 */
+  ['De qué se trata esta etapa', ['Anote hoy la fecha y el peso con que entra cada lote: es el punto de partida de todos los cálculos.', 'Defina el peso al que va a vender antes de empezar, según lo que paga su comprador.', 'Lleve aparte lo que gasta en alimento en esta etapa: es donde se va la mayor parte.']],
+  ['El engorde en cuatro números', ['Copie estos cuatro números en la primera hoja de su registro del lote.', 'Llénelos con los datos de SU granja, no con los de un folleto.', 'Al cerrar cada lote, compárelos con el anterior: ahí se ve si mejora.']],
+  ['El ciclo de un lote', ['Escriba las fechas de cada paso en un calendario del corral.', 'No empiece un paso sin el dato del anterior: sin peso de entrada no hay ganancia diaria.', 'Al vaciar el corral, prepárelo enseguida para el siguiente lote.']],
+  ['Los cinco indicadores', ['Elija uno de los cinco y empiece a medirlo en el lote que tiene ahora.', 'Pegue la lista de los cinco en la pared del almacén.', 'Use las calculadoras del curso con sus números reales, no con los del ejemplo.']],
+  ['Dos productores, el mismo cerdo', ['Pregúntese con sinceridad cuál de los dos productores es usted hoy.', 'Pese al entrar y al salir: es lo único que separa a uno del otro.', 'Calcule su costo por kilo antes de hablar de precio con el comprador.']],
+  ['La diferencia son unos', ['Repase el caso completo en el módulo 10 cuando llegue allí.', 'Busque en su granja la primera fuga: casi siempre es el comedero o el agua.', 'Ponga una meta concreta para el próximo lote, por ejemplo bajar la conversión.']],
+  ['Los errores que más dinero cuestan', ['Marque cuáles de estos errores ve hoy en su corral.', 'Corrija primero el que cuesta menos arreglar: suele ser el comedero.', 'Vuelva a revisar la lista dentro de quince días.']],
+  ['La idea que atraviesa todo el curso', ['Tenga a mano una libreta solo para el lote.', 'Cada semana, anote al menos un peso y el alimento que entregó.', 'Antes de cada decisión importante, pregúntese qué dice el número.']],
+  /* M2 */
+  ['Por qué esto no se puede improvisar', ['Empiece a preparar el corral varios días antes de que llegue el camión.', 'Pruebe agua y comederos con el corral vacío, no con los cerdos dentro.', 'Calcule el espacio con el peso de salida, no con el de entrada.']],
+  ['La preparación, en orden', ['Siga el orden sin saltarse pasos: sacar, barrer en seco, lavar, desinfectar y secar.', 'Deje secar bien el corral antes de meter animales.', 'Anote la fecha de limpieza en el registro del corral.']],
+  ['El error de densidad más común', ['Calcule cuántos cerdos caben con el peso al que los va a vender.', 'Si no caben, divida el lote en dos corrales desde el principio.', 'Fíjese en las horas de calor: es cuando más se nota la falta de espacio.']],
+  ['Agua: lo que hay que comprobar', ['Abra y pruebe cada bebedero, uno por uno.', 'Mida el caudal con un envase de un litro y un reloj.', 'Revise la altura: el cerdo tiene que beber cómodo, no estirado ni agachado.']],
+  ['Comedero: el ajuste que se paga solo', ['Ajuste el comedero hasta que salga alimento sin que se derrame.', 'Cuente los puestos de comedero y compárelos con el número de cerdos.', 'Saque el alimento viejo o apelmazado antes de que entre el lote.']],
+  ['Ambiente: sombra, aire y piso', ['Compruebe que la sombra cubre el área de descanso en las horas de más sol.', 'Entre al corral por la mañana: si huele a amoníaco, falta ventilación.', 'Revise que el piso drene y no queden charcos.']],
+  ['¿Mi corral está listo', ['Marque solo lo que de verdad está hecho hoy.', 'Arregle primero lo que salió más flojo.', 'Repita la revisión el día antes de que llegue el lote.']],
+  ['Sobre limpieza y desinfección', ['Consulte a su veterinario qué producto y qué dosis usar en su zona.', 'Desinfecte siempre sobre superficies limpias y secas, nunca sobre suciedad.', 'Revise también el curso de Sanidad y Bioseguridad.']],
+  /* M3 */
+  ['Por qué el día de entrada vale por diez', ['Tenga la báscula y la planilla listas antes de que llegue el camión.', 'Anote el peso de entrada ese mismo día: después no se recupera.', 'Revise que todos encuentren el agua y el comedero en las primeras horas.']],
+  ['El día que llega el camión', ['Cuente los animales dos veces y compare con la guía.', 'Descargue sin gritos ni golpes.', 'Pese y anote antes de soltar a los cerdos en el corral.']],
+  ['Si no puede pesar todo el lote', ['Pese al menos diez animales tomados al azar.', 'No elija los más bonitos ni los que están más cerca de la puerta.', 'Use el promedio de esa muestra como peso de entrada del lote.']],
+  ['Las primeras 72 horas', ['Ofrezca alimento poco y a menudo los primeros días.', 'Si puede, dé el mismo alimento que traían y cámbielo después poco a poco.', 'Observe mucho y moleste poco.']],
+  ['Cerdos atrasados', ['Marque desde el primer día a los más livianos.', 'Si hace falta, sepárelos en un corral con buen acceso al comedero.', 'Agrupe por tamaño para que los pequeños no se queden atrás.']],
+  ['La planilla vive en el corral', ['Imprima el registro de entrada.', 'Cuélguelo en el corral con un lápiz amarrado.', 'Anote en el momento, no al final del día.']],
+  /* M4 */
+  ['Qué se enseña aquí y qué no', ['Anote cuántos sacos entran a la granja cada semana.', 'Pese el alimento que entrega, no lo calcule a ojo.', 'Si quiere cambiar la fórmula, vea el curso de Formulación.']],
+  ['La conversión empeora con el peso', ['No compare la conversión de cerdos pequeños con la de cerdos grandes.', 'Calcule la conversión por etapa, no solo la del lote completo.', 'Téngalo en cuenta al decidir hasta qué peso engordar.']],
+  ['Dónde se pierde el alimento', ['Mire el piso alrededor del comedero: el alimento caído es dinero perdido.', 'Proteja el alimento de la lluvia y de la humedad.', 'Guarde los sacos lejos de roedores y aves.']],
+  ['El cambio de alimento entre etapas', ['Mezcle el alimento viejo con el nuevo durante varios días.', 'Aumente el nuevo poco a poco.', 'Observe si baja el consumo durante el cambio.']],
+  ['Calidad física del alimento', ['Huela cada saco antes de usarlo.', 'Revise que esté suelto y seco, sin terrones.', 'Separe y no use el que tenga moho.']],
+  ['Si quiere bajar el costo del alimento', ['Primero mida cuánto gasta y cuánto pierde.', 'Corrija el desperdicio antes de cambiar de alimento.', 'Para cambiar la fórmula, vea el curso de Formulación.']],
+  /* M5 */
+  ['Por qué este módulo es el diferencial', ['Observe a qué hora del día comen menos sus cerdos.', 'Revise la sombra y el aire antes de que empiece el calor fuerte.', 'Mida el agua: es lo primero que falla con calor.']],
+  ['La relación que hay que entender', ['Si baja el consumo de alimento, revise primero el agua.', 'Anote el consumo diario para ver los cambios a tiempo.', 'Mida el caudal de los bebederos una vez al mes.']],
+  ['Cómo se mide el agua de verdad', ['Consiga un envase de un litro marcado.', 'Mida todos los bebederos, no solo uno.', 'Anote los resultados y destape el que salga más lento.']],
+  ['Calidad del agua', ['Revise que el agua se vea limpia.', 'Friegue los bebederos por dentro, no solo los enjuague.', 'Mantenga el tanque tapado.']],
+  ['Manejo del calor en instalaciones', ['Quite lo que estorbe la entrada del viento.', 'Moje el techo en las horas de más calor.', 'Baje la densidad en los meses más calientes.']],
+  ['Una semana de calor mal manejado', ['Anote el consumo diario durante las olas de calor.', 'Ajuste los horarios de comida a las horas frescas.', 'Revise el caso 4 del módulo 8.']],
+  ['Dónde termina el manejo', ['Anote las señales que ve y desde cuándo.', 'Si hay animales decaídos o sube la mortalidad, llame a su veterinario.', 'No aplique tratamientos por su cuenta.']],
+  /* M6 */
+  ['El número que le dice si va rápido o lento', ['Anote el peso de entrada y la fecha.', 'Pese de nuevo a mitad del engorde.', 'Calcule la ganancia diaria con la calculadora del curso.']],
+  ['Las dos fórmulas del módulo', ['Léalas una vez con calma.', 'Practique con el ejemplo del curso.', 'Después úselas con los pesos de su propio lote.']],
+  ['Un ejemplo, con números de verdad', ['Rehaga el ejemplo en una hoja, paso a paso.', 'Cambie los números por los de su lote.', 'Calcule cuándo llegaría su lote al peso de venta.']],
+  ['El promedio esconde cosas', ['En cada pesaje, anote también el más liviano y el más pesado.', 'Si la diferencia crece, separe a los atrasados.', 'Revise si esos animales tienen buen acceso al comedero.']],
+  ['Dos maneras de llevar el peso', ['Decida si va a pesar por lote o cerdo por cerdo.', 'Pese siempre de la misma manera.', 'Lleve los pesos en una sola planilla.']],
+  ['Cómo pesar sin volverse loco', ['Pese cada 15 días.', 'Hágalo siempre a la misma hora, antes de la comida principal.', 'Use la misma báscula en todos los pesajes.']],
+  /* M7 */
+  ['Qué es, en una frase', ['Anote todo el alimento que entrega al lote.', 'Pese al entrar y al salir.', 'Divida el alimento entre los kilos ganados.']],
+  ['La fórmula', ['Revise que el alimento y los kilos estén en la misma unidad.', 'Use el alimento entregado, no el que estima.', 'Haga la cuenta con la calculadora del curso.']],
+  ['El ejemplo, paso a paso', ['Rehaga el ejemplo con lápiz y papel.', 'Multiplique la conversión por el precio del kilo de alimento.', 'Compare ese número con el precio al que vende.']],
+  ['No existe una conversión', ['Compare su conversión con la de sus lotes anteriores.', 'Desconfíe de números sin contexto.', 'Mejore lote a lote frente a usted mismo.']],
+  ['Qué empeora la conversión', ['Revise en este orden: desperdicio, agua, calor y alimento.', 'Corrija primero lo más barato.', 'Mida otra vez en el próximo pesaje.']],
+  ['Por eso la conversión manda', ['Calcule su conversión actual.', 'Póngase una meta para el próximo lote.', 'Calcule cuánto dinero significa mejorarla.']],
+  /* M8 */
+  ['Mirar no es observar', ['Entre al corral con una pregunta concreta.', 'Salga con al menos un dato anotado.', 'Si algo parece de salud, consulte al veterinario.']],
+  ['La rutina de observación diaria', ['Entre cada día a la misma hora.', 'Quédese quieto un minuto antes de mirar.', 'Anote lo que vio, aunque todo esté normal.']],
+  ['¿Qué está pasando con mi lote', ['Marque solo lo que de verdad está viendo.', 'Siga las sugerencias de revisión de la herramienta.', 'Si sale una señal en rojo, llame al veterinario.']],
+  ['Dónde termina este curso', ['Lleve sus registros a la consulta con el veterinario.', 'Anote desde cuándo ve cada señal.', 'No aplique medicamentos por su cuenta.']],
+  ['Ocho retos', ['Resuelva los retos con lápiz antes de comprobar.', 'Revise el desarrollo de los que falle.', 'Repita los retos con los números de su granja.']],
+  /* M9 */
+  ['El costo no es el alimento', ['Haga una lista de todo lo que gasta en el lote.', 'Incluya lo que no paga en efectivo, como su propio trabajo.', 'Sume todo antes de calcular el costo por kilo.']],
+  ['Los ocho componentes del costo', ['Repase los ocho componentes, uno por uno.', 'Ponga un monto a cada uno, aunque sea aproximado.', 'Use la calculadora de costos del curso.']],
+  ['Dos costos por kilo', ['Calcule los dos costos por kilo.', 'Use el costo por kilo vendido para negociar el precio.', 'Use el costo por kilo producido para comparar lotes.']],
+  ['Por qué la mortalidad se reparte', ['Anote cada animal que se muere y la fecha.', 'Sume lo que esos animales comieron y costaron.', 'Repártalo entre los cerdos que vende.']],
+  ['Cuando el alimento pasa del 70', ['Calcule qué parte de su costo total es alimento.', 'Si pasa mucho del 70 %, revise primero la conversión.', 'Si la conversión está bien, revise el precio del alimento.']],
+  /* M10 */
+  ['Que entre dinero no es ganar', ['Separe el ingreso de la ganancia en sus cuentas.', 'Reste todos los costos del lote.', 'Calcule la ganancia de cada lote, no solo la del año.']],
+  ['Los cuatro números del cierre', ['Calcule los cuatro al cerrar cada lote.', 'Guárdelos en una hoja de resumen.', 'Compárelos con los del lote anterior.']],
+  ['El punto de equilibrio es su piso', ['Calcule su punto de equilibrio antes de vender.', 'No acepte un precio por debajo sin saber cuánto pierde.', 'Revíselo cada vez que cambie el precio del alimento.']],
+  ['Cuándo vender', ['Compare cuánto le cuesta el último kilo con lo que le pagan por él.', 'Use la calculadora de «cuándo vender».', 'Tenga en cuenta si el comprador castiga el sobrepeso.']],
+  ['Diez planillas para llevarse', ['Imprima las planillas.', 'Cuélguelas en el corral.', 'Llénelas en el momento, no de memoria.']],
+  ['Lo que usted se lleva de este curso', ['Elija un lote para aplicar todo lo aprendido.', 'Use las calculadoras en cada lote.', 'Compare sus números lote a lote.']]
+];
+
+function egPracticaBusca(t){
+  for(var i = 0; i < EGPRACTICA.length; i++) if(t.indexOf(EGPRACTICA[i][0]) === 0) return EGPRACTICA[i][1];
+  return null;
+}
+
+/* añade el recuadro a cada sección que lo tenga, una sola vez */
+function egPracticas(){
+  var w = typeof egLibroWrap === 'function' ? egLibroWrap() : null;
+  if(!w || typeof egLamTitulo !== 'function') return 0;
+  var n = 0;
+  [].forEach.call(w.querySelectorAll(':scope > section.nx-b'), function(s){
+    if(s.querySelector(':scope > .eg-practica')) { n++; return; }
+    var p = egPracticaBusca(egLamTitulo(s));
+    if(!p) return;
+    var d = document.createElement('div');
+    d.className = 'eg-practica';
+    d.innerHTML = '<span class="eg-prac-k">En la práctica</span><ol>' +
+      p.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>';
+    /* antes de la lámina, si la hay: así queda en la columna del texto */
+    var lam = s.querySelector(':scope > .eg-lamina');
+    s.insertBefore(d, lam || null);
+    n++;
+  });
+  return n;
+}
+window.egPracticas = egPracticas;
+
+/* se pone al pintar cada módulo, ANTES de que el libro mida las páginas */
+if(typeof window.egLibroAplica === 'function'){
+  var _egAplicaPrac = window.egLibroAplica;
+  window.egLibroAplica = function(){
+    try{ egPracticas(); }catch(e){}
+    return _egAplicaPrac.apply(this, arguments);
+  };
+}
+/* las láminas se ponen después y deben quedar detrás del recuadro */
+if(typeof window.egLaminas === 'function'){
+  var _egLaminasPrac = window.egLaminas;
+  window.egLaminas = function(poner){
+    var r = _egLaminasPrac.apply(this, arguments);
+    if(poner){
+      var w = egLibroWrap();
+      if(w) [].forEach.call(w.querySelectorAll(':scope > section.nx-b > .eg-practica'), function(d){
+        var lam = d.parentNode.querySelector(':scope > .eg-lamina');
+        if(lam && d.compareDocumentPosition(lam) & Node.DOCUMENT_POSITION_PRECEDING) d.parentNode.insertBefore(d, lam);
+      });
+    }
+    return r;
+  };
+}
+
+(function egPracCss(){
+  if(document.getElementById('egPracCss')) return;
+  var s = document.createElement('style');
+  s.id = 'egPracCss';
+  s.textContent = [
+    '#egOv .eg-practica{position:relative;margin:22px 0 6px;padding:18px 22px 16px 22px;border-radius:16px;',
+      'background:linear-gradient(135deg,color-mix(in srgb,var(--ac,#38BDF8) 14%,var(--panel)),color-mix(in srgb,var(--ac,#38BDF8) 4%,var(--panel)));',
+      'border:1px solid color-mix(in srgb,var(--ac,#38BDF8) 34%,transparent)}',
+    '#egOv .eg-prac-k{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;font-family:var(--mono,monospace);',
+      'font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac,#38BDF8)}',
+    '#egOv .eg-prac-k::before{content:"✔";display:grid;place-items:center;width:20px;height:20px;border-radius:50%;',
+      'font-size:11px;color:#fff;background:var(--ac,#38BDF8)}',
+    '#egOv .eg-practica ol{margin:0;padding:0;list-style:none;counter-reset:egp;display:grid;gap:10px}',
+    '#egOv .eg-practica li{position:relative;padding-left:40px;font-size:17px!important;line-height:1.5;color:var(--text)}',
+    '#egOv .eg-practica li::before{counter-increment:egp;content:counter(egp);position:absolute;left:0;top:-1px;',
+      'width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;',
+      'color:var(--ac,#38BDF8);background:color-mix(in srgb,var(--ac,#38BDF8) 16%,transparent);border:1px solid color-mix(in srgb,var(--ac,#38BDF8) 40%,transparent)}',
+    '@media(max-width:700px){#egOv .eg-practica li{font-size:15.5px!important}}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
@@ -42383,6 +42691,13 @@ if(typeof window.egCalcRun === 'function'){
 })();
 
 </script>
+
+
+
+
+
+
+
 
 
 
