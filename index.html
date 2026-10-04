@@ -23046,7 +23046,7 @@ var AGPAGO = {
     usd:45, pesos:'RD$ 2,700',
     incluye:[
       '9 módulos: nacimiento, calostro, temperatura, camada, prácticas, pérdidas, destete e indicadores',
-      '6 casos de maternidad y 3 calculadoras',
+      '9 casos de maternidad y 3 calculadoras',
       '6 planillas y checklists para imprimir',
       'Su plan de manejo del lechón, listo para colgar en la maternidad',
       'Certificado al aprobar los 9 módulos'
@@ -34009,6 +34009,7 @@ if(typeof window.agCtPantalla === 'function'){
 
 
 
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -37079,6 +37080,8 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
 
 
 
@@ -43448,6 +43451,8 @@ if(typeof window.egCalcRun === 'function'){
 
 
 
+
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -47004,6 +47009,8 @@ if(typeof window.pcAccesoTodos === 'function'){
 
 
 
+
+
 <style>
 
 /* ===== curso 7: solo lo que no existe ya ===== */
@@ -47146,14 +47153,14 @@ function lcGuardarNota(n, nota, pasa){
 /* ---------- portada ---------- */
 function lcPortada(){
   var p = lcProgreso();
-  return '<div class="nx-port" style="--foto:url(&quot;images/lc-mamando-fila.jpg&quot;)">' +
+  return '<div class="nx-port" style="--foto:url(&quot;images/lc-portada.jpg&quot;)">' +
     '<div class="nx-port-velo"></div>' +
     '<div class="nx-cover"><span class="nx-cover-k">Curso complementario · Maternidad</span>' +
     '<h1>Manejo de lechones</h1>' +
     '<p class="nx-cover-s">Del nacimiento al destete: aprenda a reducir pérdidas, mejorar la supervivencia y producir lechones más fuertes</p>' +
     '<div class="nx-cover-kpis">' +
       '<div><b>' + LCMOD.length + '</b><span>módulos</span></div>' +
-      '<div><b>6</b><span>casos de maternidad</span></div>' +
+      '<div><b>9</b><span>casos de maternidad</span></div>' +
       '<div><b>6</b><span>planillas para imprimir</span></div>' +
       '<div><b>' + p + '/' + LCMOD.length + '</b><span>su avance</span></div>' +
     '</div>' +
@@ -49272,12 +49279,12 @@ if(typeof window.lcPinta === 'function'){
 (function lcEstira2(){
   if(document.getElementById('lcEstira2')) return;
   var s = document.createElement('style'); s.id = 'lcEstira2';
-  s.textContent = '#lcOv .lc-estira.ag-datos{display:grid!important;align-content:stretch}' +
-    '#lcOv .lc-estira.ag-datos > div{display:flex;flex-direction:column;justify-content:center}' +
-    '#lcOv .lc-estira.ag-datos > div b{font-size:clamp(34px,3.6vw,52px)}' +
-    '#lcOv .lc-estira.ag-figs{display:grid!important;align-content:stretch}' +
-    '#lcOv .lc-estira.ag-figs .ag-fig{display:flex;flex-direction:column}' +
-    '#lcOv .lc-estira.ag-figs .ag-fig img{flex:1;min-height:0;height:auto;object-fit:cover}';
+  s.textContent = '#lcOv .lc-estira[class~="ag-datos"]{display:grid!important;align-content:stretch}' +
+    '#lcOv .lc-estira[class~="ag-datos"] > div{display:flex;flex-direction:column;justify-content:center}' +
+    '#lcOv .lc-estira[class~="ag-datos"] > div b{font-size:clamp(34px,3.6vw,52px)}' +
+    '#lcOv .lc-estira[class~="ag-figs"]{display:grid!important;align-content:stretch}' +
+    '#lcOv .lc-estira[class~="ag-figs"] [class~="ag-fig"]{display:flex;flex-direction:column}' +
+    '#lcOv .lc-estira[class~="ag-figs"] [class~="ag-fig"] img{flex:1;min-height:0;height:auto;object-fit:cover}';
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
@@ -49423,7 +49430,7 @@ function lcTarjeta(){
     '<div class="cs-ico">🍼</div><span class="cs-tag">Complementario · maternidad</span>' +
     '<h3>Manejo de lechones</h3>' +
     '<p>Del nacimiento al destete: calostro, temperatura, camada, prácticas de manejo y cómo bajar la mortalidad. ' +
-      LCMOD.length + ' módulos · 6 casos · 6 planillas.</p>' +
+      LCMOD.length + ' módulos · 9 casos · 6 planillas.</p>' +
     '<div class="cs-pg"><div class="cs-pgb"><i style="width:' + (p / LCMOD.length * 100) + '%"></i></div>' +
       '<span>' + p + ' de ' + LCMOD.length + ' módulos</span></div>' +
     '<em>' + (tiene ? 'Entrar →' : '🔒 ' + lcPrecioTexto() + ' · se adquiere aparte →') + '</em>';
@@ -49446,7 +49453,7 @@ if(typeof window.abrirCursos === 'function'){
    ------------------------------------------------------------ */
 if(typeof AGCAT !== 'undefined' && !AGCAT.lechones){
   AGCAT.lechones = {
-    cover:'lc-f-06', cat:'Complementario',
+    cover:'lc-portada', cat:'Complementario',
     desc:'Del nacimiento al destete: aprenda a reducir pérdidas, asegurar el calostro y producir lechones más fuertes.',
     abrir:function(){ if(typeof cerrarCursos === 'function') cerrarCursos(); openLechones(); },
     pagar:function(){ lcAbrirPago(); }
@@ -50636,7 +50643,7 @@ if(typeof window.agCfg === 'function'){
       felicidad:'¡Lo lograste! ¡Felicidades!',
       texto:'Terminó <b>Manejo de lechones: del nacimiento al destete</b>. Ya sabe qué hacer en los primeros minutos de vida, ' +
             'cómo asegurar el calostro, cómo leer a la camada y <b>dónde buscar cuando se le pierden lechones</b>.',
-      logros:[[LCMOD.length + ' módulos', 'del nacimiento al destete'], ['6', 'casos de maternidad resueltos'],
+      logros:[[LCMOD.length + ' módulos', 'del nacimiento al destete'], ['9', 'casos de maternidad resueltos'],
               ['6', 'planillas para su maternidad'], [String(preg), 'preguntas aprobadas']],
       cert:'lcCertificado()',
       pie:'Su certificado se abre listo para <b>guardarlo como PDF</b> o imprimirlo. ' +
@@ -50984,6 +50991,10 @@ if(typeof window.lcCalcRun === 'function'){
 })();
 
 </script>
+
+
+
+
 
 
 
