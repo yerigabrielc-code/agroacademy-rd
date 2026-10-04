@@ -47462,6 +47462,7 @@ var LCMOD = [
       ['39<i>°C</i>', 'Temperatura del lechón al nacer', 'baja rápidamente si no se seca y no tiene calor'],
       ['1<i>h</i>', 'Para mamar por primera vez', 'cuanto antes, mejor: es su primera energía']
     ], pie:'Si el intervalo entre lechones se alarga mucho, la cerda hace fuerza sin que salga nada o está decaída, avise al encargado o al veterinario. Cuándo y cómo intervenir es una decisión técnica.'},
+    {k:'lcgraf', id:'parto'},
     {k:'agcomp', t:'Lechón normal y lechón débil, al nacer',
       bienT:'Lechón normal', bien:[
         'Respira enseguida y se mueve con fuerza.',
@@ -47541,6 +47542,7 @@ var LCMOD = [
       ['~24<i>h</i>', 'El intestino «se cierra»', 'después ya casi no pasan defensas a la sangre'],
       ['200–250<i>g</i>', 'Calostro por lechón', 'en sus primeras 24 h, como referencia de buena toma']
     ], pie:'Las cifras exactas varían entre estudios, cerdas y camadas. Lo que no varía es la idea: cuanto antes y más calostro, mejor.'},
+    {k:'lcgraf', id:'calostro'},
     {k:'agfig', f:'rp-f-mamando', t:'Cada lechón, en su teta', p:'Un lechón que mama bien está pegado al pezón y se le ve tragar. Un lechón que va de teta en teta sin quedarse, o que está apartado, no está tomando lo que necesita.'},
     {k:'agcards', t:'Por qué no todos toman lo mismo', p:'En una camada, el calostro no se reparte en partes iguales. Estos son los motivos.', l:[
       ['🏋️', 'Competencia entre hermanos', 'Los más grandes y fuertes llegan antes, empujan y se quedan con las mejores tetas.'],
@@ -47603,6 +47605,7 @@ var LCMOD = [
       ['18–22<i>°C</i>', 'Lo que la cerda prefiere', 'en el trópico esto es difícil: por eso la cerda necesita fresco y aire'],
       ['0', 'Corrientes de aire', 'a la altura del lechón, ninguna']
     ], pie:'No se quede con los números: en una maternidad dominicana el calor de la sala casi siempre sobra para la cerda y falta abrigo para el lechón recién nacido, sobre todo de noche y con lluvia.'},
+    {k:'lcgraf', id:'climas'},
     {k:'agfig', f:'m4-zona-calor', t:'La zona de calor', p:'Una lámpara o una placa térmica crean un rincón caliente solo para los lechones, lejos de donde la cerda se echa. Así los lechones duermen ahí y no pegados a la madre, donde corren riesgo de ser aplastados.'},
     {k:'agcards', t:'Fuentes de calor más usadas', p:'Cualquiera funciona si está bien colocada y se revisa. Cuál usar depende de la instalación y del costo de la energía.', l:[
       ['💡', 'Lámpara de calor', 'Fácil de instalar y de regular subiéndola o bajándola. Hay que vigilar la altura, los cables y que no se moje.'],
@@ -47852,6 +47855,7 @@ LCMOD.push(
          ['En las primeras 48 horas: calor, calostro, aplastamiento y peso al nacer', true, 'Exacto. 2 de las 3 pérdidas ocurren en los dos primeros días: ahí está el mayor margen de mejora.'],
          ['En el alimento de los lechones', false, 'En las primeras 48 horas el lechón vive del calostro, no del alimento sólido.']],
       cierre:'3 muertes de 12 nacidos vivos es una mortalidad del <b>25 %</b>: muy alta. Y dos tercios de ella está en el arranque.'},
+    {k:'lcgraf', id:'perdidas'},
     {k:'lcchk', id:'perdidas', t:'¿Mi maternidad está protegida?', p:'Revise su sala hoy.', l:[
       'Cada lechón muerto se anota con su edad y causa probable',
       'La zona de calor está lejos de donde se echa la cerda',
@@ -47893,6 +47897,7 @@ LCMOD.push(
       ['5–8<i>kg</i>', 'Peso al destete', 'según la edad y la granja'],
       ['4–5<i>×</i>', 'Multiplica su peso', 'en unas pocas semanas']
     ], pie:'Compare sobre todo sus camadas entre sí y mes a mes: es donde se ve si algo cambió.'},
+    {k:'lcgraf', id:'crece'},
     {k:'agfig', f:'m4-creep-feeding', t:'El primer alimento', p:'Un comedero pequeño, alimento fresco y poco cada vez. El lechón lo prueba, juega con él y aprende a comer. Así, el día del destete ya sabe hacerlo.'},
     {k:'agcards', t:'Lo que necesita para llegar bien', p:'Cuatro cosas que se preparan durante la lactancia.', l:[
       ['🥛', 'Leche suficiente', 'La cerda tiene que comer y beber bien para producir leche. Si come poco, la camada lo nota.'],
@@ -47969,6 +47974,7 @@ LCMOD.push(
       'Destetó 240 − 24 = <b>216 lechones</b>, es decir <b>10,8 destetados por parto</b> (216 ÷ 20).',
       '¿Qué significa? Un 10 % es un resultado aceptable en muchas granjas, pero el número solo no basta. El productor debe mirar <b>cuándo</b> murieron esos 24 lechones (¿en los primeros 3 días?) y <b>de qué</b> (¿aplastados, débiles, diarrea?). Si 16 de los 24 murieron en las primeras 72 horas, la mejora está en el parto, el calor y el calostro.'
     ]},
+    {k:'lcgraf', id:'embudo'},
     {k:'lccalc', id:'mortalidad'},
     {k:'agdatos', t:'Cómo leer su mortalidad predestete', p:'Referencias orientativas, para granjas comerciales. Lo más útil es compararse con usted mismo mes a mes.', l:[
       ['≤ 10<i>%</i>', 'Bueno', 'siga anotando para no retroceder'],
@@ -48329,7 +48335,7 @@ function lcSecGuia(s, mod){
   var f = [['🎯', '¿Qué estoy aprendiendo?', s.aprendo], ['❗', '¿Por qué importa?', s.importa],
            ['🛠️', '¿Cómo lo aplico?', s.aplico], ['⛔', '¿Qué error debo evitar?', s.error],
            ['📋', '¿Qué reviso hoy en mi maternidad?', s.hoy]];
-  return '<section class="nx-b nx-full"><div class="lc-guia rv" style="--ac:' + lcAc(mod) + '">' +
+  return '<section class="nx-b nx-full"><div class="lc-guia rv" style="--ac:' + lcAc(mod) + (mod && mod.foto ? ';--gfoto:url(images/' + mod.foto + '.jpg)' : '') + '">' +
     '<span class="lc-guia-k">Este módulo, en cinco preguntas</span><div class="lc-guia-g">' +
     f.map(function(x){ return '<div class="lc-guia-c"><span>' + x[0] + '</span><b>' + x[1] + '</b><p>' + x[2] + '</p></div>'; }).join('') +
     '</div></div></section>';
@@ -49239,6 +49245,57 @@ if(typeof window.lcPinta === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+/* el bloque que crece hasta llenar la página (lo marca lcLamLlena) */
+(function lcEstira(){
+  if(document.getElementById('lcEstira')) return;
+  var s = document.createElement('style');
+  s.id = 'lcEstira';
+  s.textContent = [
+    '#lcOv .lc-estira{display:flex!important;flex-direction:column;justify-content:center}',
+    '#lcOv .lc-estira.lc-guia .lc-guia-g{flex:1;align-content:stretch}',
+    '#lcOv .lc-estira.lc-guia .lc-guia-c{display:flex;flex-direction:column;justify-content:center;padding:22px 20px}',
+    '#lcOv .lc-estira.lc-guia .lc-guia-c > span{font-size:34px}',
+    '#lcOv .lc-estira.lc-guia .lc-guia-c b{font-size:18px}',
+    '#lcOv .lc-estira.lc-guia .lc-guia-c p{font-size:17px!important}',
+    '#lcOv .lc-estira.lc-cx > .lc-cx-c{flex:1;display:grid;align-content:center}',
+    '#lcOv .lc-estira .lc-cx-f img{aspect-ratio:auto;object-fit:cover}',
+    '#lcOv .lc-estira.lc-graf .lc-graf-c{flex:1;display:flex;align-items:center}',
+    '#lcOv .lc-estira.lc-graf svg{width:100%;height:auto;max-height:62vh}',
+    '#lcOv .lc-estira.lc-calc > .lc-calc-body{flex:1}',
+    '#lcOv .lc-estira .lc-pl-g{flex:1;align-content:center}',
+    '#lcOv .lc-estira .lc-pl-c{padding:26px 20px}',
+    '#lcOv .lc-estira .lc-ck-i{padding:14px 14px}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+(function lcEstira2(){
+  if(document.getElementById('lcEstira2')) return;
+  var s = document.createElement('style'); s.id = 'lcEstira2';
+  s.textContent = '#lcOv .lc-estira.ag-datos{display:grid!important;align-content:stretch}' +
+    '#lcOv .lc-estira.ag-datos > div{display:flex;flex-direction:column;justify-content:center}' +
+    '#lcOv .lc-estira.ag-datos > div b{font-size:clamp(34px,3.6vw,52px)}' +
+    '#lcOv .lc-estira.ag-figs{display:grid!important;align-content:stretch}' +
+    '#lcOv .lc-estira.ag-figs .ag-fig{display:flex;flex-direction:column}' +
+    '#lcOv .lc-estira.ag-figs .ag-fig img{flex:1;min-height:0;height:auto;object-fit:cover}';
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+/* la guía estirada: sobre la foto del módulo, tarjetas compactas centradas (no columnas vacías) */
+(function lcEstira3(){
+  if(document.getElementById('lcEstira3')) return;
+  var s = document.createElement('style'); s.id = 'lcEstira3';
+  s.textContent = '#lcOv .lc-estira.lc-guia{position:relative;overflow:hidden;color:#fff;border:0;' +
+      'background:linear-gradient(180deg,rgba(11,19,34,.55),rgba(11,19,34,.92)),var(--gfoto,none) center/cover no-repeat,#0B1322}' +
+    '#lcOv .lc-estira.lc-guia .lc-guia-k{color:#7DD3FC;font-size:13px}' +
+    '#lcOv .lc-estira.lc-guia .lc-guia-g{flex:0 0 auto;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}' +
+    '#lcOv .lc-estira.lc-guia .lc-guia-c{display:block;padding:20px 22px;background:rgba(11,19,34,.72);border-color:rgba(255,255,255,.14);backdrop-filter:blur(4px)}' +
+    '#lcOv .lc-estira.lc-guia .lc-guia-c b{color:#fff;font-size:19px}' +
+    '#lcOv .lc-estira.lc-guia .lc-guia-c p{color:rgba(255,255,255,.88);font-size:17px!important}';
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
 
 /* ---------- lc-panel.js ---------- */
 /* ============================================================
@@ -49830,7 +49887,9 @@ if(typeof window.lcAccesoTodos === 'function'){
    ============================================================ */
 
 var LCLIBRO = false;
-try{ LCLIBRO = localStorage.getItem('lc_libro') === '1'; }catch(e){}
+/* en Lechones el libro es la forma por defecto: solo se lee de corrido si se eligió */
+LCLIBRO = true;
+try{ LCLIBRO = localStorage.getItem('lc_libro') !== '0'; }catch(e){}
 var LCLPAG = 0, LCLGRP = [], LCLFIN = false;
 
 function lcLibroWrap(){ return document.querySelector('#lcMain .nx-wrap'); }
@@ -50093,6 +50152,443 @@ addEventListener('resize', function(){
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
+
+
+/* ---------- lc-laminas.js ---------- */
+/* ============================================================
+   CURSO 7 · UNA IMAGEN EN CADA PÁGINA
+   ------------------------------------------------------------
+   Mismo mecanismo que Engorde: cada sección de solo texto recibe
+   su lámina (foto de lechones o lámina gráfica) en el modo libro,
+   y la página se llena a todo el alto de la pantalla.
+   ============================================================ */
+
+var LCLAMCR = {
+  'lc-f-01':'Foto: Pixabay · licencia libre', 'lc-f-02':'Foto: Pixabay · licencia libre', 'lc-f-03':'Foto: Pixabay · licencia libre',
+  'lc-f-05':'Foto: Pixabay · licencia libre', 'lc-f-06':'Foto: Pixabay · licencia libre', 'lc-f-07':'Foto: Pixabay · licencia libre',
+  'lc-f-08':'Foto: Pexels · licencia libre', 'lc-f-09':'Foto: Pexels · licencia libre', 'lc-f-10':'Foto: Pexels · licencia libre',
+  'lc-f-11':'Foto: Pexels · licencia libre', 'lc-f-12':'Foto: Pexels · licencia libre', 'lc-f-13':'Foto: Pexels · licencia libre',
+  'lc-dormido':'Foto: Pixabay · licencia libre', 'lc-grupo':'Foto: Pixabay · licencia libre'
+};
+
+/* [comienzo del título de la sección, foto (o ico:emoji), título de la lámina, qué mirar]
+   Ninguna foto repite las que ya salen en el contenido del curso. */
+var LCLAMINA = [
+  /* M1 */
+  ['Qué le pasa al lechón cuando nace', 'lc-f-03', 'De 39 °C a un piso frío', 'El lechón cae mojado a un ambiente mucho más frío que el vientre de la madre. Los primeros minutos deciden si arranca bien.'],
+  ['Lechón normal y lechón débil', 'rp-b-lechon', 'Un lechón fuerte se reconoce', 'Despierto, de pie, buscando la ubre. El que se queda quieto y frío necesita ayuda ya.'],
+  ['Lo que debe observar el encargado', 'rp-b-paridera', 'Mirar el parto desde cerca', 'Respiración, temperatura, tiempo entre lechones y la conducta de la cerda: lo que se vigila mientras pare.'],
+  ['Errores frecuentes en el parto', 'ico:⚠️', 'Los errores se pagan en lechones', 'Nadie presente, lechones mojados en el piso, intervenir sin higiene y no anotar.'],
+  ['Dónde termina el manejo', 'ico:🩺', 'Ahí empieza el veterinario', 'Un parto difícil es una decisión técnica: tenga escrito a quién llamar.'],
+  /* M2 */
+  ['Qué es el calostro', 'lc-f-06', 'La primera toma', 'Cada lechón pegado a su teta en las primeras horas: energía y defensas a la vez.'],
+  ['Por qué no todos toman lo mismo', 'rp-f-mamando2', 'La ubre se reparte a empujones', 'Los grandes llegan primero y se quedan con las mejores tetas. Los pequeños, si nadie los ayuda, se quedan atrás.'],
+  ['Señales de que un lechón', 'lc-f-01', 'Barriga llena, lechón tranquilo', 'El que mamó bien duerme con la camada. El que no, chilla, va de teta en teta o se aparta.'],
+  ['En una frase', 'rp-f-tetas', 'Primera comida, primera defensa', 'Lo que el lechón no toma en sus primeras horas ya no lo recupera después.'],
+  /* M3 */
+  ['Por qué el lechón pierde calor', 'lc-f-11', 'Poca grasa, nada de abrigo', 'Pequeño, casi sin pelo y sin reservas: el lechón depende del calor que usted le dé.'],
+  ['Fuentes de calor más usadas', 'ico:💡', 'Calor donde duerme el lechón', 'Lámpara, placa o nido: lo importante es que la zona esté lejos de donde se echa la cerda.'],
+  ['Lo que roba calor sin que se note', 'lc-f-02', 'Cama seca, lechones tranquilos', 'Sin corrientes ni humedad, la camada descansa junta y relajada.'],
+  ['Recuerde', 'lc-dormido', 'Un lechón cómodo duerme', 'Echado de lado, relajado y sin temblar: así se ve una temperatura bien ajustada.'],
+  /* M4 */
+  ['Lo primero: saber qué tiene', 'lc-f-05', 'Contar la camada', 'Nacidos vivos, pezones funcionales y tamaños: sin esos datos, todo lo demás es a ojo.'],
+  ['Igualar camadas', 'lc-f-07', 'Cada cerda con lo que puede criar', 'Una camada pareja y del tamaño de la ubre compite menos y crece más uniforme.'],
+  ['Adopciones: cómo y cómo no', 'ico:🔄', 'Mover con criterio', 'Después del calostro, en las primeras 24–48 horas, y lo mínimo posible.'],
+  ['Por qué mover los grandes', 'lc-f-13', 'El fuerte se adapta mejor', 'El lechón grande compite bien en una camada nueva; el pequeño se queda con su madre y menos competencia.'],
+  ['Otras formas de reducir la competencia', 'lc-grupo', 'Menos competencia, más uniformidad', 'Turnos, nodrizas o partos planificados: herramientas para camadas numerosas.'],
+  /* M5 */
+  ['Las que casi toda granja hace', 'lc-f-09', 'Cada lechón, revisado', 'Cordón, identificación y hierro: prácticas sencillas, con higiene y anotadas.'],
+  ['Las que dependen del sistema', 'ico:⚖️', 'Decidir con criterio', 'Corte de cola, colmillos y castración: solo si hacen falta, según la norma y el veterinario.'],
+  ['Seguridad del operador', 'lc-f-10', 'Trabajar dentro del corral', 'Con la cerda trabada o lejos, instrumentos tapados y guantes para los productos.'],
+  ['Productos y dosis', 'ico:💉', 'El veterinario indica', 'Ninguna dosis sale de este curso: sale del veterinario, con el producto en la mano.'],
+  /* M6 */
+  ['Las causas más comunes', 'lc-f-08', 'Lechones junto a la cerda', 'Los primeros días son los de más riesgo: aplastamiento, frío, hambre y debilidad.'],
+  ['La cadena que termina', 'ico:🔗', 'Una causa lleva a otra', 'Frío → busca a la madre → la cerda se echa → aplastado. Hay que cortar la cadena al principio.'],
+  ['¿Dónde se están perdiendo', 'ico:🔎', 'Cuándo y de qué', 'El momento de la muerte dice dónde buscar: parto, primeros días o resto de la lactancia.'],
+  /* M7 */
+  ['Lo que necesita para llegar bien', 'lc-f-12', 'Activo y comiendo', 'Leche suficiente, alimento sólido temprano, agua a su alcance y un ambiente estable.'],
+  ['¿Está listo este lechón', 'm7-corral-destete', 'Listos para el destete', 'Parejos, comiendo y bebiendo solos: así llegan con fuerza al corral nuevo.'],
+  /* M8 */
+  ['Los indicadores de una maternidad', 'ico:📊', 'Ocho números que dicen la verdad', 'Nacidos, muertos, destetados, pesos y días: todos salen de anotar cada camada.'],
+  ['Ejemplo práctico', 'ico:🧮', 'Una cuenta sencilla', 'Muertes ÷ nacidos vivos × 100. Con 24 de 240, la mortalidad predestete es del 10 %.'],
+  /* M9 */
+  ['La evaluación final', 'rp-f-asomada', 'Ahora le toca a usted', 'Veinte situaciones de maternidad para demostrar que sabe qué hacer.']
+];
+
+/* el texto con que empieza una sección, sin emoji ni espacios de más */
+function lcLamTitulo(s){
+  var h = s.querySelector('h3, h4, b');
+  return h ? h.textContent.replace(/[^\wÁÉÍÓÚÑáéíóúñü¿?«»%.,:\s-]/g, '').replace(/\s+/g, ' ').trim() : '';
+}
+function lcLamBusca(t){
+  for(var i = 0; i < LCLAMINA.length; i++) if(t.indexOf(LCLAMINA[i][0]) === 0) return LCLAMINA[i];
+  return null;
+}
+/* lo que ya cuenta como imagen */
+var LCLAMVISUAL = 'img, svg, .lc-calc, .lc-cx, .lc-dist, .lc-ck, .lc-pl, .lc-guia, .lc-graf, .nx-ex, .ag-fin, .lc-cierre, table, .lc-cita, .nx-obj, .lc-lamina';
+
+/* poner (o quitar) las láminas del módulo pintado */
+function lcLaminas(poner){
+  var w = typeof lcLibroWrap === 'function' ? lcLibroWrap() : null;
+  if(!w) return 0;
+  var n = 0;
+  [].forEach.call(w.querySelectorAll(':scope > section.nx-b'), function(s){
+    var vieja = s.querySelector(':scope > .lc-lamina');
+    if(!poner){ if(vieja){ vieja.remove(); s.classList.remove('lc-con-lamina'); } return; }
+    if(vieja) { n++; return; }
+    if(s.querySelector(LCLAMVISUAL)) return;
+    var l = lcLamBusca(lcLamTitulo(s));
+    if(!l) return;
+    var f = document.createElement('figure');
+    f.className = 'lc-lamina';
+    /* lámina gráfica: para las ideas que una foto no enseña (fórmulas,
+       costos, planillas), un ícono grande sobre el color del módulo */
+    var ico = l[1].indexOf('ico:') === 0 ? l[1].slice(4) : null;
+    if(ico) f.classList.add('lc-lam-graf');
+    f.innerHTML = (ico
+        ? '<div class="lc-lam-foto lc-lam-ico" aria-hidden="true"><span>' + ico + '</span></div>'
+        : '<div class="lc-lam-foto"><img src="images/' + l[1] + '.jpg" alt="' + esc(l[2]) + '" loading="lazy"></div>') +
+      '<figcaption><b>' + esc(l[2]) + '</b><span>' + esc(l[3]) + '</span>' +
+      (LCLAMCR[l[1]] ? '<i>' + esc(LCLAMCR[l[1]]) + '</i>' : '') + '</figcaption>';
+    s.appendChild(f);
+    s.classList.add('lc-con-lamina');
+    n++;
+  });
+  return n;
+}
+window.lcLaminas = lcLaminas;
+
+/* antes de agrupar las páginas, en el modo libro; al salir, se quitan */
+if(typeof window.lcLibroGrupos === 'function'){
+  var _lcGruposLam = window.lcLibroGrupos;
+  window.lcLibroGrupos = function(){
+    if(typeof LCLIBRO !== 'undefined' && LCLIBRO) lcLaminas(true);
+    return _lcGruposLam.apply(this, arguments);
+  };
+}
+if(typeof window.lcLibroAplica === 'function'){
+  var _lcAplicaLam = window.lcLibroAplica;
+  window.lcLibroAplica = function(){
+    if(typeof LCLIBRO !== 'undefined' && !LCLIBRO) lcLaminas(false);
+    return _lcAplicaLam.apply(this, arguments);
+  };
+}
+
+/* ---------- la página, llena de verdad ----------
+   Si a una página le sobra alto, la lámina crece hasta ocuparlo: foto
+   grande a la derecha, texto y «En la práctica» a la izquierda. Sin
+   lámina en la página, no se toca nada. En el teléfono la lámina va
+   arriba y crecer no tiene sentido. */
+/* la foto ancha del resumen de cada módulo: naves de engorde profesionales,
+   en alta resolución (todas a lo ancho de la pantalla) */
+/* la foto ancha del resumen: la portada del propio módulo (cierra lo que abrió) */
+var LCCIERREFOTO = {};
+
+function lcLamLlena(){
+  var w = lcLibroWrap(); if(!w || typeof LCLIBRO === 'undefined' || !LCLIBRO) return;
+  var vis = lcLibroSecs(w).filter(function(s){ return s.style.display !== 'none'; });
+  var lams = [];
+  vis.forEach(function(s){ var f = s.querySelector(':scope > .lc-lamina .lc-lam-foto'); if(f){ f.style.height = ''; f.style.aspectRatio = ''; lams.push(f); } });
+  var m = document.getElementById('lcMain'), nav = w.querySelector(':scope > .nx-lnav');
+  var hero = document.querySelector('#lcMain .lc-hero');
+  var util = m.clientHeight - (nav ? nav.offsetHeight + 40 : 130) - (hero && hero.style.display !== 'none' ? hero.offsetHeight : 0);
+
+  /* el cierre del módulo solo en su página: se vuelve resumen a pantalla completa */
+  [].forEach.call(w.querySelectorAll('.lc-cierre'), function(c){
+    var sec = c.closest('section'), sola = vis.length === 1 && vis[0] === sec;
+    c.classList.toggle('lc-cierre-llena', sola);
+    var t = sec.querySelector(':scope > .lc-cierre-t');
+    if(sola && !t){
+      t = document.createElement('div'); t.className = 'lc-cierre-t';
+      var md = LCMOD[LCCUR - 1] || {};
+      t.innerHTML = '<span>Resumen del módulo ' + esc(md.num || '') + '</span><b>Lo que se lleva de este módulo</b>';
+      sec.insertBefore(t, sec.firstChild);
+    }
+    if(t) t.style.display = sola ? '' : 'none';
+    /* debajo de las tres columnas, una foto ancha (una distinta por módulo)
+       que ocupa lo que quede de pantalla */
+    var f = sec.querySelector(':scope > .lc-cierre-foto');
+    if(sola && !f){
+      f = document.createElement('figure'); f.className = 'lc-cierre-foto';
+      var bf = [(LCMOD[LCCUR - 1] || {}).foto || 'lc-mamando-fila', 'Foto: archivo del curso'];
+      f.innerHTML = '<img src="images/' + bf[0] + '.jpg" alt="" loading="lazy">' +
+        '<figcaption><b>Siguiente: la evaluación del módulo</b><span>Con esto claro, ya puede demostrar lo aprendido.</span><i>' + esc(bf[1]) + '</i></figcaption>';
+      sec.appendChild(f);
+    }
+    if(f){
+      f.style.display = sola ? '' : 'none';
+      if(sola){
+        f.style.height = '';
+        var ocupado = (t ? t.offsetHeight + 18 : 0) + c.offsetHeight + 18;
+        f.style.height = Math.max(160, util - ocupado - 20) + 'px';
+      }
+    }
+  });
+
+  /* la frase del módulo sola en su página: portada de impacto con la foto del módulo */
+  [].forEach.call(w.querySelectorAll('.lc-cita'), function(c){
+    var sec = c.closest('section'), sola = vis.length === 1 && vis[0] === sec;
+    c.classList.toggle('lc-cita-llena', sola);
+    var hf = document.querySelector('#lcMain .lc-hero-foto');
+    if(sola && hf) c.style.setProperty('--citafoto', hf.style.backgroundImage);
+    c.style.minHeight = sola ? Math.max(0, util - 40) + 'px' : '';
+  });
+  /* «aquí lo espera su certificado», solo: a todo el alto */
+  [].forEach.call(w.querySelectorAll('.ag-fin'), function(c){
+    var sec = c.closest('section'), sola = vis.length === 1 && vis[0] === sec;
+    c.style.minHeight = sola ? Math.max(0, util - 40) + 'px' : '';
+    c.style.display = sola ? 'flex' : '';
+    c.style.flexDirection = sola ? 'column' : '';
+    c.style.justifyContent = sola ? 'center' : '';
+  });
+
+  /* página SIN lámina que deja hueco: su bloque principal crece hasta
+     llenar el alto, con el contenido centrado (la guía, los casos, las
+     calculadoras, checklists, tablas, infografías y planillas). En los
+     casos con foto, la foto se agranda con el bloque. */
+  [].forEach.call(w.querySelectorAll('.lc-estira'), function(b){ b.classList.remove('lc-estira'); b.style.minHeight = ''; });
+  [].forEach.call(w.querySelectorAll('.lc-cx-f img'), function(i){ i.style.height = ''; });
+  if(!lams.length && innerWidth > 900){
+    var usado0 = vis.reduce(function(a, s){ return a + s.getBoundingClientRect().height + 16; }, 0);
+    var hueco = util - usado0;
+    var ult = vis[vis.length - 1];
+    var bloque = ult && ult.querySelector(':scope > .lc-guia, :scope > .lc-cx, :scope > .rv > .lc-calc, :scope > .lc-ck, :scope > .lc-graf, :scope > .ag-tabla, :scope > .lc-pl-l, :scope > .lc-pl, :scope > .lc-dist, :scope > .ag-datos, :scope > .ag-figs');
+    if(bloque && hueco > 60){
+      bloque.classList.add('lc-estira');
+      bloque.style.minHeight = Math.round(bloque.getBoundingClientRect().height + hueco - 10) + 'px';
+      var foto = bloque.querySelector('.lc-cx-f img');
+      if(foto) foto.style.height = Math.round(foto.getBoundingClientRect().height + hueco * 0.8) + 'px';
+    }
+  }
+
+  if(!lams.length || innerWidth <= 900) return;
+  var usado = vis.reduce(function(a, s){ return a + s.getBoundingClientRect().height + 16; }, 0);
+  var sobra = util - usado;
+  if(sobra < 40) return;
+  var extra = sobra / lams.length;
+  lams.forEach(function(f){
+    var h = f.getBoundingClientRect().height + extra;
+    f.style.aspectRatio = 'auto';
+    f.style.height = Math.min(h, util * 0.92) + 'px';
+  });
+}
+window.lcLamLlena = lcLamLlena;
+/* al volver a leer de corrido, nada de lo de pantalla completa se queda */
+function lcLamVacia(){
+  var w = lcLibroWrap(); if(!w) return;
+  [].forEach.call(w.querySelectorAll('.lc-cierre-foto, .lc-cierre-t'), function(x){ x.remove(); });
+  [].forEach.call(w.querySelectorAll('.lc-cierre, .lc-cita, .ag-fin'), function(c){
+    c.classList.remove('lc-cierre-llena', 'lc-cita-llena');
+    ['minHeight', 'display', 'flexDirection', 'justifyContent'].forEach(function(k){ c.style[k] = ''; });
+  });
+}
+if(typeof window.lcLaminas === 'function'){
+  var _lcLaminasVacia = window.lcLaminas;
+  window.lcLaminas = function(poner){ if(!poner) try{ lcLamVacia(); }catch(e){} return _lcLaminasVacia.apply(this, arguments); };
+}
+if(typeof window.lcLibroMuestra === 'function'){
+  var _lcMuestraLlena = window.lcLibroMuestra;
+  window.lcLibroMuestra = function(){
+    var r = _lcMuestraLlena.apply(this, arguments);
+    try{ lcLamLlena(); }catch(e){}
+    return r;
+  };
+}
+
+(function lcLamCss(){
+  if(document.getElementById('lcLamCss')) return;
+  var s = document.createElement('style');
+  s.id = 'lcLamCss';
+  s.textContent = [
+    /* texto a la izquierda, lámina a la derecha */
+    /* sin !important: el display:none con que se ocultan las otras páginas tiene que seguir ganando */
+    '#lcOv .nx-wrap > section.nx-b.lc-con-lamina{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);',
+      'column-gap:clamp(24px,3vw,48px);row-gap:0;align-items:start}',
+    '#lcOv section.nx-b.lc-con-lamina > *:not(.lc-lamina){grid-column:1;width:auto!important;max-width:none!important}',
+    '#lcOv section.nx-b.lc-con-lamina > .lc-lamina{grid-column:2;grid-row:1 / span 40;align-self:center;margin:0}',
+    /* el alto que sobre (cuando la lámina crece) va a una fila vacía al final, no entre párrafos */
+    '#lcOv .nx-wrap > section.nx-b.lc-con-lamina{grid-template-rows:repeat(39,min-content) 1fr}',
+    /* el cierre del módulo, cuando ocupa la página él solo: resumen a pantalla completa */
+    '#lcOv .lc-cierre.lc-cierre-llena{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}',
+    '#lcOv .lc-cierre-foto{position:relative;margin:18px 0 0;border-radius:20px;overflow:hidden;background:#0B1322}',
+    '#lcOv .lc-cierre-foto img{display:block;width:100%;height:100%;object-fit:cover}',
+    '#lcOv .lc-cierre-foto figcaption{position:absolute;left:0;right:0;bottom:0;padding:40px 24px 16px;color:#fff;',
+      'background:linear-gradient(to top,rgba(11,19,34,.92),transparent)}',
+    '#lcOv .lc-cierre-foto b{display:block;font-family:var(--display);font-size:22px;font-weight:800}',
+    '#lcOv .lc-cierre-foto span{display:block;font-size:15px;color:rgba(255,255,255,.85)}',
+    '#lcOv .lc-cierre-foto i{display:block;margin-top:6px;font-style:normal;font-size:11px;color:rgba(255,255,255,.55)}',
+    '#lcOv .lc-cita.lc-cita-llena{width:100%!important;max-width:none!important}',
+    '#lcOv .nx-wrap > section.nx-b:has(> .lc-cita-llena){width:100%!important;max-width:none!important}',
+    '#lcOv .lc-cierre.lc-cierre-llena > div{display:flex;flex-direction:column;padding:26px 24px;border-radius:20px;',
+      'background:color-mix(in srgb,var(--ac) 10%,var(--panel));border:1px solid color-mix(in srgb,var(--ac) 32%,transparent)}',
+    '#lcOv .lc-cierre.lc-cierre-llena > div > span{font-size:15px;letter-spacing:.12em;margin-bottom:14px}',
+    '#lcOv .lc-cierre.lc-cierre-llena li{font-size:18px!important;line-height:1.55;margin-bottom:10px}',
+    '#lcOv .lc-cierre-t{margin:0 0 18px}',
+    '#lcOv .lc-cierre-t span{display:block;font-family:var(--mono,monospace);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ac)}',
+    '#lcOv .lc-cierre-t b{display:block;font-family:var(--display);font-size:clamp(28px,3.2vw,40px);font-weight:800;color:var(--text);line-height:1.1}',
+    '@media(max-width:900px){#lcOv .lc-cierre.lc-cierre-llena{grid-template-columns:1fr}}',
+    /* la frase del módulo a pantalla completa */
+    '#lcOv .lc-cita.lc-cita-llena{display:flex;flex-direction:column;justify-content:center;padding:clamp(32px,6vw,90px);',
+      'border:0;color:#fff;overflow:hidden;background:linear-gradient(100deg,rgba(11,19,34,.94) 0%,rgba(11,19,34,.82) 45%,',
+      'color-mix(in srgb,var(--ac) 45%,transparent) 100%),var(--citafoto,none) center/cover no-repeat,#0B1322}',
+    '#lcOv .lc-cita.lc-cita-llena p{color:#fff;font-size:clamp(34px,4.6vw,64px);max-width:20ch;text-shadow:0 6px 30px rgba(0,0,0,.5)}',
+    '#lcOv .lc-cita.lc-cita-llena .lc-cita-k{color:#7DD3FC;font-size:13px;margin-bottom:20px}',
+    '#lcOv .lc-cita.lc-cita-llena::before{left:clamp(32px,6vw,90px);top:auto;bottom:clamp(32px,6vw,70px);width:90px;height:5px;border-radius:3px}',
+    '#lcOv .lc-lamina{position:relative;border-radius:22px;overflow:hidden;background:#0B1322;',
+      'box-shadow:0 0 0 1px color-mix(in srgb,var(--ac,#38BDF8) 35%,transparent),0 26px 60px -24px rgba(2,6,16,.75)}',
+    '#lcOv .lc-lam-foto{overflow:hidden;aspect-ratio:4/3.4}',
+    '#lcOv .lc-lam-foto img{display:block;width:100%;height:100%;object-fit:cover}',
+    /* la lámina gráfica: rejilla técnica, halo del color del módulo e ícono grande */
+    '#lcOv .lc-lam-ico{position:relative;display:grid;place-items:center;',
+      'background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--ac,#38BDF8) 55%,transparent) 0%,transparent 58%),',
+      'linear-gradient(rgba(170,195,235,.07) 1px,transparent 1px) 0 0/28px 28px,',
+      'linear-gradient(90deg,rgba(170,195,235,.07) 1px,transparent 1px) 0 0/28px 28px,',
+      'linear-gradient(160deg,#16233A,#0B1322)}',
+    '#lcOv .lc-lam-ico span{font-size:clamp(90px,10vw,150px);line-height:1;transform:translateY(-14%);',
+      'filter:drop-shadow(0 18px 30px rgba(0,0,0,.45));animation:lcIcoFlota 5s ease-in-out infinite}',
+    '@keyframes lcIcoFlota{0%,100%{transform:translateY(-14%)}50%{transform:translateY(-19%)}}',
+    '@media(prefers-reduced-motion:reduce){#lcOv .lc-lam-ico span{animation:none}}',
+    '#lcOv .lc-lamina figcaption{position:absolute;left:0;right:0;bottom:0;padding:48px 20px 16px;color:#fff;',
+      'background:linear-gradient(to top,rgba(11,19,34,.94) 0%,rgba(11,19,34,.78) 50%,transparent 100%)}',
+    '#lcOv .lc-lamina figcaption b{display:block;font-family:var(--display);font-size:20px;font-weight:800;line-height:1.2;margin-bottom:5px}',
+    '#lcOv .lc-lamina figcaption span{display:block;font-size:15px;line-height:1.5;color:rgba(255,255,255,.88)}',
+    '#lcOv .lc-lamina figcaption i{display:block;margin-top:8px;font-style:normal;font-size:11px;color:rgba(255,255,255,.6)}',
+    /* la raya de color del módulo, arriba de la foto */
+    '#lcOv .lc-lamina::before{content:"";position:absolute;left:0;top:0;right:0;height:4px;z-index:2;background:var(--ac,#38BDF8)}',
+    /* teléfono: la lámina arriba, más baja */
+    '@media(max-width:900px){',
+      '#lcOv .nx-wrap > section.nx-b.lc-con-lamina{grid-template-columns:minmax(0,1fr)}',
+      '#lcOv .nx-wrap > section.nx-b.lc-con-lamina > .lc-lamina{grid-column:1;grid-row:1;margin:0 0 18px}',
+      '#lcOv .lc-lam-foto{aspect-ratio:16/10}',
+      '#lcOv .lc-lamina figcaption b{font-size:17px}',
+      '#lcOv .lc-lamina figcaption span{font-size:13.5px}',
+    '}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- lc-graficos.js ---------- */
+/* ============================================================
+   CURSO 7 · INFOGRAFÍAS QUE SE DIBUJAN
+   ------------------------------------------------------------
+   Seis gráficos, uno por idea clave. Usan las clases .lc-graf y
+   .lc-g-* del armazón, así que lc-movimiento los anima solos al
+   entrar en pantalla (líneas que se trazan, barras que crecen).
+   Todos los números salen del propio curso: los ejemplos se
+   presentan como ejemplos y los esquemas como esquemas.
+   ============================================================ */
+
+function lcGrafCaja(t, sub, svg, pie){
+  return '<section class="nx-b nx-full"><figure class="lc-graf rv">' +
+    '<figcaption class="lc-graf-h"><b>' + t + '</b><span>' + sub + '</span></figcaption>' +
+    '<div class="lc-graf-c">' + svg + '</div>' + (pie ? '<p class="lc-graf-f">' + pie + '</p>' : '') +
+  '</figure></section>';
+}
+function lcSvg(w, h, c, a){ return '<svg viewBox="0 0 ' + w + ' ' + h + '" class="lc-svg" role="img" aria-label="' + (a || '') + '">' + c + '</svg>'; }
+
+var LCGRAF = {
+  /* el parto en el tiempo: un lechón cada 15–20 min, 3–5 h en total */
+  parto: function(){
+    var W = 720, H = 210, x0 = 40, x1 = 690, px = function(h){ return x0 + (x1 - x0) * h / 6; }, s = '';
+    s += '<rect x="' + px(3) + '" y="40" width="' + (px(5) - px(3)) + '" height="90" rx="10" fill="rgba(56,189,248,.12)"/>';
+    s += '<text x="' + px(4) + '" y="58" class="lc-g-nota" text-anchor="middle">un parto normal termina aquí</text>';
+    s += '<rect x="' + px(5) + '" y="40" width="' + (px(6) - px(5)) + '" height="90" rx="10" fill="rgba(196,84,74,.14)"/>';
+    s += '<text x="' + px(5.5) + '" y="58" class="lc-g-nota" text-anchor="middle">avise</text>';
+    s += '<line x1="' + x0 + '" y1="130" x2="' + x1 + '" y2="130" class="lc-g-eje"/>';
+    for(var h = 0; h <= 6; h++) s += '<text x="' + px(h) + '" y="152" class="lc-g-lbl" text-anchor="middle">' + h + ' h</text>';
+    var t = 0.1, n = 0;
+    while(t < 3.6){ n++; s += '<circle cx="' + px(t) + '" cy="110" r="9" fill="#F2B8B5" stroke="#B3706B" stroke-width="1.5"/>' +
+      '<text x="' + px(t) + '" y="114" class="lc-g-pct" text-anchor="middle" style="fill:#5a2a27;font-size:10px">' + n + '</text>'; t += 0.29; }
+    s += '<polyline points="' + px(0) + ',90 ' + px(3.6) + ',90" class="lc-g-l1"/>';
+    s += '<text x="' + px(0) + '" y="82" class="lc-g-val">un lechón cada 15–20 minutos</text>';
+    s += '<text x="' + x0 + '" y="190" class="lc-g-nota">Si pasa mucho tiempo sin que nazca otro, o la cerda hace fuerza sin resultado: avise al encargado o al veterinario.</text>';
+    return lcGrafCaja('El parto, en el reloj', 'Referencias del módulo: unos 15–20 minutos entre lechones y 3–5 horas de parto. Varían con la genética, la camada y la cerda.', lcSvg(W, H, s, 'Línea de tiempo de un parto'), 'Esquema orientativo, no una medición.');
+  },
+  /* la ventana del calostro: la absorción de defensas cae en el primer día */
+  calostro: function(){
+    var W = 720, H = 260, x0 = 70, x1 = 690, y0 = 210, y1 = 40;
+    var px = function(h){ return x0 + (x1 - x0) * h / 30; }, py = function(v){ return y0 - (y0 - y1) * v; }, s = '';
+    [0, .5, 1].forEach(function(v){ s += '<line x1="' + x0 + '" y1="' + py(v) + '" x2="' + x1 + '" y2="' + py(v) + '" class="lc-g-rej"/>'; });
+    s += '<rect x="' + px(0) + '" y="' + y1 + '" width="' + (px(12) - px(0)) + '" height="' + (y0 - y1) + '" rx="8" fill="rgba(47,125,79,.16)"/>';
+    s += '<text x="' + px(6) + '" y="' + (y0 - 14) + '" class="lc-g-val" text-anchor="middle">las horas que más cuentan</text>';
+    var pts = []; for(var h = 0; h <= 30; h += 1){ var v = Math.max(0, 1 - h / 24); v = v * v * (3 - 2 * v); pts.push(px(h) + ',' + py(v)); }
+    s += '<polyline points="' + pts.join(' ') + '" class="lc-g-l1"/>';
+    s += '<circle cx="' + px(24) + '" cy="' + py(0) + '" r="6" class="lc-g-p1" fill="#c4544a"/>';
+    s += '<line x1="' + px(24) + '" y1="' + (py(0) - 8) + '" x2="' + px(24) + '" y2="' + py(.55) + '" class="lc-g-rej"/><text x="' + px(24) + '" y="' + (py(.55) - 8) + '" class="lc-g-extra" text-anchor="middle">~24 h: el intestino «se cierra»</text>';
+    s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" class="lc-g-eje"/>';
+    [0, 6, 12, 18, 24, 30].forEach(function(h){ s += '<text x="' + px(h) + '" y="' + (y0 + 20) + '" class="lc-g-lbl" text-anchor="middle">' + h + ' h</text>'; });
+    s += '<text x="' + (x0 - 10) + '" y="' + py(1) + '" class="lc-g-ax" text-anchor="end">mucha</text><text x="' + (x0 - 10) + '" y="' + (py(0) + 4) + '" class="lc-g-ax" text-anchor="end">nada</text>';
+    return lcGrafCaja('La ventana del calostro', 'Cuánta defensa del calostro puede pasar del intestino a la sangre según las horas de vida.', lcSvg(W, H, s, 'Curva de absorción del calostro'), 'Esquema: la forma de la curva es orientativa. Lo que no cambia es el mensaje: cuanto antes y más calostro, mejor.');
+  },
+  /* dos climas en la misma jaula */
+  climas: function(){
+    var W = 720, H = 250, s = '', y0 = 200, top = 40, py = function(c){ return y0 - (y0 - top) * (c - 10) / 30; };
+    [10, 20, 30, 40].forEach(function(c){ s += '<line x1="70" y1="' + py(c) + '" x2="690" y2="' + py(c) + '" class="lc-g-rej"/><text x="60" y="' + (py(c) + 4) + '" class="lc-g-lbl" text-anchor="end">' + c + ' °C</text>'; });
+    var barra = function(x, a, b, col, t1, t2){
+      return '<rect x="' + x + '" y="' + py(b) + '" width="150" height="' + (py(a) - py(b)) + '" rx="10" fill="' + col + '"/>' +
+        '<text x="' + (x + 75) + '" y="' + (py(b) - 10) + '" class="lc-g-val" text-anchor="middle">' + t1 + '</text>' +
+        '<text x="' + (x + 75) + '" y="' + (y0 + 22) + '" class="lc-g-lbl" text-anchor="middle">' + t2 + '</text>';
+    };
+    s += '<rect x="100" y="' + py(10) + '" width="1" height="1" fill="none"/>';
+    s += barra(140, 30, 34, '#FF8C28', '30–34 °C', 'zona del lechón, primeros días');
+    s += barra(430, 18, 22, '#38BDF8', '18–22 °C', 'lo que la cerda prefiere');
+    s += '<path d="M310 ' + py(26) + ' l 90 0" class="lc-g-flecha"/><text x="355" y="' + (py(26) - 10) + '" class="lc-g-nota" text-anchor="middle">misma jaula</text>';
+    s += '<line x1="70" y1="' + y0 + '" x2="690" y2="' + y0 + '" class="lc-g-eje"/>';
+    return lcGrafCaja('Dos climas en la misma jaula', 'El lechón recién nacido necesita mucho más calor que su madre. Por eso se le da una zona propia.', lcSvg(W, H, s, 'Temperaturas del lechón y de la cerda'), 'Referencias del módulo 3. Cambian con la edad del lechón, la instalación y el clima: ajuste mirando a la camada.');
+  },
+  /* el caso del módulo 6: 12 nacidos vivos, 2 muertes en 48 h y 1 después */
+  perdidas: function(){
+    var W = 720, H = 220, s = '', cols = ['#3D8558', '#3D8558', '#3D8558', '#3D8558', '#3D8558', '#3D8558', '#3D8558', '#3D8558', '#3D8558', '#C4544A', '#C4544A', '#E0A526'];
+    cols.forEach(function(c, i){
+      var x = 40 + i * 54;
+      s += '<rect x="' + x + '" y="60" width="44" height="70" rx="10" fill="' + c + '"/>' +
+        '<text x="' + (x + 22) + '" y="102" class="lc-g-pct" text-anchor="middle">' + (i + 1) + '</text>';
+    });
+    s += '<text x="40" y="40" class="lc-g-tit">12 nacidos vivos en la camada</text>';
+    s += '<rect x="40" y="160" width="14" height="14" rx="3" fill="#3D8558"/><text x="62" y="172" class="lc-g-nota">9 destetados</text>';
+    s += '<rect x="200" y="160" width="14" height="14" rx="3" fill="#C4544A"/><text x="222" y="172" class="lc-g-nota">2 muertos en las primeras 48 h</text>';
+    s += '<rect x="460" y="160" width="14" height="14" rx="3" fill="#E0A526"/><text x="482" y="172" class="lc-g-nota">1 muerto antes del destete</text>';
+    s += '<text x="40" y="204" class="lc-g-extra">3 de 12 = 25 % de mortalidad · dos tercios, en los primeros dos días</text>';
+    return lcGrafCaja('¿Dónde se perdieron?', 'El caso del módulo, lechón por lechón: el color dice cuándo se perdió cada uno.', lcSvg(W, H, s, 'Camada de 12 con 3 pérdidas'), '');
+  },
+  /* el crecimiento en lactancia: el ejemplo de la calculadora */
+  crece: function(){
+    var W = 720, H = 250, x0 = 70, x1 = 690, y0 = 205, y1 = 35, px = function(d){ return x0 + (x1 - x0) * d / 28; }, py = function(k){ return y0 - (y0 - y1) * k / 8; }, s = '';
+    [0, 2, 4, 6, 8].forEach(function(k){ s += '<line x1="' + x0 + '" y1="' + py(k) + '" x2="' + x1 + '" y2="' + py(k) + '" class="lc-g-rej"/><text x="' + (x0 - 10) + '" y="' + (py(k) + 4) + '" class="lc-g-lbl" text-anchor="end">' + k + ' kg</text>'; });
+    var pts = []; for(var d = 0; d <= 24; d++){ var k = 1.4 + (6.5 - 1.4) * Math.pow(d / 24, 1.25); pts.push(px(d) + ',' + py(k)); }
+    s += '<polyline points="' + pts.join(' ') + '" class="lc-g-l1"/>';
+    s += '<circle cx="' + px(0) + '" cy="' + py(1.4) + '" r="6" fill="#38BDF8"/><text x="' + (px(0) + 12) + '" y="' + (py(1.4) + 4) + '" class="lc-g-val">1,4 kg al nacer</text>';
+    s += '<circle cx="' + px(24) + '" cy="' + py(6.5) + '" r="7" class="lc-g-p1" fill="#2F7D4F"/><text x="' + (px(24) - 12) + '" y="' + (py(6.5) - 14) + '" class="lc-g-val" text-anchor="end">6,5 kg al destete (día 24)</text>';
+    s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" class="lc-g-eje"/>';
+    [0, 7, 14, 21, 28].forEach(function(d){ s += '<text x="' + px(d) + '" y="' + (y0 + 20) + '" class="lc-g-lbl" text-anchor="middle">día ' + d + '</text>'; });
+    return lcGrafCaja('Cuatro veces su peso en tres semanas', 'Ejemplo del módulo: un lechón que nace con 1,4 kg y se desteta con 6,5 kg a los 24 días.', lcSvg(W, H, s, 'Curva de crecimiento en lactancia'), 'Ejemplo. El crecimiento real depende de la genética, la leche de la cerda y la edad al destete: compare sus camadas entre sí.');
+  },
+  /* el embudo de la maternidad: 20 partos, 240 vivos, 24 muertes */
+  embudo: function(){
+    var W = 720, H = 230, s = '', max = 240, bar = function(y, v, col, t, n){
+      var w = 560 * v / max;
+      return '<rect x="140" y="' + y + '" width="' + w + '" height="44" rx="10" fill="' + col + '"/>' +
+        '<text x="128" y="' + (y + 28) + '" class="lc-g-nota" text-anchor="end">' + t + '</text>' +
+        '<text x="' + (140 + w - 14) + '" y="' + (y + 29) + '" class="lc-g-pct" text-anchor="end">' + n + '</text>';
+    };
+    s += bar(20, 240, '#38BDF8', 'Nacidos vivos', '240');
+    s += bar(80, 24, '#C4544A', 'Muertes predestete', '24');
+    s += bar(140, 216, '#3D8558', 'Destetados', '216');
+    s += '<text x="140" y="214" class="lc-g-extra">24 ÷ 240 × 100 = 10 % de mortalidad · 216 ÷ 20 partos = 10,8 destetados por parto</text>';
+    return lcGrafCaja('La maternidad, en tres barras', 'El ejemplo del módulo: 20 partos en un mes.', lcSvg(W, H, s, 'Nacidos vivos, muertes y destetados'), '');
+  }
+};
+
+/* el tipo de sección, en el mismo pintor de siempre */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecLcGraf = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'lcgraf' && LCGRAF[s.id]) return LCGRAF[s.id]();
+    return _nxSecLcGraf.apply(this, arguments);
+  };
+}
 
 
 /* ---------- lc-movimiento.js ---------- */
@@ -50488,6 +50984,10 @@ if(typeof window.lcCalcRun === 'function'){
 })();
 
 </script>
+
+
+
+
 
 
 
