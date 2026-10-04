@@ -39577,6 +39577,7 @@ var EGMOD = [
     ]},
     {k:'egfoto', id:'tubo'},
     {k:'egcalc', id:'desperdicio'},
+    {k:'egpic'},
     {k:'agcomp', t:'El cambio de alimento entre etapas',
       bienT:'Cambio gradual', bien:[
         'Mezclar el viejo con el nuevo durante varios días, subiendo poco a poco.',
@@ -41835,7 +41836,13 @@ var EGLAMCR = {
   'eg-p-60': 'Foto: Pixabay · licencia libre',
   'eg-p-61': 'Foto: Pixabay · licencia libre',
   'eg-p-62': 'Foto: Pixabay · licencia libre',
-  'eg-p-63': 'Foto: Pexels · licencia libre'
+  'eg-p-63': 'Foto: Pexels · licencia libre',
+  'eg-u-nave2': 'Foto: archivo del curso',
+  'eg-u-echados': 'Foto: archivo del curso',
+  'eg-u-ranurado': 'Foto: archivo del curso',
+  'eg-u-tolva': 'Foto: archivo del curso',
+  'eg-u-nave': 'Foto: archivo del curso',
+  'eg-u-comedero-lineal': 'Foto: archivo del curso'
 };
 
 /* [comienzo del título de la sección, foto, título de la lámina, qué mirar]
@@ -41851,15 +41858,15 @@ var EGLAMINA = [
   ['Dos productores, el mismo cerdo', 'eg-p-05', 'El mismo cerdo, dos resultados', 'Lo que cambia entre un productor y otro casi nunca es el animal: es cómo se maneja.'],
   ['La diferencia son unos', 'eg-p-06', 'La diferencia está en la cuenta', 'Pequeñas diferencias por cerdo, multiplicadas por todo el lote, son mucho dinero.'],
   ['Los errores que más dinero cuestan', 'eg-p-07', 'Los errores se pagan en kilos', 'Piso sucio, agua escasa, corral lleno: cada uno resta crecimiento sin que se note el mismo día.'],
-  ['La idea que atraviesa todo el curso', 'eg-p-08', 'Medir para decidir', 'Todo el curso gira en torno a lo mismo: medir el lote para decidir con números.'],
+  ['La idea que atraviesa todo el curso', 'ico:📏', 'Medir para decidir', 'Todo el curso gira en torno a lo mismo: medir el lote para decidir con números.'],
   /* M2 */
   ['Por qué esto no se puede improvisar', 'eg-p-09', 'El corral se prepara antes', 'Lo que no esté listo cuando llegue el camión ya no se arregla con los cerdos dentro.'],
   ['La preparación, en orden', 'eg-p-10', 'Limpiar, desinfectar, secar', 'El orden importa: un corral lavado pero húmedo recibe a los cerdos con problemas.'],
   ['El error de densidad más común', 'eg-p-11', 'Demasiados para el espacio', 'Con poco espacio los más débiles comen menos y el lote se desiguala.'],
-  ['Agua: lo que hay que comprobar', 'eg-p-12', 'El bebedero, antes que nada', 'Altura, caudal y limpieza se comprueban antes de que entren los cerdos.'],
+  ['Agua: lo que hay que comprobar', 'ico:💧', 'El bebedero, antes que nada', 'Altura, caudal y limpieza se comprueban antes de que entren los cerdos.'],
   ['Comedero: el ajuste que se paga solo', 'eg-p-13', 'El comedero, bien regulado', 'Alimento siempre disponible, pero sin que se desborde ni se pise.'],
   ['Ambiente: sombra, aire y piso', 'eg-p-14', 'Un piso que se mantiene seco', 'El piso ranurado deja pasar el estiércol: el cerdo descansa limpio y seco.'],
-  ['¿Mi corral está listo', 'eg-p-15', 'La revisión antes de recibir', 'Una vuelta con la lista en la mano evita sorpresas el día de la llegada.'],
+  ['¿Mi corral está listo', 'eg-u-nave2', 'La revisión antes de recibir', 'Una vuelta con la lista en la mano evita sorpresas el día de la llegada.'],
   ['Sobre limpieza y desinfección', 'eg-p-16', 'La limpieza también es manejo', 'Desinfectar vehículos y accesos corta la entrada de enfermedades al lote.'],
   /* M3 */
   ['El día que llega el camión', 'eg-p-17', 'La llegada empieza en el camión', 'Viaje, calor y estrés: los cerdos llegan cansados y hay que recibirlos con calma.'],
@@ -41877,42 +41884,42 @@ var EGLAMINA = [
   ['Por qué este módulo es el diferencial', 'eg-p-27', 'Engorde en clima cálido', 'En el trópico, manejar el calor separa un lote bueno de uno regular.'],
   ['La relación que hay que entender', 'eg-p-28', 'Bebe, come, crece', 'Un cerdo que bebe poco come poco, y uno que come poco no crece.'],
   ['Cómo se mide el agua de verdad', 'eg-p-29', 'El que no bebe, no come', 'Un envase de un litro y un reloj: así se sabe cuánta agua sale de verdad en cada bebedero.'],
-  ['Calidad del agua', 'eg-p-30', 'Lo que no se ve, lo dice el laboratorio', 'Sales o bacterias en el agua solo se detectan con un análisis.'],
+  ['Calidad del agua', 'ico:🧪', 'Lo que no se ve, lo dice el laboratorio', 'Sales o bacterias en el agua solo se detectan con un análisis.'],
   ['Manejo del calor en instalaciones', 'eg-p-31', 'Techo alto, aire que pase', 'Altura, aleros y orientación cambian varios grados dentro del corral.'],
   ['Una semana de calor mal manejado', 'eg-p-32', 'Mojar en las horas fuertes', 'El cerdo casi no suda: mojarlo cuando más calienta le devuelve el apetito.'],
   ['Dónde termina el manejo', 'eg-p-33', 'Ahí empieza el veterinario', 'Si además del calor hay animales enfermos, eso es asunto del veterinario.'],
   /* M6 */
-  ['Las dos fórmulas del módulo', 'eg-p-34', 'Dos cuentas sencillas', 'Con el peso de entrada, el de hoy y los días que pasaron, la ganancia diaria sale sola.'],
-  ['Un ejemplo, con números de verdad', 'eg-p-35', 'Un lote real, sus números', 'El ejemplo usa cifras de una granja pequeña, como la mayoría en el país.'],
+  ['Las dos fórmulas del módulo', 'ico:➗', 'Dos cuentas sencillas', 'Con el peso de entrada, el de hoy y los días que pasaron, la ganancia diaria sale sola.'],
+  ['Un ejemplo, con números de verdad', 'ico:🔢', 'Un lote real, sus números', 'El ejemplo usa cifras de una granja pequeña, como la mayoría en el país.'],
   ['El promedio esconde cosas', 'eg-p-36', 'No todos crecen igual', 'En un mismo corral hay cerdos grandes y pequeños: el promedio no los muestra.'],
-  ['Dos maneras de llevar el peso', 'eg-p-37', 'Por lote o cerdo por cerdo', 'Las dos sirven; lo que no sirve es no llevarlo.'],
-  ['Cómo pesar sin volverse loco', 'eg-p-38', 'Pesar sin estresar', 'Mover a los cerdos con calma, en grupos pequeños, ahorra tiempo, golpes y kilos.'],
+  ['Dos maneras de llevar el peso', 'eg-u-nave', 'Por lote o cerdo por cerdo', 'Las dos sirven; lo que no sirve es no llevarlo.'],
+  ['Cómo pesar sin volverse loco', 'ico:⚖️', 'Pesar sin estresar', 'Mover a los cerdos con calma, en grupos pequeños, ahorra tiempo, golpes y kilos.'],
   /* M7 */
   ['Qué es, en una frase', 'eg-p-39', 'Alimento que entra, kilos que salen', 'La conversión dice cuántos kilos de alimento hacen falta para un kilo de cerdo.'],
-  ['La fórmula', 'eg-p-40', 'Una división', 'Alimento consumido entre kilos ganados: así de simple, si tiene los dos datos.'],
-  ['El ejemplo, paso a paso', 'eg-p-41', 'Contar lo que entra', 'El primer dato del ejemplo es cuánto alimento entró al lote, con su factura.'],
-  ['No existe una conversión', 'eg-p-42', 'Cada granja, su número', 'Genética, peso y alimento cambian la conversión: compárese con usted mismo.'],
-  ['Qué empeora la conversión', 'eg-p-43', 'Lo que empeora la conversión', 'Desperdicio, calor, enfermedad y alimento de mala calidad.'],
-  ['Por eso la conversión manda', 'eg-p-44', 'El alimento es la mayor parte del costo', 'Por eso cada décima de conversión se nota en el bolsillo.'],
+  ['La fórmula', 'ico:🧮', 'Una división', 'Alimento consumido entre kilos ganados: así de simple, si tiene los dos datos.'],
+  ['El ejemplo, paso a paso', 'ico:📝', 'Contar lo que entra', 'El primer dato del ejemplo es cuánto alimento entró al lote, con su factura.'],
+  ['No existe una conversión', 'eg-u-ranurado', 'Cada granja, su número', 'Genética, peso y alimento cambian la conversión: compárese con usted mismo.'],
+  ['Qué empeora la conversión', 'eg-u-tolva', 'Lo que empeora la conversión', 'Desperdicio, calor, enfermedad y alimento de mala calidad.'],
+  ['Por eso la conversión manda', 'eg-u-comedero-lineal', 'El alimento es la mayor parte del costo', 'Por eso cada décima de conversión se nota en el bolsillo.'],
   /* M8 */
-  ['La rutina de observación diaria', 'eg-p-45', 'La ronda de cada mañana', 'Entrar al corral con una pregunta en la cabeza y salir con un dato anotado.'],
-  ['¿Qué está pasando con mi lote', 'eg-p-46', 'Mirar antes de suponer', 'La herramienta le ayuda a ordenar lo que ve antes de sacar conclusiones.'],
-  ['Dónde termina este curso', 'eg-p-47', 'Hasta aquí el manejo', 'Diagnosticar enfermedades es trabajo del veterinario, no de esta lista.'],
-  ['Ocho retos', 'eg-p-48', 'Ahora le toca a usted', 'Ocho situaciones de granja para resolver con lo aprendido.'],
+  ['La rutina de observación diaria', 'ico:🌅', 'La ronda de cada mañana', 'Entrar al corral con una pregunta en la cabeza y salir con un dato anotado.'],
+  ['¿Qué está pasando con mi lote', 'ico:🔎', 'Mirar antes de suponer', 'La herramienta le ayuda a ordenar lo que ve antes de sacar conclusiones.'],
+  ['Dónde termina este curso', 'ico:🩺', 'Hasta aquí el manejo', 'Diagnosticar enfermedades es trabajo del veterinario, no de esta lista.'],
+  ['Ocho retos', 'ico:🎯', 'Ahora le toca a usted', 'Ocho situaciones de granja para resolver con lo aprendido.'],
   /* M9 */
   ['El costo no es el alimento', 'eg-p-49', 'El alimento no es todo', 'Es el costo más grande, pero no el único: energía, agua, sanidad y mano de obra también suman.'],
   ['Los ocho componentes del costo', 'eg-p-50', 'Ocho cosas que sumar', 'Cerdos, alimento, sanidad, mano de obra, energía, agua, transporte y pérdidas.'],
-  ['Dos costos por kilo', 'eg-p-51', 'Kilo producido y kilo vendido', 'No es lo mismo lo que el lote ganó que lo que sale por la puerta.'],
-  ['Por qué la mortalidad se reparte', 'eg-p-52', 'Los que no llegan también cuestan', 'El cerdo que muere se lleva lo que comió: ese costo lo pagan los que sí se venden.'],
-  ['Cuando el alimento pasa del 70', 'eg-p-53', 'Cuando el alimento pesa demasiado', 'Si el alimento pasa del 70 % del costo, algo falla en la conversión o en el precio.'],
+  ['Dos costos por kilo', 'ico:🏷️', 'Kilo producido y kilo vendido', 'No es lo mismo lo que el lote ganó que lo que sale por la puerta.'],
+  ['Por qué la mortalidad se reparte', 'ico:📉', 'Los que no llegan también cuestan', 'El cerdo que muere se lleva lo que comió: ese costo lo pagan los que sí se venden.'],
+  ['Cuando el alimento pasa del 70', 'ico:🌽', 'Cuando el alimento pesa demasiado', 'Si el alimento pasa del 70 % del costo, algo falla en la conversión o en el precio.'],
   /* M10 */
   ['Los cuatro números del cierre', 'eg-p-54', 'El cierre del lote', 'Ingreso, costo, utilidad y margen: los cuatro números que dicen cómo le fue.'],
-  ['El punto de equilibrio es su piso', 'eg-p-55', 'El precio mínimo de venta', 'Por debajo del punto de equilibrio, cada cerdo que sale pierde dinero.'],
-  ['Cuándo vender', 'eg-p-56', 'Los últimos kilos', 'Engordar más días cuesta más alimento por kilo: hay un punto en que conviene vender.'],
-  ['Diez planillas para llevarse', 'eg-p-57', 'Las diez planillas', 'Imprímalas y llévelas al corral: ahí es donde se llenan.'],
+  ['El punto de equilibrio es su piso', 'ico:🛑', 'El precio mínimo de venta', 'Por debajo del punto de equilibrio, cada cerdo que sale pierde dinero.'],
+  ['Cuándo vender', 'ico:📆', 'Los últimos kilos', 'Engordar más días cuesta más alimento por kilo: hay un punto en que conviene vender.'],
+  ['Diez planillas para llevarse', 'ico:🗂️', 'Las diez planillas', 'Imprímalas y llévelas al corral: ahí es donde se llenan.'],
   ['Lo que usted se lleva de este curso', 'eg-p-58', 'Su granja, con números', 'Medir, calcular y decidir: eso es lo que se lleva.'],
   /* las que faltaban en pantallas grandes */
-  ['Por qué el día de entrada vale por diez','eg-p-61','El primer día no se repite','El peso y el estado con que llega cada cerdo son la base de todo lo que va a calcular después.'],
+  ['Por qué el día de entrada vale por diez','eg-u-echados','El primer día no se repite','El peso y el estado con que llega cada cerdo son la base de todo lo que va a calcular después.'],
   ['Qué se enseña aquí y qué no','eg-p-62','Alimentar bien y saber cuánto cuesta','Este módulo mide lo que come el lote y lo que pierde; la fórmula es tema del curso de Formulación.'],
   ['El número que le dice si va rápido o lento','eg-p-60','Rápido o lento, lo dice la báscula','Dos pesos y los días entre ellos: con eso sabe si el lote crece al ritmo que necesita.'],
   ['Mirar no es observar','eg-p-59','Un cerdo echado también informa','Postura, respiración, dónde se acuestan: observar es leer esas señales y anotarlas.'],
@@ -41945,7 +41952,13 @@ function egLaminas(poner){
     if(!l) return;
     var f = document.createElement('figure');
     f.className = 'eg-lamina';
-    f.innerHTML = '<div class="eg-lam-foto"><img src="images/' + l[1] + '.jpg" alt="' + esc(l[2]) + '" loading="lazy"></div>' +
+    /* lámina gráfica: para las ideas que una foto no enseña (fórmulas,
+       costos, planillas), un ícono grande sobre el color del módulo */
+    var ico = l[1].indexOf('ico:') === 0 ? l[1].slice(4) : null;
+    if(ico) f.classList.add('eg-lam-graf');
+    f.innerHTML = (ico
+        ? '<div class="eg-lam-foto eg-lam-ico" aria-hidden="true"><span>' + ico + '</span></div>'
+        : '<div class="eg-lam-foto"><img src="images/' + l[1] + '.jpg" alt="' + esc(l[2]) + '" loading="lazy"></div>') +
       '<figcaption><b>' + esc(l[2]) + '</b><span>' + esc(l[3]) + '</span>' +
       (EGLAMCR[l[1]] ? '<i>' + esc(EGLAMCR[l[1]]) + '</i>' : '') + '</figcaption>';
     s.appendChild(f);
@@ -41977,6 +41990,21 @@ if(typeof window.egLibroAplica === 'function'){
    grande a la derecha, texto y «En la práctica» a la izquierda. Sin
    lámina en la página, no se toca nada. En el teléfono la lámina va
    arriba y crecer no tiene sentido. */
+/* la foto ancha del resumen de cada módulo: naves de engorde profesionales,
+   en alta resolución (todas a lo ancho de la pantalla) */
+var EGCIERREFOTO = {
+  1: ['eg-n-usda-pasillo', 'Foto: USDA NRCS · dominio público'],
+  2: ['eg-n-usda-reja', 'Foto: USDA NRCS · dominio público'],
+  3: ['eg-n-brasil', 'Foto: Alcimar Luiz Callegari · CC BY-SA 4.0 · Wikimedia Commons'],
+  4: ['eg-p-67', 'Foto: Pixabay · licencia libre'],
+  5: ['eg-n-ranurado', 'Foto: Onsemeliot · CC BY-SA 4.0 · Wikimedia Commons'],
+  6: ['eg-u-tolva-piso', 'Foto: archivo del curso'],
+  7: ['eg-p-70', 'Foto: Pixabay · licencia libre'],
+  8: ['eg-n-comedero-auto', 'Foto: Agencia Pyme · CC BY-SA 2.0 · Wikimedia Commons'],
+  9: ['eg-x-grupo', 'Foto: Pixabay · licencia libre'],
+  10: ['eg-u-grupo', 'Foto: archivo del curso']
+};
+
 function egLamLlena(){
   var w = egLibroWrap(); if(!w || typeof EGLIBRO === 'undefined' || !EGLIBRO) return;
   var vis = egLibroSecs(w).filter(function(s){ return s.style.display !== 'none'; });
@@ -42003,8 +42031,9 @@ function egLamLlena(){
     var f = sec.querySelector(':scope > .eg-cierre-foto');
     if(sola && !f){
       f = document.createElement('figure'); f.className = 'eg-cierre-foto';
-      f.innerHTML = '<img src="images/eg-p-' + (63 + EGCUR) + '.jpg" alt="" loading="lazy">' +
-        '<figcaption><b>Siguiente: la evaluación del módulo</b><span>Con esto claro, ya puede demostrar lo aprendido.</span><i>Foto: banco libre (Pexels / Pixabay)</i></figcaption>';
+      var bf = EGCIERREFOTO[EGCUR] || EGCIERREFOTO[1];
+      f.innerHTML = '<img src="images/' + bf[0] + '.jpg" alt="" loading="lazy">' +
+        '<figcaption><b>Siguiente: la evaluación del módulo</b><span>Con esto claro, ya puede demostrar lo aprendido.</span><i>' + esc(bf[1]) + '</i></figcaption>';
       sec.appendChild(f);
     }
     if(f){
@@ -42111,6 +42140,16 @@ if(typeof window.egLibroMuestra === 'function'){
       'box-shadow:0 0 0 1px color-mix(in srgb,var(--ac,#38BDF8) 35%,transparent),0 26px 60px -24px rgba(2,6,16,.75)}',
     '#egOv .eg-lam-foto{overflow:hidden;aspect-ratio:4/3.4}',
     '#egOv .eg-lam-foto img{display:block;width:100%;height:100%;object-fit:cover}',
+    /* la lámina gráfica: rejilla técnica, halo del color del módulo e ícono grande */
+    '#egOv .eg-lam-ico{position:relative;display:grid;place-items:center;',
+      'background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--ac,#38BDF8) 55%,transparent) 0%,transparent 58%),',
+      'linear-gradient(rgba(170,195,235,.07) 1px,transparent 1px) 0 0/28px 28px,',
+      'linear-gradient(90deg,rgba(170,195,235,.07) 1px,transparent 1px) 0 0/28px 28px,',
+      'linear-gradient(160deg,#16233A,#0B1322)}',
+    '#egOv .eg-lam-ico span{font-size:clamp(90px,10vw,150px);line-height:1;transform:translateY(-14%);',
+      'filter:drop-shadow(0 18px 30px rgba(0,0,0,.45));animation:egIcoFlota 5s ease-in-out infinite}',
+    '@keyframes egIcoFlota{0%,100%{transform:translateY(-14%)}50%{transform:translateY(-19%)}}',
+    '@media(prefers-reduced-motion:reduce){#egOv .eg-lam-ico span{animation:none}}',
     '#egOv .eg-lamina figcaption{position:absolute;left:0;right:0;bottom:0;padding:48px 20px 16px;color:#fff;',
       'background:linear-gradient(to top,rgba(11,19,34,.94) 0%,rgba(11,19,34,.78) 50%,transparent 100%)}',
     '#egOv .eg-lamina figcaption b{display:block;font-family:var(--display);font-size:20px;font-weight:800;line-height:1.2;margin-bottom:5px}',
@@ -42292,6 +42331,215 @@ if(typeof window.egLaminas === 'function'){
       'width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;',
       'color:var(--ac,#38BDF8);background:color-mix(in srgb,var(--ac,#38BDF8) 16%,transparent);border:1px solid color-mix(in srgb,var(--ac,#38BDF8) 40%,transparent)}',
     '@media(max-width:700px){#egOv .eg-practica li{font-size:15.5px!important}}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- eg-pic.js ---------- */
+/* ============================================================
+   CURSO 5 · LAS OCHO COSAS QUE DECIDEN CUÁNTO COME EL CERDO
+   ------------------------------------------------------------
+   Lección del módulo 4 basada en el artículo de PIC «Las ocho
+   dimensiones del consumo de pienso» (es.pic.com). El texto está
+   redactado para este curso y los gráficos son propios; los datos
+   (tabla de ancho de hombros del Dr. Mike Brumm, recomendaciones de
+   comedero y de agua) se citan con su fuente. Son referencias de una
+   casa genética para granjas tecnificadas: el estudiante las usa como
+   punto de comparación, no como ley.
+
+   Trae:
+   · las ocho dimensiones, en tarjetas que se abren
+   · un gráfico del ancho de comedero que pide cada peso
+   · las cuatro reglas del agua
+   · una calculadora que revisa SU corral contra esas referencias
+   ============================================================ */
+
+/* ancho de hombros y espacio de comedero por cerdo, según el peso
+   (tabla del Dr. Mike Brumm citada por PIC) */
+var EGPICHOMBRO = [
+  [20, 17.3, 19.1], [40, 21.6, 23.6], [60, 24.6, 27.2],
+  [80, 27.2, 30.0], [100, 29.2, 33.0], [120, 31.5, 40.0]
+];
+
+var EGPICDIM = [
+  ['🍽️', 'Espacio de comedero', 'Cada boca tiene que dejar comer a un cerdo tranquilo con otro al lado. Lo deciden el peso y el ancho de hombros: un cerdo de 100 kg necesita unos 33 cm de comedero. Con salida por encima de 125 kg, PIC recomienda 34,5 cm por boca.'],
+  ['👥', 'Densidad del corral', 'Cuantos más cerdos por metro, más pesa cada centímetro de comedero que falta. En el estudio de PIC el espacio de comedero afectó más la ganancia diaria y la conversión en corrales apretados (0,59 m² por cerdo) que en corrales holgados (0,75 m²).'],
+  ['📏', 'Espacio lineal de comedero', 'Centímetros de comedero divididos entre los cerdos del corral. Referencia de PIC en engorde: 4,8 a 5,1 cm por cerdo, o 8 cerdos por boca en comedero seco y 12 por boca en seco-húmedo. (No aplica a comederos de tubo.)'],
+  ['🔧', 'Regulación del comedero', 'Más cerrado mejora la conversión pero baja la ganancia diaria; más abierto, al revés. Si sube la densidad o el peso de salida, cada boca tiene más presión: conviene abrir un poco para que no se peleen por el alimento.'],
+  ['💧', 'Agua disponible', 'El cerdo come lo que bebe. Cuatro reglas: cerdos por bebedero, caudal, altura y presión (ver abajo). Con calor dentro de la nave por encima de 30 °C, o cerdos de más de 82 kg, se recomiendan bebederos adicionales.'],
+  ['⚡', 'Energía del alimento', 'Con un alimento de menos energía el cerdo come más y pasa más tiempo en el comedero: hay que abrir la regulación y vigilar que alcance el agua. Avise a quien maneja los comederos cada vez que cambie el alimento.'],
+  ['🧬', 'Genética', 'Cada línea come distinto: cuánto al día, cuántas visitas al comedero y cuánto en cada visita. Las de bajo consumo van más veces y comen poco cada vez; las de alto consumo necesitan el comedero más abierto.'],
+  ['🌡️', 'Temperatura y ventilación', 'Con calor el cerdo come menos y crece menos. Con frío come, pero gasta energía en calentarse y no gana lo esperado. Más densidad o más peso de salida piden más ventilación: si no se ajusta, se pierde producción.']
+];
+
+var EGPICAGUA = [
+  ['10', 'cerdos por bebedero', 'como máximo'],
+  ['1 L/min', 'de caudal en engorde', '0,5 L/min en transición'],
+  ['Al hombro', 'del cerdo más pequeño', 'altura del chupete'],
+  ['15–40 PSI', 'de presión', '1 a 2,8 bar']
+];
+
+function egSecPic(mod){
+  var ac = (mod && mod.ac) ? mod.ac : '#c4544a';
+  /* gráfico de barras: ancho de comedero por peso */
+  var W = 640, H = 220, mx = 54, my = 40, top = 30;
+  var max = 42, bw = (W - mx - 20) / EGPICHOMBRO.length;
+  var py = function(v){ return top + (H - my - top) * (1 - v / max); };
+  var rej = '', barras = '';
+  [10, 20, 30, 40].forEach(function(v){
+    rej += '<line x1="' + mx + '" y1="' + py(v) + '" x2="' + (W - 14) + '" y2="' + py(v) + '" class="eg-g-rej"/>' +
+      '<text x="' + (mx - 8) + '" y="' + (py(v) + 4) + '" class="eg-g-tx" text-anchor="end">' + v + '</text>';
+  });
+  EGPICHOMBRO.forEach(function(r, i){
+    var x = mx + i * bw + bw * 0.18, w = bw * 0.64;
+    barras += '<rect x="' + x + '" y="' + py(r[2]) + '" width="' + w + '" height="' + (py(0) - py(r[2])) + '" rx="5" class="eg-pic-bar"/>' +
+      '<text x="' + (x + w / 2) + '" y="' + (py(r[2]) - 8) + '" class="eg-pic-val" text-anchor="middle">' + String(r[2]).replace('.', ',') + '</text>' +
+      '<text x="' + (x + w / 2) + '" y="' + (H - my + 20) + '" class="eg-g-tx" text-anchor="middle">' + (r[0] === 120 ? '120+' : r[0]) + ' kg</text>';
+  });
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="eg-svg" role="img" aria-label="Centímetros de comedero por cerdo según el peso">' +
+    rej + '<line x1="' + mx + '" y1="' + py(0) + '" x2="' + (W - 14) + '" y2="' + py(0) + '" class="eg-g-eje"/>' + barras +
+    '<text x="' + mx + '" y="14" class="eg-g-tx">cm por cerdo</text></svg>';
+
+  return '<section class="nx-b nx-full"><div class="eg-pic rv" style="--ac:' + ac + '">' +
+    '<span class="eg-pic-k">Lección de referencia · granjas tecnificadas</span>' +
+    '<h3>Las ocho cosas que deciden cuánto come su cerdo</h3>' +
+    '<p class="eg-pic-lead">El consumo de alimento no depende de una sola cosa. El espacio de comedero, la densidad, el agua o el calor ' +
+      'se suman entre sí: arreglar uno y descuidar otro no da el resultado. Estas son las ocho, con las referencias que usa una de las casas genéticas más grandes del mundo.</p>' +
+    '<div class="eg-pic-dims">' + EGPICDIM.map(function(d, i){
+      return '<details class="eg-pic-dim" open><summary><span class="eg-pic-n">' + (i + 1) + '</span>' +
+        '<span class="eg-pic-i">' + d[0] + '</span><b>' + d[1] + '</b></summary><p>' + d[2] + '</p></details>';
+    }).join('') + '</div>' +
+  '</div></section>' +
+  /* segunda parte en su propia sección: en el modo libro es otra página */
+  '<section class="nx-b nx-full"><div class="eg-pic eg-pic-2 rv" style="--ac:' + ac + '">' +
+    '<span class="eg-pic-k">Las ocho cosas · en números</span>' +
+    '<h3>Comedero y agua: las referencias, y su corral</h3>' +
+
+    '<div class="eg-pic-fila">' +
+      '<figure class="eg-pic-graf"><figcaption><b>Cuánto comedero pide cada cerdo</b>' +
+        '<span>Centímetros de comedero por cerdo según su peso. A más peso, más hombros: un comedero que alcanzaba a la entrada se queda corto al final.</span></figcaption>' +
+        svg + '<p class="eg-pic-f">Tabla del Dr. Mike Brumm, citada por PIC.</p></figure>' +
+      '<div class="eg-pic-agua"><b class="eg-pic-st">💧 Las cuatro reglas del agua</b>' +
+        EGPICAGUA.map(function(a){
+          return '<div class="eg-pic-a"><strong>' + a[0] + '</strong><span>' + a[1] + '</span><em>' + a[2] + '</em></div>';
+        }).join('') +
+        '<p class="eg-pic-f">Recomendaciones de PIC. Mídalo como en el módulo 5: un envase de un litro y un reloj.</p></div>' +
+    '</div>' +
+
+    '<div class="eg-pic-calc"><b class="eg-pic-st">🧮 Revise su corral contra estas referencias</b>' +
+      '<div class="eg-pic-in">' +
+        '<label class="eg-f"><span>Cerdos en el corral</span><input type="number" id="egpic_n" value="40" oninput="egPicCalc()"></label>' +
+        '<label class="eg-f"><span>Peso de salida <i>kg</i></span><input type="number" id="egpic_p" value="100" oninput="egPicCalc()"></label>' +
+        '<label class="eg-f"><span>Bocas de comedero</span><input type="number" id="egpic_b" value="4" oninput="egPicCalc()"></label>' +
+        '<label class="eg-f"><span>Ancho de cada boca <i>cm</i></span><input type="number" id="egpic_a" value="33" oninput="egPicCalc()"></label>' +
+        '<label class="eg-f"><span>Bebederos</span><input type="number" id="egpic_w" value="3" oninput="egPicCalc()"></label>' +
+      '</div><div class="eg-pic-out" id="egPicOut"></div></div>' +
+
+    '<p class="eg-pic-fuente">Fuente: PIC, «Las ocho dimensiones del consumo de pienso», es.pic.com. Texto adaptado para este curso. ' +
+      'Son referencias para granjas tecnificadas; ajústelas con su técnico a su genética, su alimento y su clima.</p>' +
+  '</div></section>';
+}
+
+/* el ancho de boca que pide un peso: interpolando en la tabla */
+function egPicAncho(kg){
+  var t = EGPICHOMBRO;
+  if(kg <= t[0][0]) return t[0][2];
+  for(var i = 1; i < t.length; i++){
+    if(kg <= t[i][0]){ var a = t[i - 1], b = t[i]; return a[2] + (b[2] - a[2]) * (kg - a[0]) / (b[0] - a[0]); }
+  }
+  return t[t.length - 1][2];
+}
+
+function egPicCalc(){
+  var out = document.getElementById('egPicOut'); if(!out) return;
+  var v = function(id){ var e = document.getElementById(id); return e ? Math.max(0, parseFloat(e.value) || 0) : 0; };
+  var n = v('egpic_n'), p = v('egpic_p'), b = v('egpic_b'), a = v('egpic_a'), w = v('egpic_w');
+  if(!n || !b){ out.innerHTML = '<p class="eg-err">Escriba cuántos cerdos y cuántas bocas de comedero tiene.</p>'; return; }
+  var pide = egPicAncho(p), porBoca = n / b, lineal = (b * a) / n, porBeb = w ? n / w : Infinity;
+  var fila = function(ok, t, val, ref){
+    return '<div class="eg-pic-r ' + (ok ? 'ok' : 'mal') + '"><span>' + (ok ? '✓' : '✕') + '</span><b>' + t + '</b>' +
+      '<strong>' + val + '</strong><em>' + ref + '</em></div>';
+  };
+  var f = function(x, d){ return (Math.round(x * Math.pow(10, d)) / Math.pow(10, d)).toString().replace('.', ','); };
+  out.innerHTML =
+    fila(a >= pide, 'Ancho de cada boca', f(a, 1) + ' cm', 'a ' + f(p, 0) + ' kg pide ' + f(pide, 1) + ' cm') +
+    fila(porBoca <= 8, 'Cerdos por boca', f(porBoca, 1), 'referencia: 8 en comedero seco') +
+    fila(lineal >= 4.8, 'Comedero por cerdo', f(lineal, 1) + ' cm', 'referencia: 4,8 a 5,1 cm') +
+    fila(porBeb <= 10, 'Cerdos por bebedero', w ? f(porBeb, 1) : 'sin bebedero', 'referencia: 10 como máximo') +
+    '<p class="eg-pic-nota">' + ((a >= pide && porBoca <= 8 && lineal >= 4.8 && porBeb <= 10)
+      ? 'Su corral cumple las cuatro referencias para ese peso de salida.'
+      : 'Lo marcado en rojo es donde los cerdos van a competir por comer o beber al final del engorde, justo cuando más comen.') + '</p>';
+}
+window.egPicCalc = egPicCalc;
+
+/* la sección entra por el mismo renderizador que las demás */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecPic = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'egpic') return egSecPic(mod);
+    return _nxSecPic.apply(this, arguments);
+  };
+}
+if(typeof window.egPinta === 'function'){
+  var _egPintaPic = window.egPinta;
+  window.egPinta = function(){
+    var r = _egPintaPic.apply(this, arguments);
+    setTimeout(function(){ try{ egPicCalc(); }catch(e){} }, 80);
+    return r;
+  };
+}
+
+(function egPicCss(){
+  if(document.getElementById('egPicCss')) return;
+  var s = document.createElement('style');
+  s.id = 'egPicCss';
+  s.textContent = [
+    '#egOv .eg-pic{--tc:#0E7490;padding:clamp(22px,3vw,36px);border-radius:24px;border:2px solid var(--tc);',
+      'background:radial-gradient(70% 60% at 100% 0%,color-mix(in srgb,var(--tc) 18%,transparent),transparent 60%),var(--panel);',
+      'box-shadow:0 0 0 6px color-mix(in srgb,var(--tc) 12%,transparent),0 24px 50px -22px color-mix(in srgb,var(--tc) 55%,transparent)}',
+    '#egOv .eg-pic-k{display:inline-block;padding:5px 12px;border-radius:999px;font-family:var(--mono,monospace);font-size:11px;font-weight:700;',
+      'letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--tc)}',
+    '#egOv .eg-pic h3{margin:14px 0 8px}',
+    '#egOv .eg-pic .eg-pic-lead{font-size:18px!important;max-width:75ch}',
+    '#egOv .eg-pic-dims{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:18px 0 24px;align-items:start}',
+    '#egOv .eg-pic-dim{border-radius:14px;border:1px solid color-mix(in srgb,var(--tc) 30%,var(--border));background:color-mix(in srgb,var(--tc) 6%,var(--panel))}',
+    '#egOv .eg-pic-dim summary{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;list-style:none}',
+    '#egOv .eg-pic-dim summary::-webkit-details-marker{display:none}',
+    '#egOv .eg-pic-dim[open]{border-color:var(--tc);background:color-mix(in srgb,var(--tc) 12%,var(--panel))}',
+    '#egOv .eg-pic-n{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;font-weight:800;font-size:13px;color:#fff;background:var(--tc)}',
+    '#egOv .eg-pic-i{font-size:22px}',
+    '#egOv .eg-pic-dim b{font-size:16px;color:var(--text)}',
+    '#egOv .eg-pic-dim p{margin:0;padding:0 16px 15px;font-size:15.5px!important;line-height:1.55;color:var(--text-2)}',
+    '#egOv .eg-pic-fila{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;margin-bottom:18px}',
+    '@media(max-width:900px){#egOv .eg-pic-fila{grid-template-columns:1fr}}',
+    '#egOv .eg-pic-graf,#egOv .eg-pic-agua,#egOv .eg-pic-calc{margin:0;padding:18px;border-radius:18px;background:var(--bg);border:1px solid var(--border)}',
+    '#egOv .eg-pic-graf figcaption b,#egOv .eg-pic-st{display:block;font-family:var(--display);font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px}',
+    '#egOv .eg-pic-graf figcaption span{display:block;font-size:14.5px;color:var(--text-2);margin-bottom:8px}',
+    '#egOv .eg-pic-bar{fill:var(--tc)}',
+    /* rótulos del gráfico: con el color de texto del tema (sin esto salían en negro) */
+    '#egOv .eg-pic .eg-g-tx{fill:var(--text-2);font-family:var(--mono,monospace);font-size:13px}',
+    '#egOv .eg-pic-val{fill:var(--text);font-family:var(--mono,monospace);font-size:13px;font-weight:700}',
+    '#egOv .eg-pic-f{margin:8px 0 0;font-size:12.5px!important;color:var(--muted)}',
+    '#egOv .eg-pic-agua{display:flex;flex-direction:column;gap:9px}',
+    '#egOv .eg-pic-a{display:grid;grid-template-columns:auto 1fr;gap:0 12px;align-items:baseline;padding:7px 12px;border-radius:12px;background:color-mix(in srgb,#38BDF8 9%,var(--panel))}',
+    '#egOv .eg-pic-a strong{grid-row:span 2;font-family:var(--display);font-size:22px;color:#38BDF8;min-width:96px}',
+    '#egOv .eg-pic-a span{font-size:15px;color:var(--text)}',
+    '#egOv .eg-pic-a em{font-style:normal;font-size:12.5px;color:var(--muted)}',
+    '#egOv .eg-pic-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 14px;margin-top:10px}',
+    '#egOv .eg-pic-out{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}',
+    '#egOv .eg-pic-nota{grid-column:1 / -1}',
+    '#egOv .eg-pic-r{display:grid;grid-template-columns:28px 1fr auto;gap:0 10px;align-items:center;padding:10px 14px;border-radius:12px}',
+    '#egOv .eg-pic-r.ok{background:color-mix(in srgb,#2F7D4F 14%,transparent)}',
+    '#egOv .eg-pic-r.mal{background:color-mix(in srgb,#c4544a 15%,transparent)}',
+    '#egOv .eg-pic-r > span{font-weight:800;font-size:17px}',
+    '#egOv .eg-pic-r.ok > span{color:#3D8558}', '#egOv .eg-pic-r.mal > span{color:#c4544a}',
+    '#egOv .eg-pic-r b{font-size:15.5px;color:var(--text)}',
+    '#egOv .eg-pic-r strong{font-family:var(--mono,monospace);font-size:16px;color:var(--text);text-align:right}',
+    '#egOv .eg-pic-r em{grid-column:2 / -1;font-style:normal;font-size:12.5px;color:var(--muted)}',
+    '#egOv .eg-pic-nota{margin:6px 0 0;font-size:15px!important;color:var(--text-2)}',
+    '#egOv .eg-pic-fuente{margin:16px 0 0;font-size:12.5px!important;color:var(--muted);max-width:none}'
   ].join('');
   var poner = function(){ (document.body || document.documentElement).appendChild(s); };
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
@@ -42691,6 +42939,10 @@ if(typeof window.egCalcRun === 'function'){
 })();
 
 </script>
+
+
+
+
 
 
 
