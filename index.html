@@ -34217,6 +34217,9 @@ window.agVolAdapta = agVolAdapta;
 
 
 
+
+
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -37287,6 +37290,9 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
+
+
 
 
 
@@ -43682,6 +43688,7 @@ if(typeof window.egCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -47178,6 +47185,9 @@ if(typeof window.pcAccesoTodos === 'function'){
 }
 
 </script>
+
+
+
 
 
 
@@ -51235,6 +51245,7 @@ if(typeof window.lcCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -55548,6 +55559,9 @@ if(typeof window.grCalcRun === 'function'){
 })();
 
 </script>
+
+
+
 
 
 
@@ -59918,6 +59932,9 @@ if(typeof window.gpCalcRun === 'function'){
 
 
 
+
+
+
 <style>
 
 /* ===== curso 10: solo lo que no existe ya ===== */
@@ -64228,6 +64245,9 @@ if(typeof window.pbCalcRun === 'function'){
 
 
 
+
+
+
 <style>
 
 /* ===== curso 11: solo lo que no existe ya ===== */
@@ -68497,6 +68517,9 @@ if(typeof window.bvCalcRun === 'function'){
 })();
 
 </script>
+
+
+
 
 
 <style>
@@ -72902,6 +72925,3964 @@ if(typeof window.apCalcRun === 'function'){
 })();
 
 </script>
+
+
+
+
+
+<style>
+
+/* ===== homologación visual: los estilos van en hv-motor.js ===== */
+
+</style>
+<script>
+
+/* ---------- hv-motor.js ---------- */
+/* ============================================================
+   HOMOLOGACIÓN VISUAL · CAPA COMÚN DE LOS CURSOS — armazón
+   ============================================================
+   AGROACADEMY · LA MISMA EXPERIENCIA VISUAL EN TODOS LOS CURSOS
+   ------------------------------------------------------------
+   Los cursos 8 a 12 nacieron con un motor visual completo: cabecera
+   del módulo con foto, una foto del tema en cada página (degradada
+   debajo del contenido o de fondo), cortina entre módulos, páginas
+   que entran con movimiento y fotos con un lento acercamiento.
+
+   Los primeros cursos (Porcicultura, Nutrición, Reproducción,
+   Sanidad, Ruta, Engorde y Lechones) se construyeron antes, cada uno
+   a su manera. Esta capa les da lo mismo SIN reescribirlos: envuelve
+   sus funciones (pintar, ir a un módulo, mostrar una página) y añade
+   encima la foto, la cabecera y el movimiento.
+
+   Reglas:
+   · Nada se guarda ni se borra: el avance, los accesos y las notas
+     de los estudiantes no se tocan. Todo es presentación.
+   · Si la página ya tiene una imagen de verdad (foto, lámina o
+     figura), no se le pone otra.
+   · Las fotos salen de HVFOTOS (hv-fotos.js), por curso y módulo,
+     sin repetirse dentro de un curso.
+   · Con «reducir movimiento» del sistema, no hay animaciones.
+   ============================================================ */
+
+function hvQuieto(){
+  try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; }
+}
+function hvEsc(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function hvVal(nombre){ try{ return (new Function('return typeof ' + nombre + ' === "undefined" ? undefined : ' + nombre))(); }catch(e){ return undefined; } }
+
+/* ---------- los cursos que se homologan ---------- */
+var HVCURSOS = {
+  nutricion:    { ov:'nxOv', main:'nxMain', ir:'nxIr', pinta:'nxPinta', cur:'NXCUR', mods:'NXMOD', pag:'ag' },
+  reproduccion: { ov:'rpOv', main:'rpMain', ir:'rpIr', pinta:'rpPinta', cur:'RPCUR', mods:'RPMOD', pag:'ag' },
+  sanidad:      { ov:'sbOv', main:'sbMain', ir:'sbIr', pinta:'sbPinta', cur:'SBCUR', mods:'SBMOD', pag:'ag' },
+  ruta:         { ov:'rtOv', main:'rtMain', ir:'rtIr', pinta:'rtPinta', cur:'RTCUR', mods:'RTMOD', pag:'ag' },
+  engorde:      { ov:'egOv', main:'egMain', ir:'egIr', pinta:'egPinta', cur:'EGCUR', mods:'EGMOD', pag:'eg', propio:true },
+  lechones:     { ov:'lcOv', main:'lcMain', ir:'lcIr', pinta:'lcPinta', cur:'LCCUR', mods:'LCMOD', pag:'lc', propio:true },
+  porcicultura: { ov:null,   main:'main',   ir:'goto', pinta:null,     cur:'current', mods:null, pag:'ag', base:true }
+};
+function hvCur(c){ var v = hvVal(HVCURSOS[c].cur); return typeof v === 'number' ? v : (+v || 0); }
+function hvMods(c){ var m = HVCURSOS[c].mods; if(!m) return null; var v = hvVal(m); return Array.isArray(v) ? v : null; }
+function hvMod(c, n){ var t = (typeof HVFOTOS !== 'undefined' && HVFOTOS[c]) ? HVFOTOS[c][n] : null; return t || null; }
+
+/* ---------- 1 · la cabecera del módulo, con foto ---------- */
+function hvCabecera(c){
+  var k = HVCURSOS[c]; if(!k || k.propio) return;
+  var main = document.getElementById(k.main); if(!main) return;
+  var hero = k.base ? main.querySelector('.module.active .mod-hero') : main.querySelector('.nx-hero');
+  if(!hero || hero.classList.contains('hv-hero')) return;
+  var f = hvMod(c, hvCur(c)); if(!f || !f.hero) return;
+  hero.classList.add('hv-hero');
+  var s = document.createElement('span');
+  s.className = 'hv-hero-foto'; s.setAttribute('aria-hidden', 'true');
+  s.style.backgroundImage = 'url(images/' + f.hero + '.jpg)';
+  hero.insertBefore(s, hero.firstChild);
+}
+
+/* ---------- 2 · una foto del tema en cada página ---------- */
+function hvWrap(c){
+  var k = HVCURSOS[c];
+  if(k.base) return document.querySelector('#main .module.active') || document.querySelector('#main .module');
+  return document.querySelector('#' + k.main + ' .nx-wrap');
+}
+function hvSecs(c, w){
+  return [].slice.call(w.querySelectorAll(HVCURSOS[c].base ? '.block' : ':scope > section.nx-b'));
+}
+function hvTieneImagen(s){
+  if(s.classList.contains('nx-fondo') || s.querySelector('.nx-fondo')) return true;
+  return [].some.call(s.querySelectorAll('img'), function(i){ var r = i.getBoundingClientRect(); return r.width > 60 && r.height > 60; }) ||
+    !!s.querySelector('[class*="-lamina"], [class*="pie-foto"], [class*="fondo-foto"], .ag-fig, .nx-fig, [class*="-graf"] svg, .ag-fin');
+}
+function hvQuitaFotos(w){
+  [].forEach.call(w.querySelectorAll('.hv-pie-foto'), function(x){ x.remove(); });
+  [].forEach.call(w.querySelectorAll('.hv-fondo-foto'), function(x){ x.classList.remove('hv-fondo-foto'); x.style.removeProperty('--ffoto'); });
+}
+var HVBLOQUE = '.nx-ex, .nx-obj, [class~="ag-tabla"], [class~="ag-datos"], [class~="ag-linea"], [class~="ag-cards"], [class~="ag-comp"], [class~="ag-nota"], .nx-card, .nx-tabla, .nx-alerta, blockquote, table';
+
+function hvPagina(c, i){
+  var w = hvWrap(c); if(!w) return;
+  hvQuitaFotos(w);
+  var n = hvCur(c); if(!n) return;
+  var f = hvMod(c, n); if(!f || !f.pool || !f.pool.length) return;
+  var vis = hvSecs(c, w).filter(function(s){ return s.style.display !== 'none' && s.offsetHeight > 0; });
+  if(!vis.length || vis.some(hvTieneImagen)) return;
+  var main = document.getElementById(HVCURSOS[c].main);
+  /* en la primera página manda la cabecera, si ya trae foto */
+  if(i === 0 && main && !HVCURSOS[c].base && main.querySelector('.nx-hero.hv-hero, [class~="eg-hero"].con-foto, [class~="lc-hero"].con-foto')) return;
+  var l = f.pool[i % f.pool.length];
+  var nav = w.querySelector(':scope > .nx-lnav, :scope > .lesson-nav');
+  var util = (HVCURSOS[c].base ? innerHeight : main.clientHeight) - (nav ? nav.offsetHeight + 40 : 130);
+  var usado = vis.reduce(function(a, s){ return a + s.getBoundingClientRect().height + 16; }, 0);
+  var hueco = util - usado;
+  if(innerWidth > 900 && hueco >= 150){
+    var fig = document.createElement('figure');
+    fig.className = 'hv-pie-foto';
+    fig.style.height = Math.round(Math.min(hueco - 24, util * 0.62)) + 'px';
+    fig.innerHTML = '<img src="images/' + l[0] + '.jpg" alt="' + hvEsc(l[1]) + '" loading="eager">';
+    vis[vis.length - 1].appendChild(fig);
+  } else {
+    var b = vis[0].querySelector(HVBLOQUE) || vis[0];
+    b.classList.add('hv-fondo-foto');
+    b.style.setProperty('--ffoto', 'url("images/' + l[0] + '.jpg")');
+  }
+}
+window.hvPagina = hvPagina;
+
+/* ---------- 3 · las páginas entran con movimiento ---------- */
+function hvEntra(c, dir){
+  if(hvQuieto()) return;
+  var w = hvWrap(c); if(!w) return;
+  w.classList.remove('hv-pag-sig', 'hv-pag-ant'); void w.offsetWidth;
+  w.classList.add(dir < 0 ? 'hv-pag-ant' : 'hv-pag-sig');
+  clearTimeout(w.__hvT);
+  w.__hvT = setTimeout(function(){ w.classList.remove('hv-pag-sig', 'hv-pag-ant'); }, 1000);
+}
+
+/* ---------- 4 · la cortina entre módulos ---------- */
+function hvCortina(c, n, dir){
+  if(hvQuieto()) return;
+  var k = HVCURSOS[c], mods = hvMods(c);
+  var m = mods ? mods[n - 1] : null;
+  var ov = k.ov ? document.getElementById(k.ov) : document.body;
+  if(!ov || !n) return;
+  var titulo = m ? (m.t || '') : '';
+  if(k.base){
+    var h = document.querySelector('#main .module h1, #main .module h2, #main h1');
+    titulo = h ? h.textContent : '';
+  }
+  var total = mods ? mods.length : (k.base ? 12 : 0);
+  var vieja = document.getElementById('hvCortina'); if(vieja) vieja.remove();
+  var x = document.createElement('div');
+  x.id = 'hvCortina'; x.className = dir < 0 ? 'atras' : '';
+  x.style.setProperty('--ac', (m && m.ac) || 'var(--accent, #2F7D4F)');
+  var puntos = '';
+  for(var i = 1; i <= total; i++) puntos += '<i class="' + (i < n ? 'ya' : (i === n ? 'aqui' : '')) + '"></i>';
+  x.innerHTML = '<div class="hvc-in"><span class="hvc-k">Módulo</span><b class="hvc-n">' + (n < 10 ? '0' + n : n) + '</b>' +
+    '<p class="hvc-t">' + hvEsc(titulo) + '</p><div class="hvc-p">' + puntos + '</div></div>';
+  ov.appendChild(x);
+  setTimeout(function(){ x.remove(); }, 1500);
+}
+
+/* ---------- 5 · los enganches ---------- */
+(function hvEngancha(){
+  /* a) el paginador común (Porcicultura, Nutrición, Reproducción, Sanidad y Ruta) */
+  if(typeof window.agMuestra === 'function'){
+    var _agMuestraHv = window.agMuestra;
+    window.agMuestra = function(curso, i){
+      var antes = (typeof AGPAG !== 'undefined' && AGPAG[curso] != null) ? AGPAG[curso] : null;
+      var r = _agMuestraHv.apply(this, arguments);
+      if(HVCURSOS[curso] && HVCURSOS[curso].pag === 'ag'){
+        var ahora = (typeof AGPAG !== 'undefined') ? AGPAG[curso] : i;
+        try{ hvPagina(curso, ahora || 0); }catch(e){}
+        if(antes != null && ahora !== antes) hvEntra(curso, ahora > antes ? 1 : -1);
+        if(curso === 'ruta') hvRutaContador();
+        if(curso === 'porcicultura') try{ hvCabecera('porcicultura'); }catch(e){}
+      }
+      return r;
+    };
+  }
+  /* b) los libros propios de Engorde y Lechones: solo la foto, el movimiento ya lo traen */
+  [['engorde', 'egLibroMuestra', 'EGLPAG'], ['lechones', 'lcLibroMuestra', 'LCLPAG']].forEach(function(x){
+    if(typeof window[x[1]] !== 'function') return;
+    var _f = window[x[1]];
+    window[x[1]] = function(){
+      var r = _f.apply(this, arguments);
+      var curso = x[0], pv = x[2];
+      setTimeout(function(){ try{ hvPagina(curso, hvVal(pv) || 0); }catch(e){} }, 260);
+      return r;
+    };
+  });
+  /* c) al pintar un módulo: la cabecera con foto */
+  ['nutricion', 'reproduccion', 'sanidad', 'ruta'].forEach(function(c){
+    var fn = HVCURSOS[c].pinta;
+    if(typeof window[fn] !== 'function') return;
+    var _f = window[fn];
+    window[fn] = function(){
+      var r = _f.apply(this, arguments);
+      try{ hvCabecera(c); }catch(e){}
+      if(c === 'ruta') setTimeout(hvRutaPagina, 70);
+      return r;
+    };
+  });
+  /* d) Porcicultura no tiene función de pintar: su cabecera se pone al entrar al módulo */
+  if(typeof window.goto === 'function'){
+    var _gotoHv = window.goto;
+    window.goto = function(){
+      var r = _gotoHv.apply(this, arguments);
+      setTimeout(function(){ try{ hvCabecera('porcicultura'); }catch(e){} }, 80);
+      return r;
+    };
+  }
+  /* la pantalla de entrada de Porcicultura vuelve a pintar el módulo al cerrarse */
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#wipeCta')) setTimeout(function(){ try{ hvCabecera('porcicultura'); }catch(x){} }, 350);
+  }, true);
+  /* e) al cambiar de módulo: la cortina (Porcicultura, Engorde y Lechones ya traen la suya) */
+  ['nutricion', 'reproduccion', 'sanidad', 'ruta'].forEach(function(c){
+    var fn = HVCURSOS[c].ir;
+    if(typeof window[fn] !== 'function') return;
+    var _f = window[fn];
+    window[fn] = function(id){
+      var antes = hvCur(c);
+      var r = _f.apply(this, arguments);
+      var ahora = hvCur(c), mods = hvMods(c);
+      var max = mods ? mods.length : 12;
+      if(ahora >= 1 && ahora <= max && ahora !== antes && +id === ahora) hvCortina(c, ahora, ahora > antes ? 1 : -1);
+      return r;
+    };
+  });
+})();
+
+/* ============================================================
+   RUTA: DE PÁGINA LARGA A DIAPOSITIVAS, COMO LOS DEMÁS
+   ------------------------------------------------------------
+   Ruta se leía bajando. Se pasa al mismo paginador común (agMuestra)
+   que usan Nutrición, Reproducción y Sanidad: se le enseña dónde está
+   su contenido, se le pone la barra de abajo y el teclado pasa de
+   página (y de módulo al llegar al final), igual que en el resto.
+   ============================================================ */
+if(typeof window.agWrap === 'function'){
+  var _agWrapHv = window.agWrap;
+  window.agWrap = function(curso){
+    if(curso === 'ruta') return document.querySelector('#rtMain .nx-wrap');
+    return _agWrapHv.apply(this, arguments);
+  };
+}
+if(typeof window.agPasa === 'function'){
+  var _agPasaHv = window.agPasa;
+  window.agPasa = function(curso, d){
+    if(curso !== 'ruta') return _agPasaHv.apply(this, arguments);
+    var g = (typeof AGGRP !== 'undefined' && AGGRP.ruta) || agRecalcula('ruta');
+    var i = (AGPAG.ruta || 0) + d;
+    var n = hvCur('ruta'), mods = hvMods('ruta') || [];
+    if(i < 0){ if(n > 1) rtIr(n - 1); else rtIr(0); return; }
+    if(i >= g.length){ rtIr(n + 1); return; }
+    agMuestra('ruta', i);
+  };
+}
+function hvRutaPagina(){
+  var ov = document.getElementById('rtOv'); if(!ov) return;
+  var n = hvCur('ruta'), mods = hvMods('ruta') || [];
+  if(n < 1 || n > mods.length){ ov.classList.remove('nx-leccion', 'hv-ruta-pag'); return; }
+  ov.classList.add('nx-leccion', 'hv-ruta-pag');
+  var w = document.querySelector('#rtMain .nx-wrap'); if(!w) return;
+  if(!w.querySelector(':scope > .nx-lnav')){
+    var b = document.createElement('div');
+    b.className = 'nx-lnav';
+    b.innerHTML = '<button class="nx-lb" onclick="agPasa(\'ruta\',-1)">← Anterior</button>' +
+      '<div class="nx-lp"><span id="rtLc"></span><div class="nx-lpb"><i id="rtLi"></i></div></div>' +
+      '<button class="nx-lb on" onclick="agPasa(\'ruta\',1)">Continuar →</button>';
+    w.appendChild(b);
+  }
+  if(typeof agRecalcula === 'function'){ agRecalcula('ruta'); agMuestra('ruta', 0); }
+}
+function hvRutaContador(){
+  var g = (typeof AGGRP !== 'undefined' && AGGRP.ruta) || [];
+  var i = (typeof AGPAG !== 'undefined' && AGPAG.ruta) || 0;
+  var c = document.getElementById('rtLc'), b = document.getElementById('rtLi');
+  if(c) c.textContent = 'Página ' + (i + 1) + ' de ' + (g.length || 1);
+  if(b) b.style.width = ((i + 1) / (g.length || 1) * 100) + '%';
+}
+window.hvRutaPagina = hvRutaPagina;
+/* el teclado de Ruta saltaba de módulo en módulo: ahora pasa de página */
+document.addEventListener('keydown', function(e){
+  var ov = document.getElementById('rtOv');
+  if(!ov || !ov.classList.contains('hv-ruta-pag')) return;
+  var cs = document.getElementById('csOv');
+  if(cs && typeof agEnFrente === 'function' && agEnFrente(cs)) return;
+  if(typeof agEscribiendo === 'function' && agEscribiendo(e)) return;
+  if(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+  if(e.key === 'ArrowRight' || e.key === 'PageDown'){ agPasa('ruta', 1); e.preventDefault(); e.stopImmediatePropagation(); }
+  else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ agPasa('ruta', -1); e.preventDefault(); e.stopImmediatePropagation(); }
+}, true);
+if(typeof window.agCursoActivo === 'function'){
+  var _agCursoActivoHv = window.agCursoActivo;
+  window.agCursoActivo = function(){
+    var ov = document.getElementById('rtOv');
+    if(ov && ov.classList.contains('hv-ruta-pag')) return 'ruta';
+    return _agCursoActivoHv.apply(this, arguments);
+  };
+}
+if(typeof window.agModulo === 'function'){
+  var _agModuloHv = window.agModulo;
+  window.agModulo = function(d){
+    var ov = document.getElementById('rtOv');
+    if(ov && ov.classList.contains('hv-ruta-pag')){
+      var n = hvCur('ruta') + d, mods = hvMods('ruta') || [];
+      if(n < 0 || n > mods.length + 1) return false;
+      rtIr(n); return true;
+    }
+    return _agModuloHv.apply(this, arguments);
+  };
+}
+addEventListener('resize', function(){
+  clearTimeout(window.__hvRe);
+  window.__hvRe = setTimeout(function(){
+    var ov = document.getElementById('rtOv');
+    if(ov && ov.classList.contains('hv-ruta-pag') && typeof agRecalcula === 'function'){ agRecalcula('ruta'); agMuestra('ruta', 0); }
+  }, 300);
+});
+
+/* ---------- estilos ---------- */
+(function hvCss(){
+  if(document.getElementById('hvCss')) return;
+  var OV = ':is(#nxOv,#rpOv,#sbOv,#rtOv,#egOv,#lcOv,#main)';
+  var s = document.createElement('style'); s.id = 'hvCss';
+  s.textContent = [
+    /* la cabecera con foto: el color del módulo a la izquierda, la foto a la derecha */
+    OV + ' .mod-hero.hv-hero{position:relative;overflow:hidden;isolation:isolate}',
+    OV + ' .mod-hero.hv-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(14,18,30,.96) 0%,rgba(14,18,30,.9) 40%,rgba(14,18,30,.55) 70%,rgba(14,18,30,.25) 100%)}',
+    OV + ' .nx-hero.hv-hero{position:relative;overflow:hidden;isolation:isolate;min-height:300px;display:flex;flex-direction:column;justify-content:flex-end}',
+    OV + ' .hv-hero-foto{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;transform:scale(1.03);animation:hvHeroEntra 1.4s ease-out both}',
+    OV + ' .nx-hero.hv-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,var(--ac,#2F7D4F) 0%,var(--ac,#2F7D4F) 36%,color-mix(in srgb,var(--ac,#2F7D4F) 80%,transparent) 54%,color-mix(in srgb,var(--ac,#2F7D4F) 22%,transparent) 100%)}',
+    OV + ' .nx-hero.hv-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(0,0,0,.35) 0%,transparent 45%)}',
+    OV + ' .nx-hero.hv-hero h2{text-shadow:0 2px 18px rgba(0,0,0,.25)}',
+    '@keyframes hvHeroEntra{from{opacity:0;transform:scale(1.09)}to{opacity:1;transform:scale(1.03)}}',
+    '@media(max-width:700px){' + OV + ' .nx-hero.hv-hero{min-height:250px}' + OV + ' .nx-hero.hv-hero::before{background:linear-gradient(180deg,color-mix(in srgb,var(--ac,#2F7D4F) 45%,transparent) 0%,var(--ac,#2F7D4F) 62%,var(--ac,#2F7D4F) 100%)}}',
+
+    /* la foto debajo del contenido, fundida hacia arriba */
+    OV + ' .hv-pie-foto{position:relative;margin:18px 0 0;border-radius:22px;overflow:hidden;grid-column:1/-1}',
+    OV + ' .hv-pie-foto img{display:block;width:100%;height:100%;object-fit:cover;-webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 30%,#000 70%);mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 30%,#000 70%)}',
+    OV + ' .hv-pie-foto figcaption{position:absolute;left:18px;bottom:14px;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;color:#fff;background:rgba(11,19,34,.62);backdrop-filter:blur(4px)}',
+    /* la foto de fondo, muy degradada para que el texto se lea */
+    OV + ' .hv-fondo-foto{background:linear-gradient(100deg,color-mix(in srgb,var(--panel,#fff) 94%,transparent) 0%,color-mix(in srgb,var(--panel,#fff) 80%,transparent) 45%,color-mix(in srgb,var(--panel,#fff) 42%,transparent) 100%),var(--ffoto) center/cover no-repeat!important}',
+
+    /* las páginas entran con movimiento */
+    '@keyframes hvEntraSig{from{opacity:0;transform:perspective(900px) translateX(90px) rotateY(-10deg);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}',
+    '@keyframes hvEntraAnt{from{opacity:0;transform:perspective(900px) translateX(-90px) rotateY(10deg);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}',
+    '@keyframes hvKen{from{transform:scale(1.2)}to{transform:scale(1.02)}}',
+    '@keyframes hvRaya{from{width:0}to{width:56px}}',
+    '.hv-pag-sig > section.nx-b > *, .hv-pag-sig > .block{animation:hvEntraSig .7s cubic-bezier(.16,1,.3,1) both}',
+    '.hv-pag-ant > section.nx-b > *, .hv-pag-ant > .block{animation:hvEntraAnt .7s cubic-bezier(.16,1,.3,1) both}',
+    '.hv-pag-sig > section.nx-b > *:nth-child(2), .hv-pag-ant > section.nx-b > *:nth-child(2){animation-delay:.07s}',
+    '.hv-pag-sig > section.nx-b > *:nth-child(3), .hv-pag-ant > section.nx-b > *:nth-child(3){animation-delay:.14s}',
+    '.hv-pag-sig > section.nx-b > *:nth-child(n+4), .hv-pag-ant > section.nx-b > *:nth-child(n+4){animation-delay:.2s}',
+    '.hv-pag-sig .nx-b h3::before, .hv-pag-ant .nx-b h3::before{animation:hvRaya .7s cubic-bezier(.16,1,.3,1) .25s both}',
+    OV + ' .hv-pie-foto img{animation:hvKen 9s ease-out both}',
+
+    /* la cortina entre módulos */
+    '#hvCortina{position:fixed;inset:0;z-index:9800;display:grid;place-items:center;pointer-events:none;background:var(--ac,#2F7D4F);color:#fff;' +
+      'clip-path:inset(0 100% 0 0);animation:hvCortina 1.45s cubic-bezier(.76,0,.24,1) both}',
+    '#hvCortina.atras{animation-name:hvCortinaAtras}',
+    '@keyframes hvCortina{0%{clip-path:inset(0 100% 0 0)}28%{clip-path:inset(0 0 0 0)}72%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 100%)}}',
+    '@keyframes hvCortinaAtras{0%{clip-path:inset(0 0 0 100%)}28%{clip-path:inset(0 0 0 0)}72%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}',
+    '#hvCortina .hvc-in{text-align:center;padding:24px}',
+    '#hvCortina .hvc-k{display:block;font-family:var(--mono,monospace);font-size:13px;letter-spacing:.3em;text-transform:uppercase;opacity:.8;animation:hvcSube .5s ease .2s both}',
+    '#hvCortina .hvc-n{display:block;font-family:var(--display,inherit);font-weight:800;line-height:1;font-size:clamp(110px,20vw,240px);text-shadow:0 10px 60px rgba(0,0,0,.35);animation:hvcNum .7s cubic-bezier(.2,1.3,.4,1) .22s both}',
+    '#hvCortina .hvc-t{margin:6px auto 0;max-width:22ch;font-family:var(--display,inherit);font-weight:800;font-size:clamp(22px,3vw,34px);line-height:1.15;text-wrap:balance;animation:hvcSube .55s ease .36s both}',
+    '#hvCortina .hvc-p{display:flex;gap:8px;justify-content:center;margin-top:26px;animation:hvcSube .5s ease .45s both}',
+    '#hvCortina .hvc-p i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.3)}',
+    '#hvCortina .hvc-p i.ya{background:rgba(255,255,255,.75)}',
+    '#hvCortina .hvc-p i.aqui{background:#fff;transform:scale(1.5)}',
+    '@keyframes hvcSube{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}',
+    '@keyframes hvcNum{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}',
+
+    /* Ruta en diapositivas: los botones de módulo de abajo sobran */
+    '#rtOv.hv-ruta-pag .nx-wrap > .nx-navb{display:none}',
+    '#rtOv.hv-ruta-pag .nx-wrap{display:flex;flex-direction:column;min-height:calc(100vh - 230px)}',
+
+    '@media(prefers-reduced-motion:reduce){#hvCortina{display:none}.hv-pag-sig *,.hv-pag-ant *,' + OV + ' .hv-pie-foto img,' + OV + ' .hv-hero-foto{animation:none!important}}'
+  ].join('');
+  var poner = function(){ (document.body || document.documentElement).appendChild(s); };
+  if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
+})();
+
+
+/* ---------- hv-fotos.js ---------- */
+/* Fotos de la homologación visual: por curso y módulo, la de la cabecera
+   (hero) y las de las páginas (pool), sin repetirse dentro de un curso.
+   Generado por hv-asigna.mjs desde la revisión de hojas de contacto. */
+var HVFOTOS = {
+ 'lechones': {
+  '1': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-2737175',
+     'Verraco'
+    ],
+    [
+     'hv-5326744',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-66627',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-110820',
+     'Un cerdo de cerca'
+    ],
+    [
+     'hv-2737178',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-110815',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-2737171',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4129087',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '2': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-133468',
+     'Lechones'
+    ],
+    [
+     'hv-5382988',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4455016',
+     'Cerdo'
+    ],
+    [
+     'hv-4165324',
+     'Un cerdo de cerca'
+    ],
+    [
+     'hv-4636976',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4381393',
+     'Cerdos'
+    ],
+    [
+     'hv-4636983',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4402836',
+     'Cerdo'
+    ]
+   ]
+  },
+  '3': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-1108813',
+     'Fuente de calor'
+    ],
+    [
+     'hv-3726313',
+     'Temperatura'
+    ],
+    [
+     'hv-3178267',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4751423',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4388479',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4956934',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-4425158',
+     'Cerdos'
+    ],
+    [
+     'hv-4892760',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '4': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-3751040',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5408007',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4956929',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4402835',
+     'Cerdo'
+    ],
+    [
+     'hv-5336001',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4504743',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4956944',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4504750',
+     'Cerdo'
+    ]
+   ]
+  },
+  '5': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-4767455',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4132853',
+     'Vacunas'
+    ],
+    [
+     'hv-4602350',
+     'Cerdo'
+    ],
+    [
+     'hv-5610059',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4504740',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-5610056',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4508755',
+     'Cerdos'
+    ],
+    [
+     'hv-5610063',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '6': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-4119961',
+     'Cerdo'
+    ],
+    [
+     'hv-3178268',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-7811891',
+     'Cerdo'
+    ],
+    [
+     'hv-4602357',
+     'Cerdo'
+    ],
+    [
+     'hv-5793262',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5073489',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6792158',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4857500',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '7': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-4767450',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-3178265',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-8089810',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4677663',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-6074128',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-5610061',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-6791938',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4857501',
+     'Cerdo'
+    ]
+   ]
+  },
+  '8': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-272980',
+     'Los registros'
+    ],
+    [
+     'hv-4975384',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-4813941',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-9273166',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4864253',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792156',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6826378',
+     'Cerdos'
+    ],
+    [
+     'hv-6792159',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '9': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-4879361',
+     'Cerdo'
+    ],
+    [
+     'hv-4818715',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-461435',
+     'Los registros'
+    ],
+    [
+     'hv-9704410',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4892765',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6792161',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-7177110',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-6871000',
+     'Lechones recién nacidos'
+    ]
+   ]
+  }
+ },
+ 'engorde': {
+  '1': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-10471752',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-9768959',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782301',
+     'Cerdos'
+    ],
+    [
+     'hv-10012861',
+     'Cerdo'
+    ],
+    [
+     'hv-4923349',
+     'Cerdo'
+    ],
+    [
+     'hv-10641996',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-10770448',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-7782873',
+     'Corral de cerdos'
+    ]
+   ]
+  },
+  '2': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-185941',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-10012851',
+     'Cerdo'
+    ],
+    [
+     'hv-416423',
+     'Ventilación'
+    ],
+    [
+     'hv-4245539',
+     'Tuberías de agua'
+    ],
+    [
+     'hv-10770449',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4941167',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-12388310',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-12415684',
+     'Granja porcina'
+    ]
+   ]
+  },
+  '3': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-5368132',
+     'Transporte de animales'
+    ],
+    [
+     'hv-13590647',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-12380970',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-14534682',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4923345',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-27167732',
+     'Cerdo'
+    ],
+    [
+     'hv-15509113',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-13347775',
+     'Nave de cerdos'
+    ]
+   ]
+  },
+  '4': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-4388475',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-5463563',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782871',
+     'Alimento balanceado'
+    ],
+    [
+     'hv-15457826',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4923351',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-27596691',
+     'Verraco'
+    ],
+    [
+     'hv-18408992',
+     'Cerdo'
+    ],
+    [
+     'hv-13347782',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '5': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-4439303',
+     'Cerdos y agua'
+    ],
+    [
+     'hv-4022334',
+     'Temperatura'
+    ],
+    [
+     'hv-1374448',
+     'Ventilación'
+    ],
+    [
+     'hv-1300361',
+     'Cerdo'
+    ],
+    [
+     'hv-17052108',
+     'Cerdo'
+    ],
+    [
+     'hv-4966536',
+     'Cerdo'
+    ],
+    [
+     'hv-27557662',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-20729021',
+     'Cerdos en la granja'
+    ]
+   ]
+  },
+  '6': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-8175357',
+     'La báscula'
+    ],
+    [
+     'hv-3201468',
+     'Los registros'
+    ],
+    [
+     'hv-23833037',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-29348666',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5368596',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-29738144',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-28384795',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-13347780',
+     'Cerdo'
+    ]
+   ]
+  },
+  '7': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-39272522',
+     'Alimento balanceado'
+    ],
+    [
+     'hv-4386327',
+     'Las cuentas'
+    ],
+    [
+     'hv-4439313',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-29485402',
+     'Cerdo'
+    ],
+    [
+     'hv-5418627',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-29752324',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-29738143',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-18831697',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '8': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-27174111',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4872516',
+     'Cerdo'
+    ],
+    [
+     'hv-4892762',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-29738145',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5610055',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-30310007',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-31116487',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-28949549',
+     'Nave de cerdos'
+    ]
+   ]
+  },
+  '9': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-4386338',
+     'Las cuentas'
+    ],
+    [
+     'hv-6693661',
+     'Contabilidad'
+    ],
+    [
+     'hv-1267310',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-30310009',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5610060',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-31116485',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-39060694',
+     'Lechones'
+    ],
+    [
+     'hv-28949546',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '10': {
+   'hero': null,
+   'pool': [
+    [
+     'hv-868110',
+     'Mercado'
+    ],
+    [
+     'hv-943528',
+     'Carnicería'
+    ],
+    [
+     'hv-5368145',
+     'Transporte de animales'
+    ],
+    [
+     'hv-3182784',
+     'Un buen trato'
+    ],
+    [
+     'hv-31507563',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6416110',
+     'Cerdo'
+    ],
+    [
+     'hv-31116486',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-29738142',
+     'Productor con sus cerdos'
+    ]
+   ]
+  }
+ },
+ 'ruta': {
+  '1': {
+   'hero': 'hv-6416106',
+   'pool': [
+    [
+     'hv-31507566',
+     'Cerdo'
+    ],
+    [
+     'hv-4386406',
+     'Las cuentas'
+    ],
+    [
+     'hv-149484',
+     'Campo dominicano'
+    ],
+    [
+     'hv-37039884',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792162',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-31116488',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-29946958',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4966539',
+     'Cerdo'
+    ],
+    [
+     'hv-4636980',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-7782339',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7265838',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '2': {
+   'hero': 'hv-4386292',
+   'pool': [
+    [
+     'hv-6694485',
+     'Contabilidad'
+    ],
+    [
+     'hv-5861184',
+     'Los registros'
+    ],
+    [
+     'hv-669617',
+     'Números en la computadora'
+    ],
+    [
+     'hv-37087906',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7195107',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-33978495',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-34154074',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-34154075',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4682188',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782336',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4386325',
+     'Las cuentas'
+    ]
+   ]
+  },
+  '3': {
+   'hero': 'hv-4610801',
+   'pool': [
+    [
+     'hv-4386366',
+     'Las cuentas'
+    ],
+    [
+     'hv-37087903',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37087911',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-8627916',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-34150856',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-37718211',
+     'Cerdo'
+    ],
+    [
+     'hv-37072987',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4619526',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-7782394',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4619532',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4386342',
+     'Las cuentas'
+    ]
+   ]
+  },
+  '4': {
+   'hero': 'hv-7782388',
+   'pool': [
+    [
+     'hv-5861185',
+     'Los registros'
+    ],
+    [
+     'hv-3783002',
+     'Gestión digital'
+    ],
+    [
+     'hv-9273168',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37072999',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37072994',
+     'Cerdo'
+    ],
+    [
+     'hv-4813937',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-9912133',
+     'Cerdo'
+    ],
+    [
+     'hv-14327938',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5861189',
+     'Los registros'
+    ],
+    [
+     'hv-4975400',
+     'Gestión digital'
+    ],
+    [
+     'hv-10767184',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '5': {
+   'hero': 'hv-19025058',
+   'pool': [
+    [
+     'hv-4885207',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-105230',
+     'Camino rural'
+    ],
+    [
+     'hv-4175028',
+     'Un buen trato'
+    ],
+    [
+     'hv-11155920',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37073004',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4857495',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-19025057',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-27090773',
+     'Cerdo'
+    ],
+    [
+     'hv-4985161',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-614484',
+     'Camino rural'
+    ],
+    [
+     'hv-4175026',
+     'Un buen trato'
+    ]
+   ]
+  }
+ },
+ 'sanidad': {
+  '1': {
+   'hero': 'hv-16469478',
+   'pool': [
+    [
+     'hv-1350591',
+     'El veterinario'
+    ],
+    [
+     'hv-7723203',
+     'Vacunas'
+    ],
+    [
+     'hv-11880858',
+     'Cerdo'
+    ],
+    [
+     'hv-37073014',
+     'Un cerdo de cerca'
+    ],
+    [
+     'hv-4892761',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-27168258',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-7723192',
+     'Vacunas'
+    ],
+    [
+     'hv-14423116',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37073012',
+     'Lechones'
+    ],
+    [
+     'hv-4991809',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-7723188',
+     'Vacunas'
+    ],
+    [
+     'hv-16621728',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '2': {
+   'hero': 'hv-4031654',
+   'pool': [
+    [
+     'hv-3985287',
+     'Ropa de protección'
+    ],
+    [
+     'hv-1008745',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-18038685',
+     'Lechones mamando'
+    ],
+    [
+     'hv-5092805',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4033019',
+     'Laboratorio'
+    ],
+    [
+     'hv-4176722',
+     'Ropa de protección'
+    ],
+    [
+     'hv-1094544',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-17971059',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5129489',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4033307',
+     'Laboratorio'
+    ],
+    [
+     'hv-6285392',
+     'Ropa de protección'
+    ],
+    [
+     'hv-3013823',
+     'La entrada de la granja'
+    ]
+   ]
+  },
+  '3': {
+   'hero': 'hv-6940962',
+   'pool': [
+    [
+     'hv-4096281',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-185477',
+     'Botas de trabajo'
+    ],
+    [
+     'hv-18773841',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5033766',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-8994766',
+     'Transporte de animales'
+    ],
+    [
+     'hv-8905694',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-712883',
+     'Botas de trabajo'
+    ],
+    [
+     'hv-18773839',
+     'Granja porcina'
+    ],
+    [
+     'hv-5354509',
+     'Cerdo'
+    ],
+    [
+     'hv-10204800',
+     'Transporte de animales'
+    ],
+    [
+     'hv-9389186',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-1529426',
+     'Botas de trabajo'
+    ]
+   ]
+  },
+  '4': {
+   'hero': 'hv-11556843',
+   'pool': [
+    [
+     'hv-88257',
+     'Cerca perimetral'
+    ],
+    [
+     'hv-2199293',
+     'Vehículos'
+    ],
+    [
+     'hv-3736432',
+     'Lavado de manos'
+    ],
+    [
+     'hv-4148991',
+     'Botas de trabajo'
+    ],
+    [
+     'hv-18998054',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-7782313',
+     'Cerdo'
+    ],
+    [
+     'hv-11725645',
+     'Cerca perimetral'
+    ],
+    [
+     'hv-945630',
+     'Cerca perimetral'
+    ],
+    [
+     'hv-4320464',
+     'Vehículos'
+    ],
+    [
+     'hv-3943909',
+     'Lavado de manos'
+    ],
+    [
+     'hv-4407299',
+     'Botas de trabajo'
+    ],
+    [
+     'hv-26725344',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '5': {
+   'hero': 'hv-4830258',
+   'pool': [
+    [
+     'hv-3973045',
+     'Lavado de manos'
+    ],
+    [
+     'hv-31561151',
+     'Granja porcina'
+    ],
+    [
+     'hv-7980410',
+     'Cerdo'
+    ],
+    [
+     'hv-4830286',
+     'Botas de trabajo'
+    ],
+    [
+     'hv-3992952',
+     'Lavado de manos'
+    ],
+    [
+     'hv-34150858',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-9273167',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4886805',
+     'Botas de trabajo'
+    ],
+    [
+     'hv-4031827',
+     'Lavado de manos'
+    ],
+    [
+     'hv-35058975',
+     'Cerdo'
+    ],
+    [
+     'hv-10012855',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4114733',
+     'Lavado de manos'
+    ]
+   ]
+  },
+  '6': {
+   'hero': 'hv-4098314',
+   'pool': [
+    [
+     'hv-4491156',
+     'Lavado de manos'
+    ],
+    [
+     'hv-37072990',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-15283969',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4098761',
+     'Desinfección'
+    ],
+    [
+     'hv-5198870',
+     'Lavado de manos'
+    ],
+    [
+     'hv-37073011',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-16207036',
+     'Lechones mamando'
+    ],
+    [
+     'hv-4098760',
+     'Desinfección'
+    ],
+    [
+     'hv-7492916',
+     'Lavado de manos'
+    ],
+    [
+     'hv-37073001',
+     'Granja familiar'
+    ],
+    [
+     'hv-18038687',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4098576',
+     'Desinfección'
+    ]
+   ]
+  },
+  '7': {
+   'hero': 'hv-879797',
+   'pool': [
+    [
+     'hv-37073002',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-18138263',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-1301865',
+     'Cerca perimetral'
+    ],
+    [
+     'hv-37072996',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-19933094',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-1912711',
+     'Cerca perimetral'
+    ],
+    [
+     'hv-37073013',
+     'Granja porcina'
+    ],
+    [
+     'hv-23833039',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-2042161',
+     'Cerca perimetral'
+    ],
+    [
+     'hv-26611538',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4909804',
+     'Cerca perimetral'
+    ],
+    [
+     'hv-26600191',
+     'Nave de cerdos'
+    ]
+   ]
+  },
+  '8': {
+   'hero': 'hv-5503336',
+   'pool': [
+    [
+     'hv-1000057',
+     'Manejo del estiércol'
+    ],
+    [
+     'hv-28221234',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5503338',
+     'Compostaje'
+    ],
+    [
+     'hv-3977265',
+     'Manejo del estiércol'
+    ],
+    [
+     'hv-28102047',
+     'Cerdo'
+    ],
+    [
+     'hv-7299923',
+     'Compostaje'
+    ],
+    [
+     'hv-28953624',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-29932544',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-29932539',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-33492379',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-33824780',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-37519413',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '9': {
+   'hero': 'hv-4975391',
+   'pool': [
+    [
+     'hv-6328973',
+     'Los registros'
+    ],
+    [
+     'hv-11764557',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-8376342',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-17616803',
+     'Los registros'
+    ],
+    [
+     'hv-14076243',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-33887246',
+     'Los registros'
+    ],
+    [
+     'hv-17171777',
+     'La entrada de la granja'
+    ],
+    [
+     'hv-4975384',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-272980',
+     'Los registros'
+    ],
+    [
+     'hv-461435',
+     'Los registros'
+    ],
+    [
+     'hv-3201468',
+     'Los registros'
+    ],
+    [
+     'hv-5861184',
+     'Los registros'
+    ]
+   ]
+  },
+  '10': {
+   'hero': 'hv-4033304',
+   'pool': [
+    [
+     'hv-4098764',
+     'Desinfección'
+    ],
+    [
+     'hv-4032274',
+     'Laboratorio'
+    ],
+    [
+     'hv-4098323',
+     'Desinfección'
+    ],
+    [
+     'hv-5726808',
+     'Laboratorio'
+    ],
+    [
+     'hv-4098778',
+     'Desinfección'
+    ],
+    [
+     'hv-7448009',
+     'Laboratorio'
+    ],
+    [
+     'hv-4098321',
+     'Desinfección'
+    ],
+    [
+     'hv-8326738',
+     'Laboratorio'
+    ],
+    [
+     'hv-4098783',
+     'Desinfección'
+    ],
+    [
+     'hv-8325755',
+     'Laboratorio'
+    ],
+    [
+     'hv-4098319',
+     'Desinfección'
+    ],
+    [
+     'hv-8325939',
+     'Laboratorio'
+    ]
+   ]
+  }
+ },
+ 'reproduccion': {
+  '1': {
+   'hero': 'hv-4165325',
+   'pool': [
+    [
+     'hv-27061579',
+     'Gestación'
+    ],
+    [
+     'hv-609486',
+     'El hocico del cerdo'
+    ],
+    [
+     'hv-4508750',
+     'Cerdo'
+    ],
+    [
+     'hv-4619530',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4381398',
+     'El hocico del cerdo'
+    ],
+    [
+     'hv-4826040',
+     'Cerdo'
+    ],
+    [
+     'hv-7879402',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5561000',
+     'El hocico del cerdo'
+    ],
+    [
+     'hv-4985160',
+     'Cerdo'
+    ],
+    [
+     'hv-7893663',
+     'Cerda reproductora'
+    ],
+    [
+     'hv-10641993',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5194286',
+     'Cerdo'
+    ],
+    [
+     'hv-8031486',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-36925446',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-5194291',
+     'Cerdo'
+    ],
+    [
+     'hv-8170128',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '2': {
+   'hero': 'hv-760720',
+   'pool': [
+    [
+     'hv-5561913',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5239794',
+     'El calendario'
+    ],
+    [
+     'hv-5668803',
+     'Números en la computadora'
+    ],
+    [
+     'hv-6170644',
+     'El calendario'
+    ],
+    [
+     'hv-5717713',
+     'Números en la computadora'
+    ],
+    [
+     'hv-6172482',
+     'El calendario'
+    ],
+    [
+     'hv-5717072',
+     'Números en la computadora'
+    ],
+    [
+     'hv-6170766',
+     'El calendario'
+    ],
+    [
+     'hv-6694535',
+     'Números en la computadora'
+    ],
+    [
+     'hv-7580915',
+     'El calendario'
+    ],
+    [
+     'hv-6779570',
+     'Números en la computadora'
+    ],
+    [
+     'hv-7581018',
+     'El calendario'
+    ],
+    [
+     'hv-6801648',
+     'Números en la computadora'
+    ],
+    [
+     'hv-7580934',
+     'El calendario'
+    ],
+    [
+     'hv-6829513',
+     'Números en la computadora'
+    ],
+    [
+     'hv-6964077',
+     'Contabilidad'
+    ]
+   ]
+  },
+  '3': {
+   'hero': 'hv-18262032',
+   'pool': [
+    [
+     'hv-34075101',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-39272479',
+     'Cerda reproductora'
+    ],
+    [
+     'hv-4892765',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4956944',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5326744',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5408007',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5793262',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792158',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792162',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6792159',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792161',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-8627916',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-10471752',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-10770448',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-11155920',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-12388310',
+     'Cerdos de engorde'
+    ]
+   ]
+  },
+  '4': {
+   'hero': 'hv-15283969',
+   'pool': [
+    [
+     'hv-17052108',
+     'Cerdo'
+    ],
+    [
+     'hv-19933094',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-23833037',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-26611538',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-27167732',
+     'Cerdo'
+    ],
+    [
+     'hv-27596691',
+     'Verraco'
+    ],
+    [
+     'hv-29485402',
+     'Cerdo'
+    ],
+    [
+     'hv-29738145',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-31116486',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-31116488',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-31116487',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-37039884',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37073001',
+     'Granja familiar'
+    ],
+    [
+     'hv-37072999',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37087903',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-37087911',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '5': {
+   'hero': 'hv-8325940',
+   'pool': [
+    [
+     'hv-7622563',
+     'Lavado de manos'
+    ],
+    [
+     'hv-8442030',
+     'Laboratorio'
+    ],
+    [
+     'hv-8804978',
+     'Lavado de manos'
+    ],
+    [
+     'hv-8442037',
+     'Laboratorio'
+    ],
+    [
+     'hv-8804977',
+     'Lavado de manos'
+    ],
+    [
+     'hv-8442033',
+     'Laboratorio'
+    ],
+    [
+     'hv-8442574',
+     'Laboratorio'
+    ],
+    [
+     'hv-8539726',
+     'Laboratorio'
+    ],
+    [
+     'hv-66627',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-110815',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-2737175',
+     'Verraco'
+    ],
+    [
+     'hv-2737178',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4388479',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4402835',
+     'Cerdo'
+    ],
+    [
+     'hv-4455016',
+     'Cerdo'
+    ],
+    [
+     'hv-4602350',
+     'Cerdo'
+    ]
+   ]
+  },
+  '6': {
+   'hero': 'hv-7082626',
+   'pool': [
+    [
+     'hv-13978755',
+     'Hora de comer'
+    ],
+    [
+     'hv-34688507',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-35479847',
+     'Hora de comer'
+    ],
+    [
+     'hv-185941',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-2737171',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4129087',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4504743',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4602357',
+     'Cerdo'
+    ],
+    [
+     'hv-4636980',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4636976',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4636983',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4682188',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4619526',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4767455',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4751423',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4813941',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '7': {
+   'hero': 'hv-1350591',
+   'pool': [
+    [
+     'hv-4956929',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5610056',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792156',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-10012861',
+     'Cerdo'
+    ],
+    [
+     'hv-9912133',
+     'Cerdo'
+    ],
+    [
+     'hv-10770449',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-12415684',
+     'Granja porcina'
+    ],
+    [
+     'hv-13590647',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-14534682',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-16469478',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-19025057',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-20729021',
+     'Cerdos en la granja'
+    ],
+    [
+     'hv-27168258',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-27557662',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-29738142',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-34154074',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '8': {
+   'hero': 'hv-3726313',
+   'pool': [
+    [
+     'hv-4022334',
+     'Temperatura'
+    ],
+    [
+     'hv-4132853',
+     'Vacunas'
+    ],
+    [
+     'hv-7723203',
+     'Vacunas'
+    ],
+    [
+     'hv-7723192',
+     'Vacunas'
+    ],
+    [
+     'hv-7723188',
+     'Vacunas'
+    ],
+    [
+     'hv-272980',
+     'Los registros'
+    ],
+    [
+     'hv-461435',
+     'Los registros'
+    ],
+    [
+     'hv-3201468',
+     'Los registros'
+    ],
+    [
+     'hv-5861184',
+     'Los registros'
+    ],
+    [
+     'hv-5861185',
+     'Los registros'
+    ],
+    [
+     'hv-5861189',
+     'Los registros'
+    ],
+    [
+     'hv-6328973',
+     'Los registros'
+    ],
+    [
+     'hv-17616803',
+     'Los registros'
+    ],
+    [
+     'hv-33887246',
+     'Los registros'
+    ],
+    [
+     'hv-5336001',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5610059',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '9': {
+   'hero': 'hv-4818706',
+   'pool': [
+    [
+     'hv-4839377',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4905830',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4941164',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4941168',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5016599',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5016603',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4991808',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5080099',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5092816',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5129492',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5129493',
+     'Granja familiar'
+    ],
+    [
+     'hv-5269679',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5361824',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5428357',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5480780',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5839435',
+     'Lechones'
+    ]
+   ]
+  },
+  '10': {
+   'hero': 'hv-4751420',
+   'pool': [
+    [
+     'hv-5073488',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4386373',
+     'Las cuentas'
+    ],
+    [
+     'hv-4767458',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6137255',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4386335',
+     'Las cuentas'
+    ],
+    [
+     'hv-4734934',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6416101',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5466785',
+     'Las cuentas'
+    ],
+    [
+     'hv-4734935',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6416094',
+     'Cerdo'
+    ],
+    [
+     'hv-5466798',
+     'Las cuentas'
+    ],
+    [
+     'hv-4826037',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-7265807',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5466809',
+     'Las cuentas'
+    ],
+    [
+     'hv-4839380',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-7590532',
+     'Lechones recién nacidos'
+    ]
+   ]
+  }
+ },
+ 'nutricion': {
+  '1': {
+   'hero': 'hv-7782054',
+   'pool': [
+    [
+     'hv-11771299',
+     'La báscula'
+    ],
+    [
+     'hv-5648605',
+     'Maíz en grano'
+    ],
+    [
+     'hv-19757403',
+     'Alimento peletizado'
+    ],
+    [
+     'hv-12572535',
+     'La báscula'
+    ],
+    [
+     'hv-7543139',
+     'Maíz en grano'
+    ],
+    [
+     'hv-7877995',
+     'Maíz en grano'
+    ],
+    [
+     'hv-7877994',
+     'Mazorcas de maíz'
+    ],
+    [
+     'hv-9362415',
+     'Mazorcas de maíz'
+    ],
+    [
+     'hv-9608914',
+     'Mazorcas de maíz'
+    ],
+    [
+     'hv-9608916',
+     'Maíz en grano'
+    ],
+    [
+     'hv-7782871',
+     'Alimento balanceado'
+    ],
+    [
+     'hv-39272522',
+     'Alimento balanceado'
+    ],
+    [
+     'hv-8175357',
+     'La báscula'
+    ],
+    [
+     'hv-272980',
+     'Los registros'
+    ],
+    [
+     'hv-461435',
+     'Los registros'
+    ]
+   ]
+  },
+  '2': {
+   'hero': 'hv-7543111',
+   'pool': [
+    [
+     'hv-2889412',
+     'Soya'
+    ],
+    [
+     'hv-96769',
+     'Afrecho de trigo'
+    ],
+    [
+     'hv-9856',
+     'Pulidura de arroz'
+    ],
+    [
+     'hv-7543105',
+     'Mazorcas de maíz'
+    ],
+    [
+     'hv-9940116',
+     'Soya'
+    ],
+    [
+     'hv-326082',
+     'Afrecho de trigo'
+    ],
+    [
+     'hv-236472',
+     'Pulidura de arroz'
+    ],
+    [
+     'hv-12338945',
+     'Soya'
+    ],
+    [
+     'hv-17555574',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-13912529',
+     'Soya'
+    ],
+    [
+     'hv-29118168',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-13821931',
+     'Soya'
+    ],
+    [
+     'hv-31226915',
+     'Soya'
+    ],
+    [
+     'hv-66627',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-110815',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '3': {
+   'hero': 'hv-6137262',
+   'pool': [
+    [
+     'hv-4619536',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-7785480',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5610065',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-7848141',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-8128339',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-7799458',
+     'Cerdo'
+    ],
+    [
+     'hv-11880855',
+     'Cerdo'
+    ],
+    [
+     'hv-7854937',
+     'Cerdo'
+    ],
+    [
+     'hv-12072973',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-7865580',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-17069907',
+     'Cerdo'
+    ],
+    [
+     'hv-7854936',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-27061599',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-7930308',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-29284900',
+     'Cerdos comiendo'
+    ]
+   ]
+  },
+  '4': {
+   'hero': 'hv-5472000',
+   'pool': [
+    [
+     'hv-12293641',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-18404065',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-30688218',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-31113266',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-1267310',
+     'Sacos de materia prima'
+    ],
+    [
+     'hv-3201468',
+     'Los registros'
+    ],
+    [
+     'hv-5861184',
+     'Los registros'
+    ],
+    [
+     'hv-5861185',
+     'Los registros'
+    ],
+    [
+     'hv-5861189',
+     'Los registros'
+    ],
+    [
+     'hv-6328973',
+     'Los registros'
+    ],
+    [
+     'hv-17616803',
+     'Los registros'
+    ],
+    [
+     'hv-33887246',
+     'Los registros'
+    ],
+    [
+     'hv-4975384',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-4975391',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-8376342',
+     'La ficha de la granja'
+    ]
+   ]
+  },
+  '5': {
+   'hero': 'hv-7935969',
+   'pool': [
+    [
+     'hv-7782315',
+     'Lechones mamando'
+    ],
+    [
+     'hv-29709714',
+     'Lechones'
+    ],
+    [
+     'hv-7980409',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-7811889',
+     'Lechones mamando'
+    ],
+    [
+     'hv-31651265',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-8095779',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-8170127',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-37405215',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-9348924',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-9946102',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-14192388',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-19032102',
+     'Cerdo'
+    ],
+    [
+     'hv-25409005',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-20447453',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-26725315',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '6': {
+   'hero': 'hv-2737175',
+   'pool': [
+    [
+     'hv-2737178',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-2737171',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-3178265',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4129087',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4388475',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4402835',
+     'Cerdo'
+    ],
+    [
+     'hv-4439313',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4402836',
+     'Cerdo'
+    ],
+    [
+     'hv-4455016',
+     'Cerdo'
+    ],
+    [
+     'hv-4504740',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4610801',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4636976',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4619532',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4677663',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4619526',
+     'Cerdos comiendo'
+    ]
+   ]
+  },
+  '7': {
+   'hero': 'hv-2253257',
+   'pool': [
+    [
+     'hv-221369',
+     'Silos de grano'
+    ],
+    [
+     'hv-4170172',
+     'Almacén'
+    ],
+    [
+     'hv-2496592',
+     'Planta de alimento'
+    ],
+    [
+     'hv-2451421',
+     'Silos de grano'
+    ],
+    [
+     'hv-4483862',
+     'Almacén'
+    ],
+    [
+     'hv-12746942',
+     'Planta de alimento'
+    ],
+    [
+     'hv-2965707',
+     'Silos de grano'
+    ],
+    [
+     'hv-4483608',
+     'Almacén'
+    ],
+    [
+     'hv-14601199',
+     'Planta de alimento'
+    ],
+    [
+     'hv-4481327',
+     'Almacén'
+    ],
+    [
+     'hv-14601194',
+     'Planta de alimento'
+    ],
+    [
+     'hv-14601197',
+     'Planta de alimento'
+    ],
+    [
+     'hv-14860189',
+     'Planta de alimento'
+    ],
+    [
+     'hv-4751423',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4956929',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '8': {
+   'hero': 'hv-5466793',
+   'pool': [
+    [
+     'hv-6779567',
+     'Contabilidad'
+    ],
+    [
+     'hv-7012262',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5466810',
+     'Las cuentas'
+    ],
+    [
+     'hv-6863282',
+     'Contabilidad'
+    ],
+    [
+     'hv-7651803',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5900160',
+     'Las cuentas'
+    ],
+    [
+     'hv-6927354',
+     'Contabilidad'
+    ],
+    [
+     'hv-7693224',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5900228',
+     'Las cuentas'
+    ],
+    [
+     'hv-6963865',
+     'Contabilidad'
+    ],
+    [
+     'hv-7691749',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5942520',
+     'Las cuentas'
+    ],
+    [
+     'hv-6963053',
+     'Contabilidad'
+    ],
+    [
+     'hv-7688123',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5942583',
+     'Las cuentas'
+    ]
+   ]
+  },
+  '9': {
+   'hero': 'hv-1366083',
+   'pool': [
+    [
+     'hv-6266283',
+     'Las cuentas'
+    ],
+    [
+     'hv-7868972',
+     'Números en la computadora'
+    ],
+    [
+     'hv-1382102',
+     'Campo de maíz'
+    ],
+    [
+     'hv-6694916',
+     'Las cuentas'
+    ],
+    [
+     'hv-7857555',
+     'Números en la computadora'
+    ],
+    [
+     'hv-2749115',
+     'Campo de maíz'
+    ],
+    [
+     'hv-6694864',
+     'Las cuentas'
+    ],
+    [
+     'hv-7857560',
+     'Números en la computadora'
+    ],
+    [
+     'hv-3066814',
+     'Campo de maíz'
+    ],
+    [
+     'hv-7873555',
+     'Números en la computadora'
+    ],
+    [
+     'hv-7983587',
+     'Números en la computadora'
+    ],
+    [
+     'hv-7947999',
+     'Números en la computadora'
+    ],
+    [
+     'hv-7947638',
+     'Números en la computadora'
+    ],
+    [
+     'hv-4386327',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386338',
+     'Las cuentas'
+    ]
+   ]
+  },
+  '10': {
+   'hero': 'hv-4602350',
+   'pool': [
+    [
+     'hv-4879361',
+     'Cerdo'
+    ],
+    [
+     'hv-4892762',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4892760',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4892765',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4923351',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4956944',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5610056',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5610059',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5793262',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6791938',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792159',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782339',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782336',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782394',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782388',
+     'Productor con sus cerdos'
+    ]
+   ]
+  }
+ },
+ 'porcicultura': {
+  '1': {
+   'hero': 'hv-149541',
+   'pool': [
+    [
+     'hv-149483',
+     'Campo caribeño'
+    ],
+    [
+     'hv-4732282',
+     'Finca tropical'
+    ],
+    [
+     'hv-5529924',
+     'Granja familiar'
+    ],
+    [
+     'hv-149670',
+     'Campo dominicano'
+    ],
+    [
+     'hv-240522',
+     'Campo caribeño'
+    ],
+    [
+     'hv-5380195',
+     'Finca tropical'
+    ],
+    [
+     'hv-5529950',
+     'Granja familiar'
+    ],
+    [
+     'hv-800721',
+     'Campo dominicano'
+    ],
+    [
+     'hv-3009861',
+     'Campo caribeño'
+    ],
+    [
+     'hv-6123588',
+     'Finca tropical'
+    ],
+    [
+     'hv-3037954',
+     'Campo dominicano'
+    ],
+    [
+     'hv-4156557',
+     'Campo caribeño'
+    ],
+    [
+     'hv-6516270',
+     'Finca tropical'
+    ],
+    [
+     'hv-3675435',
+     'Campo dominicano'
+    ]
+   ]
+  },
+  '2': {
+   'hero': 'hv-219884',
+   'pool': [
+    [
+     'hv-4993036',
+     'Construcción de la nave'
+    ],
+    [
+     'hv-271667',
+     'El plano'
+    ],
+    [
+     'hv-6961082',
+     'Tanque de agua'
+    ],
+    [
+     'hv-1650031',
+     'Ventilación'
+    ],
+    [
+     'hv-5827529',
+     'Instalaciones'
+    ],
+    [
+     'hv-4992410',
+     'Construcción de la nave'
+    ],
+    [
+     'hv-3862377',
+     'El plano'
+    ],
+    [
+     'hv-7004241',
+     'Tanque de agua'
+    ],
+    [
+     'hv-5953814',
+     'Instalaciones'
+    ],
+    [
+     'hv-6970322',
+     'Construcción de la nave'
+    ],
+    [
+     'hv-4134179',
+     'El plano'
+    ],
+    [
+     'hv-110815',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-185941',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-2737175',
+     'Verraco'
+    ]
+   ]
+  },
+  '3': {
+   'hero': 'hv-4165325',
+   'pool': [
+    [
+     'hv-4619530',
+     'Cerdos comiendo'
+    ],
+    [
+     'hv-4892765',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4956944',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5326744',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5408007',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5793262',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792158',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792162',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-6792159',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792161',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-7879402',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-7893663',
+     'Cerda reproductora'
+    ],
+    [
+     'hv-8031486',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-8170128',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '4': {
+   'hero': 'hv-4978797',
+   'pool': [
+    [
+     'hv-27433379',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-34705800',
+     'Lechones'
+    ],
+    [
+     'hv-7266306',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-34150859',
+     'Lechones mamando'
+    ],
+    [
+     'hv-2737178',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-2737171',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-3178268',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-3178267',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-3751040',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4129087',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4119961',
+     'Cerdo'
+    ],
+    [
+     'hv-4636976',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4636983',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-4751420',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '5': {
+   'hero': 'hv-7782871',
+   'pool': [
+    [
+     'hv-39272522',
+     'Alimento balanceado'
+    ],
+    [
+     'hv-5648605',
+     'Maíz en grano'
+    ],
+    [
+     'hv-7543139',
+     'Maíz en grano'
+    ],
+    [
+     'hv-7877995',
+     'Maíz en grano'
+    ],
+    [
+     'hv-7877994',
+     'Mazorcas de maíz'
+    ],
+    [
+     'hv-9362415',
+     'Mazorcas de maíz'
+    ],
+    [
+     'hv-9608914',
+     'Mazorcas de maíz'
+    ],
+    [
+     'hv-9608916',
+     'Maíz en grano'
+    ],
+    [
+     'hv-2889412',
+     'Soya'
+    ],
+    [
+     'hv-9940116',
+     'Soya'
+    ],
+    [
+     'hv-12338945',
+     'Soya'
+    ],
+    [
+     'hv-13912529',
+     'Soya'
+    ],
+    [
+     'hv-13821931',
+     'Soya'
+    ],
+    [
+     'hv-31226915',
+     'Soya'
+    ]
+   ]
+  },
+  '6': {
+   'hero': 'hv-4098322',
+   'pool': [
+    [
+     'hv-66627',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-4388479',
+     'Nave de cerdos'
+    ],
+    [
+     'hv-4402835',
+     'Cerdo'
+    ],
+    [
+     'hv-4455016',
+     'Cerdo'
+    ],
+    [
+     'hv-4602350',
+     'Cerdo'
+    ],
+    [
+     'hv-4956929',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-5610056',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6792156',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-10012861',
+     'Cerdo'
+    ],
+    [
+     'hv-9912133',
+     'Cerdo'
+    ],
+    [
+     'hv-10770449',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-12388310',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-12415684',
+     'Granja porcina'
+    ],
+    [
+     'hv-13590647',
+     'Productor con sus cerdos'
+    ]
+   ]
+  },
+  '7': {
+   'hero': 'hv-5610064',
+   'pool': [
+    [
+     'hv-6418992',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-6418991',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-12131402',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-12290944',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-13347778',
+     'Cerdo'
+    ],
+    [
+     'hv-17836304',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-27084346',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-33653774',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-34074188',
+     'Cerdos descansando'
+    ],
+    [
+     'hv-4892760',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4956934',
+     'Cerdos de engorde'
+    ],
+    [
+     'hv-5610063',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6791938',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-6871000',
+     'Lechones recién nacidos'
+    ]
+   ]
+  },
+  '8': {
+   'hero': 'hv-4910822',
+   'pool': [
+    [
+     'hv-7702173',
+     'Trabajo en la granja'
+    ],
+    [
+     'hv-272980',
+     'Los registros'
+    ],
+    [
+     'hv-461435',
+     'Los registros'
+    ],
+    [
+     'hv-3201468',
+     'Los registros'
+    ],
+    [
+     'hv-5861184',
+     'Los registros'
+    ],
+    [
+     'hv-5861185',
+     'Los registros'
+    ],
+    [
+     'hv-5861189',
+     'Los registros'
+    ],
+    [
+     'hv-6328973',
+     'Los registros'
+    ],
+    [
+     'hv-17616803',
+     'Los registros'
+    ],
+    [
+     'hv-33887246',
+     'Los registros'
+    ],
+    [
+     'hv-4975384',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-4975391',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-8376342',
+     'La ficha de la granja'
+    ],
+    [
+     'hv-4879361',
+     'Cerdo'
+    ]
+   ]
+  },
+  '9': {
+   'hero': 'hv-7654120',
+   'pool': [
+    [
+     'hv-7658352',
+     'Contabilidad'
+    ],
+    [
+     'hv-4386327',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386338',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386406',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386292',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386325',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386366',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386342',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386373',
+     'Las cuentas'
+    ],
+    [
+     'hv-4386335',
+     'Las cuentas'
+    ],
+    [
+     'hv-5466785',
+     'Las cuentas'
+    ],
+    [
+     'hv-5466798',
+     'Las cuentas'
+    ],
+    [
+     'hv-5466809',
+     'Las cuentas'
+    ],
+    [
+     'hv-5466793',
+     'Las cuentas'
+    ]
+   ]
+  },
+  '10': {
+   'hero': 'hv-1635330',
+   'pool': [
+    [
+     'hv-947174',
+     'Carnicería'
+    ],
+    [
+     'hv-4199238',
+     'Venta en supermercado'
+    ],
+    [
+     'hv-2676932',
+     'Carne de cerdo'
+    ],
+    [
+     'hv-1635333',
+     'Mercado'
+    ],
+    [
+     'hv-1968748',
+     'Carnicería'
+    ],
+    [
+     'hv-2167025',
+     'Carnicería'
+    ],
+    [
+     'hv-868110',
+     'Mercado'
+    ],
+    [
+     'hv-943528',
+     'Carnicería'
+    ],
+    [
+     'hv-3182784',
+     'Un buen trato'
+    ],
+    [
+     'hv-4175028',
+     'Un buen trato'
+    ],
+    [
+     'hv-4175026',
+     'Un buen trato'
+    ],
+    [
+     'hv-5368132',
+     'Transporte de animales'
+    ],
+    [
+     'hv-5368145',
+     'Transporte de animales'
+    ],
+    [
+     'hv-6940962',
+     'Transporte de animales'
+    ]
+   ]
+  },
+  '11': {
+   'hero': 'hv-630863',
+   'pool': [
+    [
+     'hv-4975404',
+     'Gestión digital'
+    ],
+    [
+     'hv-1254997',
+     'Energía solar'
+    ],
+    [
+     'hv-3066775',
+     'Biogás'
+    ],
+    [
+     'hv-5230965',
+     'Gestión digital'
+    ],
+    [
+     'hv-2800845',
+     'Energía solar'
+    ],
+    [
+     'hv-5230963',
+     'Gestión digital'
+    ],
+    [
+     'hv-2800832',
+     'Energía solar'
+    ],
+    [
+     'hv-3783002',
+     'Gestión digital'
+    ],
+    [
+     'hv-4975400',
+     'Gestión digital'
+    ],
+    [
+     'hv-669617',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5561913',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5668803',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5717713',
+     'Números en la computadora'
+    ],
+    [
+     'hv-5717072',
+     'Números en la computadora'
+    ]
+   ]
+  },
+  '12': {
+   'hero': 'hv-1237528',
+   'pool': [
+    [
+     'hv-5273096',
+     'Campo dominicano'
+    ],
+    [
+     'hv-2801312',
+     'Camino rural'
+    ],
+    [
+     'hv-3049268',
+     'Camino rural'
+    ],
+    [
+     'hv-3985144',
+     'Camino rural'
+    ],
+    [
+     'hv-6482868',
+     'Camino rural'
+    ],
+    [
+     'hv-4892762',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-4923351',
+     'Lechones recién nacidos'
+    ],
+    [
+     'hv-5610059',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782339',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782336',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782394',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-7782388',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-10641996',
+     'Productor con sus cerdos'
+    ],
+    [
+     'hv-14327938',
+     'Productor con sus cerdos'
+    ]
+   ]
+  }
+ }
+};
+
+</script>
+
+
+
+
 
 
 </body>
