@@ -627,6 +627,9 @@ body.modal-open{overflow:hidden}
 .st-badge{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:100px}
 .st-activo{background:var(--green-wash);color:var(--green-d)}
 .st-pendiente{background:var(--amber-wash);color:var(--amber-d)}
+.st-en_revision{background:var(--amber-wash);color:var(--amber-d)}
+.st-aprobado{background:var(--green-wash);color:var(--green-d)}
+.st-rechazado{background:var(--crit-wash);color:var(--crit)}
 .st-inactivo{background:var(--ivory-2);color:var(--muted)}
 .st-completado{background:#e2eef2;color:#1f6f8b}
 .st-retirado{background:var(--crit-wash);color:var(--crit)}
@@ -643,6 +646,13 @@ body.modal-open{overflow:hidden}
 .adm-acts button:hover{border-color:var(--accent);background:var(--green-wash)}
 .adm-acts button.del:hover{border-color:var(--crit);background:var(--crit-wash);color:var(--crit)}
 .adm-empty{padding:40px 24px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:14px}
+.adm-precios{margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+.adm-precios h3{margin:0 0 4px}
+.adm-precio-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.adm-precio-row:last-child{border-bottom:0}
+.adm-precio-row>span{flex:1;font-size:14px}
+.adm-precio-row input{width:100px;font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--border);
+  border-radius:8px;background:var(--bg);color:var(--text)}
 .sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .sec-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
 .sec-card-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
@@ -4836,6 +4846,7 @@ router();
   window._pullCertSettings=pullSettings;
   async function applyProfile(user,prof){
     try{ window.NXMIESTADO = prof && prof.status; }catch(e){}
+    try{ if(typeof window.agPreciosDeLaNube==='function') window.agPreciosDeLaNube(); }catch(e){}
     if(prof.role==='admin'){SESSION={role:'ADMIN'};saveSession();await pullSettings();location.hash='#/admin';router();return;}
     SESSION={role:'STUDENT',id:user.id};saveSession();STU=user.id;localStorage.setItem('porci_active',user.id);
     putLocalStudent(user.id,prof);
@@ -4877,8 +4888,8 @@ router();
     try{if(data.user)await sb.from('profiles').update({full_name:name,phone:phone}).eq('id',data.user.id);}catch(e){}
     try{await sb.auth.signOut();}catch(e){}
     window.toggleRegister(false);
-    le('Registro exitoso. Cuando el instructor active tu cuenta (tras el pago), inicia sesión aquí.');
-    toast('¡Registro recibido! Tu cuenta queda pendiente hasta confirmar el pago.','✅');
+    le('Cuenta creada. Ya puedes iniciar sesión.');
+    toast('¡Bienvenido a AgroAcademy! Tu cuenta está lista, inicia sesión para explorar los cursos.','✅');
   };
   window.toggleRegister=function(force){
     REGMODE=(typeof force==='boolean')?force:!REGMODE;
@@ -5110,11 +5121,11 @@ router();
     if(!document.getElementById('loginLinks')){const links=document.createElement('div');links.id='loginLinks';links.className='login-links';
       links.innerHTML='<a onclick="supaReset()">¿Olvidaste tu contraseña?</a><a id="regToggle" onclick="toggleRegister()">Crear cuenta</a>';
       const hint=card.querySelector('.login-hint');card.insertBefore(links,hint);
-      if(hint)hint.innerHTML='Estudiantes: <b>crea tu cuenta</b>; tras confirmar tu pago, el instructor la activa.';}
-    if(!document.getElementById('payPanel')){
-      const hint=card.querySelector('.login-hint');
-      hint?card.insertBefore(document.createRange().createContextualFragment(payPanelHTML()),hint):card.insertAdjacentHTML('beforeend',payPanelHTML());
-    }
+      if(hint)hint.innerHTML='Crear tu cuenta es <b>gratis</b>. Explora los cursos y solicita acceso a los que te interesen cuando quieras.';}
+    /* el precio y las cuentas bancarias ya NO se muestran aquí: se piden
+       al crear la cuenta, que debe ser gratis y sin fricción. Ahora solo
+       aparecen dentro de la app, cuando el estudiante ya autenticado pide
+       acceso a un curso de pago (ver agAbrirPago / agPagoHTML). */
   }
   const _st=document.createElement('style');
   _st.textContent='.login-links{display:flex;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}.login-links a{color:#7cc095;font-size:12.5px;cursor:pointer;text-decoration:underline}'
@@ -5547,6 +5558,144 @@ router();
   window.cqEstAdmin=async function(id,e){ await sb.from('consultas').update({estado:e}).eq('id',id); toast('Estado actualizado','🔄'); cqAbrirAdmin(id); };
   window.cqBorrarAdmin=function(id){ askConfirm('¿Eliminar esta consulta y sus respuestas?',async function(){
       await sb.from('consultas').delete().eq('id',id); toast('Eliminada','🗑'); admTab('consultas'); },'Eliminar'); };
+})();
+</script>
+
+<script>
+/* ============================================================
+   PANEL DEL INSTRUCTOR · SOLICITUDES DE ACCESO Y PRECIOS
+   ------------------------------------------------------------
+   Nuevo modelo comercial (2026-10-06): la cuenta es gratis y el
+   pago se pide por curso, no por cuenta. Antes de esto, pedir
+   acceso solo mandaba un WhatsApp o un correo, sin rastro dentro
+   de la app, y el precio de cada curso vivía repartido en el
+   código y en el localStorage del navegador del instructor — por
+   eso la landing y la app podían mostrar cifras distintas del
+   mismo curso.
+
+   Esta pestaña reúne las dos cosas que faltaban:
+   1. Una lista de quién pidió qué curso y en qué quedó.
+   2. Un lugar para cambiar el precio de un curso sin tocar
+      código: escribe en course_catalog, la misma tabla que ya
+      lee agPrecio/agPagoHTML/agCampusTarjeta.
+
+   Sigue el mismo patrón que la pestaña «Consultas»: un botón en
+   el menú, un envoltorio de admTab, y su propio pintado en
+   #adminBody. Aprobar aquí hace el MISMO update a
+   profiles.acceso_<curso> que ya hacían los paneles de cada
+   curso por separado — no es un segundo sistema de permisos,
+   solo el primer lugar donde queda un botón para hacerlo.
+   ============================================================ */
+(function(){
+  if(!window.SB) return;
+  const sb = window.SB;
+
+  const menu=document.getElementById('adminMenu');
+  if(menu){
+    const b=document.createElement('button');
+    b.setAttribute('data-t','solicitudes');
+    b.innerHTML='<span class="mi">🔓</span> Solicitudes';
+    b.onclick=function(){ admTab('solicitudes'); };
+    const sep=menu.querySelector('.sep');
+    menu.insertBefore(b, sep||null);
+  }
+  if(typeof ADM_TITLES!=='undefined') ADM_TITLES.solicitudes='Solicitudes de acceso';
+
+  const _admTabSol=admTab;
+  admTab=function(t){
+    if(t!=='solicitudes'){ _admTabSol(t); return; }
+    ADM.tab='solicitudes';
+    document.querySelectorAll('#adminMenu button[data-t]').forEach(x=>x.classList.toggle('on',x.dataset.t==='solicitudes'));
+    const ti=document.getElementById('adminTitle'); if(ti) ti.textContent='Solicitudes de acceso';
+    if(matchMedia('(max-width:820px)').matches){const s=document.getElementById('adminSide');if(s)s.classList.add('hide');}
+    pintarSolicitudesAdmin();
+  };
+
+  function nombreCurso(k){ try{ return (typeof AGPAGO!=='undefined'&&AGPAGO[k]&&AGPAGO[k].n) || k; }catch(e){ return k; } }
+  function nombreEstudiante(uid){
+    try{ const s=(typeof STUDENTS!=='undefined'?STUDENTS:[]).find(x=>x.id===uid); return s?(s.name||s.email||uid):uid; }catch(e){ return uid; }
+  }
+  function correoEstudiante(uid){
+    try{ const s=(typeof STUDENTS!=='undefined'?STUDENTS:[]).find(x=>x.id===uid); return s?(s.email||''):''; }catch(e){ return ''; }
+  }
+
+  function preciosHTML(){
+    const cursos=(typeof AGPAGO!=='undefined')?Object.keys(AGPAGO):[];
+    return '<div class="adm-precios"><h3>Precios de los cursos</h3>'+
+      '<p class="adm-note">Se guardan en la nube (course_catalog): cambian a la vez en toda la app.</p>'+
+      cursos.map(function(k){
+        const p=(typeof AGPRECIOS!=='undefined'&&AGPRECIOS[k])?AGPRECIOS[k]:{};
+        return '<div class="adm-precio-row"><span>'+esc(nombreCurso(k))+'</span>'+
+          '<input type="number" min="0" step="1" id="pr_'+k+'" value="'+(p.usd==null?'':p.usd)+'" placeholder="Sin precio">'+
+          '<button class="adm-add" onclick="agGuardarPrecioDesdeAdmin(\''+k+'\')">Guardar</button></div>';
+      }).join('')+
+      '</div>';
+  }
+  window.agGuardarPrecioDesdeAdmin=function(k){
+    const el=document.getElementById('pr_'+k); if(!el) return;
+    const v=el.value;
+    agGuardarPrecioCurso(k, v===''?null:v, '').then(function(r){
+      if(r&&r.error){ toast('No se pudo guardar: '+(r.error.message||r.error),'⛔'); return; }
+      toast('Precio actualizado','💰');
+    });
+  };
+
+  async function pintarSolicitudesAdmin(){
+    const body=document.getElementById('adminBody'); if(!body) return;
+    body.innerHTML=preciosHTML()+'<div id="solListWrap"><p class="adm-note">Cargando solicitudes…</p></div>';
+    const {data,error}=await sb.from('access_requests').select('*').order('created_at',{ascending:false}).limit(300);
+    const wrap=document.getElementById('solListWrap'); if(!wrap) return;
+    if(error){ wrap.innerHTML='<div class="adm-empty">No se pudieron cargar las solicitudes.</div>'; return; }
+    const filas=data||[];
+    if(!filas.length){ wrap.innerHTML='<h3>Solicitudes</h3><div class="adm-empty">Todavía no hay solicitudes.</div>'; return; }
+    const pend=filas.filter(f=>f.status==='pendiente'||f.status==='en_revision').length;
+    wrap.innerHTML='<h3>Solicitudes <span style="font-weight:400;color:var(--muted);font-size:13px">('+pend+' por revisar)</span></h3>'+
+      '<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Curso</th><th>Monto</th><th>Fecha</th><th>Referencia</th><th>Estado</th><th></th></tr></thead><tbody>'+
+      filas.map(function(f){
+        const enRevision=(f.status==='pendiente'||f.status==='en_revision');
+        return '<tr><td><b>'+esc(nombreEstudiante(f.user_id))+'</b><br><span style="color:var(--muted);font-size:12px">'+esc(correoEstudiante(f.user_id))+'</span></td>'+
+          '<td>'+esc(nombreCurso(f.course_key))+'</td>'+
+          '<td>'+(f.monto_usd!=null?'US$ '+f.monto_usd:'—')+'</td>'+
+          '<td>'+new Date(f.created_at).toLocaleDateString('es-DO')+'</td>'+
+          '<td>'+esc(f.referencia||'—')+'</td>'+
+          '<td><span class="st-badge st-'+f.status+'">'+f.status+'</span></td>'+
+          '<td>'+(enRevision
+            ? '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="agAprobarSolicitud(\''+f.id+'\',\''+f.user_id+'\',\''+f.course_key+'\')">Aprobar</button> '+
+              '<button class="adm-add" style="padding:6px 12px;font-size:12px;background:transparent;color:var(--text)" onclick="agRechazarSolicitud(\''+f.id+'\')">Rechazar</button>'
+            : '')+
+          '</td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }
+  window.pintarSolicitudesAdmin=pintarSolicitudesAdmin;
+
+  window.agAprobarSolicitud=async function(reqId,uid,curso){
+    const {data:au}=await sb.auth.getUser();
+    const revisor=(au&&au.user)?au.user.id:null;
+    const patch={}; patch['acceso_'+curso]=true;
+    const r1=await sb.from('profiles').update(patch).eq('id',uid);
+    if(r1.error){ toast('No se pudo dar el acceso: '+r1.error.message,'⛔'); return; }
+    const r2=await sb.from('access_requests').update({status:'aprobado',reviewed_at:new Date().toISOString(),reviewed_by:revisor}).eq('id',reqId);
+    if(r2.error){ toast('Acceso otorgado, pero no se pudo actualizar la solicitud: '+r2.error.message,'⚠️'); }
+    else toast('Acceso aprobado','✅');
+    /* refresco optimista del mapa local del curso, si existe (ver AGSUBE) */
+    try{
+      const map={porcicultura:'PCACCESO',nutricion:'NXACCESO',reproduccion:'RPACCESO',sanidad:'SBACCESO',engorde:'EGACCESO',
+        lechones:'LCACCESO',rentabilidad:'GRACCESO',ponedoras:'GPACCESO',pollos:'PBACCESO',bovinos:'BVACCESO',apicultura:'APACCESO'};
+      const nombreMapa=map[curso];
+      const mapa=(nombreMapa && typeof agSubeMapa==='function')?agSubeMapa(nombreMapa):null;
+      if(mapa) mapa[uid]=true;
+    }catch(e){}
+    pintarSolicitudesAdmin();
+  };
+  window.agRechazarSolicitud=function(reqId){
+    askConfirm('¿Rechazar esta solicitud?',async function(){
+      const {data:au}=await sb.auth.getUser();
+      const revisor=(au&&au.user)?au.user.id:null;
+      const {error}=await sb.from('access_requests').update({status:'rechazado',reviewed_at:new Date().toISOString(),reviewed_by:revisor}).eq('id',reqId);
+      if(error){ toast('No se pudo rechazar: '+error.message,'⛔'); return; }
+      toast('Solicitud rechazada','🚫'); pintarSolicitudesAdmin();
+    },'Rechazar');
+  };
 })();
 </script>
 
@@ -6693,6 +6842,18 @@ router();
 .nxp-b.wa{background:var(--green);border-color:var(--green);color:#fff}
 .nxp-b.wa:hover{background:var(--green-d)}
 .nxp-n{font-size:13px;color:var(--muted);line-height:1.6;margin:0;text-align:center}
+.nxp-sol{margin-bottom:16px}
+.nxp-sol-form{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.nxp-sol-form b{display:block;font-size:14.5px;margin-bottom:4px}
+.nxp-sol-form p{font-size:13px;color:var(--text-2);margin:0 0 10px;line-height:1.5}
+.nxp-sol-form input{width:100%;box-sizing:border-box;font-family:inherit;font-size:14px;padding:10px 12px;
+  border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);margin-bottom:10px}
+.nxp-sol-estado{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;background:var(--bg);
+  border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.nxp-sol-estado span{font-size:18px}
+.nxp-sol-estado b{font-size:14.5px}
+.nxp-sol-estado p{flex-basis:100%;font-size:12.5px;color:var(--muted);margin:2px 0 0}
+.nxp-sol-estado button{flex-basis:100%}
 
 /* resumen de acceso en el panel */
 .nxa-res{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:14px}
@@ -8782,12 +8943,17 @@ try{ const p=JSON.parse(localStorage.getItem('nx_pub')||'null'); if(p)NXPUB=Obje
 if(typeof NXACTIVO!=='undefined') NXPUB.nutricion=NXACTIVO;
 function nxGuardarPub(){ try{ localStorage.setItem('nx_pub',JSON.stringify(NXPUB)); }catch(e){} }
 
-/* El curso base NO tiene acceso por estudiante: lo gobierna el estado de la
-   cuenta, como siempre. Quien pidió cuenta y no ha pagado queda 'pendiente'
-   y el propio login lo detiene. */
+/* Nuevo modelo comercial (2026-10-06): crear la cuenta es GRATIS y no
+   requiere pago. 'pendiente' ahora es un estado normal de cuenta recién
+   creada, no un bloqueo por falta de pago — por eso entra a la lista de
+   estados que pueden usar la plataforma. El pago deja de condicionar la
+   CUENTA y pasa a condicionar cada CURSO por separado (acceso_<curso> en
+   profiles, vía el panel «Solicitar acceso» / agAbrirPago). Solo
+   'inactivo', 'retirado' y 'borrado' siguen bloqueando la cuenta entera,
+   y eso lo decide el instructor a mano, no el pago. */
 
 /* estados que permiten estudiar */
-const NXESTADOS_OK=['activo','completado'];
+const NXESTADOS_OK=['activo','completado','pendiente'];
 function nxCondicionOk(id){
   if(typeof STUDENTS==='undefined') return true;
   const s=STUDENTS.filter(function(x){return x.id===id;})[0];
@@ -21480,6 +21646,47 @@ window.agPrecio = function(curso){
   return (p && p.usd != null) ? ('US$ ' + p.usd) : '';
 };
 window.agGuardarPrecios = agGuardarPrecios;
+
+/* ---------- la nube manda (course_catalog), 2026-10-06 ----------
+   Antes el precio solo vivía en este objeto y en el localStorage del
+   navegador del instructor: por eso la landing y la app podían mostrar
+   cifras distintas del mismo curso. Ahora course_catalog en Supabase es
+   la fuente real; se trae al arrancar y se mezcla encima de lo que ya
+   había (localStorage queda como caché por si falla la red). Todo lo
+   que ya lee AGPRECIOS (agPrecio, agPagoHTML, agCampusTarjeta, etc.)
+   recibe el precio real sin que se le haya tocado una sola línea. */
+function agPreciosDeLaNube(){
+  if(!window.SB) return;
+  window.SB.from('course_catalog').select('course_key,price_usd,nota,active').then(function(r){
+    if(!r || !r.data) return;
+    r.data.forEach(function(c){
+      if(!c.active) return;
+      AGPRECIOS[c.course_key] = Object.assign(AGPRECIOS[c.course_key] || {}, {usd:c.price_usd, nota:c.nota || ''});
+    });
+    agGuardarPrecios();
+    try{ if(typeof agPrecioEnTarjetas === 'function') agPrecioEnTarjetas(); }catch(e){}
+  }, function(){});
+}
+(function(){
+  var n = 0;
+  var intentar = function(){
+    if(window.SB){ agPreciosDeLaNube(); return; }
+    if(++n < 40) setTimeout(intentar, 250);
+  };
+  intentar();
+})();
+window.agPreciosDeLaNube = agPreciosDeLaNube;
+
+/* el instructor cambia un precio desde el panel: se escribe en la nube
+   (fuente real) y de inmediato en memoria, para que se vea al instante */
+window.agGuardarPrecioCurso = function(curso, usd, nota){
+  AGPRECIOS[curso] = Object.assign(AGPRECIOS[curso] || {}, {usd:(usd==null||usd==='')?null:+usd, nota:nota||''});
+  agGuardarPrecios();
+  if(!window.SB) return Promise.resolve({error:'sin conexión a la nube'});
+  return window.SB.from('course_catalog')
+    .update({price_usd:(usd==null||usd==='')?null:+usd, nota:nota||'', updated_at:new Date().toISOString()})
+    .eq('course_key', curso);
+};
 /* si el curso 4 trae el suyo, manda el suyo */
 setTimeout(function(){
   try{ if(typeof SBPRECIO !== 'undefined' && SBPRECIO.curso) AGPRECIOS.sanidad.usd = SBPRECIO.curso; }catch(e){}
@@ -21888,6 +22095,16 @@ var AGCAMPUSCSS = `
 .agc-bar-n{ display:block; font-family:var(--mono); font-size:12px; color:var(--muted); margin-top:7px }
 
 /* ---------- rejilla de cursos ---------- */
+.agc-sol-list{display:flex;flex-direction:column;gap:10px}
+.agc-sol-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);
+  border:1px solid var(--border);border-radius:14px;padding:13px 16px}
+.agc-sol-curso{flex:1 1 220px;font-weight:700;font-size:14.5px}
+.agc-sol-badge{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:100px}
+.agc-sol-monto{font-family:var(--mono);font-size:13px;color:var(--text-2)}
+.agc-sol-fecha{font-size:12.5px;color:var(--muted)}
+.agc-sol-cta{font-family:inherit;font-size:13px;font-weight:600;padding:8px 16px;border-radius:9px;
+  background:var(--green);color:#fff;border:1px solid var(--green);cursor:pointer}
+.agc-sol-cta.ghost{background:transparent;color:var(--text);border-color:var(--border)}
 .agc-rejilla{ display:grid; gap:18px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)) ;
   /* Todas las filas del mismo alto. Por defecto cada fila se dimensiona
      por su propio contenido, asi que la de arriba salia 24px mas alta que
@@ -22276,6 +22493,34 @@ function agCampusCatalogo(){
   '</section>';
 }
 
+/* ---------- Mis solicitudes ---------- */
+function agCampusSolicitudesHTML(rows){
+  if(!rows || !rows.length) return '';
+  var estTxt = {pendiente:'Pendiente',en_revision:'En revisión',aprobado:'Aprobado',rechazado:'Rechazado'};
+  return '<section class="agc-sec" id="agMisSol"><h2 class="agc-h2">Mis solicitudes</h2>' +
+    '<div class="agc-sol-list">' + rows.map(function(r){
+      var c = agCatDe(r.course_key);
+      return '<div class="agc-sol-row">' +
+        '<span class="agc-sol-curso">' + agEsc(c.nombre || r.course_key) + '</span>' +
+        '<span class="agc-sol-monto">' + (r.monto_usd != null ? 'US$ ' + r.monto_usd : '—') + '</span>' +
+        '<span class="agc-sol-badge st-' + r.status + '">' + (estTxt[r.status] || r.status) + '</span>' +
+        '<span class="agc-sol-fecha">' + new Date(r.created_at).toLocaleDateString('es-DO') + '</span>' +
+        (r.status === 'aprobado'
+          ? '<button class="agc-sol-cta" onclick="agAbrirCurso(\'' + r.course_key + '\')">Entrar</button>'
+          : '<button class="agc-sol-cta ghost" onclick="agAbrirPago(\'' + r.course_key + '\')">Ver</button>') +
+      '</div>';
+    }).join('') + '</div></section>';
+}
+function agCampusSolicitudesCargar(){
+  var uid = (typeof agCampusUid === 'function') ? agCampusUid() : ((typeof SESSION !== 'undefined' && SESSION) ? SESSION.id : null);
+  if(!window.SB || !uid) return;
+  window.SB.from('access_requests').select('*').eq('user_id', uid).order('created_at', {ascending:false})
+    .then(function(r){
+      var host = document.getElementById('agMisSolHost'); if(!host) return;
+      host.innerHTML = agCampusSolicitudesHTML((r && r.data) || []);
+    }, function(){});
+}
+
 function agCampusCertificados(){
   var ids = agCursosVisibles().filter(function(id){
     var e = agEstadoCurso(id);
@@ -22369,8 +22614,10 @@ function agCampus(){
     agCampusStats() +
     agCampusContinuar() +
     agCampusCatalogo() +
+    '<div id="agMisSolHost"></div>' +
     agCampusCertificados();
   agCampusAnima(w);
+  agCampusSolicitudesCargar();
 }
 window.agCampus = agCampus;
 
@@ -23182,9 +23429,66 @@ function agPagoHTML(curso){
       '<a class="nxp-b" href="mailto:' + C.correo + '?subject=' +
         encodeURIComponent('Acceso al curso de ' + f.n) + '">Enviarlo por correo</a>' +
     '</div>' +
+    '<div id="agSolTrack" class="nxp-sol">Cargando el estado de tu solicitud…</div>' +
     '<p class="nxp-n">El monto en pesos es de referencia y depende del cambio del día. ' +
       'Una vez verificado el pago, su acceso queda habilitado y el curso aparece desbloqueado en «Mis cursos».</p></div>';
 }
+
+/* ---------- registro de la solicitud en la nube (access_requests) ----------
+   Antes de esto, «pedir acceso» solo mandaba un WhatsApp o un correo: no
+   quedaba rastro dentro de la app, ni el estudiante podía ver en qué
+   quedó, ni el instructor tenía una lista para revisar. Esto no
+   reemplaza el WhatsApp/correo (sigue siendo como se manda el
+   comprobante); solo dejael registro trazable que faltaba. */
+function agSolTrackHTML(curso, estado){
+  var usd = agPagoPrecio(curso);
+  if(!estado){
+    return '<div class="nxp-sol-form"><b>¿Ya transferiste?</b>' +
+      '<p>Registra tu solicitud para que el instructor la revise. Igual puedes avisarle por WhatsApp o correo arriba.</p>' +
+      '<input id="agSolRef" type="text" placeholder="Referencia o número de confirmación (opcional)">' +
+      '<button class="btn btn-primary" onclick="agEnviarSolicitud(\'' + curso + '\')">Registrar mi solicitud</button></div>';
+  }
+  var chip = {pendiente:['🕓','Solicitud enviada · en revisión'],en_revision:['🕓','En revisión'],
+    aprobado:['✅','Acceso aprobado'],rechazado:['⛔','Solicitud rechazada']}[estado.status] || ['🕓', estado.status];
+  var extra = (estado.status === 'rechazado')
+    ? '<button class="btn btn-ghost" style="margin-top:8px" onclick="agSolReintentar(\'' + curso + '\')">Enviar una nueva solicitud</button>'
+    : (estado.status === 'aprobado'
+      ? '<button class="btn btn-primary" style="margin-top:8px" onclick="agCerrarPago();agAbrirCurso(\'' + curso + '\')">Entrar al curso →</button>'
+      : '');
+  return '<div class="nxp-sol-estado"><span>' + chip[0] + '</span><b>' + chip[1] + '</b>' +
+    '<p>Enviada el ' + new Date(estado.created_at).toLocaleDateString('es-DO') +
+    (estado.referencia ? ' · ref. ' + estado.referencia : '') + '</p>' + extra + '</div>';
+}
+window.agSolReintentar = function(curso){
+  var w = document.getElementById('agSolTrack'); if(w) w.innerHTML = agSolTrackHTML(curso, null);
+};
+window.agPintarSolicitud = function(curso){
+  var w = document.getElementById('agSolTrack'); if(!w) return;
+  if(!window.SB || typeof SESSION === 'undefined' || !SESSION || !SESSION.id){
+    w.innerHTML = agSolTrackHTML(curso, null); return;
+  }
+  window.SB.from('access_requests').select('*').eq('user_id', SESSION.id).eq('course_key', curso)
+    .order('created_at', {ascending:false}).limit(1).then(function(r){
+      var w2 = document.getElementById('agSolTrack'); if(!w2) return;
+      var row = (r && r.data && r.data[0]) || null;
+      w2.innerHTML = agSolTrackHTML(curso, row);
+    }, function(){ var w3=document.getElementById('agSolTrack'); if(w3) w3.innerHTML = agSolTrackHTML(curso, null); });
+};
+window.agEnviarSolicitud = function(curso){
+  if(!window.SB || typeof SESSION === 'undefined' || !SESSION || !SESSION.id){
+    if(typeof toast === 'function') toast('Inicia sesión para enviar la solicitud', '⚠️'); return;
+  }
+  var ref = (document.getElementById('agSolRef') || {}).value || '';
+  var usd = agPagoPrecio(curso);
+  window.SB.from('access_requests').insert({
+    user_id: SESSION.id, course_key: curso, status: 'pendiente',
+    metodo: 'transferencia', referencia: ref, monto_usd: (usd == null ? null : usd)
+  }).then(function(r){
+    if(r && r.error){ if(typeof toast === 'function') toast('No se pudo enviar: ' + r.error.message, '⛔'); return; }
+    if(typeof toast === 'function') toast('Solicitud registrada. La revisamos pronto.', '✅');
+    agPintarSolicitud(curso);
+  });
+};
 
 window.agAbrirPago = function(curso){
   if(!AGPAGO[curso]) return;
@@ -23193,6 +23497,7 @@ window.agAbrirPago = function(curso){
   document.body.style.overflow = 'hidden';
   ov.innerHTML = agPagoHTML(curso);
   ov.onclick = function(e){ if(e.target === ov) agCerrarPago(); };
+  agPintarSolicitud(curso);
 };
 window.agCerrarPago = function(){
   var o = document.getElementById('agPagoOv'); if(o) o.remove();
@@ -28745,9 +29050,27 @@ window.agCtElegir = function(n){
 window.agCtComoAlumno = function(n){
   var curso = 'porcicultura';
   try{ curso = ADM.course || 'porcicultura'; }catch(e){}
+  /* El curso base no tiene ventana propia: se ve dentro de la página,
+     y desde el panel solo se llega entrando a la vista de estudiante.
+     Antes se llamaba a goto(n) desde el panel: el módulo cambiaba por
+     dentro pero la pantalla seguía en el panel y no se veía nada. */
+  if(curso === 'porcicultura'){
+    try{ if(typeof enterPreview === 'function' && !(typeof PREVIEW !== 'undefined' && PREVIEW)) enterPreview(); }catch(e){}
+    setTimeout(function(){
+      try{ if(typeof cerrarCursos === 'function') cerrarCursos(); }catch(e){}
+      /* No tocar location.hash: para el administrador, '#/curso' lo
+         devuelve al panel. enterPreview ya muestra el curso. */
+      setTimeout(function(){ try{ if(typeof goto === 'function') goto(n); }catch(e){} }, 250);
+    }, 400);
+    return;
+  }
+  /* los demás cursos abren su ventana y van al módulo con SU función
+     (antes se llamaba goto, que es la del curso base) */
+  var IR = { nutricion:'nxIr', reproduccion:'rpIr', sanidad:'sbIr', ruta:'rtIr', engorde:'egIr', lechones:'lcIr',
+             rentabilidad:'grIr', ponedoras:'gpIr', pollos:'pbIr', bovinos:'bvIr', apicultura:'apIr' };
   try{ if(typeof agIrAlCurso === 'function') agIrAlCurso(curso); }catch(e){}
   setTimeout(function(){
-    try{ if(typeof goto === 'function') goto(n); }catch(e){}
+    try{ var f = window[IR[curso]]; if(typeof f === 'function') f(n); }catch(e){}
   }, 700);
 };
 
@@ -34048,6 +34371,9 @@ window.agVolAdapta = agVolAdapta;
 })();
 
 </script>
+
+
+
 
 
 
@@ -73151,6 +73477,85 @@ function hvCortinaBase(n, titulo, color, dir){
   setTimeout(function(){ x.remove(); }, 1500);
 }
 
+/* ---------- 4c · el botón 📖: vista de libro o de corrido ----------
+   Igual que en los cursos nuevos: «libro» es una página por pantalla
+   con la barra de abajo (lo normal); «de corrido» muestra el módulo
+   entero para leerlo bajando. La preferencia se guarda por curso en
+   el dispositivo del estudiante; no toca su avance. */
+var HVLIBROCURSOS = { nutricion:'nxOv', reproduccion:'rpOv', sanidad:'sbOv', ruta:'rtOv' };
+function hvCorrido(c){ try{ return localStorage.getItem('hv_corrido_' + c) === '1'; }catch(e){ return false; } }
+function hvOvDe(c){ return c === 'porcicultura' ? hvBaseModulo() : document.getElementById(HVLIBROCURSOS[c] || ''); }
+function hvMuestraTodo(c){
+  var w = hvWrap(c); if(!w) return;
+  hvQuitaFotos(w);
+  hvSecs(c, w).forEach(function(x){ x.style.display = ''; x.style.marginTop = ''; });
+  [].forEach.call(w.querySelectorAll(':scope > .nx-lnav, :scope > .lesson-nav'), function(n){ n.style.display = 'none'; });
+  var main = c === 'porcicultura' ? hvBaseModulo() : document.getElementById(HVCURSOS[c].main);
+  var hero = main && main.querySelector(c === 'porcicultura' ? '.mod-hero' : '.nx-hero');
+  if(hero) hero.style.display = '';
+  if(c === 'porcicultura'){
+    var m = hvBaseModulo(); if(m){ m.classList.remove('lesson'); var pie = m.querySelector('.mod-foot'); if(pie) pie.style.display = ''; }
+  } else {
+    var ov = hvOvDe(c); if(ov) ov.classList.remove('nx-leccion');
+  }
+}
+function hvVuelveLibro(c){
+  var w = hvWrap(c); if(!w) return;
+  [].forEach.call(w.querySelectorAll(':scope > .nx-lnav, :scope > .lesson-nav'), function(n){ n.style.display = ''; });
+  if(c === 'porcicultura'){ var m = hvBaseModulo(); if(m) m.classList.add('lesson'); }
+  else { var ov = hvOvDe(c); if(ov) ov.classList.add('nx-leccion'); }
+  if(typeof agRecalcula === 'function'){ agRecalcula(c); agMuestra(c, 0); }
+}
+function hvToggleLibro(c){
+  var corrido = !hvCorrido(c);
+  try{ localStorage.setItem('hv_corrido_' + c, corrido ? '1' : '0'); }catch(e){}
+  if(corrido) hvMuestraTodo(c); else hvVuelveLibro(c);
+  hvPintaBotones();
+  if(typeof toast === 'function') toast(corrido ? 'Vista de corrido: el módulo completo, bajando' : 'Vista de libro: una página a la vez', '📖');
+}
+window.hvToggleLibro = hvToggleLibro;
+/* pone el botón donde están los demás controles del curso abierto */
+function hvPintaBotones(){
+  Object.keys(HVLIBROCURSOS).forEach(function(c){
+    var ov = document.getElementById(HVLIBROCURSOS[c]); if(!ov) return;
+    var ctl = ov.querySelector('.nx-ctl'); if(!ctl) return;
+    var b = ctl.querySelector('.hv-libro-b');
+    if(!b){
+      var hermano = ctl.querySelector('button');
+      b = document.createElement('button');
+      b.className = (hermano ? hermano.className + ' ' : '') + 'hv-libro-b';
+      b.setAttribute('onclick', "hvToggleLibro('" + c + "')");
+      b.textContent = '📖';
+      ctl.insertBefore(b, ctl.firstChild);
+    }
+    var on = !hvCorrido(c);
+    b.classList.toggle('hv-libro-on', on);
+    b.title = on ? 'Vista de libro (una página a la vez). Clic: leer de corrido' : 'Vista de corrido. Clic: volver a la vista de libro';
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  var lb = document.getElementById('lessonBtn');
+  if(lb){
+    var on2 = !hvCorrido('porcicultura');
+    lb.classList.toggle('hv-libro-on', on2);
+    lb.title = on2 ? 'Vista de libro (una página a la vez). Clic: leer de corrido' : 'Vista de corrido. Clic: volver a la vista de libro';
+  }
+}
+window.hvPintaBotones = hvPintaBotones;
+/* en el curso base el botón 📖 existía, pero solo mostraba un aviso */
+window.toggleLesson = function(){ hvToggleLibro('porcicultura'); };
+/* al abrir o repintar cada curso, el botón y la vista elegida */
+setInterval(function(){
+  try{
+    hvPintaBotones();
+    Object.keys(HVLIBROCURSOS).forEach(function(c){
+      var ov = document.getElementById(HVLIBROCURSOS[c]);
+      if(ov && hvCorrido(c) && ov.classList.contains('nx-leccion') && hvCur(c) >= 1) hvMuestraTodo(c);
+    });
+    var bm = hvBaseModulo();
+    if(bm && hvCorrido('porcicultura') && bm.classList.contains('lesson')) hvMuestraTodo('porcicultura');
+  }catch(e){}
+}, 700);
+
 /* ---------- 5 · los enganches ---------- */
 (function hvEngancha(){
   /* a) el paginador común (Porcicultura, Nutrición, Reproducción, Sanidad y Ruta) */
@@ -73159,6 +73564,7 @@ function hvCortinaBase(n, titulo, color, dir){
     window.agMuestra = function(curso, i){
       var antes = (typeof AGPAG !== 'undefined' && AGPAG[curso] != null) ? AGPAG[curso] : null;
       var r = _agMuestraHv.apply(this, arguments);
+      if(hvCorrido(curso)){ hvMuestraTodo(curso); return r; }
       if(HVCURSOS[curso] && HVCURSOS[curso].pag === 'ag'){
         var ahora = (typeof AGPAG !== 'undefined') ? AGPAG[curso] : i;
         try{ hvPagina(curso, ahora || 0); }catch(e){}
@@ -73381,6 +73787,8 @@ addEventListener('resize', function(){
     '#main .module.hv-base .lesson-nav{position:sticky!important;bottom:0;z-index:20;background:var(--bg,#f3eee6);padding-top:12px;padding-bottom:12px;box-shadow:0 -10px 24px -18px rgba(0,0,0,.35)}',
     /* la pantalla intermedia ya no se ve: la reemplaza la cortina */
     'body #wipe{display:none!important}',
+    /* el botón 📖 encendido (vista de libro), como en los cursos nuevos */
+    '.hv-libro-b.hv-libro-on, #lessonBtn.hv-libro-on{background:#2F7D4F!important;border-color:#2F7D4F!important;color:#fff!important}',
     /* Ruta en diapositivas: los botones de módulo de abajo sobran */
     '#rtOv.hv-ruta-pag .nx-wrap > .nx-navb{display:none}',
     '#rtOv.hv-ruta-pag .nx-wrap{display:flex;flex-direction:column;min-height:calc(100vh - 230px)}',
@@ -76964,6 +77372,8 @@ var HVFOTOS = {
 };
 
 </script>
+
+
 
 
 
