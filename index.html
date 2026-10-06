@@ -23100,7 +23100,7 @@ var AGPAGO = {
     ico:'🐄', tag:'Curso de ganadería',
     n:'Ganadería bovina: manejo, alimentación y rentabilidad',
     sub:'Se adquiere por separado. Al confirmarse el pago, el instructor le habilita el acceso y entra con la misma cuenta que ya tiene.',
-    usd:null, pesos:null,
+    usd:99, pesos:'RD$ 5,940',
     incluye:[
       '8 módulos: sistemas, pastos, alimentación, bienestar, reproducción, sanidad, costos y ganadería rentable',
       '6 casos prácticos resueltos, 2 calculadoras y el calendario reproductivo',
@@ -23113,7 +23113,7 @@ var AGPAGO = {
     ico:'🐝', tag:'Curso de apicultura',
     n:'Apicultura: producción de miel y manejo de colmenas',
     sub:'Se adquiere por separado. Al confirmarse el pago, el instructor le habilita el acceso y entra con la misma cuenta que ya tiene.',
-    usd:null, pesos:null,
+    usd:89, pesos:'RD$ 5,340',
     incluye:[
       '8 módulos: abejas, apiario, colmena y equipo, revisión, reina y cría, sanidad y seguridad, cosecha y calidad, negocio',
       '6 casos prácticos resueltos, 2 calculadoras y el registro de revisiones',
@@ -34220,6 +34220,7 @@ window.agVolAdapta = agVolAdapta;
 
 
 
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -37290,6 +37291,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
 
 
 
@@ -43689,6 +43691,7 @@ if(typeof window.egCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -47185,6 +47188,7 @@ if(typeof window.pcAccesoTodos === 'function'){
 }
 
 </script>
+
 
 
 
@@ -51245,6 +51249,7 @@ if(typeof window.lcCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -55559,6 +55564,7 @@ if(typeof window.grCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -59935,6 +59941,7 @@ if(typeof window.gpCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* ===== curso 10: solo lo que no existe ya ===== */
@@ -64248,6 +64255,7 @@ if(typeof window.pbCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* ===== curso 11: solo lo que no existe ya ===== */
@@ -64304,7 +64312,7 @@ function bvEsInstructor(){
    El precio NO se fija aquí: se configura desde el panel. Mientras
    no se haya puesto, la tarjeta dice «consultar» en vez de inventar
    una cifra. BVPRECIO.curso === null significa «sin definir». */
-var BVPRECIO = { curso: null, moneda: 'US$' };
+var BVPRECIO = { curso: 99, moneda: 'US$' };
 (function bvCargarPrecio(){
   try{
     var p = JSON.parse(localStorage.getItem('bv_precio') || 'null');
@@ -68522,6 +68530,7 @@ if(typeof window.bvCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* ===== curso 12: solo lo que no existe ya ===== */
@@ -68578,7 +68587,7 @@ function apEsInstructor(){
    El precio NO se fija aquí: se configura desde el panel. Mientras
    no se haya puesto, la tarjeta dice «consultar» en vez de inventar
    una cifra. APPRECIO.curso === null significa «sin definir». */
-var APPRECIO = { curso: null, moneda: 'US$' };
+var APPRECIO = { curso: 89, moneda: 'US$' };
 (function apCargarPrecio(){
   try{
     var p = JSON.parse(localStorage.getItem('ap_precio') || 'null');
@@ -72930,6 +72939,7 @@ if(typeof window.apCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* ===== homologación visual: los estilos van en hv-motor.js ===== */
@@ -76879,6 +76889,7 @@ var HVFOTOS = {
 };
 
 </script>
+
 
 
 
