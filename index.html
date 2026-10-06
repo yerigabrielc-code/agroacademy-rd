@@ -73068,7 +73068,7 @@ function hvEntra(c, dir){
 }
 
 /* ---------- 4 · la cortina entre módulos ---------- */
-function hvCortina(c, n, dir){
+function hvCortina(c, n, dir, color){
   if(hvQuieto()) return;
   var k = HVCURSOS[c], mods = hvMods(c);
   var m = mods ? mods[n - 1] : null;
@@ -73083,12 +73083,71 @@ function hvCortina(c, n, dir){
   var vieja = document.getElementById('hvCortina'); if(vieja) vieja.remove();
   var x = document.createElement('div');
   x.id = 'hvCortina'; x.className = dir < 0 ? 'atras' : '';
-  x.style.setProperty('--ac', (m && m.ac) || 'var(--accent, #2F7D4F)');
+  x.style.setProperty('--ac', color || (m && m.ac) || 'var(--accent, #2F7D4F)');
   var puntos = '';
   for(var i = 1; i <= total; i++) puntos += '<i class="' + (i < n ? 'ya' : (i === n ? 'aqui' : '')) + '"></i>';
   x.innerHTML = '<div class="hvc-in"><span class="hvc-k">Módulo</span><b class="hvc-n">' + (n < 10 ? '0' + n : n) + '</b>' +
     '<p class="hvc-t">' + hvEsc(titulo) + '</p><div class="hvc-p">' + puntos + '</div></div>';
   ov.appendChild(x);
+  setTimeout(function(){ x.remove(); }, 1500);
+}
+
+/* ---------- 4b · el curso base, igual que los demás ----------
+   La cabecera solo en la primera página y con el color del módulo,
+   la barra de abajo siempre a la vista, y la cortina común entre
+   módulos en lugar de la pantalla intermedia con botón. */
+function hvBaseModulo(){ return document.querySelector('#main .module.active'); }
+function hvBasePagina(i){
+  var m = hvBaseModulo(); if(!m) return;
+  m.classList.add('hv-base');
+  var hero = m.querySelector('.mod-hero');
+  if(hero){
+    hero.style.display = i > 0 ? 'none' : '';
+    var ac = getComputedStyle(m).getPropertyValue('--accent').trim();
+    if(ac) hero.style.setProperty('--ac', ac);
+  }
+  var pie = m.querySelector('.mod-foot');
+  var g = (typeof AGGRP !== 'undefined' && AGGRP.porcicultura) || [];
+  if(pie) pie.style.display = (g.length && i >= g.length - 1) ? '' : 'none';
+}
+window.hvBasePagina = hvBasePagina;
+var HVBASEANT = 0, HVBASETURNO = 0;
+/* El curso base dibuja el módulo unos 700 ms después de goto, al
+   terminar su animación interna. La cortina sale enseguida (cubre esa
+   espera) con el título y el color de MODULES; la cabecera se pone
+   cuando el módulo ya está en pantalla. */
+function hvBaseEntra(n){
+  var turno = ++HVBASETURNO;
+  var md = (typeof MODULES !== 'undefined' && MODULES[n]) ? MODULES[n] : null;
+  if(n >= 1 && n <= 13 && n !== HVBASEANT && md && !hvQuieto()){
+    hvCortinaBase(n, md.title || '', md.ac || '', n > HVBASEANT ? 1 : -1);
+  }
+  HVBASEANT = n;
+  var cta = document.getElementById('wipeCta');
+  if(cta){ try{ cta.click(); }catch(e){} }
+  var k = 0;
+  (function espera(){
+    if(turno !== HVBASETURNO) return;
+    var m = hvBaseModulo();
+    if(m && hvCur('porcicultura') === n && m.querySelector('.mod-hero')){
+      try{ hvCabecera('porcicultura'); }catch(e){}
+      /* el módulo nuevo empieza en su primera página, con las secciones agrupadas */
+      setTimeout(function(){ try{ if(typeof agRecalcula === 'function'){ agRecalcula('porcicultura'); agMuestra('porcicultura', 0); } hvBasePagina(0); }catch(e){} }, 120);
+      return;
+    }
+    if(++k < 40) setTimeout(espera, 80);
+  })();
+}
+function hvCortinaBase(n, titulo, color, dir){
+  var vieja = document.getElementById('hvCortina'); if(vieja) vieja.remove();
+  var x = document.createElement('div');
+  x.id = 'hvCortina'; x.className = dir < 0 ? 'atras' : '';
+  x.style.setProperty('--ac', color || '#1f6f8b');
+  var puntos = '';
+  for(var i = 1; i <= 12; i++) puntos += '<i class="' + (i < n ? 'ya' : (i === n ? 'aqui' : '')) + '"></i>';
+  x.innerHTML = '<div class="hvc-in"><span class="hvc-k">Módulo</span><b class="hvc-n">' + (n < 10 ? '0' + n : n) + '</b>' +
+    '<p class="hvc-t">' + hvEsc(titulo) + '</p><div class="hvc-p">' + puntos + '</div></div>';
+  document.body.appendChild(x);
   setTimeout(function(){ x.remove(); }, 1500);
 }
 
@@ -73105,7 +73164,7 @@ function hvCortina(c, n, dir){
         try{ hvPagina(curso, ahora || 0); }catch(e){}
         if(antes != null && ahora !== antes) hvEntra(curso, ahora > antes ? 1 : -1);
         if(curso === 'ruta') hvRutaContador();
-        if(curso === 'porcicultura') try{ hvCabecera('porcicultura'); }catch(e){}
+        if(curso === 'porcicultura') try{ hvCabecera('porcicultura'); hvBasePagina(ahora || 0); }catch(e){}
       }
       return r;
     };
@@ -73136,8 +73195,10 @@ function hvCortina(c, n, dir){
   /* d) Porcicultura no tiene función de pintar: su cabecera se pone al entrar al módulo */
   if(typeof window.goto === 'function'){
     var _gotoHv = window.goto;
-    window.goto = function(){
+    window.goto = function(n){
       var r = _gotoHv.apply(this, arguments);
+      if(+n >= 1) setTimeout(function(){ hvBaseEntra(+n); }, 20);
+      else HVBASEANT = 0;
       setTimeout(function(){ try{ hvCabecera('porcicultura'); }catch(e){} }, 80);
       return r;
     };
@@ -73174,6 +73235,7 @@ if(typeof window.agWrap === 'function'){
   var _agWrapHv = window.agWrap;
   window.agWrap = function(curso){
     if(curso === 'ruta') return document.querySelector('#rtMain .nx-wrap');
+    if(curso === 'porcicultura'){ var ma = document.querySelector('#main .module.active'); if(ma) return ma; }
     return _agWrapHv.apply(this, arguments);
   };
 }
@@ -73306,6 +73368,19 @@ addEventListener('resize', function(){
     '@keyframes hvcSube{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}',
     '@keyframes hvcNum{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}',
 
+    /* el curso base: cabecera con el color del módulo, como los demás */
+    '#main .module.hv-base .mod-hero.hv-hero{min-height:300px;padding-top:56px;padding-bottom:40px;background:var(--ac,#1f6f8b)!important}',
+    '#main .module.hv-base .mod-hero.hv-hero::before{background:linear-gradient(90deg,var(--ac,#1f6f8b) 0%,var(--ac,#1f6f8b) 36%,color-mix(in srgb,var(--ac,#1f6f8b) 80%,transparent) 54%,color-mix(in srgb,var(--ac,#1f6f8b) 22%,transparent) 100%)!important}',
+    '#main .module.hv-base .mod-hero.hv-hero .cover-grain{display:none}',
+    '#main .module.hv-base .mod-hero.hv-hero .mod-kicker{color:rgba(255,255,255,.85)}',
+    '#main .module.hv-base .mod-hero.hv-hero .mod-kicker .line{background:rgba(255,255,255,.6)}',
+    '#main .module.hv-base .mod-hero.hv-hero h2{color:#fff!important;-webkit-text-fill-color:#fff;background:none!important;text-shadow:0 2px 18px rgba(0,0,0,.25)}',
+    '#main .module.hv-base .mod-hero.hv-hero .lead{color:rgba(255,255,255,.92)!important;max-width:60ch}',
+    '#main .module.hv-base .mod-hero.hv-hero .tag{color:#fff;background:rgba(0,0,0,.24);border-color:rgba(255,255,255,.28)}',
+    /* la barra de abajo siempre a la vista */
+    '#main .module.hv-base .lesson-nav{position:sticky!important;bottom:0;z-index:20;background:var(--bg,#f3eee6);padding-top:12px;padding-bottom:12px;box-shadow:0 -10px 24px -18px rgba(0,0,0,.35)}',
+    /* la pantalla intermedia ya no se ve: la reemplaza la cortina */
+    'body #wipe{display:none!important}',
     /* Ruta en diapositivas: los botones de módulo de abajo sobran */
     '#rtOv.hv-ruta-pag .nx-wrap > .nx-navb{display:none}',
     '#rtOv.hv-ruta-pag .nx-wrap{display:flex;flex-direction:column;min-height:calc(100vh - 230px)}',
@@ -76889,6 +76964,10 @@ var HVFOTOS = {
 };
 
 </script>
+
+
+
+
 
 
 
