@@ -5650,19 +5650,32 @@ router();
     if(!filas.length){ wrap.innerHTML='<h3>Solicitudes</h3><div class="adm-empty">Todavía no hay solicitudes.</div>'; return; }
     const pend=filas.filter(f=>f.status==='pendiente'||f.status==='en_revision').length;
     wrap.innerHTML='<h3>Solicitudes <span style="font-weight:400;color:var(--muted);font-size:13px">('+pend+' por revisar)</span></h3>'+
-      '<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Curso</th><th>Monto</th><th>Fecha</th><th>Referencia</th><th>Estado</th><th></th></tr></thead><tbody>'+
+      '<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Estudiante</th><th>Teléfono</th><th>Curso</th><th>Monto</th><th>Fecha</th><th>Referencia</th><th>Comprobante</th><th>Estado</th><th></th></tr></thead><tbody>'+
       filas.map(function(f){
         const enRevision=(f.status==='pendiente'||f.status==='en_revision');
-        return '<tr><td><b>'+esc(nombreEstudiante(f.user_id))+'</b><br><span style="color:var(--muted);font-size:12px">'+esc(correoEstudiante(f.user_id))+'</span></td>'+
+        /* el nombre que escribió el estudiante manda; si es una solicitud vieja, el de su perfil */
+        const nom=f.nombre||nombreEstudiante(f.user_id);
+        const tel=f.telefono||'';
+        let dig=tel.replace(/\D/g,''); if(dig.length===10) dig='1'+dig;
+        return '<tr><td><b>'+esc(nom)+'</b><br><span style="color:var(--muted);font-size:12px">'+esc(correoEstudiante(f.user_id))+'</span></td>'+
+          '<td class="adm-sol-tel">'+(tel
+            ? '<a href="tel:'+esc(dig)+'">'+esc(tel)+'</a><br><a class="adm-sol-wa" href="https://wa.me/'+esc(dig)+'" target="_blank" rel="noopener">WhatsApp →</a>'
+            : '<span style="color:var(--muted)">—</span>')+'</td>'+
           '<td>'+esc(nombreCurso(f.course_key))+'</td>'+
           '<td>'+(f.monto_usd!=null?'US$ '+f.monto_usd:'—')+'</td>'+
           '<td>'+new Date(f.created_at).toLocaleDateString('es-DO')+'</td>'+
           '<td>'+esc(f.referencia||'—')+'</td>'+
-          '<td><span class="st-badge st-'+f.status+'">'+f.status+'</span></td>'+
+          '<td>'+(f.comprobante_path
+            ? '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="agVerComprobante(\''+esc(f.comprobante_path)+'\')">Ver comprobante</button>'
+            : '<span style="color:var(--muted);font-size:12px">sin comprobante</span>')+'</td>'+
+          '<td><span class="st-badge st-'+f.status+'">'+f.status+'</span>'+
+            (f.status==='rechazado'&&f.motivo_rechazo?'<br><span style="color:var(--muted);font-size:12px">'+esc(f.motivo_rechazo)+'</span>':'')+'</td>'+
           '<td>'+(enRevision
             ? '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="agAprobarSolicitud(\''+f.id+'\',\''+f.user_id+'\',\''+f.course_key+'\')">Aprobar</button> '+
               '<button class="adm-add" style="padding:6px 12px;font-size:12px;background:transparent;color:var(--text)" onclick="agRechazarSolicitud(\''+f.id+'\')">Rechazar</button>'
-            : '')+
+            : (f.status==='rechazado'
+              ? '<button class="adm-add" style="padding:6px 12px;font-size:12px;background:transparent;color:#c4544a;border-color:#c4544a" onclick="agEliminarSolicitud(\''+f.id+'\',\''+esc(f.comprobante_path||'')+'\')">Eliminar</button>'
+              : ''))+
           '</td></tr>';
       }).join('')+'</tbody></table></div>';
   }
@@ -5687,14 +5700,56 @@ router();
     }catch(e){}
     pintarSolicitudesAdmin();
   };
+  /* el comprobante vive en un depósito privado: se pide un enlace
+     firmado de 10 minutos y se muestra encima del panel */
+  window.agVerComprobante=async function(ruta){
+    const {data,error}=await sb.storage.from('comprobantes').createSignedUrl(ruta,600);
+    if(error||!data||!data.signedUrl){ toast('No se pudo abrir el comprobante'+(error?': '+error.message:''),'⛔'); return; }
+    const url=data.signedUrl, pdf=/\.pdf$/i.test(ruta);
+    const ov=document.createElement('div'); ov.className='adm-comp-ov';
+    ov.innerHTML=(pdf?'<iframe src="'+esc(url)+'" title="Comprobante"></iframe>':'<img src="'+esc(url)+'" alt="Comprobante de pago">')+
+      '<div class="adm-comp-bar"><a href="'+esc(url)+'" target="_blank" rel="noopener">Abrir en otra pestaña</a><button type="button">Cerrar</button></div>';
+    ov.onclick=function(e){ if(e.target===ov||e.target.tagName==='BUTTON') ov.remove(); };
+    document.body.appendChild(ov);
+  };
+  /* una solicitud RECHAZADA se puede borrar, junto con su comprobante.
+     Solo las rechazadas: las aprobadas son el rastro de quién pagó y
+     las pendientes todavía hay que revisarlas. Borrarla no quita
+     ningún acceso: el rechazo nunca lo dio. */
+  window.agEliminarSolicitud=function(reqId,ruta){
+    askConfirm('¿Eliminar esta solicitud rechazada? Se borra también su comprobante. No se puede deshacer.',async function(){
+      if(ruta){ try{ await sb.storage.from('comprobantes').remove([ruta]); }catch(e){} }
+      const {error}=await sb.from('access_requests').delete().eq('id',reqId).eq('status','rechazado');
+      if(error){ toast('No se pudo eliminar: '+error.message,'⛔'); return; }
+      toast('Solicitud eliminada','🗑️'); pintarSolicitudesAdmin();
+    },'Eliminar');
+  };
+  /* al rechazar se puede escribir el motivo: el estudiante lo ve y
+     sabe qué corregir antes de enviar de nuevo */
   window.agRechazarSolicitud=function(reqId){
-    askConfirm('¿Rechazar esta solicitud?',async function(){
+    const ov=document.createElement('div'); ov.className='adm-comp-ov';
+    ov.innerHTML='<div style="background:var(--panel);color:var(--text);border-radius:14px;padding:20px;width:min(460px,92vw)">'+
+      '<b style="font-size:16px">¿Rechazar esta solicitud?</b>'+
+      '<p style="margin:6px 0 0;font-size:13px;color:var(--text-2)">El motivo es opcional. El estudiante lo verá y podrá enviar una solicitud nueva.</p>'+
+      '<textarea class="adm-mot" maxlength="300" placeholder="Ej.: el monto no coincide, el comprobante no se lee, falta la referencia…"></textarea>'+
+      '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">'+
+        '<button type="button" class="adm-add" data-a="no" style="background:transparent;color:var(--text)">Cancelar</button>'+
+        '<button type="button" class="adm-add" data-a="si">Rechazar</button></div></div>';
+    ov.onclick=async function(e){
+      const a=e.target&&e.target.getAttribute&&e.target.getAttribute('data-a');
+      if(e.target===ov||a==='no'){ ov.remove(); return; }
+      if(a!=='si') return;
+      e.target.disabled=true;
+      const motivo=(ov.querySelector('textarea').value||'').trim();
       const {data:au}=await sb.auth.getUser();
       const revisor=(au&&au.user)?au.user.id:null;
-      const {error}=await sb.from('access_requests').update({status:'rechazado',reviewed_at:new Date().toISOString(),reviewed_by:revisor}).eq('id',reqId);
+      const {error}=await sb.from('access_requests').update({status:'rechazado',motivo_rechazo:motivo,reviewed_at:new Date().toISOString(),reviewed_by:revisor}).eq('id',reqId);
+      ov.remove();
       if(error){ toast('No se pudo rechazar: '+error.message,'⛔'); return; }
       toast('Solicitud rechazada','🚫'); pintarSolicitudesAdmin();
-    },'Rechazar');
+    };
+    document.body.appendChild(ov);
+    const t=ov.querySelector('textarea'); if(t) t.focus();
   };
 })();
 </script>
@@ -6854,6 +6909,24 @@ router();
 .nxp-sol-estado b{font-size:14.5px}
 .nxp-sol-estado p{flex-basis:100%;font-size:12.5px;color:var(--muted);margin:2px 0 0}
 .nxp-sol-estado button{flex-basis:100%}
+/* el formulario con nombre, teléfono y comprobante */
+.nxp-sol-l{display:block}
+.nxp-sol-l>span{display:block;font-size:12.5px;font-weight:600;color:var(--text-2);margin:0 0 4px}
+.nxp-sol-l>span i{font-style:normal;font-weight:400;color:var(--muted)}
+.nxp-sol-form input[type=file]{padding:8px 10px;background:var(--panel);cursor:pointer}
+.nxp-sol-err{color:#c4544a!important;font-weight:600;min-height:0;margin:0 0 8px!important}
+.nxp-sol-err:empty{display:none}
+.nxp-sol-form .btn[disabled]{opacity:.65;cursor:wait}
+.nxp-sol-mot{flex-basis:100%;font-size:13px!important;color:var(--text)!important;background:color-mix(in srgb,#c4544a 10%,transparent);border-radius:8px;padding:8px 10px!important;margin-top:6px!important}
+/* el comprobante, visto por el administrador */
+.adm-sol-tel a{color:var(--text);text-decoration:none;font-weight:600}
+.adm-sol-wa{display:inline-block;margin-top:3px;font-size:12px;font-weight:700;color:#1f8f4e!important}
+.adm-comp-ov{position:fixed;inset:0;z-index:9900;background:rgba(8,12,22,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:12px}
+.adm-comp-ov img{max-width:min(920px,96vw);max-height:78vh;border-radius:12px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.adm-comp-ov iframe{width:min(920px,96vw);height:78vh;border:0;border-radius:12px;background:#fff}
+.adm-comp-bar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.adm-comp-bar a,.adm-comp-bar button{font:inherit;font-size:14px;font-weight:700;padding:9px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;text-decoration:none}
+.adm-mot{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);min-height:80px;margin-top:8px}
 
 /* resumen de acceso en el panel */
 .nxa-res{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:14px}
@@ -22507,7 +22580,8 @@ function agCampusSolicitudesHTML(rows){
         '<span class="agc-sol-fecha">' + new Date(r.created_at).toLocaleDateString('es-DO') + '</span>' +
         (r.status === 'aprobado'
           ? '<button class="agc-sol-cta" onclick="agAbrirCurso(\'' + r.course_key + '\')">Entrar</button>'
-          : '<button class="agc-sol-cta ghost" onclick="agAbrirPago(\'' + r.course_key + '\')">Ver</button>') +
+          : '<button class="agc-sol-cta ghost" onclick="agAbrirPago(\'' + r.course_key + '\')">' +
+              (r.status === 'rechazado' ? 'Ver motivo y reenviar' : 'Ver') + '</button>') +
       '</div>';
     }).join('') + '</div></section>';
 }
@@ -23440,13 +23514,25 @@ function agPagoHTML(curso){
    quedó, ni el instructor tenía una lista para revisar. Esto no
    reemplaza el WhatsApp/correo (sigue siendo como se manda el
    comprobante); solo dejael registro trazable que faltaba. */
+/* El instructor necesita saber quién pide y ver el pago: el formulario
+   pide nombre, teléfono y el comprobante (foto o PDF). El comprobante
+   va al depósito privado «comprobantes» de Supabase Storage, en una
+   carpeta con el id del estudiante: solo él y el administrador lo ven. */
+var AGSOLMAX = 5 * 1024 * 1024;
+var AGSOLTIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'application/pdf'];
 function agSolTrackHTML(curso, estado){
   var usd = agPagoPrecio(curso);
+  var E = (typeof esc === 'function') ? esc : function(x){ return String(x == null ? '' : x); };
   if(!estado){
-    return '<div class="nxp-sol-form"><b>¿Ya transferiste?</b>' +
-      '<p>Registra tu solicitud para que el instructor la revise. Igual puedes avisarle por WhatsApp o correo arriba.</p>' +
-      '<input id="agSolRef" type="text" placeholder="Referencia o número de confirmación (opcional)">' +
-      '<button class="btn btn-primary" onclick="agEnviarSolicitud(\'' + curso + '\')">Registrar mi solicitud</button></div>';
+    var nom = (typeof SESSION !== 'undefined' && SESSION && SESSION.name) ? SESSION.name : '';
+    return '<div class="nxp-sol-form"><b>¿Ya transferiste? Envía tu solicitud</b>' +
+      '<p>El instructor revisa el comprobante y te habilita el curso. Los campos con * son obligatorios.</p>' +
+      '<label class="nxp-sol-l"><span>Nombre completo *</span><input id="agSolNom" type="text" maxlength="90" autocomplete="name" value="' + E(nom) + '"></label>' +
+      '<label class="nxp-sol-l"><span>Teléfono o WhatsApp *</span><input id="agSolTel" type="tel" maxlength="20" autocomplete="tel" placeholder="809-555-1234"></label>' +
+      '<label class="nxp-sol-l"><span>Comprobante de pago * <i>foto o PDF, hasta 5 MB</i></span><input id="agSolArch" type="file" accept="image/*,application/pdf"></label>' +
+      '<label class="nxp-sol-l"><span>Referencia o número de confirmación <i>opcional</i></span><input id="agSolRef" type="text" maxlength="60"></label>' +
+      '<p id="agSolErr" class="nxp-sol-err" role="alert"></p>' +
+      '<button id="agSolBtn" class="btn btn-primary" onclick="agEnviarSolicitud(\'' + curso + '\')">Enviar solicitud</button></div>';
   }
   var chip = {pendiente:['🕓','Solicitud enviada · en revisión'],en_revision:['🕓','En revisión'],
     aprobado:['✅','Acceso aprobado'],rechazado:['⛔','Solicitud rechazada']}[estado.status] || ['🕓', estado.status];
@@ -23457,7 +23543,10 @@ function agSolTrackHTML(curso, estado){
       : '');
   return '<div class="nxp-sol-estado"><span>' + chip[0] + '</span><b>' + chip[1] + '</b>' +
     '<p>Enviada el ' + new Date(estado.created_at).toLocaleDateString('es-DO') +
-    (estado.referencia ? ' · ref. ' + estado.referencia : '') + '</p>' + extra + '</div>';
+    (estado.referencia ? ' · ref. ' + E(estado.referencia) : '') +
+    (estado.comprobante_path ? ' · comprobante adjunto ✓' : '') + '</p>' +
+    (estado.status === 'rechazado' && estado.motivo_rechazo ? '<p class="nxp-sol-mot"><b>Motivo:</b> ' + E(estado.motivo_rechazo) + '</p>' : '') +
+    extra + '</div>';
 }
 window.agSolReintentar = function(curso){
   var w = document.getElementById('agSolTrack'); if(w) w.innerHTML = agSolTrackHTML(curso, null);
@@ -23478,16 +23567,33 @@ window.agEnviarSolicitud = function(curso){
   if(!window.SB || typeof SESSION === 'undefined' || !SESSION || !SESSION.id){
     if(typeof toast === 'function') toast('Inicia sesión para enviar la solicitud', '⚠️'); return;
   }
-  var ref = (document.getElementById('agSolRef') || {}).value || '';
+  var val = function(id){ return ((document.getElementById(id) || {}).value || '').trim(); };
+  var err = document.getElementById('agSolErr'), btn = document.getElementById('agSolBtn');
+  var falla = function(t){ if(err) err.textContent = t; if(btn){ btn.disabled = false; btn.textContent = 'Enviar solicitud'; } };
+  var nombre = val('agSolNom'), tel = val('agSolTel'), ref = val('agSolRef');
+  var inp = document.getElementById('agSolArch'), arch = inp && inp.files && inp.files[0];
+  if(nombre.length < 5) return falla('Escribe tu nombre completo.');
+  if(tel.replace(/\D/g, '').length < 10) return falla('Escribe un teléfono válido, con código de área (ej. 809-555-1234).');
+  if(!arch) return falla('Adjunta el comprobante de pago (foto o PDF).');
+  if(arch.size > AGSOLMAX) return falla('El comprobante pesa más de 5 MB. Toma una foto más liviana o envía un PDF más pequeño.');
+  if(arch.type && AGSOLTIPOS.indexOf(arch.type) < 0) return falla('El comprobante debe ser una foto (JPG, PNG) o un PDF.');
+  if(err) err.textContent = '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
+  var ext = ((arch.name.match(/\.([a-z0-9]{2,5})$/i) || [])[1] || (arch.type === 'application/pdf' ? 'pdf' : 'jpg')).toLowerCase();
+  var ruta = SESSION.id + '/' + curso + '-' + Date.now() + '.' + ext;
   var usd = agPagoPrecio(curso);
-  window.SB.from('access_requests').insert({
-    user_id: SESSION.id, course_key: curso, status: 'pendiente',
-    metodo: 'transferencia', referencia: ref, monto_usd: (usd == null ? null : usd)
-  }).then(function(r){
-    if(r && r.error){ if(typeof toast === 'function') toast('No se pudo enviar: ' + r.error.message, '⛔'); return; }
-    if(typeof toast === 'function') toast('Solicitud registrada. La revisamos pronto.', '✅');
-    agPintarSolicitud(curso);
-  });
+  window.SB.storage.from('comprobantes').upload(ruta, arch, { upsert:false, contentType: arch.type || undefined }).then(function(up){
+    if(up && up.error) return falla('No se pudo subir el comprobante: ' + up.error.message + '. Si sigue fallando, envíalo por WhatsApp.');
+    return window.SB.from('access_requests').insert({
+      user_id: SESSION.id, course_key: curso, status: 'pendiente',
+      metodo: 'transferencia', referencia: ref, monto_usd: (usd == null ? null : usd),
+      nombre: nombre, telefono: tel, comprobante_path: ruta
+    }).then(function(r){
+      if(r && r.error) return falla('No se pudo enviar: ' + r.error.message);
+      if(typeof toast === 'function') toast('Solicitud enviada. El instructor revisa tu comprobante pronto.', '✅');
+      agPintarSolicitud(curso);
+    });
+  }, function(e){ falla('No se pudo subir el comprobante. Revisa tu conexión e inténtalo de nuevo.'); });
 };
 
 window.agAbrirPago = function(curso){
@@ -34547,6 +34653,8 @@ window.agVolAdapta = agVolAdapta;
 
 
 
+
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -37617,6 +37725,7 @@ if(typeof window.nxAdmAcceso === 'function'){
 }
 
 </script>
+
 
 
 
@@ -44018,6 +44127,7 @@ if(typeof window.egCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* la tarjeta del curso 0 la estiliza rt-panel.js, junto al resto */
@@ -47514,6 +47624,7 @@ if(typeof window.pcAccesoTodos === 'function'){
 }
 
 </script>
+
 
 
 
@@ -51575,6 +51686,7 @@ if(typeof window.lcCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -55890,6 +56002,7 @@ if(typeof window.grCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -60268,6 +60381,7 @@ if(typeof window.gpCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* ===== curso 10: solo lo que no existe ya ===== */
@@ -64582,6 +64696,7 @@ if(typeof window.pbCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* ===== curso 11: solo lo que no existe ya ===== */
@@ -68851,6 +68966,7 @@ if(typeof window.bvCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -73266,6 +73382,7 @@ if(typeof window.apCalcRun === 'function'){
 
 
 
+
 <style>
 
 /* ===== homologación visual: los estilos van en hv-motor.js ===== */
@@ -77372,6 +77489,8 @@ var HVFOTOS = {
 };
 
 </script>
+
+
 
 
 
