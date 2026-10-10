@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kit para afiliados · AgroAcademy RD</title>
+<meta name="description" content="Imágenes, banners y textos listos para promocionar los cursos de AgroAcademy RD como afiliado de Hotmart.">
+<link rel="icon" href="../icon-192.png">
+<style>
+:root{--fondo:#F6F3EC;--papel:#FFFFFF;--tinta:#1C2420;--suave:#5E6A62;--linea:#E2DCCF;--verde:#2F6B45;--oro:#B7862A;--sombra:0 1px 2px rgba(28,36,32,.06),0 6px 20px rgba(28,36,32,.06)}
+@media (prefers-color-scheme:dark){:root{--fondo:#121815;--papel:#1A221E;--tinta:#E9EFEA;--suave:#A3B0A7;--linea:#2C3832;--verde:#6FB58A;--oro:#D9A94A;--sombra:none}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fondo);color:var(--tinta);font:16px/1.55 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+.envoltura{max-width:1120px;margin:0 auto;padding:0 16px}
+.portada{padding:48px 0 28px;border-bottom:1px solid var(--linea)}
+.marca{font-size:12px;letter-spacing:.16em;font-weight:700;color:var(--verde);text-transform:uppercase}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.08;margin:10px 0 12px;text-wrap:balance;letter-spacing:-.01em}
+.intro{max-width:65ch;color:var(--suave);margin:0}
+.pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:24px 0 0;padding:0;list-style:none;counter-reset:p}
+.pasos li{background:var(--papel);border:1px solid var(--linea);border-radius:8px;padding:14px 16px;counter-increment:p}
+.pasos li::before{content:counter(p);display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--verde);color:#fff;font-weight:700;font-size:13px;margin-right:8px}
+.cupon{margin:18px 0 0;padding:12px 16px;border-left:4px solid var(--oro);background:var(--papel);border-radius:0 8px 8px 0}
+.cupon code{font-weight:800;font-size:17px;color:var(--oro)}
+nav.indice{position:sticky;top:0;z-index:5;background:var(--fondo);border-bottom:1px solid var(--linea);padding:10px 0;overflow-x:auto;white-space:nowrap}
+nav.indice a{display:inline-block;margin-right:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--linea);color:var(--tinta);text-decoration:none;font-size:14px;background:var(--papel)}
+nav.indice a:hover,nav.indice a:focus-visible{border-color:var(--verde);color:var(--verde)}
+.curso{padding:36px 0;border-bottom:1px solid var(--linea);scroll-margin-top:60px}
+.eti{margin:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--oro);font-weight:700;font-variant-numeric:tabular-nums}
+h2{font-size:clamp(22px,3.4vw,30px);line-height:1.15;margin:6px 0 8px;text-wrap:balance}
+.gancho{margin:0 0 4px;font-size:17px;max-width:65ch}
+.publico{margin:0;color:var(--suave);font-size:14px}
+h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin:22px 0 10px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+.cols>div{min-width:0}
+@media (max-width:820px){.cols{grid-template-columns:minmax(0,1fr);gap:0}}
+body{overflow-x:hidden}
+.imgs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.img,.ban{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--suave);font-size:12px}
+.img img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:6px;border:1px solid var(--linea);background:var(--linea)}
+.img:nth-child(2) img{aspect-ratio:4/5}
+.bans{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.ban img{max-width:100%;height:auto;border-radius:4px;border:1px solid var(--linea)}
+.ban{max-width:100%;min-width:0}
+.ban:nth-child(3){flex-basis:100%}
+.ban:nth-child(3) img{width:100%}
+.ban:nth-child(4) img{max-height:300px}
+.copia{background:var(--papel);border:1px solid var(--linea);border-radius:8px;margin-bottom:12px;box-shadow:var(--sombra)}
+.copia-cab{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--linea);font-size:13px;font-weight:700}
+.copia button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--verde);color:var(--verde);background:transparent;border-radius:6px;padding:4px 12px;cursor:pointer}
+.copia button:hover{background:var(--verde);color:#fff}
+.copia button:focus-visible{outline:2px solid var(--oro);outline-offset:2px}
+pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word;font:14px/1.5 system-ui,sans-serif;max-height:260px;overflow:auto}
+footer{padding:32px 0 48px;color:var(--suave);font-size:14px}
+</style>
+</head>
+<body>
+<header class="portada"><div class="envoltura">
+  <p class="marca">AgroAcademy RD · Afiliados</p>
+  <h1>Kit para promocionar los cursos de AgroAcademy RD</h1>
+  <p class="intro">Imágenes, banners y textos listos para cada curso. Descarga lo que necesites y comparte siempre con <b>tu enlace de afiliado de Hotmart</b>, así la venta queda a tu nombre.</p>
+  <ol class="pasos">
+    <li>En Hotmart, busca el curso en el Mercado de Afiliación y afíliate con un clic.</li>
+    <li>Copia tu Hotlink y pégalo donde dice [TU ENLACE DE AFILIADO].</li>
+    <li>Publica la imagen con el texto en WhatsApp, Instagram o Facebook.</li>
+  </ol>
+  <p class="cupon">Cupón de lanzamiento <code>LANZAMIENTO20</code>: 20% de descuento hasta el 9 de noviembre. Tu comisión es del 20% de cada venta confirmada.</p>
+</div></header>
+<nav class="indice" aria-label="Cursos"><div class="envoltura"><a href="#porcicultura">Porcicultura aplicada a República Dominicana</a><a href="#nutricion">Formulación y fabricación de alimentos balanceados para cerdos</a><a href="#reproduccion">Reproducción porcina</a><a href="#sanidad">Sanidad y bioseguridad porcina</a><a href="#engorde">Engorde porcino</a><a href="#lechones">Manejo de lechones</a><a href="#rentabilidad">Gestión y rentabilidad de granjas porcinas</a><a href="#ponedoras">Gallinas ponedoras</a><a href="#pollos">Pollos de engorde</a><a href="#bovinos">Ganadería bovina</a><a href="#apicultura">Apicultura</a></div></nav>
+<main class="envoltura">
+
+<section class="curso" id="porcicultura">
+  <header class="curso-cab">
+    <p class="eti">12 módulos · US$ 74</p>
+    <h2>Porcicultura aplicada a República Dominicana</h2>
+    <p class="gancho">El curso completo para montar y manejar una granja de cerdos en RD, de la idea al negocio.</p>
+    <p class="publico"><b>Para quién:</b> Productores, emprendedores y técnicos que quieren criar cerdos en RD</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/porcicultura.jpg" download><img src="portadas/porcicultura.jpg" alt="Portada de Porcicultura aplicada a República Dominicana" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/02-porcicultura.jpg" download><img src="instagram/02-porcicultura.jpg" alt="Arte para Instagram de Porcicultura aplicada a República Dominicana" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/porcicultura-300x250.jpg" download><img src="banners/porcicultura-300x250.jpg" alt="Banner 300x250 de Porcicultura aplicada a República Dominicana" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/porcicultura-336x280.jpg" download><img src="banners/porcicultura-336x280.jpg" alt="Banner 336x280 de Porcicultura aplicada a República Dominicana" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/porcicultura-728x90.jpg" download><img src="banners/porcicultura-728x90.jpg" alt="Banner 728x90 de Porcicultura aplicada a República Dominicana" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/porcicultura-160x600.jpg" download><img src="banners/porcicultura-160x600.jpg" alt="Banner 160x600 de Porcicultura aplicada a República Dominicana" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t1">Copiar</button></div><pre id="t1">🌱 *Porcicultura aplicada a República Dominicana*
+
+El curso completo para montar y manejar una granja de cerdos en RD, de la idea al negocio.
+
+✅ 12 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t2">Copiar</button></div><pre id="t2">El curso completo para montar y manejar una granja de cerdos en RD, de la idea al negocio.
+
+📚 Porcicultura aplicada a República Dominicana
+12 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #porcicultura #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t3">Copiar</button></div><pre id="t3">Porcicultura aplicada a República Dominicana: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t4">Copiar</button></div><pre id="t4">Hola,
+
+El curso completo para montar y manejar una granja de cerdos en RD, de la idea al negocio.
+
+Te recomiendo el curso «Porcicultura aplicada a República Dominicana» de AgroAcademy RD. Son 12 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• La porcicultura en RD
+• Diseño y planificación de la granja
+• Manejo reproductivo
+• Manejo del lechón
+• Alimentación y nutrición
+• Sanidad y bioseguridad
+• Manejo por etapas
+• Gestión y administración
+• Economía y rentabilidad
+• Comercialización
+• Tecnología y digitalización
+• Proyecto final: diseña tu propia granja
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t5">Copiar</button></div><pre id="t5">El curso completo para montar y manejar una granja de cerdos en RD, de la idea al negocio. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="nutricion">
+  <header class="curso-cab">
+    <p class="eti">10 módulos · US$ 44</p>
+    <h2>Formulación y fabricación de alimentos balanceados para cerdos</h2>
+    <p class="gancho">Aprende a formular y fabricar el alimento de tus cerdos: el costo más grande de la granja.</p>
+    <p class="publico"><b>Para quién:</b> Porcicultores, fabricantes de alimento y técnicos en nutrición animal</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/nutricion.jpg" download><img src="portadas/nutricion.jpg" alt="Portada de Formulación y fabricación de alimentos balanceados para cerdos" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/03-formulacion.jpg" download><img src="instagram/03-formulacion.jpg" alt="Arte para Instagram de Formulación y fabricación de alimentos balanceados para cerdos" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/nutricion-300x250.jpg" download><img src="banners/nutricion-300x250.jpg" alt="Banner 300x250 de Formulación y fabricación de alimentos balanceados para cerdos" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/nutricion-336x280.jpg" download><img src="banners/nutricion-336x280.jpg" alt="Banner 336x280 de Formulación y fabricación de alimentos balanceados para cerdos" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/nutricion-728x90.jpg" download><img src="banners/nutricion-728x90.jpg" alt="Banner 728x90 de Formulación y fabricación de alimentos balanceados para cerdos" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/nutricion-160x600.jpg" download><img src="banners/nutricion-160x600.jpg" alt="Banner 160x600 de Formulación y fabricación de alimentos balanceados para cerdos" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t6">Copiar</button></div><pre id="t6">🌱 *Formulación y fabricación de alimentos balanceados para cerdos*
+
+Aprende a formular y fabricar el alimento de tus cerdos: el costo más grande de la granja.
+
+✅ 10 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t7">Copiar</button></div><pre id="t7">Aprende a formular y fabricar el alimento de tus cerdos: el costo más grande de la granja.
+
+📚 Formulación y fabricación de alimentos balanceados para cerdos
+10 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #nutriciónporcina #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t8">Copiar</button></div><pre id="t8">Formulación y fabricación de alimentos balanceados para cerdos: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t9">Copiar</button></div><pre id="t9">Hola,
+
+Aprende a formular y fabricar el alimento de tus cerdos: el costo más grande de la granja.
+
+Te recomiendo el curso «Formulación y fabricación de alimentos balanceados para cerdos» de AgroAcademy RD. Son 10 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• Fundamentos de formulación
+• Materias primas
+• Requerimientos por peso y etapa
+• Biblioteca de fórmulas
+• Preinicio y destete
+• Crecimiento, engorde y finalización
+• Fabricación del alimento
+• Costos
+• Formulación económica y sustitución
+• Conversión, evaluación y proyecto final
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t10">Copiar</button></div><pre id="t10">Aprende a formular y fabricar el alimento de tus cerdos: el costo más grande de la granja. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="reproduccion">
+  <header class="curso-cab">
+    <p class="eti">10 módulos · US$ 49</p>
+    <h2>Reproducción porcina: celo, inseminación y manejo de marranas</h2>
+    <p class="gancho">Más lechones por marrana empieza por detectar el celo y servir en el momento correcto.</p>
+    <p class="publico"><b>Para quién:</b> Porcicultores con marranas de cría, encargados de granja y técnicos</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/reproduccion.jpg" download><img src="portadas/reproduccion.jpg" alt="Portada de Reproducción porcina: celo, inseminación y manejo de marranas" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/04-reproduccion.jpg" download><img src="instagram/04-reproduccion.jpg" alt="Arte para Instagram de Reproducción porcina: celo, inseminación y manejo de marranas" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/reproduccion-300x250.jpg" download><img src="banners/reproduccion-300x250.jpg" alt="Banner 300x250 de Reproducción porcina: celo, inseminación y manejo de marranas" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/reproduccion-336x280.jpg" download><img src="banners/reproduccion-336x280.jpg" alt="Banner 336x280 de Reproducción porcina: celo, inseminación y manejo de marranas" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/reproduccion-728x90.jpg" download><img src="banners/reproduccion-728x90.jpg" alt="Banner 728x90 de Reproducción porcina: celo, inseminación y manejo de marranas" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/reproduccion-160x600.jpg" download><img src="banners/reproduccion-160x600.jpg" alt="Banner 160x600 de Reproducción porcina: celo, inseminación y manejo de marranas" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t11">Copiar</button></div><pre id="t11">🌱 *Reproducción porcina: celo, inseminación y manejo de marranas*
+
+Más lechones por marrana empieza por detectar el celo y servir en el momento correcto.
+
+✅ 10 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t12">Copiar</button></div><pre id="t12">Más lechones por marrana empieza por detectar el celo y servir en el momento correcto.
+
+📚 Reproducción porcina: celo, inseminación y manejo de marranas
+10 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #reproducciónporcina #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t13">Copiar</button></div><pre id="t13">Reproducción porcina: celo, inseminación y manejo de marranas: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t14">Copiar</button></div><pre id="t14">Hola,
+
+Más lechones por marrana empieza por detectar el celo y servir en el momento correcto.
+
+Te recomiendo el curso «Reproducción porcina: celo, inseminación y manejo de marranas» de AgroAcademy RD. Son 10 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• Cómo funciona por dentro una marrana
+• El calendario y la ficha de su granja
+• Detectar el celo
+• Cuándo servir: el criterio, no la hora
+• Inseminar bien: donde se pierde la gestación
+• Gestación: lo que decide cuántos lechones nacen
+• Diagnóstico de gestación
+• Cuando algo falla
+• Destete → celo → servicio
+• Parto, indicadores y dónde está el dinero
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t15">Copiar</button></div><pre id="t15">Más lechones por marrana empieza por detectar el celo y servir en el momento correcto. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="sanidad">
+  <header class="curso-cab">
+    <p class="eti">10 módulos · US$ 45</p>
+    <h2>Sanidad y bioseguridad porcina · Peste Porcina Africana</h2>
+    <p class="gancho">Prevenir sale más barato: protege tu granja de la Peste Porcina Africana y otras enfermedades.</p>
+    <p class="publico"><b>Para quién:</b> Porcicultores, encargados de granja y personal que trabaja con cerdos</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/sanidad.jpg" download><img src="portadas/sanidad.jpg" alt="Portada de Sanidad y bioseguridad porcina · Peste Porcina Africana" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/05-sanidad.jpg" download><img src="instagram/05-sanidad.jpg" alt="Arte para Instagram de Sanidad y bioseguridad porcina · Peste Porcina Africana" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/sanidad-300x250.jpg" download><img src="banners/sanidad-300x250.jpg" alt="Banner 300x250 de Sanidad y bioseguridad porcina · Peste Porcina Africana" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/sanidad-336x280.jpg" download><img src="banners/sanidad-336x280.jpg" alt="Banner 336x280 de Sanidad y bioseguridad porcina · Peste Porcina Africana" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/sanidad-728x90.jpg" download><img src="banners/sanidad-728x90.jpg" alt="Banner 728x90 de Sanidad y bioseguridad porcina · Peste Porcina Africana" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/sanidad-160x600.jpg" download><img src="banners/sanidad-160x600.jpg" alt="Banner 160x600 de Sanidad y bioseguridad porcina · Peste Porcina Africana" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t16">Copiar</button></div><pre id="t16">🌱 *Sanidad y bioseguridad porcina · Peste Porcina Africana*
+
+Prevenir sale más barato: protege tu granja de la Peste Porcina Africana y otras enfermedades.
+
+✅ 10 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t17">Copiar</button></div><pre id="t17">Prevenir sale más barato: protege tu granja de la Peste Porcina Africana y otras enfermedades.
+
+📚 Sanidad y bioseguridad porcina · Peste Porcina Africana
+10 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #pesteporcinaafricana #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t18">Copiar</button></div><pre id="t18">Sanidad y bioseguridad porcina · Peste Porcina Africana: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t19">Copiar</button></div><pre id="t19">Hola,
+
+Prevenir sale más barato: protege tu granja de la Peste Porcina Africana y otras enfermedades.
+
+Te recomiendo el curso «Sanidad y bioseguridad porcina · Peste Porcina Africana» de AgroAcademy RD. Son 10 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• Qué es sanidad y por qué prevenir sale más barato
+• Peste Porcina Africana: lo que hay que saber
+• ¿Por dónde puede entrar una enfermedad a mi granja?
+• Bioseguridad externa: que el riesgo no llegue
+• Bioseguridad interna: que no se mueva por dentro
+• Limpiar y desinfectar no es lo mismo
+• Cuarentena y entrada de animales
+• Cadáveres, desechos y plagas
+• El plan de bioseguridad de MI granja
+• Protocolo ante sospecha de PPA
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t20">Copiar</button></div><pre id="t20">Prevenir sale más barato: protege tu granja de la Peste Porcina Africana y otras enfermedades. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="engorde">
+  <header class="curso-cab">
+    <p class="eti">10 módulos · US$ 79</p>
+    <h2>Engorde porcino: del destete al peso de mercado</h2>
+    <p class="gancho">Del destete al peso de venta: mide, controla y calcula si tu engorde deja dinero.</p>
+    <p class="publico"><b>Para quién:</b> Productores que engordan cerdos para la venta en RD</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/engorde.jpg" download><img src="portadas/engorde.jpg" alt="Portada de Engorde porcino: del destete al peso de mercado" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/06-engorde.jpg" download><img src="instagram/06-engorde.jpg" alt="Arte para Instagram de Engorde porcino: del destete al peso de mercado" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/engorde-300x250.jpg" download><img src="banners/engorde-300x250.jpg" alt="Banner 300x250 de Engorde porcino: del destete al peso de mercado" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/engorde-336x280.jpg" download><img src="banners/engorde-336x280.jpg" alt="Banner 336x280 de Engorde porcino: del destete al peso de mercado" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/engorde-728x90.jpg" download><img src="banners/engorde-728x90.jpg" alt="Banner 728x90 de Engorde porcino: del destete al peso de mercado" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/engorde-160x600.jpg" download><img src="banners/engorde-160x600.jpg" alt="Banner 160x600 de Engorde porcino: del destete al peso de mercado" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t21">Copiar</button></div><pre id="t21">🌱 *Engorde porcino: del destete al peso de mercado*
+
+Del destete al peso de venta: mide, controla y calcula si tu engorde deja dinero.
+
+✅ 10 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t22">Copiar</button></div><pre id="t22">Del destete al peso de venta: mide, controla y calcula si tu engorde deja dinero.
+
+📚 Engorde porcino: del destete al peso de mercado
+10 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #engordedecerdos #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t23">Copiar</button></div><pre id="t23">Engorde porcino: del destete al peso de mercado: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t24">Copiar</button></div><pre id="t24">Hola,
+
+Del destete al peso de venta: mide, controla y calcula si tu engorde deja dinero.
+
+Te recomiendo el curso «Engorde porcino: del destete al peso de mercado» de AgroAcademy RD. Son 10 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• El engorde: de cerdo a kilos vendibles
+• Preparación del área de engorde
+• Recibiendo los cerdos: los primeros días importan
+• Alimentación durante el engorde
+• Agua, calor y confort en República Dominicana
+• Medir el crecimiento: peso y ganancia diaria
+• Conversión alimenticia: el número que puede cambiar su negocio
+• Manejo del lote: ¿qué está pasando con mis cerdos?
+• Costo real del engorde
+• Venta, margen y rentabilidad
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t25">Copiar</button></div><pre id="t25">Del destete al peso de venta: mide, controla y calcula si tu engorde deja dinero. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="lechones">
+  <header class="curso-cab">
+    <p class="eti">9 módulos · US$ 55</p>
+    <h2>Manejo de lechones: del nacimiento al destete</h2>
+    <p class="gancho">Cada lechón que se salva en maternidad es dinero: aprende a sacar más destetados por camada.</p>
+    <p class="publico"><b>Para quién:</b> Porcicultores con maternidad, encargados de parideras y técnicos</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/lechones.jpg" download><img src="portadas/lechones.jpg" alt="Portada de Manejo de lechones: del nacimiento al destete" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/lechones-300x250.jpg" download><img src="banners/lechones-300x250.jpg" alt="Banner 300x250 de Manejo de lechones: del nacimiento al destete" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/lechones-336x280.jpg" download><img src="banners/lechones-336x280.jpg" alt="Banner 336x280 de Manejo de lechones: del nacimiento al destete" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/lechones-728x90.jpg" download><img src="banners/lechones-728x90.jpg" alt="Banner 728x90 de Manejo de lechones: del nacimiento al destete" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/lechones-160x600.jpg" download><img src="banners/lechones-160x600.jpg" alt="Banner 160x600 de Manejo de lechones: del nacimiento al destete" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t26">Copiar</button></div><pre id="t26">🌱 *Manejo de lechones: del nacimiento al destete*
+
+Cada lechón que se salva en maternidad es dinero: aprende a sacar más destetados por camada.
+
+✅ 9 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t27">Copiar</button></div><pre id="t27">Cada lechón que se salva en maternidad es dinero: aprende a sacar más destetados por camada.
+
+📚 Manejo de lechones: del nacimiento al destete
+9 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #lechones #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t28">Copiar</button></div><pre id="t28">Manejo de lechones: del nacimiento al destete: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t29">Copiar</button></div><pre id="t29">Hola,
+
+Cada lechón que se salva en maternidad es dinero: aprende a sacar más destetados por camada.
+
+Te recomiendo el curso «Manejo de lechones: del nacimiento al destete» de AgroAcademy RD. Son 9 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• El momento más importante: el nacimiento
+• Calostro: la primera defensa del lechón
+• Temperatura y ambiente
+• Manejo de la camada
+• Las principales prácticas de manejo
+• Prevenir las pérdidas en maternidad
+• Del lechón pequeño al lechón listo para el destete
+• Cómo medir una buena maternidad
+• Proyecto final: su plan de manejo del lechón
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t30">Copiar</button></div><pre id="t30">Cada lechón que se salva en maternidad es dinero: aprende a sacar más destetados por camada. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="rentabilidad">
+  <header class="curso-cab">
+    <p class="eti">8 módulos · US$ 43</p>
+    <h2>Gestión y rentabilidad de granjas porcinas</h2>
+    <p class="gancho">Saber cuánto te cuesta producir un cerdo es la diferencia entre trabajar y ganar.</p>
+    <p class="publico"><b>Para quién:</b> Dueños y administradores de granjas porcinas</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/rentabilidad.jpg" download><img src="portadas/rentabilidad.jpg" alt="Portada de Gestión y rentabilidad de granjas porcinas" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/07-rentabilidad.jpg" download><img src="instagram/07-rentabilidad.jpg" alt="Arte para Instagram de Gestión y rentabilidad de granjas porcinas" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/rentabilidad-300x250.jpg" download><img src="banners/rentabilidad-300x250.jpg" alt="Banner 300x250 de Gestión y rentabilidad de granjas porcinas" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/rentabilidad-336x280.jpg" download><img src="banners/rentabilidad-336x280.jpg" alt="Banner 336x280 de Gestión y rentabilidad de granjas porcinas" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/rentabilidad-728x90.jpg" download><img src="banners/rentabilidad-728x90.jpg" alt="Banner 728x90 de Gestión y rentabilidad de granjas porcinas" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/rentabilidad-160x600.jpg" download><img src="banners/rentabilidad-160x600.jpg" alt="Banner 160x600 de Gestión y rentabilidad de granjas porcinas" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t31">Copiar</button></div><pre id="t31">🌱 *Gestión y rentabilidad de granjas porcinas*
+
+Saber cuánto te cuesta producir un cerdo es la diferencia entre trabajar y ganar.
+
+✅ 8 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t32">Copiar</button></div><pre id="t32">Saber cuánto te cuesta producir un cerdo es la diferencia entre trabajar y ganar.
+
+📚 Gestión y rentabilidad de granjas porcinas
+8 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #rentabilidad #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t33">Copiar</button></div><pre id="t33">Gestión y rentabilidad de granjas porcinas: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t34">Copiar</button></div><pre id="t34">Hola,
+
+Saber cuánto te cuesta producir un cerdo es la diferencia entre trabajar y ganar.
+
+Te recomiendo el curso «Gestión y rentabilidad de granjas porcinas» de AgroAcademy RD. Son 8 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• La granja porcina es un negocio
+• Los costos de producción
+• El alimento: el costo más importante
+• ¿Cuánto me cuesta producir un cerdo?
+• Precio de venta, margen y ganancia
+• Punto de equilibrio y flujo de caja
+• Indicadores productivos que afectan la rentabilidad
+• Plan de rentabilidad para la granja
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t35">Copiar</button></div><pre id="t35">Saber cuánto te cuesta producir un cerdo es la diferencia entre trabajar y ganar. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="ponedoras">
+  <header class="curso-cab">
+    <p class="eti">8 módulos · US$ 99</p>
+    <h2>Gallinas ponedoras: producción de huevos rentable</h2>
+    <p class="gancho">Monta un negocio de huevos que cuadre los números: de la compra de las gallinas a la venta.</p>
+    <p class="publico"><b>Para quién:</b> Emprendedores y productores avícolas que quieren producir huevos</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/ponedoras.jpg" download><img src="portadas/ponedoras.jpg" alt="Portada de Gallinas ponedoras: producción de huevos rentable" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/08-ponedoras.jpg" download><img src="instagram/08-ponedoras.jpg" alt="Arte para Instagram de Gallinas ponedoras: producción de huevos rentable" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/ponedoras-300x250.jpg" download><img src="banners/ponedoras-300x250.jpg" alt="Banner 300x250 de Gallinas ponedoras: producción de huevos rentable" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/ponedoras-336x280.jpg" download><img src="banners/ponedoras-336x280.jpg" alt="Banner 336x280 de Gallinas ponedoras: producción de huevos rentable" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/ponedoras-728x90.jpg" download><img src="banners/ponedoras-728x90.jpg" alt="Banner 728x90 de Gallinas ponedoras: producción de huevos rentable" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/ponedoras-160x600.jpg" download><img src="banners/ponedoras-160x600.jpg" alt="Banner 160x600 de Gallinas ponedoras: producción de huevos rentable" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t36">Copiar</button></div><pre id="t36">🌱 *Gallinas ponedoras: producción de huevos rentable*
+
+Monta un negocio de huevos que cuadre los números: de la compra de las gallinas a la venta.
+
+✅ 8 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t37">Copiar</button></div><pre id="t37">Monta un negocio de huevos que cuadre los números: de la compra de las gallinas a la venta.
+
+📚 Gallinas ponedoras: producción de huevos rentable
+8 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #gallinasponedoras #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t38">Copiar</button></div><pre id="t38">Gallinas ponedoras: producción de huevos rentable: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t39">Copiar</button></div><pre id="t39">Hola,
+
+Monta un negocio de huevos que cuadre los números: de la compra de las gallinas a la venta.
+
+Te recomiendo el curso «Gallinas ponedoras: producción de huevos rentable» de AgroAcademy RD. Son 8 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• ¿Cómo funciona un negocio de gallinas ponedoras?
+• Planifica antes de comprar las gallinas
+• Alimentación y agua: la base de la producción
+• Manejo de la gallina ponedora
+• El huevo: producción, recolección y calidad
+• Sanidad y bioseguridad
+• ¿Cuánto me cuesta producir un huevo?
+• Construye tu negocio de huevos rentable
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t40">Copiar</button></div><pre id="t40">Monta un negocio de huevos que cuadre los números: de la compra de las gallinas a la venta. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="pollos">
+  <header class="curso-cab">
+    <p class="eti">8 módulos · US$ 80</p>
+    <h2>Pollos de engorde: manejo y producción rentable</h2>
+    <p class="gancho">Del pollito al pollo vendido: los primeros 7 días y los números deciden si el lote deja ganancia.</p>
+    <p class="publico"><b>Para quién:</b> Productores y emprendedores de pollos de engorde</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/pollos.jpg" download><img src="portadas/pollos.jpg" alt="Portada de Pollos de engorde: manejo y producción rentable" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/09-pollos.jpg" download><img src="instagram/09-pollos.jpg" alt="Arte para Instagram de Pollos de engorde: manejo y producción rentable" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/pollos-300x250.jpg" download><img src="banners/pollos-300x250.jpg" alt="Banner 300x250 de Pollos de engorde: manejo y producción rentable" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/pollos-336x280.jpg" download><img src="banners/pollos-336x280.jpg" alt="Banner 336x280 de Pollos de engorde: manejo y producción rentable" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/pollos-728x90.jpg" download><img src="banners/pollos-728x90.jpg" alt="Banner 728x90 de Pollos de engorde: manejo y producción rentable" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/pollos-160x600.jpg" download><img src="banners/pollos-160x600.jpg" alt="Banner 160x600 de Pollos de engorde: manejo y producción rentable" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t41">Copiar</button></div><pre id="t41">🌱 *Pollos de engorde: manejo y producción rentable*
+
+Del pollito al pollo vendido: los primeros 7 días y los números deciden si el lote deja ganancia.
+
+✅ 8 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t42">Copiar</button></div><pre id="t42">Del pollito al pollo vendido: los primeros 7 días y los números deciden si el lote deja ganancia.
+
+📚 Pollos de engorde: manejo y producción rentable
+8 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #pollosdeengorde #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t43">Copiar</button></div><pre id="t43">Pollos de engorde: manejo y producción rentable: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t44">Copiar</button></div><pre id="t44">Hola,
+
+Del pollito al pollo vendido: los primeros 7 días y los números deciden si el lote deja ganancia.
+
+Te recomiendo el curso «Pollos de engorde: manejo y producción rentable» de AgroAcademy RD. Son 8 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• Del pollito al negocio
+• Prepara el galpón antes de recibir los pollitos
+• Los primeros 7 días: el momento más importante
+• Alimento + agua = crecimiento
+• Manejo del lote y control del crecimiento
+• Bioseguridad y prevención de problemas
+• ¿Cuánto me cuesta producir un pollo?
+• Construye un lote rentable
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t45">Copiar</button></div><pre id="t45">Del pollito al pollo vendido: los primeros 7 días y los números deciden si el lote deja ganancia. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="bovinos">
+  <header class="curso-cab">
+    <p class="eti">8 módulos · US$ 95</p>
+    <h2>Ganadería bovina: manejo, alimentación y rentabilidad</h2>
+    <p class="gancho">Tu finca como un sistema: pasto, alimentación, reproducción, salud y números en un solo curso.</p>
+    <p class="publico"><b>Para quién:</b> Ganaderos de carne, leche o doble propósito y técnicos de campo</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/bovinos.jpg" download><img src="portadas/bovinos.jpg" alt="Portada de Ganadería bovina: manejo, alimentación y rentabilidad" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/10-bovinos.jpg" download><img src="instagram/10-bovinos.jpg" alt="Arte para Instagram de Ganadería bovina: manejo, alimentación y rentabilidad" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/bovinos-300x250.jpg" download><img src="banners/bovinos-300x250.jpg" alt="Banner 300x250 de Ganadería bovina: manejo, alimentación y rentabilidad" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/bovinos-336x280.jpg" download><img src="banners/bovinos-336x280.jpg" alt="Banner 336x280 de Ganadería bovina: manejo, alimentación y rentabilidad" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/bovinos-728x90.jpg" download><img src="banners/bovinos-728x90.jpg" alt="Banner 728x90 de Ganadería bovina: manejo, alimentación y rentabilidad" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/bovinos-160x600.jpg" download><img src="banners/bovinos-160x600.jpg" alt="Banner 160x600 de Ganadería bovina: manejo, alimentación y rentabilidad" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t46">Copiar</button></div><pre id="t46">🌱 *Ganadería bovina: manejo, alimentación y rentabilidad*
+
+Tu finca como un sistema: pasto, alimentación, reproducción, salud y números en un solo curso.
+
+✅ 8 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t47">Copiar</button></div><pre id="t47">Tu finca como un sistema: pasto, alimentación, reproducción, salud y números en un solo curso.
+
+📚 Ganadería bovina: manejo, alimentación y rentabilidad
+8 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #ganaderíabovina #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t48">Copiar</button></div><pre id="t48">Ganadería bovina: manejo, alimentación y rentabilidad: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t49">Copiar</button></div><pre id="t49">Hola,
+
+Tu finca como un sistema: pasto, alimentación, reproducción, salud y números en un solo curso.
+
+Te recomiendo el curso «Ganadería bovina: manejo, alimentación y rentabilidad» de AgroAcademy RD. Son 8 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• Conoce tu ganado y tu negocio
+• La finca: pasto, agua y ambiente
+• Alimentación: el motor de la producción
+• Agua, manejo y bienestar animal
+• Reproducción: el futuro de la finca
+• Sanidad y bioseguridad
+• Los números de la finca
+• Construye una ganadería rentable
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t50">Copiar</button></div><pre id="t50">Tu finca como un sistema: pasto, alimentación, reproducción, salud y números en un solo curso. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+
+<section class="curso" id="apicultura">
+  <header class="curso-cab">
+    <p class="eti">8 módulos · US$ 84</p>
+    <h2>Apicultura: producción de miel y manejo de colmenas</h2>
+    <p class="gancho">Instala, revisa y cuida tus colmenas, y convierte la miel en un negocio.</p>
+    <p class="publico"><b>Para quién:</b> Personas que quieren iniciarse en la apicultura o profesionalizarla</p>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>Imágenes</h3>
+      <div class="imgs"><a class="img" href="portadas/apicultura.jpg" download><img src="portadas/apicultura.jpg" alt="Portada de Apicultura: producción de miel y manejo de colmenas" loading="lazy" width="600" height="600"><span>Portada · 600×600</span></a><a class="img" href="instagram/11-apicultura.jpg" download><img src="instagram/11-apicultura.jpg" alt="Arte para Instagram de Apicultura: producción de miel y manejo de colmenas" loading="lazy" width="1080" height="1350"><span>Instagram · 1080×1350</span></a></div>
+      <h3>Banners</h3>
+      <div class="bans"><a class="ban" href="banners/apicultura-300x250.jpg" download><img src="banners/apicultura-300x250.jpg" alt="Banner 300x250 de Apicultura: producción de miel y manejo de colmenas" loading="lazy"><span>300×250</span></a><a class="ban" href="banners/apicultura-336x280.jpg" download><img src="banners/apicultura-336x280.jpg" alt="Banner 336x280 de Apicultura: producción de miel y manejo de colmenas" loading="lazy"><span>336×280</span></a><a class="ban" href="banners/apicultura-728x90.jpg" download><img src="banners/apicultura-728x90.jpg" alt="Banner 728x90 de Apicultura: producción de miel y manejo de colmenas" loading="lazy"><span>728×90</span></a><a class="ban" href="banners/apicultura-160x600.jpg" download><img src="banners/apicultura-160x600.jpg" alt="Banner 160x600 de Apicultura: producción de miel y manejo de colmenas" loading="lazy"><span>160×600</span></a></div>
+    </div>
+    <div>
+      <h3>Textos listos para copiar</h3>
+      <div class="copia"><div class="copia-cab"><span>WhatsApp</span><button type="button" data-copiar="t51">Copiar</button></div><pre id="t51">🌱 *Apicultura: producción de miel y manejo de colmenas*
+
+Instala, revisa y cuida tus colmenas, y convierte la miel en un negocio.
+
+✅ 8 módulos prácticos
+✅ Hecho para República Dominicana
+✅ Certificado al terminar
+✅ Acceso de por vida
+
+💳 Inscríbete aquí: [TU ENLACE DE AFILIADO]
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Instagram / Facebook</span><button type="button" data-copiar="t52">Copiar</button></div><pre id="t52">Instala, revisa y cuida tus colmenas, y convierte la miel en un negocio.
+
+📚 Apicultura: producción de miel y manejo de colmenas
+8 módulos · certificado · acceso de por vida
+Hecho para el productor dominicano 🇩🇴
+
+🎟️ Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+👉 Enlace en la bio
+
+#AgroAcademyRD #apicultura #RepúblicaDominicana #agro</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · asunto</span><button type="button" data-copiar="t53">Copiar</button></div><pre id="t53">Apicultura: producción de miel y manejo de colmenas: curso online para el productor dominicano</pre></div>
+      <div class="copia"><div class="copia-cab"><span>Correo · mensaje</span><button type="button" data-copiar="t54">Copiar</button></div><pre id="t54">Hola,
+
+Instala, revisa y cuida tus colmenas, y convierte la miel en un negocio.
+
+Te recomiendo el curso «Apicultura: producción de miel y manejo de colmenas» de AgroAcademy RD. Son 8 módulos prácticos, hechos con la realidad de República Dominicana:
+
+• Conoce el mundo de las abejas
+• El apiario: dónde y cómo instalar las colmenas
+• La colmena y el equipo del apicultor
+• Cómo revisar una colmena
+• La reina, la cría y la salud de la colonia
+• Sanidad, bioseguridad y seguridad del apicultor
+• Cosecha, calidad y manejo de la miel
+• Convierte la miel en un negocio rentable
+
+Incluye evaluaciones, herramientas prácticas y certificado al terminar, con acceso de por vida.
+
+Cupón de lanzamiento LANZAMIENTO20: 20% de descuento hasta el 9 de noviembre.
+
+Inscríbete aquí: [TU ENLACE DE AFILIADO]
+
+Un saludo.</pre></div>
+      <div class="copia"><div class="copia-cab"><span>X / Twitter</span><button type="button" data-copiar="t55">Copiar</button></div><pre id="t55">Instala, revisa y cuida tus colmenas, y convierte la miel en un negocio. Curso online de AgroAcademy RD, hecho para el productor dominicano. Certificado y acceso de por vida. [TU ENLACE DE AFILIADO]</pre></div>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="envoltura">
+  <p>Reglas: no prometas ganancias garantizadas, no hagas spam y no te presentes como AgroAcademy RD. Los cursos se toman en agroacademy-rd.vercel.app con el mismo correo de la compra.</p>
+</footer>
+<script>
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-copiar]'); if (!b) return;
+  var t = document.getElementById(b.getAttribute('data-copiar')).textContent;
+  var listo = function () { var o = b.textContent; b.textContent = 'Copiado'; setTimeout(function () { b.textContent = o; }, 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(listo, function () {});
+  else { var r = document.createRange(); r.selectNodeContents(document.getElementById(b.getAttribute('data-copiar'))); var s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy'); listo(); }
+});
+</script>
+</body>
+</html>
