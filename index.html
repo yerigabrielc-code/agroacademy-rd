@@ -5669,6 +5669,7 @@ router();
             ? '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="agVerComprobante(\''+esc(f.comprobante_path)+'\')">Ver comprobante</button>'
             : '<span style="color:var(--muted);font-size:12px">sin comprobante</span>')+'</td>'+
           '<td><span class="st-badge st-'+f.status+'">'+f.status+'</span>'+
+            (f.metodo==='hotmart'?' <span class="st-badge" style="background:color-mix(in srgb,#f04e23 15%,transparent);color:#c2410c">💳 Hotmart</span>':'')+
             (f.status==='rechazado'&&f.motivo_rechazo?'<br><span style="color:var(--muted);font-size:12px">'+esc(f.motivo_rechazo)+'</span>':'')+'</td>'+
           '<td>'+(enRevision
             ? '<button class="adm-add" style="padding:6px 12px;font-size:12px" onclick="agAprobarSolicitud(\''+f.id+'\',\''+f.user_id+'\',\''+f.course_key+'\')">Aprobar</button> '+
@@ -5679,6 +5680,33 @@ router();
           '</td></tr>';
       }).join('')+'</tbody></table></div>';
   }
+  window.pintarSolicitudesAdmin=pintarSolicitudesAdmin;
+
+  /* compras de Hotmart que todavía no se pudieron aplicar: el comprador
+     no tiene cuenta con ese correo, o el producto no está registrado.
+     Se aplican solas cuando se registre; aquí se ven para poder avisarle. */
+  async function pintarHotmartEspera(){
+    const wrap=document.getElementById('solListWrap'); if(!wrap) return;
+    let r;
+    try{ r=await sb.from('hotmart_compras').select('*').eq('aplicada',false).neq('estado','pendiente').order('created_at',{ascending:false}).limit(100); }catch(e){ return; }
+    if(!r||r.error||!r.data||!r.data.length) return;
+    const box=document.createElement('div');
+    box.innerHTML='<h3 style="margin-top:26px">Compras de Hotmart esperando <span style="font-weight:400;color:var(--muted);font-size:13px">('+r.data.length+')</span></h3>'+
+      '<p class="adm-note">Se activan solas cuando el comprador se registre en AgroAcademy con ese correo. Si usó otro correo, escríbele.</p>'+
+      '<div class="adm-tablewrap"><table class="adm-table"><thead><tr><th>Comprador</th><th>Teléfono</th><th>Curso</th><th>Fecha</th><th>Transacción</th><th>Qué falta</th></tr></thead><tbody>'+
+      r.data.map(function(c){
+        let dig=(c.buyer_phone||'').replace(/\D/g,''); if(dig.length===10) dig='1'+dig;
+        return '<tr><td><b>'+esc(c.buyer_name||'—')+'</b><br><span style="color:var(--muted);font-size:12px">'+esc(c.buyer_email)+'</span></td>'+
+          '<td>'+(dig?'<a href="https://wa.me/'+esc(dig)+'" target="_blank" rel="noopener">'+esc(c.buyer_phone)+'</a>':'—')+'</td>'+
+          '<td>'+esc(c.course_key?nombreCurso(c.course_key):('producto '+c.product_id))+'</td>'+
+          '<td>'+new Date(c.created_at).toLocaleDateString('es-DO')+'</td>'+
+          '<td style="font-size:12px">'+esc(c.transaction)+'</td>'+
+          '<td style="font-size:12px;color:var(--muted)">'+esc(c.nota||'')+'</td></tr>';
+      }).join('')+'</tbody></table></div>';
+    wrap.appendChild(box);
+  }
+  const _pintarSolHm=pintarSolicitudesAdmin;
+  pintarSolicitudesAdmin=async function(){ await _pintarSolHm(); try{ await pintarHotmartEspera(); }catch(e){} };
   window.pintarSolicitudesAdmin=pintarSolicitudesAdmin;
 
   window.agAprobarSolicitud=async function(reqId,uid,curso){
@@ -6898,6 +6926,14 @@ router();
 .nxp-b.wa:hover{background:var(--green-d)}
 .nxp-n{font-size:13px;color:var(--muted);line-height:1.6;margin:0;text-align:center}
 .nxp-sol{margin-bottom:16px}
+/* pago con tarjeta en Hotmart */
+.nxp-hm{border:2px solid #f04e23;border-radius:14px;padding:17px 20px;margin-bottom:18px;background:color-mix(in srgb,#f04e23 6%,var(--panel))}
+.nxp-hm>b{display:block;font-size:15.5px;margin-bottom:4px}
+.nxp-hm p{font-size:13.5px;color:var(--text-2);margin:0 0 12px;line-height:1.5}
+.nxp-hm-b{display:block;text-align:center;font-weight:800;font-size:15px;padding:13px 16px;border-radius:11px;background:#f04e23;color:#fff!important;text-decoration:none}
+.nxp-hm-b:hover{filter:brightness(1.07)}
+.nxp-hm-b:focus-visible{outline:3px solid color-mix(in srgb,#f04e23 45%,transparent);outline-offset:2px}
+.nxp-hm .nxp-hm-n{margin:10px 0 0;font-size:12.5px}
 .nxp-sol-form{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
 .nxp-sol-form b{display:block;font-size:14.5px;margin-bottom:4px}
 .nxp-sol-form p{font-size:13px;color:var(--text-2);margin:0 0 10px;line-height:1.5}
@@ -21750,6 +21786,33 @@ function agPreciosDeLaNube(){
 })();
 window.agPreciosDeLaNube = agPreciosDeLaNube;
 
+/* ---------- pago con tarjeta por Hotmart (2026-10-09) ----------
+   hotmart_productos dice qué producto de Hotmart es cada curso y su
+   enlace de pago. Si un curso tiene enlace, la ventana de pago muestra
+   «Pagar con tarjeta en Hotmart»; si no, sigue solo la transferencia.
+   Va en una consulta aparte: si la tabla todavía no existe, los
+   precios cargan igual. */
+var AGHOTMART = {};
+function agHotmartDeLaNube(){
+  if(!window.SB) return;
+  window.SB.from('hotmart_productos').select('course_key,checkout_url,active').then(function(r){
+    if(!r || !r.data) return;
+    AGHOTMART = {};
+    r.data.forEach(function(p){
+      if(p.active && p.checkout_url && /^https:\/\/[a-z0-9.-]*hotmart\.com\//i.test(p.checkout_url)) AGHOTMART[p.course_key] = p.checkout_url;
+    });
+  }, function(){});
+}
+(function(){
+  var n = 0;
+  var intentar = function(){
+    if(window.SB){ agHotmartDeLaNube(); return; }
+    if(++n < 40) setTimeout(intentar, 250);
+  };
+  intentar();
+})();
+window.agHotmartDeLaNube = agHotmartDeLaNube;
+
 /* el instructor cambia un precio desde el panel: se escribe en la nube
    (fuente real) y de inmediato en memoria, para que se vea al instante */
 window.agGuardarPrecioCurso = function(curso, usd, nota){
@@ -23462,6 +23525,27 @@ function agPagoPrecio(curso){
   return usd;
 }
 
+/* pago con tarjeta en Hotmart: el curso se activa solo cuando Hotmart
+   confirma el pago, a la cuenta con el MISMO correo (supabase/hotmart.sql) */
+function agPagoHotmartURL(curso){
+  try{ return (typeof AGHOTMART !== 'undefined' && AGHOTMART[curso]) ? AGHOTMART[curso] : ''; }catch(e){ return ''; }
+}
+function agPagoHotmartHTML(curso){
+  var url = agPagoHotmartURL(curso);
+  if(!url) return '';
+  var E = (typeof esc === 'function') ? esc : function(x){ return String(x == null ? '' : x); };
+  var correo = '';
+  try{
+    var yo = (typeof SESSION !== 'undefined' && SESSION) ? SESSION : {};
+    correo = yo.email || (((typeof STUDENTS !== 'undefined' ? STUDENTS : []).find(function(s){ return s.id === yo.id; }) || {}).email) || '';
+  }catch(e){}
+  return '<div class="nxp-hm"><b>💳 Paga con tarjeta y entra al instante</b>' +
+    '<p>El pago se hace en Hotmart, de forma segura. Cuando se confirme, el curso se activa solo en tu cuenta, sin enviar comprobante.</p>' +
+    '<a class="nxp-hm-b" href="' + E(url) + '" target="_blank" rel="noopener">Pagar con tarjeta en Hotmart →</a>' +
+    '<p class="nxp-hm-n"><b>Importante:</b> en Hotmart usa el mismo correo de tu cuenta' +
+      (correo ? ' (<b>' + E(correo) + '</b>)' : '') + '. Si usas otro, el curso no se activa solo: escríbenos.</p></div>';
+}
+
 function agPagoHTML(curso){
   var f = AGPAGO[curso];
   if(!f) return '';
@@ -23492,7 +23576,8 @@ function agPagoHTML(curso){
             (m.sub ? '<span>' + E(m.sub) + '</span>' : '') + '</li>';
         }).join('') + '</ol></div>'
       : '') +
-    '<div class="nxp-cta"><b>Cuentas para transferencia</b>' +
+    agPagoHotmartHTML(curso) +
+    '<div class="nxp-cta"><b>' + (agPagoHotmartURL(curso) ? 'O paga por transferencia' : 'Cuentas para transferencia') + '</b>' +
       '<span>Todas de ahorros a nombre de ' + E(C.titular) + '</span>' +
       C.cuentas.map(function(c){
         return '<div class="nxp-cta-r"><span>' + E(c[0]) + '</span><b>' + E(c[1]) + '</b>' +
@@ -34477,6 +34562,7 @@ window.agVolAdapta = agVolAdapta;
 })();
 
 </script>
+
 
 
 
@@ -77489,6 +77575,7 @@ var HVFOTOS = {
 };
 
 </script>
+
 
 
 
