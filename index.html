@@ -1004,8 +1004,8 @@ body:not([data-screen="curso"]) .controls{display:none}
 .tt:hover{transform:translateY(-2px);border-color:var(--accent)}
 
 /* logo de marca (imagen) */
-.brand-logo,.login-logo,.adminp-brand .lg{background:#fff!important;overflow:hidden;padding:3px}
-.brand-logo img,.login-logo img,.adminp-brand .lg img{width:100%;height:100%;object-fit:contain;display:block}
+.brand-logo,.login-logo,.adminp-brand .lg{background:#032448!important;overflow:hidden;padding:0;box-shadow:0 0 0 1px rgba(56,214,255,.35)}
+.brand-logo img,.login-logo img,.adminp-brand .lg img{width:100%;height:100%;object-fit:cover;display:block}
 .login-logo{width:56px;height:56px}
 
 /* ver como estudiante (preview) — la franja superior se quitó; el regreso al admin queda en el panel del estudiante */
@@ -3636,7 +3636,7 @@ const DEFCERT={
 };
 let CERTCFG=Object.assign({},DEFCERT);
 try{CERTCFG=Object.assign(CERTCFG,JSON.parse(localStorage.getItem('porci_cert')||'{}'));}catch(e){}
-function certLogoURL(){try{if(location&&/^https?:/.test(location.origin))return location.origin+'/logo.png';}catch(e){}return 'https://agroacademy-rd.vercel.app/logo.png';}
+function certLogoURL(){try{if(location&&/^https?:/.test(location.origin))return location.origin+'/logo-certificado.png';}catch(e){}return 'https://agroacademy-rd.vercel.app/logo-certificado.png';}
 /* --- CERTIFICADO · formato apaisado A4 (1122x790 @96dpi) --- */
 const CERT_W=1122,CERT_H=790;
 function certInner(nm,pc,codeArg){
