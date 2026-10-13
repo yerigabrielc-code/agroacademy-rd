@@ -4,7 +4,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AgroAcademy RD 2.0 — Curso de Porcicultura</title>
+<title>AgroAcademy RD — Formación agropecuaria</title>
+<meta name="description" content="Crea tu cuenta gratis en AgroAcademy RD: cursos de cerdos, aves, ganado y abejas hechos para República Dominicana.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AgroAcademy RD">
+<meta property="og:title" content="AgroAcademy RD · Formación agropecuaria">
+<meta property="og:description" content="Crea tu cuenta gratis. Cursos de cerdos, aves, ganado y abejas hechos para República Dominicana.">
+<meta property="og:image" content="https://agroacademy-rd.vercel.app/og-agroacademy.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -1273,7 +1280,7 @@ body{font-size:17.5px}
 <div id="screenLogin">
   <div class="login-grain"></div>
   <div class="login-card">
-    <div class="login-brand"><div class="login-logo"><img src="logo.png" alt="AgroAcademy RD 2.0"></div><div><b>AGROACADEMY RD 2.0</b><span>Curso de Porcicultura</span></div></div>
+    <div class="login-brand"><div class="login-logo"><img src="logo.png" alt="AgroAcademy RD 2.0"></div><div><b>AGROACADEMY RD 2.0</b><span>Formación agropecuaria</span></div></div>
     <h2>Iniciar sesión</h2>
     <div class="lsub">Accede con tu correo y contraseña.</div>
     <div class="login-err" id="loginErr"></div>
@@ -1312,7 +1319,7 @@ body{font-size:17.5px}
         <div class="brand-logo"><img src="logo.png" alt="AgroAcademy RD 2.0"></div>
         <div>
           <div class="brand-name">AgroAcademy RD<br>2.0</div>
-          <div class="brand-sub">Curso de Porcicultura</div>
+          <div class="brand-sub">Formación agropecuaria</div>
         </div>
       </div>
     </div>
@@ -4900,6 +4907,7 @@ router();
     const pp=document.getElementById('payPanel');if(pp)pp.hidden=!REGMODE;
     if(btn)btn.textContent=REGMODE?'Registrarme →':'Entrar →';
     if(title)title.textContent=REGMODE?'Crear cuenta':'Iniciar sesión';
+    const lsub=document.querySelector('#screenLogin .lsub');if(lsub)lsub.textContent=REGMODE?'Es gratis. Cursos de cerdos, aves, ganado y abejas hechos para RD.':'Accede con tu correo y contraseña.';
     if(tog)tog.textContent=REGMODE?'Ya tengo cuenta':'Crear cuenta';
     lclear();
   };
@@ -11444,25 +11452,21 @@ window.nxIrEval=function(id){
   window.ucAbrirInfo=function(){
     var o=ov('ucInfo'); document.body.style.overflow='hidden';
     o.innerHTML='<div class="pe-card" style="position:relative;max-width:720px"><button class="pe-x" onclick="peCerrar(\'ucInfo\')">×</button>'+
-      '<div class="pe-info-sec"><h3>Sobre el instructor</h3>'+
-      '<p>Formación práctica en porcicultura y nutrición animal aplicada a la realidad dominicana: clima tropical, '+
-      'insumos locales y precios en RD$. El objetivo es que termines <b>haciendo</b>: manejar la granja, formular el alimento, '+
-      'llevar los registros y saber si estás ganando dinero.</p></div>'+
+      '<div class="pe-info-sec"><h3>Sobre AgroAcademy RD</h3>'+
+      '<p>Formación agropecuaria práctica para República Dominicana: <b>porcinos, aves, ganado bovino y abejas</b>, '+
+      'con clima tropical, insumos locales y precios en RD$. El objetivo es que termines <b>haciendo</b>: manejar la granja, '+
+      'llevar los registros y saber si estás ganando dinero.</p>'+
+      '<p><a href="/enlaces/" target="_blank" rel="noopener">Ver los cursos y precios →</a></p></div>'+
       '<div class="pe-info-sec"><h3>Preguntas frecuentes</h3><div class="pe-faq">'+
-        faqItem('¿Cómo pago?','Por transferencia a una de las cuentas que aparecen al crear tu cuenta. Envías el comprobante por WhatsApp o correo y el instructor activa tu acceso.')+
-        faqItem('¿Cuánto tardo en tener acceso?','En cuanto se confirma la transferencia. Normalmente el mismo día.')+
+        faqItem('¿Cuánto cuesta crear la cuenta?','Nada. La cuenta es gratis y te da acceso al contenido gratuito. Los cursos completos se compran aparte.')+
+        faqItem('¿Cómo pago un curso?','Con tarjeta en Hotmart (se activa solo) o por transferencia bancaria: envías el comprobante por WhatsApp y activamos tu curso.')+
+        faqItem('¿Cuánto tardo en tener acceso?','Con tarjeta, al momento. Por transferencia, en cuanto se confirma; normalmente el mismo día.')+
         faqItem('¿El curso caduca?','No. El acceso es de por vida y puedes repasar cuando quieras.')+
         faqItem('¿Desde el teléfono?','Sí. Funciona en celular, tablet y computadora, y tu avance se guarda en tu cuenta.')+
         faqItem('¿Recibo certificado?','Sí, al aprobar todos los módulos. Lleva un código de verificación.')+
-        faqItem('¿Y el curso de Formulación?','Se adquiere aparte. Una vez dentro, en «Mis cursos» ves cómo obtenerlo.')+
+        faqItem('¿Qué cursos hay?','Porcicultura, nutrición porcina, aves (ponedoras y pollos de engorde), ganado bovino, apicultura y gestión de granjas. Una vez dentro, en «Mis cursos» ves todos.')+
       '</div></div>'+
-      '<div class="pe-info-sec"><h3>Lo que dicen</h3>'+
-        tst('«Por fin entendí los números de mi granja. La calculadora de rentabilidad sola ya valió el curso.»','Productor, Bonao')+
-        tst('«Las tablas están adaptadas a lo que uno consigue aquí, no a fórmulas de otro país.»','Técnico agropecuario, Cibao')+
-        tst('«El modo lección hace que sea fácil ir poco a poco después del trabajo.»','Estudiante, San Cristóbal')+
-      '</div>'+
       '<div class="pe-row"><button class="pe-b" onclick="peCerrar(\'ucInfo\')">Volver a iniciar sesión</button></div>'+
-      '<p style="color:var(--muted,#8a8276);font-size:11px;margin-top:14px">Los testimonios son ilustrativos. Actualízalos con reseñas reales cuando las tengas.</p>'+
       '</div>';
   };
   function faqItem(q,a){ return '<details><summary>'+E(q)+'</summary><p>'+E(a)+'</p></details>'; }
@@ -11472,7 +11476,7 @@ window.nxIrEval=function(id){
     var card=document.querySelector('#screenLogin .login-card');
     if(card && !document.getElementById('ucInfoLink')){
       var p=document.createElement('div'); p.id='ucInfoLink'; p.style.cssText='margin-top:10px;font-size:12.5px';
-      p.innerHTML='<a href="javascript:void 0" onclick="ucAbrirInfo()" style="color:var(--muted,#8a8276)">Información del curso, precios y preguntas frecuentes →</a>';
+      p.innerHTML='<a href="javascript:void 0" onclick="ucAbrirInfo()" style="color:var(--muted,#8a8276)">Cursos, precios y preguntas frecuentes →</a>';
       card.appendChild(p);
       return;
     }

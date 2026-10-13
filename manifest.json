@@ -1,14 +1,14 @@
 {
-  "name": "AgroAcademy RD 2.0 — Curso de Porcicultura",
+  "name": "AgroAcademy RD — Formación agropecuaria",
   "short_name": "AgroAcademy",
-  "description": "Curso de porcicultura aplicado a República Dominicana · 12 módulos y proyecto final.",
+  "description": "Cursos de cerdos, aves, ganado y abejas hechos para República Dominicana.",
   "lang": "es-DO",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FFFFFF",
-  "theme_color": "#215B3A",
+  "theme_color": "#032448",
   "categories": [
     "education"
   ],
