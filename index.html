@@ -48331,6 +48331,40 @@ if(typeof window.abrirCursos === 'function'){
   };
 }
 
+/* ------------------------------------------------------------
+   6 · CERRADO TAMBIÉN EN LOS OTROS CAMINOS AL CONTENIDO (2026-10-14)
+   ------------------------------------------------------------
+   mount() y goto() ya estaban cerrados, pero el contenido del curso
+   base también sale por renderModule() (la usan otras piezas) y por
+   las impresiones en PDF del módulo. Un alumno sin el permiso que
+   las llame —desde un botón olvidado o desde la consola— recibe el
+   aviso de bloqueo, no el contenido. Denegar por defecto: si no se
+   puede confirmar el permiso, no se entrega nada.
+   ------------------------------------------------------------ */
+function pcBloqueaAlumno(){
+  if(pcEsInstructor()) return false;
+  var S = (typeof SESSION !== 'undefined') ? SESSION : null;
+  if(!S || S.role !== 'STUDENT') return false;   /* sin sesión de alumno no hay curso que mostrar */
+  return !pcTiene(null);
+}
+(function pcCierraCaminos(){
+  if(typeof window.renderModule === 'function'){
+    var _rmPc = window.renderModule;
+    window.renderModule = function(id){
+      if(id >= 1 && pcBloqueaAlumno()) return '<div class="ag-pend">🔒 Este módulo es del curso base y se adquiere aparte.</div>';
+      return _rmPc.apply(this, arguments);
+    };
+  }
+  ['printManual', 'printEval', 'printChecklist'].forEach(function(n){
+    if(typeof window[n] !== 'function') return;
+    var _f = window[n];
+    window[n] = function(){
+      if(pcBloqueaAlumno()){ if(typeof toast === 'function') toast('El curso base se adquiere aparte', '🔒'); return; }
+      return _f.apply(this, arguments);
+    };
+  });
+})();
+
 
 /* ---------- rt-nube.js ---------- */
 /* ============================================================
@@ -48550,6 +48584,7 @@ if(typeof window.pcAccesoTodos === 'function'){
 })();
 
 </script>
+
 
 
 
