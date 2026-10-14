@@ -44307,13 +44307,14 @@ function rtTieneAcceso(){ return true; }
 function rtPortada(){
   var p = rtProgreso();
   var n = RTMOD.length;
-  return '<div class="nx-port rt-port" style="--foto:url(&quot;images/eg-p-34.jpg&quot;)">' +
+  return '<div class="nx-port rt-port" style="--foto:url(&quot;images/grhd-lechones-nave.jpg&quot;)">' +
     '<div class="nx-port-velo"></div>' +
     '<div class="nx-cover">' +
       '<span class="rt-libre">🟢 Curso gratis · empieza aquí</span>' +
       '<h1>La Granja Rentable</h1>' +
       '<p class="nx-cover-s">Descubre dónde se va el dinero de tu granja y qué puedes hacer para producir de forma más rentable. ' +
       'Cinco módulos cortos, casos prácticos y un diagnóstico hecho con tus respuestas.</p>' +
+      (typeof rtgPortadaRuta === 'function' ? rtgPortadaRuta() : '') +
       '<div class="nx-cover-kpis">' +
         '<div><b>' + n + '</b><span>módulos cortos</span></div>' +
         '<div><b>15–25</b><span>minutos en total</span></div>' +
@@ -44554,10 +44555,13 @@ var RTMOD = [
 
 /* ============================ 01 ============================ */
 {
-  n:1, num:'01', ac:'#2F7D4F', min:4,
+  n:1, num:'01', ac:'#2F7D4F', min:6,
   t:'¿Tu granja te está dejando dinero o solo trabajo?',
   sub:'Trabajas todos los días, compras, vendes… pero ¿cuánto te quedó de verdad?',
   sec:[
+    {k:'rtgmeta'},
+    {k:'rtglatam'},
+    {k:'rtgciclo'},
     {k:'rtfoto', id:'g-nave'},
     {k:'rtgabre'},
     {k:'rtgcaso'},
@@ -44579,7 +44583,9 @@ var RTMOD = [
   t:'El dinero que se te puede estar yendo sin darte cuenta',
   sub:'Seis fugas que casi nunca se ven en el bolsillo, pero que se pagan igual',
   sec:[
+    {k:'rtgmeta'},
     {k:'rtfoto', id:'g-comedero'},
+    {k:'rtgdona'},
     {k:'rtgfugas'},
     {k:'rtgejemplo'},
     {k:'rtgpregunta', id:'p2',
@@ -44599,8 +44605,9 @@ var RTMOD = [
   t:'El error que puede cambiar todo el resultado',
   sub:'Producir más no siempre es ganar más',
   sec:[
+    {k:'rtgmeta'},
     {k:'rtgdos'},
-    {k:'rtfoto', id:'g-bascula'},
+    {k:'rtfoto', id:'g-pro'},
     {k:'rtgdecide'},
     {k:'rtsimu'},
     {k:'rtgaccion', id:'a3', ico:'⚖️',
@@ -44612,11 +44619,12 @@ var RTMOD = [
 /* ============================ 04 ============================ */
 {
   n:4, num:'04', ac:'#6b4e9e', min:4,
-  t:'Descubre el punto débil de tu granja',
-  sub:'Siete preguntas rápidas y una orientación hecha con tus respuestas',
+  t:'🎯 Tu diagnóstico: el curso que te toca',
+  sub:'Siete preguntas sobre tu granja: tu punto débil y el curso que más te conviene',
   sec:[
-    {k:'rtfoto', id:'g-paridera'},
+    {k:'rtgdiaghero'},
     {k:'rtdiag'},
+    {k:'rtfoto', id:'g-paridera'},
     {k:'agnota', tipo:'campo', nt:'Una orientación, no una auditoría', p:
       'Este diagnóstico es una simulación orientativa: te ayuda a ver por dónde empezar, pero no reemplaza la visita de un técnico a tu granja. ' +
       'Tu resultado <b>queda guardado</b> y lo verás otra vez en el módulo siguiente.'}
@@ -46149,6 +46157,294 @@ if(typeof RTFOTO !== 'undefined'){
 })();
 
 
+/* ---------- rt-granja2.js ---------- */
+/* ============================================================
+   LA GRANJA RENTABLE · AMPLIACIÓN (2ª ronda, 2026-10-14)
+   ------------------------------------------------------------
+     rtglatam    · el negocio del cerdo en Latinoamérica (datos con fuente)
+     rtgciclo    · la vida productiva de un cerdo, en una línea de tiempo
+     rtgdona     · en qué se va el costo de un lote (gráfico de anillo)
+     rtgmeta     · franja «vas camino a tu diagnóstico» (módulos 1–3)
+     rtgdiaghero · portada grande del diagnóstico (módulo 4)
+     + fotos HD de granjas tecnificadas (Pexels, prefijo grhd-)
+     + más aire en todo el curso
+
+   DATOS DE LATINOAMÉRICA: solo cifras con fuente pública, y la
+   fuente se dice en pantalla. Revisar cada año:
+     · producción mundial ≈ 116.7 millones de t (USDA, abril 2025)
+     · Brasil ≈ 4.8 millones de t producidas y 1.64 millones de t
+       exportadas en 2025, récord (+13 %) (USDA FAS / AHDB)
+     · República Dominicana entre los destinos de Brasil (3tres3)
+     · PPA confirmada en RD el 28-jul-2021 por el USDA: primera
+       detección en las Américas en unos 40 años (USDA / NPPC)
+   ============================================================ */
+
+RTREG.rtglatam = function(){
+  var kpis = [
+    ['🌎', '116.7', 'millones de toneladas', 'de carne de cerdo produjo el mundo en 2025, según las proyecciones del USDA.'],
+    ['🏭', '4.8', 'millones de toneladas', 'produce Brasil, la gran potencia porcina de Latinoamérica (USDA).'],
+    ['🚢', '1.64', 'millones de toneladas', 'exportó Brasil en 2025, un récord (+13 %). Entre sus destinos está la República Dominicana.'],
+    ['🦠', '2021', 'Peste Porcina Africana', 'confirmada en RD el 28 de julio: la primera detección en las Américas en unos 40 años (USDA).']
+  ];
+  var prod = 4.8, exp = 1.64;
+  return '<section class="nx-b nx-full"><div class="rtg-lat rv">' +
+    '<div class="rtg-lat-f"><img src="images/grhd-nave.jpg" alt="Nave de engorde tecnificada" loading="lazy">' +
+      '<div class="rtg-lat-fx"><span>El contexto</span><b>El negocio del cerdo en Latinoamérica</b></div></div>' +
+    '<div class="rtg-lat-c">' +
+      '<p class="rtg-lat-p">La carne de cerdo es uno de los grandes negocios de la región. Brasil, México y Chile producen con granjas tecnificadas, genética mejorada y control estricto de costos, ' +
+      'y venden su carne a otros países — también a la República Dominicana. <b>El productor dominicano no compite solo con su vecino: compite con carne que llega de granjas que miden cada kilo.</b></p>' +
+      '<div class="rtg-lat-k">' + kpis.map(function(k){
+        return '<div class="rtg-lat-ki"><span>' + k[0] + '</span><b>' + k[1] + '</b><em>' + k[2] + '</em><p>' + k[3] + '</p></div>';
+      }).join('') + '</div>' +
+      '<div class="rtg-lat-g"><span class="rtg-lat-gk">Brasil en 2025 · millones de toneladas</span>' +
+        '<div class="rtg-lat-b"><em>Produjo</em><div><i style="width:100%"></i></div><b>' + prod + '</b></div>' +
+        '<div class="rtg-lat-b ex"><em>Exportó</em><div><i style="width:' + (exp / prod * 100).toFixed(1) + '%"></i></div><b>' + exp + '</b></div>' +
+        '<p>Más de una de cada tres toneladas sale del país. Así compite una porcicultura que se maneja con números.</p></div>' +
+      '<div class="rtg-lat-l"><b>¿Qué quiere decir esto para ti?</b> Que en la porcicultura de hoy gana quien produce cada kilo al menor costo posible, sin perder animales y sin dejar entrar enfermedades. ' +
+        'La buena noticia: eso no depende del tamaño de la granja, depende de <b>cómo se maneja</b>. De eso trata este curso.</div>' +
+      '<p class="rt-fuente">Fuentes: USDA FAS, «Livestock and Poultry: World Markets and Trade» (2025); AHDB, actualización del mercado porcino (2026); 3tres3; USDA/APHIS y NPPC sobre la PPA en RD (julio 2021). Cifras redondeadas.</p>' +
+    '</div></div></section>';
+};
+
+/* la vida productiva de un cerdo, a escala de días */
+RTREG.rtgciclo = function(){
+  var F = [
+    { t:'Gestación', d:114, c:'#C2185B', ico:'🤰', txt:'3 meses, 3 semanas y 3 días. La cerda come y todavía no hay nada que vender.', curso:'reproduccion' },
+    { t:'Lactancia', d:25, c:'#B5651D', ico:'🍼', txt:'De 21 a 28 días con la madre. Es donde más lechones se pierden.', curso:'lechones' },
+    { t:'Precebo', d:45, c:'#1F6F8B', ico:'🐖', txt:'Unas 6 a 7 semanas después del destete, hasta 25–30 kg.', curso:'nutricion' },
+    { t:'Engorde', d:105, c:'#2F7D4F', ico:'⚖️', txt:'Unas 14 a 16 semanas hasta 100–110 kg. Aquí se come la mayor parte del alimento.', curso:'engorde' }
+  ];
+  var tot = F.reduce(function(s, f){ return s + f.d; }, 0);
+  return '<section class="nx-b nx-full"><div class="rtg-ci rv">' +
+    rtgCab('Línea de tiempo · días aproximados', '⏱️ La vida productiva de un cerdo',
+      'Desde que la cerda queda preñada hasta que el cerdo sale al mercado pasan unos <b>' + tot + ' días</b>, casi 10 meses. Cada fase tiene su riesgo, su gasto… y su curso.') +
+    '<div class="rtg-ci-bar">' + F.map(function(f){
+      return '<div class="rtg-ci-s" style="--c:' + f.c + ';flex:' + f.d + '"><span>' + f.ico + '</span><b>' + f.t + '</b><em>' + f.d + ' días</em></div>';
+    }).join('') + '</div>' +
+    '<div class="rtg-ci-esc"><span style="left:0">Servicio</span><span style="left:' + (114 / tot * 100).toFixed(1) + '%">Parto · día 114</span><span class="r" style="left:' + (139 / tot * 100).toFixed(1) + '%">Destete · día 139</span><span class="f" style="left:100%">Venta · día ' + tot + '</span></div>' +
+    '<div class="rtg-ci-g">' + F.map(function(f){
+      return '<div class="rtg-ci-d" style="--c:' + f.c + '"><b>' + f.ico + ' ' + f.t + '</b><p>' + f.txt + '</p>' + rtgCursoChip(f.curso) + '</div>';
+    }).join('') + '</div>' +
+    '<div class="rtg-ci-n">🦠 <b>La sanidad va de punta a punta:</b> una enfermedad puede entrar en cualquier fase. ' + rtgCursoChip('sanidad') + '</div>' +
+    '<p class="rt-fuente">Duraciones de referencia. Cambian con la genética, la alimentación y el manejo de cada granja.</p>' +
+  '</div></section>';
+};
+
+/* en qué se va el costo: anillo con el lote de ejemplo */
+RTREG.rtgdona = function(){
+  var r = rtgLote(RTGRAMON);
+  var seg = [
+    ['🌽 Alimento', r.cAlim, '#2F7D4F'],
+    ['🐷 Lechones', r.cLech, '#1F6F8B'],
+    ['🚚 Otros gastos', r.cOtros, '#c8912f'],
+    ['💊 Medicinas', r.cMed, '#c4544a']
+  ];
+  var R = 70, C = 2 * Math.PI * R, ac = 0;
+  var arcos = seg.map(function(s){
+    var l = s[1] / r.costo * C;
+    var h = '<circle cx="90" cy="90" r="' + R + '" fill="none" stroke="' + s[2] + '" stroke-width="30" stroke-dasharray="' + l.toFixed(2) + ' ' + (C - l).toFixed(2) + '" stroke-dashoffset="' + (-ac).toFixed(2) + '" transform="rotate(-90 90 90)"></circle>';
+    ac += l; return h;
+  }).join('');
+  var pAlim = Math.round(r.cAlim / r.costo * 100);
+  return '<section class="nx-b nx-full"><div class="rtg-dona rv">' +
+    rtgCab('Gráfico · el lote de Ramón', '🍩 ¿En qué se va el dinero de un lote?',
+      'Todo lo que costó el lote de 30 cerdos del módulo 1, repartido. Mira el tamaño de la parte verde.') +
+    '<div class="rtg-dona-g">' +
+      '<svg viewBox="0 0 180 180" role="img" aria-label="Alimento ' + pAlim + ' por ciento del costo">' + arcos +
+        '<text x="90" y="88" text-anchor="middle" class="rtg-dona-n">' + pAlim + '%</text>' +
+        '<text x="90" y="108" text-anchor="middle" class="rtg-dona-t">es alimento</text></svg>' +
+      '<div class="rtg-dona-l">' + seg.map(function(s){
+        return '<div><i style="background:' + s[2] + '"></i><span>' + s[0] + '</span><b>' + Math.round(s[1] / r.costo * 100) + ' %</b><em>' + rtgM(s[1]) + '</em></div>';
+      }).join('') +
+      '<p>Por eso el alimento es donde más se gana o se pierde: <b>cada fuga de alimento pega directo en la parte más grande del gasto</b>.</p></div>' +
+    '</div>' +
+    '<p class="rt-fuente">Ejemplo hipotético con los precios de referencia del curso. En tu granja el reparto será otro.</p>' +
+  '</div></section>';
+};
+
+/* franja de camino al diagnóstico, en los módulos 1 a 3 */
+RTREG.rtgmeta = function(s, mod){
+  var n = mod ? mod.n : 1;
+  var pasos = [1, 2, 3, 4, 5].map(function(i){
+    var cls = i < n ? 'ok' : (i === n ? 'aqui' : '');
+    if(i === 4) cls += ' diag';
+    return '<span class="rtg-meta-p ' + cls + '">' + (i === 4 ? '🎯' : (i < n ? '✓' : i)) + '</span>';
+  }).join('<i></i>');
+  var falta = 4 - n;
+  return '<section class="nx-b nx-full"><div class="rtg-meta rv">' +
+    '<div class="rtg-meta-c"><b>🎯 Tu meta en este curso: descubrir qué curso te toca</b>' +
+      '<p>' + (falta > 0 ? 'Te ' + (falta === 1 ? 'falta un módulo' : 'faltan ' + falta + ' módulos') + ' para el <b>diagnóstico de tu granja</b>. Lo que aprendas aquí es lo que vas a evaluar allá.' : '') + '</p></div>' +
+    '<div class="rtg-meta-r">' + pasos + '</div>' +
+  '</div></section>';
+};
+
+/* la portada del diagnóstico */
+RTREG.rtgdiaghero = function(){
+  return '<section class="nx-b nx-full"><div class="rtg-dh rv">' +
+    '<img src="images/grhd-lechon.jpg" alt="Lechón en una granja tecnificada" loading="lazy">' +
+    '<div class="rtg-dh-c">' +
+      '<span class="rtg-dh-k">🎯 El momento más importante del curso</span>' +
+      '<h3>Tu diagnóstico: el curso que de verdad necesitas</h3>' +
+      '<p>Siete preguntas sobre tu granja. Con tus respuestas verás en qué área estás fuerte, dónde está tu punto débil y <b>cuál es el curso de AgroAcademy que más te conviene tomar ahora</b>.</p>' +
+      '<div class="rtg-dh-s"><span>⏱️ 2 minutos</span><span>🔒 Solo lo ves tú</span><span>↺ Puedes repetirlo</span></div>' +
+    '</div></div></section>';
+};
+
+/* la ruta al diagnóstico en la portada del curso */
+function rtgPortadaRuta(){
+  var hecho = false;
+  try{ hecho = (typeof rtDiagHecho === 'function') && rtDiagHecho(); }catch(e){}
+  var paso = function(n, t, d){ return '<span class="' + (d ? 'd' : '') + '"><i>' + n + '</i>' + t + '</span>'; };
+  return '<div class="rtg-pr"><b>' + (hecho ? '🎯 Ya tienes tu diagnóstico: el módulo 5 te dice qué curso tomar' : '🎯 Al final del curso: tu diagnóstico y el curso que te toca') + '</b>' +
+    paso('1', 'Problema') + '<em>›</em>' + paso('2', 'Fugas') + '<em>›</em>' + paso('3', 'Error') + '<em>›</em>' +
+    paso('🎯', 'Tu diagnóstico', true) + '<em>›</em>' + paso('5', 'Tu curso') + '</div>';
+}
+window.rtgPortadaRuta = rtgPortadaRuta;
+
+/* fotos de granjas tecnificadas (Pexels, HD) */
+if(typeof RTFOTO !== 'undefined'){
+  RTFOTO['g-nave'] = { f:'grhd-lechones-nave', t:'Así se ve una granja que se maneja con números',
+    p:'Lechones sanos sobre piso ranurado, comederos a la altura correcta, todo limpio. Detrás de una granja así no hay suerte: <b>hay registros, control y decisiones tomadas con números</b>.' };
+  RTFOTO['g-comedero'] = { f:'grhd-corrales', t:'Corrales ordenados, comederos bajo control',
+    p:'En una granja tecnificada cada corral tiene su comedero y su bebedero regulados. El alimento es el gasto más grande: <b>lo que se bota, lo que rinde poco o lo que se come un animal que después se muere, se paga completo</b>.' };
+  RTFOTO['g-paridera'] = { f:'grhd-maternidad', t:'Cada granja tiene su punto débil',
+    p:'Una maternidad bien llevada: lechones parejos y una cerda tranquila. En unas granjas falla esto, en otras el alimento o los números. Por eso, antes de recomendarte nada, te preguntamos.' };
+  RTFOTO['g-cerdo'] = { f:'grhd-dormidos', t:'Esto es solo el comienzo',
+    p:'Ya sabes dónde mirar. Lo que sigue es aprender a manejar bien cada área para tomar mejores decisiones con tus propios números.' };
+  RTFOTO['g-pro'] = { f:'grhd-cerdo', t:'Un buen cerdo empieza con buenas decisiones',
+    p:'Genética, alimento, sanidad y manejo: el animal que ves al final es el resultado de muchas decisiones pequeñas tomadas a tiempo — o no.' };
+}
+
+(function rtgCss2(){
+  if(document.getElementById('rtgCss2')) return;
+  var s = document.createElement('style');
+  s.id = 'rtgCss2';
+  s.textContent = [
+/* más aire en todo el curso */
+'#rtOv .nx-b.nx-full{padding-top:26px!important;padding-bottom:26px!important}',
+'#rtOv .rtv-cab h3{font-size:clamp(22px,2.6vw,28px)!important;line-height:1.2}',
+'#rtOv .rtv-cab p{font-size:15.5px;line-height:1.65;max-width:72ch}',
+'.rtg-caso,.rtg-fugaw,.rtg-ej,.rtg-doswrap,.rtg-dec,.rtg-res,.rtg-ci,.rtg-dona{padding:28px;border-radius:24px;border:1px solid var(--border);background:var(--panel)}',
+'#rtOv .rtd{padding:28px!important;border-radius:24px!important}',
+'@media(max-width:620px){.rtg-caso,.rtg-fugaw,.rtg-ej,.rtg-doswrap,.rtg-dec,.rtg-res,.rtg-ci,.rtg-dona{padding:18px}#rtOv .rtd{padding:18px!important}}',
+/* latam */
+'.rtg-lat{border-radius:24px;overflow:hidden;border:1px solid var(--border);background:var(--panel)}',
+'.rtg-lat-f{position:relative;aspect-ratio:21/8;min-height:220px;overflow:hidden;background:#0d1a12}',
+'.rtg-lat-f img{width:100%;height:100%;object-fit:cover;display:block}',
+'.rtg-lat-f::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(8,20,12,.85))}',
+'.rtg-lat-fx{position:absolute;left:28px;right:28px;bottom:22px;z-index:1;color:#fff}',
+'.rtg-lat-fx span{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#a7e3bd}',
+'.rtg-lat-fx b{display:block;font-family:var(--display);font-size:clamp(24px,3.4vw,38px);line-height:1.1}',
+'.rtg-lat-c{padding:28px}',
+'@media(max-width:620px){.rtg-lat-c{padding:18px}.rtg-lat-fx{left:18px;right:18px}}',
+'.rtg-lat-p{margin:0 0 20px;font-size:16px;line-height:1.7;color:var(--text-2);max-width:75ch}',
+'.rtg-lat-p b{color:var(--text)}',
+'.rtg-lat-k{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}',
+'.rtg-lat-ki{padding:18px;border-radius:18px;background:color-mix(in srgb,#2F7D4F 7%,var(--panel));border:1px solid color-mix(in srgb,#2F7D4F 25%,var(--border))}',
+'.rtg-lat-ki span{font-size:24px}',
+'.rtg-lat-ki b{display:block;margin-top:6px;font-family:var(--display);font-size:34px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}',
+'.rtg-lat-ki em{display:block;font-style:normal;font-size:12.5px;font-weight:700;color:#2F7D4F;margin:4px 0 6px}',
+'.rtg-lat-ki p{margin:0;font-size:13.5px;line-height:1.55;color:var(--text-2)}',
+'.rtg-lat-g{margin-top:22px;padding:20px;border-radius:18px;background:color-mix(in srgb,var(--text) 4%,transparent)}',
+'.rtg-lat-gk{display:block;margin-bottom:12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}',
+'.rtg-lat-b{display:grid;grid-template-columns:80px 1fr 56px;gap:12px;align-items:center;margin-bottom:10px;font-size:14px;color:var(--text)}',
+'.rtg-lat-b em{font-style:normal;font-weight:700}',
+'.rtg-lat-b > div{height:22px;border-radius:8px;background:color-mix(in srgb,var(--text) 7%,transparent);overflow:hidden}',
+'.rtg-lat-b i{display:block;height:100%;border-radius:8px;background:#2F7D4F}',
+'.rtg-lat-b.ex i{background:#1F6F8B}',
+'.rtg-lat-b b{font-family:var(--display);font-size:18px;text-align:right}',
+'.rtg-lat-g p{margin:6px 0 0;font-size:14px;color:var(--text-2)}',
+'.rtg-lat-l{margin-top:18px;padding:18px 20px;border-radius:16px;border-left:5px solid #c8912f;background:color-mix(in srgb,#c8912f 9%,var(--panel));font-size:15px;line-height:1.65;color:var(--text-2)}',
+'.rtg-lat-l b{color:var(--text)}',
+/* ciclo */
+'.rtg-ci-bar{display:flex;gap:4px;margin-top:20px;border-radius:16px;overflow:hidden}',
+'.rtg-ci-s{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;padding:16px 12px;background:var(--c);color:#fff}',
+'.rtg-ci-s span{font-size:22px}',
+'.rtg-ci-s b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+'.rtg-ci-s em{font-style:normal;font-size:12.5px;opacity:.9}',
+'.rtg-ci-esc{position:relative;height:34px;margin:8px 2px 0;font-family:var(--mono);font-size:11px;color:var(--muted)}','.rtg-ci-esc span{position:absolute;top:0;white-space:nowrap;transform:translateX(-50%)}','.rtg-ci-esc span:first-child{transform:none}','.rtg-ci-esc span.r{top:16px}','.rtg-ci-esc span.f{transform:translateX(-100%)}',
+'@media(max-width:620px){.rtg-ci-bar{flex-direction:column}.rtg-ci-s{flex:none!important}.rtg-ci-esc{display:none}}',
+'.rtg-ci-g{display:grid;gap:12px;margin-top:20px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}',
+'.rtg-ci-d{padding:16px;border-radius:16px;border:1px solid var(--border);border-top:4px solid var(--c);background:var(--panel)}',
+'.rtg-ci-d b{display:block;margin-bottom:4px;color:var(--text)}',
+'.rtg-ci-d p{margin:0 0 10px;font-size:13.5px;line-height:1.55;color:var(--text-2)}',
+'.rtg-ci-n{margin-top:16px;padding:14px 16px;border-radius:14px;background:color-mix(in srgb,#c4544a 9%,transparent);font-size:14.5px;color:var(--text-2)}',
+'.rtg-ci-n b{color:var(--text)}',
+/* dona */
+'.rtg-dona-g{display:grid;gap:26px;align-items:center;margin-top:16px}',
+'@media(min-width:760px){.rtg-dona-g{grid-template-columns:260px 1fr}}',
+'.rtg-dona-g svg{width:100%;max-width:260px;margin:0 auto;display:block}',
+'.rtg-dona-n{font-family:var(--display);font-size:34px;font-weight:800;fill:var(--text)}',
+'.rtg-dona-t{font-size:12px;fill:var(--muted)}',
+'.rtg-dona-l > div{display:grid;grid-template-columns:14px 1fr 52px auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--text) 8%,transparent);font-size:14.5px;color:var(--text)}',
+'.rtg-dona-l i{width:14px;height:14px;border-radius:4px}',
+'.rtg-dona-l b{text-align:right;font-variant-numeric:tabular-nums}',
+'.rtg-dona-l em{font-style:normal;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}',
+'.rtg-dona-l p{margin:14px 0 0;font-size:14.5px;line-height:1.6;color:var(--text-2)}',
+'.rtg-dona-l p b{color:var(--text)}',
+/* meta */
+'.rtg-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-radius:20px;background:linear-gradient(120deg,#3f2d6b,#6b4e9e);color:#fff;box-shadow:0 14px 34px -18px rgba(63,45,107,.8)}',
+'.rtg-meta-c b{display:block;font-family:var(--display);font-size:18px}',
+'#rtOv .rtg-meta-c p{margin:4px 0 0;font-size:14px;line-height:1.5;color:rgba(255,255,255,.88)!important;max-width:56ch}',
+'#rtOv .rtg-meta-c p b{display:inline;font-family:inherit;font-size:inherit;color:#fff!important}','#rtOv .rtg-meta-c > b{color:#fff!important}',
+'.rtg-meta-r{display:flex;align-items:center}',
+'.rtg-meta-r > i{width:16px;height:2px;background:rgba(255,255,255,.35)}',
+'.rtg-meta-p{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.45);font-size:13px;font-weight:800}',
+'.rtg-meta-p.ok{background:#fff;color:#3f2d6b;border-color:#fff}',
+'.rtg-meta-p.aqui{border-color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.25)}',
+'.rtg-meta-p.diag{width:42px;height:42px;font-size:19px;background:#f0b94a;border-color:#f0b94a;color:#2a1d05}',
+/* portada del diagnóstico */
+'.rtg-dh{display:grid;border-radius:26px;overflow:hidden;background:linear-gradient(135deg,#2c1f52,#6b4e9e);color:#fff;box-shadow:0 22px 50px -24px rgba(44,31,82,.9)}',
+'@media(min-width:820px){.rtg-dh{grid-template-columns:.85fr 1.15fr}}',
+'.rtg-dh img{width:100%;height:100%;min-height:260px;max-height:440px;object-fit:cover;display:block}',
+'.rtg-dh-c{padding:34px}',
+'@media(max-width:620px){.rtg-dh-c{padding:22px}}',
+'.rtg-dh-k{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#f0b94a;font-weight:700}',
+'.rtg-dh h3{margin:10px 0 12px;font-family:var(--display);font-size:clamp(26px,3.4vw,38px);line-height:1.12;color:#fff}',
+'#rtOv .rtg-dh p{margin:0 0 18px;font-size:16px;line-height:1.65;color:rgba(255,255,255,.9)!important}',
+'#rtOv .rtg-dh p b{color:#fff!important}','#rtOv .rtg-dh h3{color:#fff!important}',
+'.rtg-dh-s{display:flex;flex-wrap:wrap;gap:8px}',
+'.rtg-dh-s span{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:13px;font-weight:700}',
+/* el resultado del diagnóstico, más grande */
+'#rtOv .rtd{border:2px solid #6b4e9e!important;box-shadow:0 18px 44px -26px rgba(107,78,158,.9)}',
+'#rtOv .rtd-res-a b{font-size:clamp(22px,3vw,30px)!important}',
+'#rtOv .rtd-res-cta{font-size:16px!important;padding:15px 18px!important}',
+/* portada del curso: ruta al diagnóstico */
+'.rtg-pr{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:18px 0 6px;padding:14px 16px;border-radius:16px;background:rgba(10,8,25,.55);backdrop-filter:blur(6px);color:#fff;max-width:640px}',
+'.rtg-pr > b{width:100%;font-size:14px;color:#f0b94a;letter-spacing:.02em}',
+'.rtg-pr span{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.9)}',
+'.rtg-pr span i{font-style:normal;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.18);font-size:12px;font-weight:800}',
+'.rtg-pr span.d i{background:#f0b94a;color:#2a1d05}',
+'.rtg-pr em{font-style:normal;color:rgba(255,255,255,.45)}'
+  ].join('\n');
+  document.head.appendChild(s);
+})();
+
+
+/* ============================================================
+   CABECERAS Y FONDOS DE PÁGINA EN HD
+   La capa de homologación (HVFOTOS, se carga después de este
+   bloque) pone la foto de la cabecera de cada módulo y una foto
+   degradada en las páginas sin imagen. Para este curso se cambian
+   por fotos HD de granjas tecnificadas. Solo presentación.
+   ============================================================ */
+var RTGHV = {
+  '1': { hero:'grhd-paja',          pool:[['grhd-camada','Maternidad'],['grhd-mamando','Lechones mamando'],['eg-p-17','Lechones en precebo'],['eg-p-16','Lechones sobre piso plástico']] },
+  '2': { hero:'grhd-maternidad2',   pool:[['eg-p-14','Lechones en corral'],['eg-p-11','Engorde'],['nutri-b-cerdos-comedero','Comedero'],['eg-p-07','Corral de engorde']] },
+  '3': { hero:'grhd-cerdo',         pool:[['eg-p-10','Cerdos sobre piso plástico'],['eg-p-04','Cerdo de engorde'],['eg-p-02','Cerdos'],['grhd-camada','Maternidad']] },
+  '4': { hero:'grhd-mamando',       pool:[['rp-b-camada','Camada'],['rp-b-paridera','Paridera'],['grhd-maternidad2','Maternidad']] },
+  '5': { hero:'grhd-lechones-nave', pool:[['eg-p-17','Lechones'],['eg-p-34','Cerdo'],['grhd-paja','Lechones en cama de paja']] }
+};
+(function rtgHvFotos(){
+  var t = 0;
+  var poner = function(){
+    if(typeof HVFOTOS !== 'undefined' && HVFOTOS){ HVFOTOS.ruta = RTGHV; return; }
+    if(t++ < 60) setTimeout(poner, 100);
+  };
+  poner();
+})();
+
+
 /* ---------- rt-diag.js ---------- */
 /* ============================================================
    LA GRANJA RENTABLE · DIAGNÓSTICO Y SIGUIENTE PASO
@@ -46386,7 +46682,7 @@ function rtDiagResultadoHTML(){
    ============================================================ */
 var RTPORTADA = {
   porcicultura:'m2-pasillos', nutricion:'nutri-portada', reproduccion:'rp-portada',
-  sanidad:'sb-portada', engorde:'eg-p-03', lechones:'lc-portada', rentabilidad:'gr-p-164686'
+  sanidad:'sb-portada', engorde:'eg-p-03', lechones:'grhd-maternidad2', rentabilidad:'gr-p-164686'
 };
 function rtFoto(id){
   var f = null;
@@ -47203,7 +47499,7 @@ if(typeof window.agEstadoCurso === 'function'){
    ------------------------------------------------------------ */
 if(typeof AGCAT !== 'undefined' && !AGCAT.ruta){
   AGCAT.ruta = {
-    cover:'eg-p-34', cat:'Gratis · empieza aquí',
+    cover:'grhd-lechones-nave', cat:'Gratis · empieza aquí',
     desc:'Descubre dónde se va el dinero de tu granja y qué puedes hacer para producir de forma más rentable. Cinco módulos cortos, casos prácticos y un diagnóstico hecho con tus respuestas. 15–25 minutos, gratis.',
     abrir:function(){ if(typeof cerrarCursos === 'function') cerrarCursos(); openRuta(); },
     pagar:null
@@ -48253,6 +48549,9 @@ if(typeof window.pcAccesoTodos === 'function'){
 })();
 
 </script>
+
+
+
 
 
 
