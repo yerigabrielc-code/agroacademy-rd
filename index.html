@@ -79382,5 +79382,355 @@ var HVFOTOS = {
 
 
 
+<script>
+/* WHATSAPP · SEGUIMIENTO DE ESTUDIANTES — bloque */
+/* ============================================================
+   WHATSAPP · SEGUIMIENTO DE ESTUDIANTES
+   ------------------------------------------------------------
+   1 · Pestaña «WhatsApp» en el panel del administrador:
+       - quién debe recibir qué mensaje HOY (según su estado en el
+         curso), con un botón que abre WhatsApp con el texto listo;
+       - el envío automático (apagado / prueba / activo), que hace
+         la Edge Function «whatsapp-seguimiento»;
+       - las plantillas para Meta y el historial.
+   2 · Registro: casilla «quiero avisos por WhatsApp».
+   3 · Estudiantes que ya existían: una tarjeta para dar (o no) el
+       permiso, una sola vez.
+   No toca accesos, inscripciones, avance ni desbloqueos: solo lee
+   el estado y escribe en las tablas wa_* y en profiles.wa_optin.
+   Datos y reglas: supabase/whatsapp.sql.
+   ============================================================ */
+(function(){
+  if(!window.SB) return;
+  var sb = window.SB;
+  var WA = { cfg:null, plantillas:[], pend:[], hist:[], fn:null, error:'', cargando:false, resultado:'' };
+  var ESTADOS = {
+    completado:    ['🎓', 'Curso completado'],
+    reprobado:     ['📘', 'Reprobó un examen'],
+    bienvenida:    ['👋', 'Bienvenida'],
+    pago_pendiente:['💳', 'Pago pendiente'],
+    mitad:         ['⭐', 'Mitad del curso'],
+    inactivo:      ['⏸️', 'Sin avanzar 7 días'],
+    sin_empezar:   ['🚪', 'No ha empezado'],
+    gratis_fin:    ['➡️', 'Terminó el curso gratis'],
+    sin_curso:     ['🌱', 'Cuenta sin cursos']
+  };
+  function e(t){ return (typeof esc === 'function') ? esc(String(t == null ? '' : t)) : String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function waTexto(t, vars){ return String(t || '').replace(/\{\{(\d+)\}\}/g, function(_, n){ var v = (vars || [])[+n - 1]; return v == null ? '' : String(v); }); }
+  window.waTexto = waTexto;
+  function waTelVisible(t){ t = String(t || ''); return t.length === 11 && t[0] === '1' ? t.slice(1, 4) + '-' + t.slice(4, 7) + '-' + t.slice(7) : t; }
+  function nombreDe(uid){ try{ var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).find(function(x){ return x.id === uid; }); return s ? (s.name || s.email || '') : ''; }catch(x){ return ''; } }
+
+  /* ---------- 1 · la pestaña del administrador ---------- */
+  var menu = document.getElementById('adminMenu');
+  if(menu && !menu.querySelector('[data-t="whatsapp"]')){
+    var b = document.createElement('button');
+    b.setAttribute('data-t', 'whatsapp');
+    b.innerHTML = '<span class="mi">💬</span> WhatsApp';
+    b.onclick = function(){ admTab('whatsapp'); };
+    menu.insertBefore(b, menu.querySelector('.sep') || null);
+  }
+  if(typeof ADM_TITLES !== 'undefined') ADM_TITLES.whatsapp = 'Seguimiento por WhatsApp';
+  var _admTabWa = admTab;
+  admTab = function(t){
+    if(t !== 'whatsapp'){ _admTabWa(t); return; }
+    ADM.tab = 'whatsapp';
+    document.querySelectorAll('#adminMenu button[data-t]').forEach(function(x){ x.classList.toggle('on', x.dataset.t === 'whatsapp'); });
+    var ti = document.getElementById('adminTitle'); if(ti) ti.textContent = 'Seguimiento por WhatsApp';
+    if(matchMedia('(max-width:820px)').matches){ var s = document.getElementById('adminSide'); if(s) s.classList.add('hide'); }
+    waCargar();
+  };
+  /* el núcleo no conoce esta pestaña: si repinta el panel (por ejemplo al
+     refrescar los datos de la nube) caería en el dashboard. Se repinta la
+     pestaña con lo que ya está cargado. */
+  if(typeof window.renderAdmin === 'function'){
+    var _renderAdminWa = window.renderAdmin;
+    window.renderAdmin = function(){
+      var mia = false;
+      try{ mia = (typeof ADM !== 'undefined' && ADM.tab === 'whatsapp'); }catch(x){}
+      if(!mia) return _renderAdminWa.apply(this, arguments);
+      try{
+        document.querySelectorAll('#adminMenu button[data-t]').forEach(function(b){ b.classList.toggle('on', b.dataset.t === 'whatsapp'); });
+        var tt = document.getElementById('adminTitle'); if(tt) tt.textContent = 'Seguimiento por WhatsApp';
+        if(WA.cfg || WA.error) waPintar(); else waCargar();
+      }catch(x){ return _renderAdminWa.apply(this, arguments); }
+    };
+  }
+
+  /* los módulos de cada curso salen de la propia app: así un curso nuevo o ampliado se cuenta bien */
+  function waSincronizarCursos(){
+    try{
+      if(typeof COURSES === 'undefined') return Promise.resolve();
+      var filas = Object.keys(COURSES).map(function(k){
+        var C = COURSES[k], n = 0;
+        try{ n = (C.modules && C.modules().length) || C.n || 0; }catch(x){ n = C.n || 0; }
+        return n > 0 ? { course_key:k, nombre:String(C.name || k).split(':')[0], modulos:n, gratis:k === 'ruta' } : null;
+      }).filter(Boolean);
+      return filas.length ? sb.from('wa_cursos').upsert(filas, { onConflict:'course_key' }).then(function(){}, function(){}) : Promise.resolve();
+    }catch(x){ return Promise.resolve(); }
+  }
+
+  function waCargar(){
+    var body = document.getElementById('adminBody'); if(!body) return;
+    WA.cargando = true; WA.error = '';
+    body.innerHTML = '<div class="wa-p"><p class="adm-note">Cargando el seguimiento…</p></div>';
+    waSincronizarCursos().then(function(){
+      return Promise.all([
+        sb.from('wa_config').select('*').eq('id', 1).maybeSingle(),
+        sb.from('wa_plantillas').select('*').order('prioridad'),
+        sb.rpc('wa_pendientes'),
+        sb.from('wa_mensajes').select('*').order('created_at', { ascending:false }).limit(60),
+        sb.functions.invoke('whatsapp-seguimiento', { body:{ accion:'estado' } }).then(function(r){ return r; }, function(){ return { error:true }; })
+      ]);
+    }).then(function(r){
+      WA.cargando = false;
+      if(r[0].error || !r[0].data){ WA.error = 'sql'; waPintar(); return; }
+      WA.cfg = r[0].data; WA.plantillas = r[1].data || []; WA.pend = r[2].data || []; WA.hist = r[3].data || [];
+      WA.fn = (r[4] && !r[4].error && r[4].data) ? r[4].data : null;
+      if(r[2].error) WA.error = r[2].error.message || 'lista';
+      waPintar();
+    }).catch(function(x){ WA.cargando = false; WA.error = String(x && x.message || x); waPintar(); });
+  }
+  window.waCargar = waCargar;
+
+  function waPintar(){
+    var body = document.getElementById('adminBody'); if(!body || ADM.tab !== 'whatsapp') return;
+    if(WA.error === 'sql'){
+      body.innerHTML = '<div class="wa-p"><div class="wa-aviso"><b>Falta un paso en la base de datos.</b>' +
+        '<p>Corra <code>supabase/whatsapp.sql</code> en Supabase → SQL Editor. Después vuelva a abrir esta pestaña.</p></div></div>';
+      return;
+    }
+    body.innerHTML = '<div class="wa-p">' + waMotorHTML() + waHoyHTML() + waPlantillasHTML() + waHistorialHTML() + '</div>';
+  }
+
+  function waMotorHTML(){
+    var c = WA.cfg || {}, aprob = WA.plantillas.filter(function(p){ return p.activa; }).length;
+    var con = WA.fn ? (WA.fn.conectado ? '<span class="wa-chip wa-ok">Número conectado</span>' : '<span class="wa-chip wa-no">Número sin conectar</span>')
+                    : '<span class="wa-chip wa-no">Función de envío sin publicar</span>';
+    var modo = function(m, t, d){ return '<button class="wa-modo' + (c.modo === m ? ' on' : '') + '" onclick="waModo(\'' + m + '\')"><b>' + t + '</b><span>' + d + '</span></button>'; };
+    return '<section class="wa-sec"><h3>Envío automático</h3>' +
+      '<div class="wa-estado">' + con + '<span class="wa-chip">' + aprob + ' de ' + WA.plantillas.length + ' plantillas aprobadas</span>' +
+        '<span class="wa-chip">Horario: ' + (c.hora_desde == null ? 8 : c.hora_desde) + ':00 a ' + (c.hora_hasta == null ? 20 : c.hora_hasta) + ':00</span></div>' +
+      '<div class="wa-modos">' +
+        modo('apagado', 'Apagado', 'Nada sale solo. Usted envía desde la lista de abajo.') +
+        modo('prueba', 'Prueba', 'Hasta 3 mensajes, todos a SU número de prueba.') +
+        modo('activo', 'Activo', 'Cada hora, entre 8:00 y 20:00, a los estudiantes que dieron permiso.') +
+      '</div>' +
+      '<div class="wa-fila"><label>Número de prueba <input id="waTelPrueba" type="tel" value="' + e(c.telefono_prueba || '') + '" placeholder="829-591-3373"></label>' +
+        '<button class="adm-add" onclick="waGuardarPrueba()">Guardar</button>' +
+        (c.modo !== 'apagado' ? '<button class="adm-add wa-envia" onclick="waEjecutar()">Enviar ahora</button>' : '') + '</div>' +
+      (WA.resultado ? '<p class="wa-res" id="waResultado">' + e(WA.resultado) + '</p>' : '') +
+      '<p class="adm-note">Solo salen plantillas marcadas como aprobadas por Meta, y solo a quien aceptó avisos y no escribió BAJA. ' +
+        'Nadie recibe más de un mensaje cada 20 horas, y cada aviso se manda una sola vez.</p></section>';
+  }
+
+  function waHoyHTML(){
+    var L = WA.pend;
+    var con = L.filter(function(x){ return x.optin; }).length;
+    var filas = L.map(function(x, i){
+      var es = ESTADOS[x.clave] || ['•', x.clave];
+      var txt = waTexto(x.texto, x.vars);
+      return '<div class="wa-item" id="waIt' + i + '">' +
+        '<div class="wa-quien"><b>' + e(nombreDe(x.user_id) || x.nombre) + '</b>' +
+          '<span>' + e(waTelVisible(x.telefono)) + (x.curso ? ' · ' + e(x.curso) : '') + '</span></div>' +
+        '<div class="wa-tags"><span class="wa-chip wa-k-' + e(x.clave) + '">' + es[0] + ' ' + e(es[1]) + '</span>' +
+          (x.optin ? '<span class="wa-chip wa-ok">Aceptó avisos</span>' : '<span class="wa-chip wa-no">Sin permiso</span>') + '</div>' +
+        '<p class="wa-txt">' + e(txt) + '</p>' +
+        '<div class="wa-acc"><button class="adm-add" onclick="waManual(' + i + ')">Abrir en WhatsApp</button>' +
+          '<button class="wa-link" onclick="waManual(' + i + ',true)">Ya se lo envié</button></div></div>';
+    }).join('');
+    return '<section class="wa-sec"><h3>Para enviar hoy <span class="wa-n">' + L.length + '</span></h3>' +
+      '<p class="adm-note">' + con + ' con permiso para el envío automático. «Abrir en WhatsApp» abre su WhatsApp con el mensaje escrito: ' +
+        'revíselo y pulse enviar. Queda anotado y ese aviso no vuelve a aparecer.' +
+        (WA.error && WA.error !== 'sql' ? ' <b class="wa-err">No se pudo leer la lista: ' + e(WA.error) + '</b>' : '') + '</p>' +
+      (L.length ? '<div class="wa-lista">' + filas + '</div>' : '<p class="wa-vacio">Nadie pendiente por ahora. 🎉</p>') + '</section>';
+  }
+
+  function waPlantillasHTML(){
+    var filas = WA.plantillas.map(function(p){
+      var es = ESTADOS[p.clave] || ['•', p.clave];
+      return '<div class="wa-pl">' +
+        '<div class="wa-pl-c"><b>' + es[0] + ' ' + e(es[1]) + '</b><code>' + e(p.nombre_meta) + '</code><span class="wa-chip">' + e(p.categoria === 'MARKETING' ? 'Marketing' : 'Utilidad') + '</span></div>' +
+        '<p class="wa-txt">' + e(p.texto) + '</p>' +
+        '<div class="wa-acc"><label class="wa-sw"><input type="checkbox"' + (p.activa ? ' checked' : '') + ' onchange="waAprobada(\'' + e(p.clave) + '\',this.checked)"> Aprobada en Meta</label>' +
+          '<button class="wa-link" onclick="waCopiar(\'' + e(p.clave) + '\')">Copiar texto</button></div></div>';
+    }).join('');
+    return '<section class="wa-sec"><details><summary><h3>Plantillas para Meta (' + WA.plantillas.length + ')</h3></summary>' +
+      '<p class="adm-note">Créelas en WhatsApp Manager con el MISMO nombre, idioma Español y la categoría indicada. Pie de página: ' +
+        '<i>Responde BAJA si no quieres recibir más avisos.</i> Cuando Meta apruebe una, márquela aquí.</p>' + filas + '</details></section>';
+  }
+
+  function waHistorialHTML(){
+    var EST = { enviado:'Enviado', entregado:'Entregado', leido:'Leído', fallido:'Falló', prueba:'Prueba' };
+    var CAN = { auto:'automático', manual:'a mano', prueba:'prueba' };
+    var filas = WA.hist.map(function(m){
+      var es = ESTADOS[m.clave] || ['•', m.clave];
+      return '<tr><td>' + e(new Date(m.created_at).toLocaleString('es-DO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })) + '</td>' +
+        '<td>' + e(nombreDe(m.user_id) || waTelVisible(m.telefono)) + '</td><td>' + es[0] + ' ' + e(es[1]) + '</td>' +
+        '<td>' + e(CAN[m.canal] || m.canal) + '</td><td class="wa-e-' + e(m.estado) + '">' + e(EST[m.estado] || m.estado) + (m.error ? ' · ' + e(m.error) : '') + '</td></tr>';
+    }).join('');
+    return '<section class="wa-sec"><details><summary><h3>Historial (' + WA.hist.length + ')</h3></summary>' +
+      (filas ? '<div class="wa-tabla"><table><thead><tr><th>Fecha</th><th>Estudiante</th><th>Aviso</th><th>Cómo</th><th>Estado</th></tr></thead><tbody>' + filas + '</tbody></table></div>'
+             : '<p class="wa-vacio">Todavía no se ha enviado nada.</p>') + '</details></section>';
+  }
+
+  window.waModo = function(m){
+    if(m === 'activo' && !confirm('¿Activar el envío automático? Desde ahora, cada hora entre 8:00 y 20:00 saldrán los avisos aprobados a los estudiantes que dieron permiso.')) return;
+    sb.from('wa_config').update({ modo:m, actualizado:new Date().toISOString() }).eq('id', 1).then(function(r){
+      if(r.error){ if(typeof toast === 'function') toast('No se pudo cambiar: ' + r.error.message, '⚠️'); return; }
+      WA.cfg.modo = m; waPintar();
+    });
+  };
+  window.waGuardarPrueba = function(){
+    var v = (document.getElementById('waTelPrueba') || {}).value || '';
+    sb.from('wa_config').update({ telefono_prueba:v.trim() }).eq('id', 1).then(function(r){
+      if(!r.error){ WA.cfg.telefono_prueba = v.trim(); if(typeof toast === 'function') toast('Número de prueba guardado', '✅'); }
+    });
+  };
+  window.waEjecutar = function(){
+    var pon = function(t){ WA.resultado = t; var out = document.getElementById('waResultado'); if(out) out.textContent = t; else waPintar(); };
+    pon('Enviando…');
+    sb.functions.invoke('whatsapp-seguimiento', { body:{ accion:'ejecutar' } }).then(function(r){
+      var d = r.data || {};
+      if(r.error || d.error){ pon('No se pudo: ' + ((r.error && r.error.message) || d.error)); return; }
+      pon(d.motivo ? d.motivo :
+        ('Enviados: ' + d.enviados + ' · fallidos: ' + d.fallidos + (d.errores && d.errores.length ? ' (' + d.errores.join(' · ') + ')' : '') +
+         ' · sin permiso: ' + ((d.saltadas || {}).sin_permiso || 0) + ' · plantilla sin aprobar: ' + ((d.saltadas || {}).plantilla_no_aprobada || 0) +
+         (d.quedan ? ' · quedan ' + d.quedan + ' para la próxima hora' : '')));
+      setTimeout(waCargar, 2500);
+    });
+  };
+  window.waManual = function(i, soloAnotar){
+    var x = WA.pend[i]; if(!x) return;
+    if(!soloAnotar) window.open('https://wa.me/' + x.telefono + '?text=' + encodeURIComponent(waTexto(x.texto, x.vars)), '_blank', 'noopener');
+    sb.from('wa_mensajes').insert({ user_id:x.user_id, telefono:x.telefono, clave:x.clave, course_key:x.course_key || '', ref:x.ref || '', canal:'manual', estado:'enviado' })
+      .then(function(r){
+        var it = document.getElementById('waIt' + i);
+        if(!r.error && it){ it.classList.add('wa-hecho'); it.querySelector('.wa-acc').innerHTML = '<span class="wa-chip wa-ok">Anotado ✓</span>'; }
+        else if(r.error && typeof toast === 'function') toast('No se pudo anotar: ' + r.error.message, '⚠️');
+      });
+  };
+  window.waAprobada = function(clave, v){
+    sb.from('wa_plantillas').update({ activa:!!v }).eq('clave', clave).then(function(r){
+      var p = WA.plantillas.find(function(x){ return x.clave === clave; }); if(p && !r.error) p.activa = !!v;
+    });
+  };
+  window.waCopiar = function(clave){
+    var p = WA.plantillas.find(function(x){ return x.clave === clave; }); if(!p) return;
+    try{ navigator.clipboard.writeText(p.texto); if(typeof toast === 'function') toast('Texto copiado', '📋'); }catch(x){}
+  };
+
+  /* ---------- 2 · registro: la casilla de permiso ---------- */
+  function waCasillaRegistro(){
+    var pw = document.getElementById('regPhoneWrap');
+    if(!pw || document.getElementById('regWaOptin')) return !!pw;
+    var l = document.createElement('label');
+    l.className = 'wa-optin';
+    l.innerHTML = '<input type="checkbox" id="regWaOptin" checked> <span>Quiero recibir por WhatsApp los avisos de mi curso ' +
+      '(recordatorios y certificado). Puedo darme de baja cuando quiera escribiendo BAJA.</span>';
+    pw.appendChild(l);
+    return true;
+  }
+  if(sb.auth && sb.auth.signUp && !sb.auth.__waEnvuelto){
+    var _signUp = sb.auth.signUp.bind(sb.auth);
+    sb.auth.signUp = function(a){
+      try{
+        var c = document.getElementById('regWaOptin');
+        if(c && a){ a.options = a.options || {}; a.options.data = a.options.data || {}; a.options.data.wa_optin = !!c.checked; }
+      }catch(x){}
+      return _signUp(a);
+    };
+    sb.auth.__waEnvuelto = true;
+  }
+  var nIntentos = 0, tReg = setInterval(function(){ if(waCasillaRegistro() || ++nIntentos > 40) clearInterval(tReg); }, 500);
+
+  /* ---------- 3 · estudiantes que ya existían: pedir el permiso una vez ---------- */
+  var preguntado = {};
+  setInterval(function(){
+    try{
+      if(typeof SESSION === 'undefined' || !SESSION || SESSION.role !== 'STUDENT' || !SESSION.id || preguntado[SESSION.id]) return;
+      if(String(SESSION.id).length < 30) return;   // solo cuentas reales de la nube
+      preguntado[SESSION.id] = true;
+      sb.from('profiles').select('wa_optin,phone').eq('id', SESSION.id).maybeSingle().then(function(r){
+        if(r.error || !r.data || r.data.wa_optin !== null) return;
+        waTarjetaPermiso(SESSION.id, r.data.phone || '');
+      });
+    }catch(x){}
+  }, 2000);
+  function waTarjetaPermiso(uid, tel){
+    if(document.getElementById('waPermiso')) return;
+    var d = document.createElement('div');
+    d.id = 'waPermiso'; d.className = 'wa-permiso'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Avisos por WhatsApp');
+    d.innerHTML = '<b>📲 ¿Le avisamos por WhatsApp?</b>' +
+      '<p>Recordatorios de su curso, cuándo está listo su certificado y ayuda si se queda atascado. Sin cadenas ni spam: puede darse de baja escribiendo BAJA.</p>' +
+      '<label>Su WhatsApp <input id="waPermTel" type="tel" inputmode="tel" value="' + e(tel) + '" placeholder="(809) 000-0000"></label>' +
+      '<div><button class="wa-si" id="waPermSi">Sí, avisarme</button><button class="wa-nog" id="waPermNo">No, gracias</button></div>';
+    document.body.appendChild(d);
+    var cierra = function(){ d.remove(); };
+    document.getElementById('waPermNo').onclick = function(){
+      sb.from('profiles').update({ wa_optin:false, wa_optin_at:new Date().toISOString() }).eq('id', uid).then(cierra, cierra);
+    };
+    document.getElementById('waPermSi').onclick = function(){
+      var t = (document.getElementById('waPermTel').value || '').trim();
+      if(t.replace(/\D/g, '').length < 10){ document.getElementById('waPermTel').focus(); return; }
+      sb.from('profiles').update({ wa_optin:true, wa_optin_at:new Date().toISOString(), wa_baja:false, phone:t }).eq('id', uid).then(function(){
+        cierra(); if(typeof toast === 'function') toast('Listo: le avisaremos por WhatsApp', '✅');
+      }, cierra);
+    };
+  }
+
+  /* ---------- estilos ---------- */
+  var css = document.createElement('style');
+  css.textContent = [
+    '.wa-p{display:grid;gap:18px;max-width:1100px}',
+    '.wa-sec{background:var(--panel,#fff);border:1px solid var(--border,#e2e2e2);border-radius:16px;padding:18px 20px}',
+    '.wa-sec h3{margin:0 0 10px;font-size:17px;display:inline-flex;align-items:center;gap:8px}',
+    '.wa-sec summary{cursor:pointer;list-style:none}.wa-sec summary::-webkit-details-marker{display:none}',
+    '.wa-sec summary h3::after{content:"▾";font-size:13px;color:var(--muted,#777)}',
+    '.wa-n{background:#25D366;color:#063;border-radius:999px;padding:1px 10px;font-size:13px}',
+    '.wa-estado,.wa-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}',
+    '.wa-chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--muted,#777) 14%,transparent);color:var(--text,#222)}',
+    '.wa-chip.wa-ok{background:color-mix(in srgb,#25D366 22%,transparent)}.wa-chip.wa-no{background:color-mix(in srgb,#B42318 16%,transparent)}',
+    '.wa-modos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:12px}',
+    '.wa-modo{text-align:left;font:inherit;cursor:pointer;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border,#ddd);background:transparent;color:var(--text,#222);display:grid;gap:3px}',
+    '.wa-modo span{font-size:12.5px;color:var(--muted,#777);line-height:1.4}',
+    '.wa-modo.on{border-color:#128C7E;background:color-mix(in srgb,#25D366 12%,transparent)}',
+    '.wa-modo:focus-visible,.wa-link:focus-visible{outline:3px solid #128C7E;outline-offset:2px}',
+    '.wa-fila{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:6px}',
+    '.wa-fila label{display:grid;gap:4px;font-size:13px;font-weight:600}',
+    '.wa-fila input{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--border,#ccc);background:transparent;color:var(--text,#222)}',
+    '.wa-envia{background:#128C7E!important}',
+    '.wa-res{margin:6px 0;font-weight:600;font-size:13.5px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,#25D366 12%,transparent)}',
+    '.wa-lista{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}',
+    '.wa-item{border:1px solid var(--border,#e2e2e2);border-radius:14px;padding:12px 14px;display:grid;gap:6px;align-content:start}',
+    '.wa-item.wa-hecho{opacity:.55}',
+    '.wa-quien{display:grid}.wa-quien span{font-size:12.5px;color:var(--muted,#777)}',
+    '.wa-txt{margin:0;font-size:13.5px;line-height:1.5;background:color-mix(in srgb,#25D366 8%,transparent);border-radius:10px;padding:8px 10px;white-space:pre-wrap}',
+    '.wa-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}',
+    '.wa-acc .adm-add{background:#128C7E;padding:7px 12px;font-size:13px}',
+    '.wa-link{font:inherit;font-size:13px;background:none;border:0;color:var(--muted,#666);text-decoration:underline;cursor:pointer;padding:4px}',
+    '.wa-vacio{color:var(--muted,#777);margin:4px 0}.wa-err{color:#B42318}',
+    '.wa-pl{border-top:1px solid var(--border,#eee);padding:12px 0;display:grid;gap:6px}',
+    '.wa-pl-c{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.wa-pl-c code{font-size:12px}',
+    '.wa-sw{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600}',
+    '.wa-tabla{overflow-x:auto}.wa-tabla table{width:100%;border-collapse:collapse;font-size:13px}',
+    '.wa-tabla th,.wa-tabla td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border,#eee);white-space:nowrap}',
+    '.wa-e-fallido{color:#B42318;font-weight:600;white-space:normal!important}.wa-e-leido,.wa-e-entregado{color:#128C7E;font-weight:600}',
+    '.wa-aviso{border:1px solid #E8590C;border-radius:14px;padding:14px 16px}',
+    '.wa-optin{display:flex!important;gap:8px;align-items:flex-start;margin-top:10px;font-size:12.5px;line-height:1.45;font-weight:400!important;cursor:pointer}',
+    '.wa-optin input{margin-top:3px;width:16px;height:16px;flex:none;accent-color:#128C7E}',
+    '.wa-permiso{position:fixed;z-index:9999;right:16px;bottom:16px;max-width:360px;width:calc(100% - 32px);background:#fff;color:#1d2433;border-radius:18px;',
+      'box-shadow:0 18px 50px rgba(0,0,0,.28);padding:18px;display:grid;gap:10px;border-top:5px solid #25D366;font-size:14px}',
+    '.wa-permiso p{margin:0;line-height:1.5;color:#4a5568}',
+    '.wa-permiso label{display:grid;gap:4px;font-size:12.5px;font-weight:700}',
+    '.wa-permiso input{font:inherit;padding:9px 11px;border-radius:10px;border:1px solid #cfd6df}',
+    '.wa-permiso div{display:flex;gap:8px;flex-wrap:wrap}',
+    '.wa-si{font:inherit;font-weight:700;background:#128C7E;color:#fff;border:0;border-radius:10px;padding:10px 16px;cursor:pointer}',
+    '.wa-nog{font:inherit;background:none;border:0;color:#4a5568;text-decoration:underline;cursor:pointer;padding:10px 6px}'
+  ].join('\n');
+  document.head.appendChild(css);
+})();
+
+</script>
 </body>
 </html>
