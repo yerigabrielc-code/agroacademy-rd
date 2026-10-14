@@ -47275,14 +47275,12 @@ var PCACCESO = {};
 (function pcCargar(){
   try{ PCACCESO = JSON.parse(localStorage.getItem('pc_acceso') || 'null') || null; }catch(e){ PCACCESO = null; }
   if(PCACCESO) return;
-  /* primera vez: se hereda lo que ya había, para no romper a nadie */
+  /* 2026-10-14 · YA NO SE SIEMBRA NADA. La siembra por «cuenta activa»
+     era una migración de una sola vez y se quedó encendida: regalaba el
+     curso base a cada cuenta nueva que el instructor activaba (pasó con
+     un alumno que avanzó 5 módulos con el curso bloqueado). El permiso
+     vive en profiles.acceso_porcicultura y solo lo da la nube. */
   PCACCESO = {};
-  try{
-    (typeof STUDENTS !== 'undefined' ? STUDENTS : []).forEach(function(s){
-      if(s && (s.status === 'activo' || s.status === 'completado')) PCACCESO[s.id] = true;
-    });
-  }catch(e){}
-  try{ localStorage.setItem('pc_acceso', JSON.stringify(PCACCESO)); }catch(e){}
 })();
 function pcGuardar(){ try{ localStorage.setItem('pc_acceso', JSON.stringify(PCACCESO)); }catch(e){} }
 
@@ -47311,7 +47309,9 @@ var PCVISTOS = {};
        En cuanto la nube contesta, esto se calla para siempre.
        Mientras la columna no exista, sigue funcionando como hasta hoy y
        nadie pierde el acceso que ya tiene. */
-    if(window.PCNUBE && PCNUBE.viva) return;
+    /* 2026-10-14 · APAGADO para siempre: ver pcCargar. Se deja la función
+       para que nada que la nombre se rompa, pero ya no concede nada. */
+    return;
     try{
       var cambio = false;
       (typeof STUDENTS !== 'undefined' ? STUDENTS : []).forEach(function(s){
@@ -47338,6 +47338,18 @@ function pcTiene(id){
     try{ id = (typeof SESSION !== 'undefined' && SESSION) ? SESSION.id : null; }catch(e){}
   }
   if(id == null) return false;
+  /* 2026-10-14 · EL ALUMNO SOLO ENTRA CON LO QUE DIGA LA NUBE.
+     En el navegador del alumno el mapa local no vale: podía venir de la
+     siembra vieja. Para su propia cuenta manda la lectura de su fila en
+     profiles (rt-nube.js → PCNUBE.propio), y mientras no llegue, no
+     entra. Quitar el acceso nunca borra su avance. */
+  try{
+    var yo = (typeof SESSION !== 'undefined' && SESSION) ? SESSION.id : null;
+    if(yo != null && id === yo){
+      var P = window.PCNUBE && PCNUBE.propio;
+      return !!(P && P.id === yo && P.v);
+    }
+  }catch(e){}
   return !!PCACCESO[id];
 }
 window.pcTiene = pcTiene;
@@ -47712,6 +47724,82 @@ if(typeof window.pcAccesoTodos === 'function'){
     return r;
   };
 }
+
+/* ------------------------------------------------------------
+   3 · LEER EL PERMISO DESPUÉS DEL LOGIN (2026-10-14)
+   ------------------------------------------------------------
+   EL FALLO: la lectura de arriba se hacía UNA sola vez, a los
+   2.2 s de cargar la página — cuando el alumno todavía está en
+   la pantalla de login, sin sesión. La nube contestaba vacío,
+   nadie volvía a preguntar, y la siembra por «cuenta activa»
+   le daba el curso base a cualquiera que el instructor activara.
+
+   AHORA:
+   · Alumno: se lee SU fila (profiles.acceso_porcicultura) en
+     cuanto hay sesión, y otra vez cada minuto. Eso y solo eso
+     decide si entra (pcTiene → PCNUBE.propio).
+   · Instructor: se vuelve a leer la tabla completa en cuanto
+     inicia sesión, aunque haya entrado tarde.
+   · Si el permiso cambia mientras el alumno tiene el curso
+     abierto, la pantalla se cierra o se abre en ese momento.
+   ------------------------------------------------------------ */
+(function pcNubeTrasLogin(){
+  var leidoAlumno = null, leidoAt = 0, adminLeido = false, ocupado = false;
+
+  var repintaBase = function(){
+    try{
+      var h = String(location.hash || '');
+      if(h.indexOf('#/curso') !== 0) return;
+      if(typeof window.mount === 'function') window.mount();
+    }catch(e){}
+  };
+
+  var tic = function(){
+    if(ocupado || !window.SB || typeof SB.from !== 'function') return;
+    var S = (typeof SESSION !== 'undefined') ? SESSION : null;
+
+    if(S && S.role === 'ADMIN'){
+      if(adminLeido) return;
+      ocupado = true;
+      try{
+        SB.from('profiles').select('id,acceso_porcicultura').then(function(r){
+          ocupado = false;
+          if(!r || r.error || !r.data || !r.data.length) return;   /* vacío no es respuesta */
+          adminLeido = true;
+          PCNUBE.viva = true;
+          var nuevo = {};
+          r.data.forEach(function(p){ if(p.acceso_porcicultura) nuevo[p.id] = true; });
+          PCACCESO = nuevo;
+          try{ pcGuardar(); }catch(e){}
+          pcNubeRepinta();
+        }, function(){ ocupado = false; });
+      }catch(e){ ocupado = false; }
+      return;
+    }
+    adminLeido = false;
+
+    var uid = (S && S.role === 'STUDENT') ? S.id : null;
+    if(!uid) { leidoAlumno = null; return; }
+    if(leidoAlumno === uid && Date.now() - leidoAt < 60000) return;
+
+    ocupado = true;
+    try{
+      SB.from('profiles').select('id,acceso_porcicultura').eq('id', uid).maybeSingle().then(function(r){
+        ocupado = false;
+        if(!r || r.error || !r.data) return;                     /* sin respuesta: sigue cerrado */
+        var antes = PCNUBE.propio && PCNUBE.propio.id === uid ? PCNUBE.propio.v : null;
+        var v = !!r.data.acceso_porcicultura;
+        PCNUBE.propio = { id: uid, v: v };
+        leidoAlumno = uid; leidoAt = Date.now();
+        if(v) PCACCESO[uid] = true; else delete PCACCESO[uid];
+        try{ pcGuardar(); }catch(e){}
+        /* si cambió (o es la primera lectura), se vuelve a pintar el curso base */
+        if(antes !== v) repintaBase();
+      }, function(){ ocupado = false; });
+    }catch(e){ ocupado = false; }
+  };
+  setInterval(tic, 1500);
+})();
 
 </script>
 
