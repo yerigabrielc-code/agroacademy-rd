@@ -62469,6 +62469,352 @@ PBMOD.push(
 );
 
 
+/* ---------- pb-datos3.js ---------- */
+/* ============================================================
+   CURSO 10 · POLLOS DE ENGORDE · PARTE 2: TU PROPIO PROYECTO
+   MÓDULOS 9 A 12 (ampliación 2026-10-14)
+   ------------------------------------------------------------
+   Los módulos 1 a 8 enseñan a MANEJAR un lote. Estos cuatro
+   enseñan a MONTAR el proyecto, desde cero:
+
+     09 · Planifica: tamaño, terreno, ubicación y permisos
+     10 · Construye y equipa el galpón
+     11 · Presupuesto, flujo de caja y punto de equilibrio
+     12 · Cosecha, venta y tu proyecto final
+
+   Se AÑADEN al final para no mover el avance de nadie: el avance
+   se guarda por número de módulo ('pb::<alumno>::exam_m<N>').
+
+   Proyecto de ejemplo de toda la parte 2: 1,000 pollos por lote,
+   las mismas cuentas del módulo 7 multiplicadas por dos (costo del
+   lote RD$ 240,000; 960 pollos vendidos de 2.30 kg = 2,208 kg).
+   Todo importe es ILUSTRATIVO. Permisos y requisitos: se dice con
+   qué institución confirmarlos; no se inventan trámites.
+   ============================================================ */
+
+PBMOD.push(
+
+/* ============================ 09 ============================ */
+{
+  n:9, num:'09', ac:'#1F6F8B', foto:'pb-n-granja',
+  t:'📍 Planifica tu proyecto',
+  sub:'Cuántos pollos, dónde, con qué servicios y con qué permisos — antes de poner un block',
+  obj:[
+    'Decidir el tamaño inicial del proyecto a partir de lo que se puede vender.',
+    'Calcular cuántos lotes y cuántos pollos salen al año.',
+    'Elegir un terreno y una ubicación que no condenen el proyecto.',
+    'Saber qué permisos averiguar y con qué institución.'
+  ],
+  sec:[
+    {k:'pbcita', t:'El proyecto se gana o se pierde en el papel, antes de comprar el primer pollito.'},
+    {k:'pbguia', aprendo:'A planificar el tamaño, la ubicación y los trámites del proyecto.',
+      importa:'Un galpón en el lugar equivocado o del tamaño equivocado no se arregla después: se paga en cada lote.',
+      aplico:'Empezando por el comprador y el mercado, y bajando hasta el terreno y los permisos.',
+      error:'Construir primero y buscar comprador después.',
+      decision:'Cuántos pollos por lote, dónde construir y qué permisos tramitar.'},
+    {k:'prosa', t:'Empieza por el final: ¿a quién le vas a vender?', p:[
+      'El tamaño del proyecto no lo decide el terreno ni el dinero que tengas: lo decide <b>cuántos pollos puedes vender, a quién y con qué frecuencia</b>. Un lote de 1,000 pollos que no tiene comprador es un problema de 1,000 pollos.',
+      'Antes de dibujar el galpón, conversa con los posibles compradores (procesadoras, intermediarios, colmados, restaurantes, ventas directas) y anota: cuántos pollos te comprarían, a qué peso, cada cuánto tiempo y cómo te pagarían. Con eso decides el tamaño del lote.'
+    ]},
+    {k:'agcards', t:'Las líneas comerciales de pollo de engorde', p:'Las más difundidas en el mundo. Lo que importa no es la marca: es comprar a un proveedor confiable y seguir la guía de manejo de esa línea.', l:[
+      ['🐔', 'Cobb (Cobb 500)', 'Línea de la empresa Cobb-Vantress. Publica guías de manejo, nutrición y procesamiento.'],
+      ['🐓', 'Ross (Ross 308)', 'Línea de Aviagen. También publica su guía de manejo y sus objetivos de rendimiento.'],
+      ['🐥', 'Hubbard y otras', 'Hay más líneas y cruces. Pregunte al proveedor cuál vende y pídale la guía.'],
+      ['📘', 'La guía manda', 'Pesos esperados, consumo, temperatura y luz por edad cambian según la línea: úsela como referencia.']
+    ]},
+    {k:'pbformula', t:'Cuántos lotes y cuántos pollos al año', k2:'Capacidad productiva',
+      concepto:'Un galpón no produce pollos todo el año sin parar: entre lote y lote hay que limpiar, desinfectar y dejarlo descansar.',
+      sencillo:'Cada lote ocupa el galpón unas semanas de crianza más unas semanas de vacío sanitario.',
+      formula:'Lotes por año = 52 semanas ÷ (semanas de crianza + semanas de vacío)  ·  Pollos al año = pollos por lote × lotes por año',
+      ejemplo:'Crianza de 6 semanas + 2 de vacío = 8 semanas por ciclo. 52 ÷ 8 = <b>6.5 lotes</b>; para planificar, redondee hacia abajo: <b>6 lotes al año</b>. Con 1,000 pollitos por lote: <b>6,000 pollitos al año</b>. <i>' + PBILUS + '</i>',
+      interpreta:'El vacío sanitario no es tiempo perdido: es lo que evita que las enfermedades pasen de un lote al siguiente.',
+      decision:'Planifique sus ventas y su dinero con 6 lotes al año, no con 8 ni 9.'},
+    {k:'pbcalc', id:'capacidad'},
+    {k:'agfig', f:'pb-n-granja', t:'La ubicación decide la mitad del proyecto', p:'Acceso para el camión del alimento y del comprador, agua segura, electricidad y distancia de otras granjas y de las casas.'},
+    {k:'agtabla', t:'Cómo elegir el terreno', p:'Revise cada punto en el terreno, no en el papel.', cols:['Punto', 'Qué buscar', 'Por qué importa'], filas:[
+      ['Agua', 'Fuente segura y suficiente todo el año (pozo, acueducto o tanque)', 'El pollo bebe más de lo que come; sin agua no hay lote'],
+      ['Electricidad', 'Servicio estable o planta de respaldo', 'Bombas, luz, ventiladores y criadoras dependen de ella'],
+      ['Acceso', 'Camino transitable en lluvia para camiones', 'Llegan pollitos y alimento, y salen los pollos'],
+      ['Terreno', 'Alto, con buen drenaje, que no se inunde', 'La humedad moja la cama y enferma al lote'],
+      ['Orientación', 'Espacio para el galpón de este a oeste', 'Así el sol de la mañana y de la tarde no entra de lleno'],
+      ['Vecinos', 'Distancia de casas, escuelas y otras granjas avícolas', 'Olores, moscas y enfermedades; además, la norma pide distancias'],
+      ['Crecimiento', 'Espacio para un segundo galpón y para la bodega', 'Si el proyecto funciona, querrá crecer en el mismo lugar']
+    ], pie:'Vientos: en lo posible, que el viento dominante no lleve el olor hacia las casas.'},
+    {k:'agnota', tipo:'dato', nt:'Permisos: qué averiguar y con quién', p:
+      'Antes de construir, confirme los requisitos vigentes con las instituciones. Lo que sigue es una guía de <b>a quién preguntar</b>, no una lista oficial de trámites:<br>' +
+      '• <b>Ministerio de Agricultura · Dirección General de Ganadería (DIGEGA)</b>: registro del establecimiento y normas técnicas para explotaciones avícolas (existen normas de 1999 sobre crianza en reclusión y distancias; pregunte cuáles siguen vigentes). Contacto público: 809-535-9689 · info@digega.gob.do.<br>' +
+      '• <b>Ministerio de Medio Ambiente y Recursos Naturales</b>: según la Ley 64-00, todo proyecto que pueda afectar el ambiente necesita una autorización ambiental (constancia, permiso o licencia, según el tamaño e impacto). Pregunte cuál corresponde a su granja.<br>' +
+      '• <b>Ayuntamiento</b>: uso de suelo y licencia de construcción del galpón.<br>' +
+      '• Si va a <b>sacrificar y vender carne</b> (no pollo vivo), pregunte los requisitos sanitarios del matadero o procesadora.<br>' +
+      'Pida todo por escrito y guarde las copias: un comprador grande o un banco se las pueden pedir.'},
+    {k:'pbcaso', n:'7', t:'Tengo el terreno, pero no tengo comprador',
+      contexto:'Luisa heredó un terreno con agua y luz. Quiere construir un galpón para 3,000 pollos porque «mientras más, mejor». No ha hablado con ningún comprador. (<i>Caso ilustrativo</i>.)',
+      datos:[['Pollos que quiere criar', '3,000 por lote'], ['Comprador acordado', 'ninguno'], ['Experiencia', 'ninguna']],
+      problema:'Si al día 42 nadie le compra 3,000 pollos, cada día de más comen alimento y el lote pierde dinero.',
+      q:'¿Qué le conviene hacer primero?',
+      o:[['Hablar con compradores, empezar con un lote más pequeño que pueda vender seguro y crecer después', true, 'Correcto.'],
+         ['Construir para 3,000 y buscar comprador cuando estén grandes', false, 'Un pollo listo que no se vende come alimento todos los días.'],
+         ['Comprar los pollitos ya y construir mientras crecen', false, 'El galpón tiene que estar listo antes del día 0.']],
+      pasos:['Averiguar cuántos pollos le compran, a qué peso y cada cuánto.', 'Elegir un primer lote que pueda vender completo.', 'Repetir dos o tres lotes con números claros.', 'Crecer cuando el comprador y los números lo permitan.'],
+      respuesta:'<b>Primero el comprador, después el tamaño.</b>',
+      interpreta:'El mercado decide el tamaño del proyecto; el terreno solo dice cuánto cabe.',
+      decision:'Firmar o al menos acordar la venta antes de construir.',
+      leccion:'Planifique desde la venta hacia atrás.'},
+    {k:'pbchk', id:'m9', t:'¿Mi proyecto está planificado?', l:[
+      'Sé a quién le voy a vender, cuántos pollos, a qué peso y cada cuánto.',
+      'Calculé cuántos lotes y pollos salen al año.',
+      'Mi terreno tiene agua, luz, acceso y buen drenaje.',
+      'Averigüé con DIGEGA, Medio Ambiente y el ayuntamiento qué permisos necesito.',
+      'Tengo la guía de manejo de la línea que voy a comprar.'
+    ]},
+    {k:'alerta', tipo:'ok', ico:'🎯', t:'En una frase',
+      p:'Primero el comprador, después el tamaño del lote, después el terreno y los permisos: en ese orden.'}
+  ],
+  cierre:{
+    saber:['Cómo se decide el tamaño de un proyecto.', 'Qué mirar en un terreno.', 'A quién preguntar por los permisos.'],
+    medir:['Lotes y pollos por año.'],
+    hacer:['Conversar con tres posibles compradores esta semana.']
+  }
+},
+
+/* ============================ 10 ============================ */
+{
+  n:10, num:'10', ac:'#0F766E', foto:'pb-n-galpon-abierto',
+  t:'🏗️ Construye y equipa el galpón',
+  sub:'Tamaño, orientación, ventilación, techo, cama, luz y equipos para la capacidad que elegiste',
+  obj:[
+    'Calcular el tamaño del galpón según la cantidad de pollos.',
+    'Conocer las partes de un galpón abierto para clima cálido.',
+    'Calcular cuántos comederos y bebederos hacen falta.',
+    'Organizar la bioseguridad desde el diseño.'
+  ],
+  sec:[
+    {k:'pbcita', t:'El galpón se construye una vez, pero se usa en cada lote: cada error de diseño se paga muchas veces.'},
+    {k:'pbguia', aprendo:'A dimensionar y equipar un galpón para la cantidad de pollos que eligió.',
+      importa:'Un galpón muy lleno, caliente o mal ventilado baja el peso y sube la mortalidad en todos los lotes.',
+      aplico:'Calculando el área por densidad, orientando el galpón y contando el equipo por ave.',
+      error:'Construir un galpón estrecho, bajo y cerrado, que se convierte en un horno al mediodía.',
+      decision:'Medidas del galpón y cantidad de equipo.'},
+    {k:'pbformula', t:'El tamaño del galpón', k2:'Densidad',
+      concepto:'La densidad es cuántos pollos hay por metro cuadrado de piso cuando están grandes, al final del lote.',
+      sencillo:'Se decide cuántos pollos caben por metro cuadrado y se divide.',
+      formula:'Área del galpón (m²) = pollos por lote ÷ pollos por m²  ·  Largo = área ÷ ancho',
+      ejemplo:'1,000 pollos ÷ 10 pollos por m² = <b>100 m²</b>. Con un ancho de 8 m: 100 ÷ 8 = <b>12.5 m de largo</b>. <i>Densidad orientativa para galpón abierto en clima cálido; confirme con la guía de su línea y con su técnico.</i>',
+      interpreta:'En clima caluroso y galpón abierto conviene una densidad menor que en galpones con ambiente controlado: los pollos grandes necesitan espacio para perder calor.',
+      decision:'Calcular el área con la densidad que pueda ventilar bien, no con la máxima.'},
+    {k:'pbcalc', id:'galpon'},
+    {k:'agfig', f:'pb-n-galpon-abierto', t:'Galpón abierto de clima cálido', p:'Techo alto, paredes bajas y laterales abiertos con malla y cortinas: el aire cruza el galpón de lado a lado.'},
+    {k:'agtabla', t:'Las partes del galpón y para qué sirven', cols:['Parte', 'Recomendación orientativa', 'Por qué'], filas:[
+      ['Orientación', 'Eje largo de este a oeste', 'El sol entra menos por los laterales'],
+      ['Ancho', 'Galpones abiertos estrechos (≈ 8 a 12 m)', 'El aire cruza mejor de un lado al otro'],
+      ['Altura y techo', 'Techo alto, con aleros que den sombra a los laterales; aislado o de color claro', 'Menos calor del techo sobre los pollos'],
+      ['Laterales', 'Pared baja (≈ 40–60 cm), malla contra pájaros y cortinas que se suben y bajan', 'Abrir con calor, cerrar con frío o lluvia'],
+      ['Piso', 'Concreto o tierra compactada, con desnivel para lavar', 'Se limpia y desinfecta entre lotes'],
+      ['Cama', 'Viruta o cascarilla seca, unos 5 a 10 cm', 'Absorbe humedad y aísla del piso'],
+      ['Luz', 'Instalación eléctrica segura y bombillos distribuidos', 'Los pollos comen donde ven'],
+      ['Entrada', 'Una sola puerta con pediluvio y lavado de manos', 'La bioseguridad empieza en el diseño']
+    ], pie:'Medidas orientativas: ajústelas con un técnico avícola y con la guía de su línea según su clima.'},
+    {k:'pbformula', t:'Cuántos comederos y bebederos', k2:'Equipo por ave',
+      concepto:'Si no hay espacio para comer y beber, los pollos más débiles se quedan atrás y el lote sale disparejo.',
+      sencillo:'Se divide el número de pollos entre los pollos que atiende cada equipo.',
+      formula:'Comederos = pollos ÷ pollos por comedero  ·  Bebederos = pollos ÷ pollos por bebedero',
+      ejemplo:'Con comederos de tolva para ≈ 30 pollos: 1,000 ÷ 30 = 33.3 → <b>34 comederos</b>. Con bebederos de campana para ≈ 80 pollos: 1,000 ÷ 80 = 12.5 → <b>13 bebederos</b>. Con bebederos de niple para ≈ 12 pollos: 1,000 ÷ 12 = 83.3 → <b>84 niples</b>. <i>Capacidades orientativas: use las del fabricante de su equipo.</i>',
+      interpreta:'Siempre se redondea hacia arriba: un comedero de menos deja pollos sin comer.',
+      decision:'Comprar el equipo para el lote completo, no para los pollitos.'},
+    {k:'agcards', t:'La lista de equipos', p:'Lo básico para empezar; más tecnología no reemplaza el manejo.', l:[
+      ['🔥', 'Criadoras o fuente de calor', 'Para los primeros días; con su termómetro a la altura de los pollitos.'],
+      ['🥣', 'Comederos', 'Bandejas para la primera semana y comederos de tolva o automáticos después.'],
+      ['💧', 'Bebederos', 'De inicio para los pollitos; de campana o de niple después. Con tanque elevado y filtro.'],
+      ['⚖️', 'Balanza', 'Para pesar la muestra cada semana: sin balanza no hay control.'],
+      ['🌡️', 'Termómetro', 'Mejor si marca máxima y mínima.'],
+      ['🌀', 'Ventiladores', 'Útiles en clima cálido, sobre todo al final del lote.'],
+      ['🧴', 'Bioseguridad', 'Pediluvio, lavamanos, ropa y botas de la granja.'],
+      ['📦', 'Bodega', 'Para el alimento, seca, cerrada y sobre tarimas.']
+    ]},
+    {k:'agfig', f:'pb-n-equipos', t:'Comederos y bebederos repartidos', p:'Ningún pollo debe caminar mucho para comer o beber: el equipo se reparte por todo el galpón.'},
+    {k:'pbcaso', n:'8', t:'Mi galpón es un horno al mediodía',
+      contexto:'Pedro construyó un galpón de 15 m de ancho, con techo bajo de zinc sin aislar y paredes de block hasta la mitad. Al final del lote, los pollos jadean y se mueren algunos al mediodía. (<i>Caso ilustrativo</i>.)',
+      datos:[['Ancho', '15 m'], ['Techo', 'zinc bajo, sin aislar'], ['Laterales', 'block hasta la mitad']],
+      problema:'El aire no cruza el galpón y el techo irradia calor sobre los pollos.',
+      q:'¿Qué mejora ayuda más con lo que ya tiene?',
+      o:[['Abrir los laterales con malla y cortinas, dar sombra, aislar o pintar el techo de claro, poner ventiladores y bajar la densidad en el lote siguiente', true, 'Correcto.'],
+         ['Cerrar más el galpón para que no entre el sol', false, 'Cerrar atrapa el calor que producen los propios pollos.'],
+         ['Meter más pollos para compensar los que mueren', false, 'Más pollos, más calor: empeora el problema.']],
+      pasos:['Abrir laterales para ventilación cruzada.', 'Reducir el calor del techo (sombra, aislante, pintura clara).', 'Agregar ventiladores al final del lote.', 'Bajar la densidad hasta que el galpón ventile bien.'],
+      respuesta:'<b>Ventilar, quitar calor del techo y bajar la densidad.</b>',
+      interpreta:'En clima cálido el diseño del galpón es parte del manejo.',
+      decision:'Corregir el galpón antes del próximo lote.',
+      leccion:'Diseñe para el día más caliente del año.'},
+    {k:'pbchk', id:'m10', t:'¿Mi galpón está bien diseñado?', l:[
+      'Calculé el área con una densidad que puedo ventilar.',
+      'El galpón va de este a oeste, con laterales abiertos y cortinas.',
+      'El techo no calienta a los pollos.',
+      'Tengo comederos y bebederos para el lote completo, redondeados hacia arriba.',
+      'Hay una sola entrada con pediluvio y lavado de manos.'
+    ]},
+    {k:'alerta', tipo:'ok', ico:'🎯', t:'En una frase',
+      p:'Área = pollos ÷ densidad; galpón estrecho, alto, ventilado y de este a oeste; y equipo para el lote completo.'}
+  ],
+  cierre:{
+    saber:['Cómo se calcula el tamaño del galpón.', 'Qué partes tiene un galpón de clima cálido.'],
+    medir:['Área, comederos y bebederos para su lote.'],
+    hacer:['Dibujar el galpón con sus medidas y pedir dos cotizaciones.']
+  }
+},
+
+/* ============================ 11 ============================ */
+{
+  n:11, num:'11', ac:'#9A6D14', foto:'pb-n-lote',
+  t:'🧮 Presupuesto, flujo de caja y punto de equilibrio',
+  sub:'Cuánto hay que invertir, cuánto dinero hace falta mientras el lote crece y cuándo se recupera',
+  obj:[
+    'Separar la inversión inicial del capital de trabajo.',
+    'Entender por qué el dinero sale cada semana y entra al final.',
+    'Calcular el punto de equilibrio en precio y en kilos.',
+    'Comparar escenarios de mortalidad y precio antes de arriesgar.'
+  ],
+  sec:[
+    {k:'pbcita', t:'Un proyecto puede ser rentable y aun así quedarse sin dinero a la mitad del lote.'},
+    {k:'pbguia', aprendo:'A presupuestar el proyecto y a prever el dinero que necesita en cada semana.',
+      importa:'El alimento se paga cada semana, pero la venta llega al final: si no hay capital de trabajo, el lote se queda sin comida.',
+      aplico:'Con una tabla de inversión, un flujo de caja por semana y el punto de equilibrio.',
+      error:'Gastarlo todo en el galpón y no dejar dinero para criar el primer lote.',
+      decision:'Cuánto dinero reunir antes de empezar y qué precio mínimo aceptar.'},
+    {k:'agtabla', t:'Inversión inicial de ejemplo · galpón para 1,000 pollos', p:'<b>' + PBILUS + '</b> Pida al menos dos cotizaciones de cada renglón.',
+      cols:['Renglón', {t:'RD$', n:true}],
+      filas:[
+        ['Galpón de 100 m²: estructura, techo y piso', '300,000'],
+        ['Malla, cortinas y puertas', '25,000'],
+        ['Comederos, bebederos, criadoras, balanza y termómetros', '60,000'],
+        ['Tanque, tubería y filtro de agua', '20,000'],
+        ['Instalación eléctrica y bombillos', '15,000'],
+        ['Bodega, pediluvio y cerca perimetral', '30,000'],
+        ['<b>Inversión inicial total</b>', '<b>450,000</b>']
+      ], pie:'La inversión se recupera poco a poco con los lotes; su desgaste entra en el costo de cada lote como «depreciación».'},
+    {k:'pbformula', t:'Capital de trabajo', k2:'El dinero para criar el lote',
+      concepto:'Es el dinero que hace falta para pagar pollitos, alimento y demás gastos mientras el lote crece, antes de que llegue la venta.',
+      sencillo:'El costo de un lote completo, más una reserva para imprevistos.',
+      formula:'Capital de trabajo = costo en efectivo de un lote + reserva (≈ 10 %)',
+      ejemplo:'Lote de 1,000 pollos: costo RD$ 240,000, de los cuales RD$ 4,000 son depreciación (no es efectivo). En efectivo: 236,000. Con 10 % de reserva: 236,000 × 1.10 = <b>RD$ 259,600</b>. <i>' + PBILUS + '</i>',
+      interpreta:'Para empezar no basta con el galpón: hacen falta unos RD$ 260,000 más para criar el primer lote.',
+      decision:'Reunir inversión + capital de trabajo antes de comprar los pollitos.'},
+    {k:'pbgraf2', id:'flujo'},
+    {k:'pbformula', t:'Punto de equilibrio', k2:'No perder',
+      concepto:'Es el punto en el que los ingresos cubren exactamente los costos: ni se gana ni se pierde.',
+      sencillo:'El precio mínimo por kilo, o los kilos mínimos que hay que vender, para recuperar lo gastado.',
+      formula:'Precio de equilibrio = costo total ÷ kg vendidos  ·  Kg de equilibrio = costo total ÷ precio por kg',
+      ejemplo:'Costo RD$ 240,000; 960 pollos × 2.30 kg = 2,208 kg. Precio de equilibrio: 240,000 ÷ 2,208 = <b>RD$ 108.70 por kg</b>. Si le pagan RD$ 120: 240,000 ÷ 120 = <b>2,000 kg</b> para no perder. <i>' + PBILUS + '</i>',
+      interpreta:'Por debajo de RD$ 108.70, o con menos de 2,000 kg vendidos a RD$ 120, el lote pierde dinero.',
+      decision:'Llevar estos dos números a cada negociación.'},
+    {k:'pbcalc', id:'equilibrio'},
+    {k:'pbescenarios'},
+    {k:'pbformula', t:'¿En cuánto tiempo recupero la inversión?', k2:'Recuperación',
+      concepto:'Cuántos lotes hacen falta para que el efectivo que deja cada lote devuelva lo invertido en el galpón.',
+      sencillo:'Inversión dividida entre lo que queda de cada lote, contando la depreciación como dinero que sí vuelve a usted.',
+      formula:'Lotes para recuperar = inversión inicial ÷ (beneficio por lote + depreciación por lote)',
+      ejemplo:'A RD$ 120 el kilo: ingreso 2,208 × 120 = 264,960; beneficio 264,960 − 240,000 = 24,960; más 4,000 de depreciación = 28,960 por lote. 450,000 ÷ 28,960 = <b>15.5 lotes</b>, unos <b>2.6 años</b> con 6 lotes al año. <i>' + PBILUS + '</i>',
+      interpreta:'Un proyecto de pollos se recupera con muchos lotes buenos seguidos, no con uno. Un solo lote malo atrasa la recuperación.',
+      decision:'No endeudarse a un plazo más corto que el tiempo de recuperación.'},
+    {k:'pbcaso', n:'9', t:'Me quedé sin dinero en la semana 4',
+      contexto:'Carmen invirtió todos sus ahorros en el galpón y compró 1,000 pollitos. En la semana 4 ya no tiene dinero para el alimento, y el comprador paga 15 días después de llevarse los pollos. (<i>Caso ilustrativo</i>.)',
+      datos:[['Inversión', 'RD$ 450,000 (todo su dinero)'], ['Capital de trabajo reservado', 'RD$ 0'], ['Pago del comprador', 'a 15 días']],
+      problema:'El lote es rentable en papel, pero se va a quedar sin comida.',
+      q:'¿Qué faltó en su planificación?',
+      o:[['El capital de trabajo: el dinero para todo el lote, incluyendo los días que tarda en cobrar', true, 'Correcto.'],
+         ['Más pollos para ganar más', false, 'Más pollos necesitan todavía más capital de trabajo.'],
+         ['Un alimento más barato', false, 'Puede ayudar un poco, pero el problema es que el dinero se acabó antes de la venta.']],
+      pasos:['Calcular el costo en efectivo del lote.', 'Sumar los días que tarda en cobrar.', 'Reservar ese dinero antes de comprar los pollitos.'],
+      respuesta:'<b>Faltó capital de trabajo.</b>',
+      interpreta:'El flujo de caja importa tanto como la ganancia.',
+      decision:'No empezar un lote sin el dinero para terminarlo.',
+      leccion:'Reserve el dinero del lote completo, más lo que tarda en cobrar.'},
+    {k:'pbchk', id:'m11', t:'¿Mis números están completos?', l:[
+      'Tengo la inversión inicial con cotizaciones.',
+      'Reservé el capital de trabajo de un lote completo, más la espera del cobro.',
+      'Conozco mi precio de equilibrio por kg.',
+      'Comparé escenarios de mortalidad y precio.',
+      'Sé en cuántos lotes recupero la inversión.'
+    ]},
+    {k:'alerta', tipo:'ok', ico:'🎯', t:'En una frase',
+      p:'Inversión + capital de trabajo antes de empezar; precio de equilibrio = costo ÷ kg; y siempre mire el escenario malo.'}
+  ],
+  cierre:{
+    saber:['Inversión, capital de trabajo y depreciación.', 'Flujo de caja de un lote.', 'Punto de equilibrio y recuperación.'],
+    medir:['Precio y kg de equilibrio de su lote.'],
+    hacer:['Llenar el presupuesto con cotizaciones reales.']
+  }
+},
+
+/* ============================ 12 ============================ */
+{
+  n:12, num:'12', ac:'#C2410C', foto:'pb-n-moderno',
+  t:'🛒 Cosecha, venta y tu proyecto final',
+  sub:'Preparar la salida del lote, elegir a quién vender y armar tu proyecto completo',
+  obj:[
+    'Planificar la venta y la salida del lote.',
+    'Preparar a los pollos antes de la captura y el transporte.',
+    'Comparar canales de venta y sus requisitos.',
+    'Armar el proyecto propio: capacidad, presupuesto, calendario, plan sanitario y estrategia comercial.'
+  ],
+  sec:[
+    {k:'pbcita', t:'El lote no termina cuando el pollo llega al peso: termina cuando el dinero está en su mano.'},
+    {k:'pbguia', aprendo:'A cerrar el lote vendiendo bien, y a armar su proyecto completo.',
+      importa:'Una mala captura o un comprador que no paga pueden borrar la ganancia de todo el lote.',
+      aplico:'Acordando la venta antes, preparando a los pollos y manejando la salida con cuidado.',
+      error:'Buscar comprador cuando los pollos ya están grandes, o capturarlos a pleno sol.',
+      decision:'A quién vender, a qué peso, cuándo y cómo se cobra.'},
+    {k:'aglinea', t:'La salida del lote, paso a paso', p:'Orientativo: coordine cada paso con el comprador o la planta.', l:[
+      ['Acordar la venta', 'Comprador, peso, precio, fecha, forma y plazo de pago, por escrito.', 'antes del lote'],
+      ['Pesar y confirmar', 'Pesaje la semana anterior para confirmar el peso y la fecha.', '≈ 1 semana antes'],
+      ['Retirar el alimento', 'Las guías de las líneas (Ross, Cobb) recomiendan retirar el alimento unas 8 a 12 horas antes del procesamiento, contando el transporte y la espera.', '8–12 h antes'],
+      ['Agua hasta la captura', 'El agua no se retira: se deja hasta que se captura.', 'hasta el final'],
+      ['Capturar con calma', 'En horas frescas o de noche, con poca luz, sin perseguirlos ni levantarlos por una sola pata.', 'día de salida'],
+      ['Transportar', 'Jaulas sin amontonar, vehículo ventilado y sin paradas largas al sol.', 'día de salida'],
+      ['Cobrar y anotar', 'Kilos, precio, pollos entregados y muertos en el transporte.', 'al entregar']
+    ]},
+    {k:'agnota', tipo:'ojo', nt:'Por qué 8 a 12 horas', p:'Con el buche y el intestino vacíos hay menos contaminación en la planta. Si el ayuno es mucho más largo, el pollo pierde peso y el intestino se debilita. Siga lo que indique su comprador o la planta y la guía de su línea.'},
+    {k:'agtabla', t:'¿A quién le vendo?', cols:['Canal', 'Ventaja', 'A tener en cuenta'], filas:[
+      ['Procesadora o planta', 'Compra lotes completos y con regularidad', 'Exige peso, fecha y condiciones; el precio lo pone ella'],
+      ['Intermediario', 'Se lleva el lote vivo de la granja', 'Pacte precio y forma de pago antes; evite fiar sin garantías'],
+      ['Colmados, restaurantes y carnicerías', 'Mejor precio por pollo', 'Piden poco y seguido; si vende carne, debe venir de un matadero autorizado'],
+      ['Venta directa de pollo vivo', 'Sin intermediarios', 'Es lento para un lote grande; requiere tiempo para vender']
+    ], pie:'Si va a vender pollo sacrificado, confirme con las autoridades sanitarias los requisitos de sacrificio y procesamiento.'},
+    {k:'agfig', f:'pb-n-moderno', t:'Un lote parejo se vende mejor', p:'El comprador paga por kilos y por uniformidad: un lote parejo se carga, se procesa y se paga mejor.'},
+    {k:'pbcaso', n:'10', t:'El comprador no llegó',
+      contexto:'Julio tiene 1,000 pollos listos al día 42. El intermediario le dijo «paso la semana que viene», pero no fijó fecha ni precio. Cada día de espera, el lote come alimento. (<i>Caso ilustrativo</i>.)',
+      datos:[['Pollos listos', '1,000'], ['Venta acordada', 'no, solo de palabra'], ['Alimento diario', 'siguen comiendo']],
+      problema:'Cada día extra cuesta alimento y los pollos pasan del peso que pide el mercado.',
+      q:'¿Qué debió hacer Julio antes de meter el lote?',
+      o:[['Acordar comprador, peso, fecha, precio y pago, con un comprador de respaldo', true, 'Correcto.'],
+         ['Nada: siempre aparece un comprador', false, 'Cada día de espera es costo sin ingreso.'],
+         ['Vender todo a cualquier precio el día 42', false, 'Puede terminar vendiendo por debajo de su costo por kg.']],
+      pasos:['Acordar la venta antes de comprar los pollitos.', 'Tener un segundo comprador.', 'Confirmar la fecha una semana antes.'],
+      respuesta:'<b>La venta se acuerda antes del lote, no después.</b>',
+      interpreta:'Sin venta acordada, el riesgo de precio lo corre el productor.',
+      decision:'No comprar pollitos sin comprador confirmado.',
+      leccion:'El comprador es parte del plan, no del final.'},
+    {k:'pbplantillas'},
+    {k:'pbproyecto'},
+    {k:'pbchk', id:'m12', t:'¿Estoy listo para empezar mi proyecto?', l:[
+      'Tengo comprador, peso, fecha y forma de pago acordados.',
+      'Sé cómo preparar la salida: retiro de alimento, agua y captura.',
+      'Mi proyecto tiene capacidad, presupuesto, calendario, plan sanitario y estrategia comercial.',
+      'Mi plan sanitario lo revisó un veterinario.',
+      'Tengo las plantillas de registro para mi primer lote.'
+    ]},
+    {k:'alerta', tipo:'ok', ico:'🏁', t:'Su proyecto está listo para revisarse',
+      p:'Imprima su proyecto, revíselo con un técnico avícola y un veterinario, y confirme los permisos antes de construir. Después, haga la evaluación final del curso completo.'}
+  ],
+  cierre:{
+    saber:['Cómo se prepara la salida del lote.', 'Canales de venta y sus requisitos.', 'Cómo se arma un proyecto completo.'],
+    medir:['Kilos, precio y muertes en el transporte de cada lote.'],
+    hacer:['Imprimir su proyecto y revisarlo con un técnico y un veterinario.']
+  }
+}
+
+);
+
+
 /* ---------- pb-quiz.js ---------- */
 /* ============================================================
    CURSO 10 · POLLOS DE ENGORDE · EVALUACIONES
@@ -65132,120 +65478,184 @@ if(typeof window.pbLaminas === 'function'){
    pantalla. Los números son los ejemplos del propio curso
    (ilustrativos) y los esquemas se presentan como esquemas: las
    curvas y temperaturas reales están en la guía de la línea.
+
+   REDISEÑO 2026-10-14 · por qué se veía mal
+   · En el teléfono cada gráfico tenía un ancho mínimo de 520 px
+     dentro de una caja que corta lo que sobra: en una pantalla de
+     390 px se veía la mitad y el resto quedaba escondido detrás de
+     un deslizamiento lateral que nadie descubre.
+   · Muertes por semana: la franja roja de «ola de calor» se pintaba
+     ENCIMA de las barras, su rótulo iba a la misma altura que el
+     número de la barra más alta (27) y la escala terminaba en 30,
+     así que la barra tocaba el rótulo.
+   · Crecimiento: el texto rojo iba encima de las curvas.
+   · Precio: el rótulo de la raya colgaba debajo del eje.
+
+   Ahora:
+   · cada gráfico se dibuja a la medida de la pantalla (ancho o
+     compacto) y se vuelve a dibujar si cambia el tamaño;
+   · los rótulos que explican colores salen del dibujo y van en una
+     leyenda; dentro del dibujo solo quedan los números;
+   · las escalas dejan aire arriba para el número de cada barra;
+   · las franjas de fondo van DETRÁS de los datos, muy suaves.
    ============================================================ */
 
-function pbGrafCaja(t, sub, svg, pie){
-  return '<section class="nx-b nx-full"><figure class="pb-graf rv">' +
+function pbGrafCompacto(){ try{ return (window.innerWidth || 1200) < 640; }catch(e){ return false; } }
+function pbGrafCaja(t, sub, svg, pie, id, ley){
+  return '<section class="nx-b nx-full"><figure class="pb-graf rv" data-g="' + (id || '') + '">' +
     '<figcaption class="pb-graf-h"><b>' + t + '</b><span>' + sub + '</span></figcaption>' +
+    (ley ? '<div class="pb-g-ley">' + ley + '</div>' : '') +
     '<div class="pb-graf-c">' + svg + '</div>' + (pie ? '<p class="pb-graf-f">' + pie + '</p>' : '') +
   '</figure></section>';
+}
+function pbLey(color, txt, tipo){
+  var m = tipo === 'linea' ? '<i class="l" style="border-color:' + color + '"></i>'
+        : (tipo === 'guion' ? '<i class="l g" style="border-color:' + color + '"></i>'
+        : (tipo === 'zona' ? '<i class="z" style="background:' + color + '"></i>' : '<i style="background:' + color + '"></i>'));
+  return '<span>' + m + txt + '</span>';
 }
 function pbSvg(w, h, c, a){ return '<svg viewBox="0 0 ' + w + ' ' + h + '" class="pb-svg" role="img" aria-label="' + (a || '') + '">' + c + '</svg>'; }
 function pbF(v){ return Math.round(v).toLocaleString('en-US'); }
 function pbT(x, y, cls, txt, anc){ return '<text x="' + x + '" y="' + y + '" class="' + cls + '"' + (anc ? ' text-anchor="' + anc + '"' : '') + '>' + txt + '</text>'; }
 
 var PBCOL = {pollitos:'#C2410C', alimento:'#9a6d14', mano:'#2B5F9E', sanidad:'#A23B72', servicios:'#0F766E', transporte:'#B45309', cama:'#8A5A44', depre:'#6B4E9E', mant:'#6B7280', otros:'#94A3B8',
-             bien:'#2F7D4F', mal:'#c4544a', frio:'#2B6F8B'};
+             bien:'#2F7D4F', mal:'#B42318', frio:'#2B6F8B', calor:'#E8590C'};
 
 var PBGRAF = {
   /* M1 · la línea de tiempo del lote */
   linea: function(){
-    var W = 720, H = 210, s = '';
     var et = [['Día 0', 'compra y llegada', '🐣'], ['Recepción', 'primeras horas', '🚚'], ['Inicio', 'días 1 – 7', '🔥'], ['Crecimiento', '≈ semanas 2 – 4', '📈'], ['Engorde', 'hasta el peso', '🌽'], ['Venta', 'según el mercado', '💰']];
-    s += '<line x1="60" y1="96" x2="660" y2="96" class="pb-g-eje"/>';
-    et.forEach(function(e, i){
-      var x = 60 + i * 120;
-      s += '<circle cx="' + x + '" cy="96" r="22" fill="' + (i === 2 ? PBCOL.mal : (i === 5 ? PBCOL.bien : PBCOL.pollitos)) + '"/>';
-      s += pbT(x, 103, 'pb-g-pct', e[2], 'middle');
-      s += pbT(x, 48, 'pb-g-tit', e[0], 'middle') + pbT(x, 140, 'pb-g-nota', e[1], 'middle');
-      if(i < et.length - 1) s += '<path d="M' + (x + 30) + ' 96 l 52 0" class="pb-g-flecha"/>';
-    });
-    s += pbT(300, 180, 'pb-g-extra', 'la semana más delicada: el inicio', 'middle');
+    var col = function(i){ return i === 2 ? PBCOL.calor : (i === 5 ? PBCOL.bien : PBCOL.pollitos); };
+    var s = '', W, H;
+    if(pbGrafCompacto()){
+      W = 360; H = 20 + et.length * 62;
+      s += '<line x1="40" y1="34" x2="40" y2="' + (H - 34) + '" class="pb-g-eje"/>';
+      et.forEach(function(e, i){
+        var y = 34 + i * 62;
+        s += '<circle cx="40" cy="' + y + '" r="20" fill="' + col(i) + '"/>' + pbT(40, y + 6, 'pb-g-pct', e[2], 'middle');
+        s += pbT(74, y - 3, 'pb-g-tit', e[0]) + pbT(74, y + 16, 'pb-g-nota', e[1]);
+        if(i === 2) s += pbT(340, y - 3, 'pb-g-extra', 'la más delicada', 'end');
+      });
+    } else {
+      W = 720; H = 190;
+      s += '<line x1="60" y1="96" x2="660" y2="96" class="pb-g-eje"/>';
+      et.forEach(function(e, i){
+        var x = 60 + i * 120;
+        s += '<circle cx="' + x + '" cy="96" r="22" fill="' + col(i) + '"/>' + pbT(x, 103, 'pb-g-pct', e[2], 'middle');
+        s += pbT(x, 48, 'pb-g-tit', e[0], 'middle') + pbT(x, 142, 'pb-g-nota', e[1], 'middle');
+      });
+      s += pbT(300, 176, 'pb-g-extra', '▲ la semana más delicada: el inicio', 'middle');
+    }
     return pbGrafCaja('Del pollito a la venta', 'Un lote recorre seis etapas. Lo que pasa en los primeros días se nota en todas las siguientes.',
-      pbSvg(W, H, s, 'Línea de tiempo de un lote de pollos de engorde'), 'Edades orientativas: el día de venta lo deciden el peso que pide el comprador y la guía de la línea.');
+      pbSvg(W, H, s, 'Línea de tiempo de un lote de pollos de engorde'), 'Edades orientativas: el día de venta lo deciden el peso que pide el comprador y la guía de la línea.', 'linea');
   },
 
   /* M3 · el calor baja semana a semana (esquema) */
   temperatura: function(){
-    var W = 720, H = 260, x0 = 80, x1 = 680, y0 = 200, y1 = 30, px = function(d){ return x0 + (x1 - x0) * d / 35; }, py = function(c){ return y0 - (y0 - y1) * (c - 18) / 16; }, s = '';
-    [20, 24, 28, 32].forEach(function(c){ s += '<line x1="' + x0 + '" y1="' + py(c) + '" x2="' + x1 + '" y2="' + py(c) + '" class="pb-g-rej"/>' + pbT(x0 - 10, py(c) + 4, 'pb-g-lbl', c + ' °C', 'end'); });
-    s += '<rect x="' + px(0) + '" y="' + py(32) + '" width="' + (px(7) - px(0)) + '" height="' + (py(30) - py(32)) + '" rx="6" fill="rgba(255,140,40,.25)"/>';
-    s += pbT(px(3.5), py(32) - 8, 'pb-g-val', '≈ 30–32 °C', 'middle');
-    var pts = []; for(var d = 0; d <= 35; d++){ var c = Math.max(21, 31 - d * 0.3); pts.push(px(d) + ',' + py(c)); }
+    var c = pbGrafCompacto(), W = c ? 360 : 720, H = c ? 240 : 250, x0 = c ? 52 : 80, x1 = W - 20, y0 = H - 50, y1 = 26;
+    var px = function(d){ return x0 + (x1 - x0) * d / 35; }, py = function(t){ return y0 - (y0 - y1) * (t - 18) / 16; }, s = '';
+    [20, 24, 28, 32].forEach(function(t){ s += '<line x1="' + x0 + '" y1="' + py(t) + '" x2="' + x1 + '" y2="' + py(t) + '" class="pb-g-rej"/>' + pbT(x0 - 8, py(t) + 4, 'pb-g-lbl', t + '°', 'end'); });
+    s += '<rect x="' + px(0) + '" y="' + py(32) + '" width="' + (px(7) - px(0)) + '" height="' + (py(30) - py(32)) + '" rx="6" fill="' + PBCOL.calor + '" fill-opacity=".16"/>';
+    var pts = []; for(var d = 0; d <= 35; d++){ pts.push(px(d) + ',' + py(Math.max(21, 31 - d * 0.3))); }
     s += '<polyline points="' + pts.join(' ') + '" class="pb-g-l2"/>';
     s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" class="pb-g-eje"/>';
     [0, 7, 14, 21, 28, 35].forEach(function(d){ s += pbT(px(d), y0 + 18, 'pb-g-lbl', d, 'middle'); });
-    s += pbT((x0 + x1) / 2, y0 + 42, 'pb-g-ax', 'días de edad', 'middle');
-    s += pbT(px(26), py(25) - 10, 'pb-g-nota', 'se baja poco a poco', 'middle');
+    s += pbT((x0 + x1) / 2, y0 + 40, 'pb-g-ax', 'días de edad', 'middle');
     return pbGrafCaja('El calor que necesitan baja cada semana', 'Al llegar, el pollito necesita mucho calor a su altura; después se va bajando según la guía y según cómo se reparten.',
-      pbSvg(W, H, s, 'Esquema de temperatura según la edad'), 'Esquema orientativo, no una tabla: use la de la guía de su línea y ajuste mirando a los pollitos.');
+      pbSvg(W, H, s, 'Esquema de temperatura según la edad'), 'Esquema orientativo, no una tabla: use la de la guía de su línea y ajuste mirando a los pollitos.', 'temperatura',
+      pbLey(PBCOL.calor, 'Primera semana: ≈ 30–32 °C a la altura del pollito', 'zona') + pbLey(PBCOL.mal, 'Se baja poco a poco', 'guion'));
   },
 
   /* M5 · cómo se ve un lote que crece (esquema) */
   crecimiento: function(){
-    var W = 720, H = 260, x0 = 80, x1 = 680, y0 = 210, y1 = 30, px = function(d){ return x0 + (x1 - x0) * d / 42; }, py = function(k){ return y0 - (y0 - y1) * k / 2.5; }, s = '';
-    [0, 0.5, 1, 1.5, 2, 2.5].forEach(function(k){ s += '<line x1="' + x0 + '" y1="' + py(k) + '" x2="' + x1 + '" y2="' + py(k) + '" class="pb-g-rej"/>' + pbT(x0 - 10, py(k) + 4, 'pb-g-lbl', k.toFixed(1) + ' kg', 'end'); });
+    var c = pbGrafCompacto(), W = c ? 360 : 720, H = c ? 250 : 260, x0 = c ? 52 : 80, x1 = W - 24, y0 = H - 50, y1 = 26;
+    var px = function(d){ return x0 + (x1 - x0) * d / 42; }, py = function(k){ return y0 - (y0 - y1) * k / 2.5; }, s = '';
+    [0, 0.5, 1, 1.5, 2, 2.5].forEach(function(k){ s += '<line x1="' + x0 + '" y1="' + py(k) + '" x2="' + x1 + '" y2="' + py(k) + '" class="pb-g-rej"/>' + pbT(x0 - 8, py(k) + 4, 'pb-g-lbl', k.toFixed(1), 'end'); });
     var pts = [], pts2 = [];
-    for(var d = 0; d <= 42; d++){ var k = 0.04 + 2.26 * Math.pow(d / 42, 1.75); pts.push(px(d) + ',' + py(k)); if(d >= 14) pts2.push(px(d) + ',' + py(0.04 + 1.95 * Math.pow(d / 42, 1.85))); }
-    s += '<polyline points="' + pts.join(' ') + '" class="pb-g-l1"/>';
+    for(var d = 0; d <= 42; d++){ pts.push(px(d) + ',' + py(0.04 + 2.26 * Math.pow(d / 42, 1.75))); if(d >= 14) pts2.push(px(d) + ',' + py(0.04 + 1.95 * Math.pow(d / 42, 1.85))); }
     s += '<polyline points="' + pts2.join(' ') + '" class="pb-g-l2"/>';
-    s += '<circle cx="' + px(42) + '" cy="' + py(2.3) + '" r="6" class="pb-g-p1"/>' + pbT(px(42) - 8, py(2.3) - 12, 'pb-g-val', '2.30 kg', 'end');
-    s += pbT(px(30), py(1.0) + 30, 'pb-g-extra', 'lote atrasado: agua, densidad, calor…', 'middle');
+    s += '<polyline points="' + pts.join(' ') + '" class="pb-g-l1"/>';
+    s += '<circle cx="' + px(42) + '" cy="' + py(2.3) + '" r="6" class="pb-g-p1"/>' + pbT(px(42) - 10, py(2.3) - 10, 'pb-g-val', '2.30 kg', 'end');
     s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" class="pb-g-eje"/>';
     [0, 7, 14, 21, 28, 35, 42].forEach(function(d){ s += pbT(px(d), y0 + 18, 'pb-g-lbl', d, 'middle'); });
-    s += pbT((x0 + x1) / 2, y0 + 42, 'pb-g-ax', 'días de edad', 'middle');
-    return pbGrafCaja('El peso se gana sobre todo al final', 'La curva verde es un lote que va bien; la roja, uno que se atrasa. Solo pesando cada semana se ve la diferencia a tiempo.',
-      pbSvg(W, H, s, 'Esquema de crecimiento según la edad'), 'Esquema orientativo: el peso esperado para cada edad está en la tabla de la guía de su línea.');
+    s += pbT((x0 + x1) / 2, y0 + 40, 'pb-g-ax', 'días de edad · peso en kg', 'middle');
+    return pbGrafCaja('El peso se gana sobre todo al final', 'Solo pesando cada semana se ve a tiempo si el lote se está atrasando.',
+      pbSvg(W, H, s, 'Esquema de crecimiento según la edad'), 'Esquema orientativo: el peso esperado para cada edad está en la tabla de la guía de su línea.', 'crecimiento',
+      pbLey(PBCOL.bien, 'Lote que va bien', 'linea') + pbLey(PBCOL.mal, 'Lote atrasado (agua, densidad, calor…)', 'guion'));
   },
 
   /* M6 · caso 5: muertes por semana */
   mortalidad: function(){
-    var W = 720, H = 250, y0 = 190, top = 30, py = function(v){ return y0 - (y0 - top) * v / 30; }, s = '';
-    [0, 10, 20, 30].forEach(function(v){ s += '<line x1="70" y1="' + py(v) + '" x2="660" y2="' + py(v) + '" class="pb-g-rej"/>' + pbT(62, py(v) + 4, 'pb-g-lbl', v, 'end'); });
-    s += '<rect x="' + 372 + '" y="' + top + '" width="' + 280 + '" height="' + (y0 - top) + '" class="pb-g-zmal" style="opacity:.12"/>' + pbT(512, top + 16, 'pb-g-extra', 'ola de calor · baja el agua', 'middle');
+    var c = pbGrafCompacto(), W = c ? 360 : 720, H = 250, x0 = c ? 40 : 70, x1 = W - 16, y0 = 200, top = 22, max = 35;
+    var py = function(v){ return y0 - (y0 - top) * v / max; }, s = '';
+    var paso = (x1 - x0) / 5, bw = Math.min(70, paso * 0.6);
+    /* la franja va DETRÁS de las barras de las semanas 4 y 5 */
+    var zx = x0 + 3 * paso + 4;
+    s += '<rect x="' + zx + '" y="' + top + '" width="' + (x1 - zx) + '" height="' + (y0 - top) + '" rx="8" fill="' + PBCOL.calor + '" fill-opacity=".10" stroke="' + PBCOL.calor + '" stroke-opacity=".45" stroke-dasharray="5 5"/>';
+    [0, 10, 20, 30].forEach(function(v){ s += '<line x1="' + x0 + '" y1="' + py(v) + '" x2="' + x1 + '" y2="' + py(v) + '" class="pb-g-rej"/>' + pbT(x0 - 8, py(v) + 4, 'pb-g-lbl', v, 'end'); });
     [12, 6, 5, 18, 27].forEach(function(v, i){
-      var x = 100 + i * 112;
-      s += '<rect x="' + x + '" y="' + py(v) + '" width="70" height="' + (py(0) - py(v)) + '" rx="4" fill="' + (i >= 3 ? PBCOL.mal : PBCOL.frio) + '"/>';
-      s += pbT(x + 35, py(v) - 8, 'pb-g-val', v, 'middle') + pbT(x + 35, y0 + 18, 'pb-g-nota', 'Semana ' + (i + 1), 'middle');
+      var x = x0 + i * paso + (paso - bw) / 2;
+      s += '<rect x="' + x + '" y="' + py(v) + '" width="' + bw + '" height="' + (py(0) - py(v)) + '" rx="4" fill="' + (i >= 3 ? PBCOL.mal : PBCOL.frio) + '"/>';
+      s += pbT(x + bw / 2, py(v) - 8, 'pb-g-val', v, 'middle') + pbT(x + bw / 2, y0 + 20, 'pb-g-nota', (c ? 'S' : 'Semana ') + (i + 1), 'middle');
     });
-    s += '<line x1="70" y1="' + y0 + '" x2="660" y2="' + y0 + '" class="pb-g-eje"/>';
+    s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" class="pb-g-eje"/>';
     return pbGrafCaja('Cuándo murieron los pollos', 'El caso 5: <b>68 muertes de 1,000</b> (6.8 %). La primera semana es normal que haya algunas; el salto de las semanas 4 y 5 coincide con el calor.',
-      pbSvg(W, H, s, 'Muertes por semana en un lote de 1,000 pollos'), 'Caso ilustrativo. El registro orienta; el diagnóstico lo hace el veterinario.');
+      pbSvg(W, H, s, 'Muertes por semana en un lote de 1,000 pollos: 12, 6, 5, 18 y 27'), 'Caso ilustrativo. El registro orienta; el diagnóstico lo hace el veterinario.', 'mortalidad',
+      pbLey(PBCOL.frio, 'Semanas normales') + pbLey(PBCOL.mal, 'Semanas con muertes altas') + pbLey(PBCOL.calor, 'Ola de calor · baja el consumo de agua', 'zona'));
   },
 
   /* M7 · a dónde va el dinero del lote */
   costos: function(){
-    var W = 720, H = 390, x0 = 260, x1 = 610, px = function(p){ return x0 + (x1 - x0) * p / 60; }, s = '';
+    var c = pbGrafCompacto(), s = '', W, H;
     var l = [['Alimento', 68000, PBCOL.alimento], ['Pollitos', 30000, PBCOL.pollitos], ['Mano de obra', 8000, PBCOL.mano], ['Sanidad', 3000, PBCOL.sanidad],
              ['Agua y electricidad', 2500, PBCOL.servicios], ['Transporte', 2500, PBCOL.transporte], ['Cama', 2000, PBCOL.cama], ['Depreciación', 2000, PBCOL.depre],
              ['Mantenimiento', 1000, PBCOL.mant], ['Otros', 1000, PBCOL.otros]];
-    [0, 20, 40, 60].forEach(function(p){ s += '<line x1="' + px(p) + '" y1="14" x2="' + px(p) + '" y2="350" class="pb-g-rej"/>' + pbT(px(p), 368, 'pb-g-lbl', p + ' %', 'middle'); });
-    l.forEach(function(r, i){
-      var y = 20 + i * 33, pc = r[1] / 120000 * 100;
-      s += pbT(x0 - 12, y + 17, 'pb-g-nota', r[0], 'end');
-      s += '<rect x="' + x0 + '" y="' + y + '" width="' + Math.max(2, px(pc) - x0) + '" height="24" rx="4" fill="' + r[2] + '"/>';
-      s += pbT(px(pc) + 8, y + 17, 'pb-g-val', pc.toFixed(1) + ' %');
-    });
-    s += '<line x1="' + x0 + '" y1="14" x2="' + x0 + '" y2="350" class="pb-g-eje"/>';
+    if(c){
+      W = 360; var x0 = 12, x1 = 300; H = 14 + l.length * 44;
+      var px = function(p){ return x0 + (x1 - x0) * p / 60; };
+      l.forEach(function(r, i){
+        var y = 14 + i * 44, pc = r[1] / 120000 * 100;
+        s += pbT(x0, y + 10, 'pb-g-nota', r[0]);
+        s += '<rect x="' + x0 + '" y="' + (y + 16) + '" width="' + Math.max(3, px(pc) - x0) + '" height="16" rx="4" fill="' + r[2] + '"/>';
+        s += pbT(px(pc) + 8, y + 29, 'pb-g-val', pc.toFixed(1) + ' %');
+      });
+    } else {
+      W = 720; H = 380; var x0b = 260, x1b = 610, pxb = function(p){ return x0b + (x1b - x0b) * p / 60; };
+      [0, 20, 40, 60].forEach(function(p){ s += '<line x1="' + pxb(p) + '" y1="14" x2="' + pxb(p) + '" y2="350" class="pb-g-rej"/>' + pbT(pxb(p), 368, 'pb-g-lbl', p + ' %', 'middle'); });
+      l.forEach(function(r, i){
+        var y = 20 + i * 33, pc = r[1] / 120000 * 100;
+        s += pbT(x0b - 12, y + 17, 'pb-g-nota', r[0], 'end');
+        s += '<rect x="' + x0b + '" y="' + y + '" width="' + Math.max(3, pxb(pc) - x0b) + '" height="24" rx="4" fill="' + r[2] + '"/>';
+        s += pbT(pxb(pc) + 8, y + 17, 'pb-g-val', pc.toFixed(1) + ' %');
+      });
+      s += '<line x1="' + x0b + '" y1="14" x2="' + x0b + '" y2="350" class="pb-g-eje"/>';
+    }
     return pbGrafCaja('A dónde va el dinero de un lote', 'El lote de ejemplo costó <b>RD$ 120,000</b>. Alimento y pollitos juntos son más de 4 de cada 5 pesos.',
-      pbSvg(W, H, s, 'Porcentaje de cada costo del lote'), 'Ejemplo ilustrativo del módulo 7. Cada porcentaje = renglón ÷ 120,000 × 100.');
+      pbSvg(W, H, s, 'Porcentaje de cada costo del lote'), 'Ejemplo ilustrativo del módulo 7. Cada porcentaje = renglón ÷ 120,000 × 100.', 'costos');
   },
 
   /* M7 · costo contra precio, por kilo */
   precio: function(){
-    var W = 720, H = 250, x0 = 230, x1 = 640, px = function(v){ return x0 + (x1 - x0) * v / 140; }, s = '';
-    [0, 35, 70, 105, 140].forEach(function(v){ s += '<line x1="' + px(v) + '" y1="20" x2="' + px(v) + '" y2="190" class="pb-g-rej"/>' + pbT(px(v), 208, 'pb-g-lbl', 'RD$ ' + v, 'middle'); });
+    var c = pbGrafCompacto(), s = '', W, H, x0, x1;
     var l = [['Precio del caso 6', 105, PBCOL.mal], ['Costo por kg', 108.70, PBCOL.alimento], ['Precio del ejemplo', 120, PBCOL.bien]];
+    if(c){ W = 360; x0 = 12; x1 = 336; H = 236; } else { W = 720; x0 = 200; x1 = 680; H = 230; }
+    var px = function(v){ return x0 + (x1 - x0) * v / 140; };
+    var yb = function(i){ return c ? 40 + i * 58 : 40 + i * 52; };
+    var yfin = yb(2) + 34;
+    [0, 35, 70, 105, 140].forEach(function(v){ s += '<line x1="' + px(v) + '" y1="30" x2="' + px(v) + '" y2="' + yfin + '" class="pb-g-rej"/>' + pbT(px(v), yfin + 18, 'pb-g-lbl', (c ? '' : 'RD$ ') + v, 'middle'); });
     l.forEach(function(r, i){
-      var y = 34 + i * 52;
-      s += pbT(x0 - 12, y + 22, 'pb-g-nota', r[0], 'end');
-      s += '<rect x="' + x0 + '" y="' + y + '" width="' + (px(r[1]) - x0) + '" height="34" rx="4" fill="' + r[2] + '"/>';
-      s += pbT(px(r[1]) - 10, y + 23, 'pb-g-pct', r[1].toFixed(2), 'end');
+      var y = yb(i);
+      if(c) s += pbT(x0, y - 6, 'pb-g-nota', r[0]);
+      else s += pbT(x0 - 12, y + 22, 'pb-g-nota', r[0], 'end');
+      s += '<rect x="' + x0 + '" y="' + y + '" width="' + (px(r[1]) - x0) + '" height="' + (c ? 28 : 34) + '" rx="4" fill="' + r[2] + '"/>';
+      s += pbT(px(r[1]) - 10, y + (c ? 19 : 23), 'pb-g-pct', 'RD$ ' + r[1].toFixed(2), 'end');
     });
-    s += '<line x1="' + px(108.70) + '" y1="24" x2="' + px(108.70) + '" y2="190" class="pb-g-meta"/>';
-    s += pbT(px(108.70), 236, 'pb-g-val', 'por debajo de esta línea se pierde', 'middle');
-    return pbGrafCaja('El precio contra el costo por kilo', 'El mismo lote, dos precios: a RD$ 105 se pierde y a RD$ 120 se gana. La raya es el costo por kilo.',
-      pbSvg(W, H, s, 'Precio de venta y costo por kilo'), 'Ejemplo ilustrativo: 120,000 ÷ 1,104 kg = RD$ 108.70 por kg. Sustituya por los costos y precios reales de su granja.');
+    /* la raya del costo, con su rótulo ARRIBA, fuera de las barras */
+    s += '<line x1="' + px(108.70) + '" y1="26" x2="' + px(108.70) + '" y2="' + yfin + '" class="pb-g-meta"/>';
+    s += pbT(px(108.70), 18, 'pb-g-val', 'costo RD$ 108.70', 'middle');
+    return pbGrafCaja('El precio contra el costo por kilo', 'El mismo lote, dos precios: a RD$ 105 se pierde y a RD$ 120 se gana.',
+      pbSvg(W, H, s, 'Precio de venta y costo por kilo'), 'Ejemplo ilustrativo: 120,000 ÷ 1,104 kg = RD$ 108.70 por kg. Sustituya por los costos y precios reales de su granja.', 'precio',
+      pbLey(PBCOL.alimento, 'La raya punteada es el costo por kilo: un precio a su izquierda es pérdida', 'guion'));
   }
 };
 
@@ -65256,6 +65666,40 @@ if(typeof window.nxSeccion === 'function'){
     return _nxSecPbGraf.apply(this, arguments);
   };
 }
+
+/* si cambia el tamaño (girar el teléfono, abrir en otra ventana) se redibujan */
+(function pbGrafResize(){
+  var modo = pbGrafCompacto(), t = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(t);
+    t = setTimeout(function(){
+      var m = pbGrafCompacto(); if(m === modo) return; modo = m;
+      [].forEach.call(document.querySelectorAll('.pb-graf[data-g]'), function(f){
+        var id = f.getAttribute('data-g'); if(!PBGRAF[id]) return;
+        var d = document.createElement('div'); d.innerHTML = PBGRAF[id]();
+        var n = d.querySelector('.pb-graf'); if(!n) return;
+        n.classList.add('in'); f.parentNode.replaceChild(n, f);
+      });
+    }, 180);
+  });
+})();
+
+(function pbGrafCss(){
+  if(document.getElementById('pbGrafCss')) return;
+  var st = document.createElement('style'); st.id = 'pbGrafCss';
+  st.textContent = [
+    '.pb-svg{min-width:0!important;max-width:100%}',
+    '.pb-graf-c{overflow:visible!important}',
+    '.pb-g-ley{display:flex;flex-wrap:wrap;gap:8px 18px;margin:-4px 0 12px;font-size:13px;color:var(--text-2)}',
+    '.pb-g-ley span{display:inline-flex;align-items:center;gap:7px}',
+    '.pb-g-ley i{display:inline-block;width:14px;height:14px;border-radius:4px}',
+    '.pb-g-ley i.z{opacity:.35;border:1px dashed currentColor}',
+    '.pb-g-ley i.l{width:22px;height:0;border-radius:0;border-top:3px solid}',
+    '.pb-g-ley i.l.g{border-top-style:dashed}',
+    '@media(max-width:640px){.pb-g-ley{font-size:12.5px}}'
+  ].join('\n');
+  (document.head || document.documentElement).appendChild(st);
+})();
 
 
 /* ---------- pb-movimiento.js ---------- */
@@ -65302,9 +65746,9 @@ if(typeof window.agCfg === 'function'){
     return {id:'pollos', hechos:(forzado ? PBMOD.length : pbProgreso()), total:PBMOD.length,
       felicidad:'¡Lo lograste! ¡Felicidades!',
       texto:'Terminó <b>Pollos de engorde: manejo y producción rentable</b>. Ya sabe preparar el galpón y criar un lote de pollos, ' +
-            'controlar su crecimiento y su mortalidad y <b>cuánto le cuesta producir cada pollo y cada kilo</b>.',
-      logros:[[PBMOD.length + ' módulos', 'del pollito al costo por kilo'], ['6', 'casos prácticos resueltos'],
-              ['1', 'plan de producción del lote'], [String(preg), 'preguntas aprobadas']],
+            'controlar su crecimiento y su mortalidad, <b>cuánto le cuesta producir cada kilo</b> y cómo planificar, construir, financiar y vender su propio proyecto.',
+      logros:[[PBMOD.length + ' módulos', 'del terreno a la venta'], ['10', 'casos prácticos resueltos'],
+              ['2', 'plan del lote y proyecto propio'], [String(preg), 'preguntas aprobadas']],
       cert:'pbCertificado()',
       pie:'Su certificado se abre listo para <b>guardarlo como PDF</b> o imprimirlo. ' +
           'Y lo siguiente no es otro curso: es <b>pesar y anotar cada semana</b> y revisar su plan en cada lote.'};
@@ -65321,9 +65765,9 @@ window.pbFinal = pbFinal;
 if(typeof window.pbEnviar === 'function'){
   var _pbEnviarFin = window.pbEnviar;
   window.pbEnviar = function(id){
-    var antes = pbCertElegible();
+    var antes = pbProgreso();
     var r = _pbEnviarFin.apply(this, arguments);
-    if(id === PBMOD.length && !antes && pbCertElegible()) setTimeout(pbCelebra, 900);
+    if(id === PBMOD.length && antes < PBMOD.length && pbProgreso() >= PBMOD.length) setTimeout(pbCelebra, 900);
     return r;
   };
 }
@@ -65650,7 +66094,472 @@ if(typeof window.pbCalcRun === 'function'){
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- pb-proyecto.js ---------- */
+/* ============================================================
+   CURSO 10 · PARTE 2 · PIEZAS DEL PROYECTO (2026-10-14)
+   ------------------------------------------------------------
+     · 3 calculadoras nuevas en PBCALC: capacidad, galpón, equilibrio
+     · pbgraf2 flujo    · el dinero del lote semana a semana
+     · pbescenarios     · mortalidad × precio, en una tabla de colores
+     · pbplantillas     · registros descargables (CSV, se abren en Excel)
+     · pbproyecto       · Mi proyecto de pollos de engorde, con
+                          calendario que se arma solo e impresión
+     · ampliación del módulo 1 (errores del principiante)
+     · preguntas de los módulos 9 a 12 y evaluación final integral
+     · el certificado se conserva para quien ya terminó los 8 módulos
+   Todo es aditivo: no se quita ni se cambia nada de lo anterior.
+   ============================================================ */
+
+/* ---------- 1 · calculadoras ---------- */
+if(typeof PBCALC !== 'undefined'){
+  PBCALC.capacidad = {
+    t:'¿Cuántos pollos al año?', que:'Lotes por año y pollos al año según su ciclo.',
+    campos:[['lote', 'Pollitos por lote', '', 1000], ['cria', 'Semanas de crianza', 'sem', 6], ['vacio', 'Semanas de vacío sanitario', 'sem', 2], ['mort', 'Mortalidad prevista', '%', 4], ['peso', 'Peso de venta', 'kg', 2.3]],
+    calc:function(v){
+      if(!v.lote || !(v.cria + v.vacio)) return {falta:'Escriba los pollitos por lote y las semanas del ciclo.'};
+      var ciclo = v.cria + v.vacio, lotes = 52 / ciclo, plan = Math.floor(lotes);
+      var vend = Math.round(v.lote * (1 - v.mort / 100));
+      return {filas:[
+        ['Semanas por ciclo', pbN(ciclo), v.cria + ' de crianza + ' + v.vacio + ' de vacío'],
+        ['Lotes por año (exacto)', pbN(lotes, 1), '52 ÷ ' + ciclo],
+        ['Lotes para planificar', pbN(plan), 'redondeado hacia abajo'],
+        ['Pollitos al año', pbN(v.lote * plan), pbN(v.lote) + ' × ' + plan],
+        ['Pollos vendidos al año', pbN(vend * plan), pbN(vend) + ' por lote × ' + plan],
+        ['Kg vendidos al año', pbN(vend * plan * v.peso, 0) + ' kg', 'pollos vendidos × ' + v.peso + ' kg']
+      ], nivel:'dato', interp:'Planifique ventas, alimento y dinero con ' + plan + ' lotes al año. El vacío sanitario no se recorta: protege al lote siguiente.'};
+    }
+  };
+  PBCALC.galpon = {
+    t:'Tamaño y equipo del galpón', que:'Área, medidas, comederos y bebederos para su lote.',
+    campos:[['pollos', 'Pollos por lote', '', 1000], ['dens', 'Densidad', 'pollos/m²', 10], ['ancho', 'Ancho del galpón', 'm', 8],
+            ['pcom', 'Pollos por comedero', '', 30], ['pbeb', 'Pollos por bebedero de campana', '', 80], ['pnip', 'Pollos por niple', '', 12]],
+    calc:function(v){
+      if(!v.pollos || !v.dens || !v.ancho) return {falta:'Escriba los pollos, la densidad y el ancho (no pueden ser 0).'};
+      var area = v.pollos / v.dens, largo = area / v.ancho;
+      var f = [
+        ['Área de piso', pbN(area, 1) + ' m²', pbN(v.pollos) + ' ÷ ' + v.dens + ' pollos/m²'],
+        ['Largo', pbN(largo, 1) + ' m', pbN(area, 1) + ' m² ÷ ' + v.ancho + ' m de ancho']
+      ];
+      if(v.pcom) f.push(['Comederos de tolva', pbN(Math.ceil(v.pollos / v.pcom)), pbN(v.pollos) + ' ÷ ' + v.pcom + ', hacia arriba']);
+      if(v.pbeb) f.push(['Bebederos de campana', pbN(Math.ceil(v.pollos / v.pbeb)), pbN(v.pollos) + ' ÷ ' + v.pbeb + ', hacia arriba']);
+      if(v.pnip) f.push(['o bien niples', pbN(Math.ceil(v.pollos / v.pnip)), pbN(v.pollos) + ' ÷ ' + v.pnip + ', hacia arriba']);
+      return {filas:f, nivel: v.dens > 12 ? 'ojo' : 'dato',
+        interp:(v.dens > 12 ? 'Esa densidad es alta para un galpón abierto en clima cálido: los pollos grandes pasarán calor. ' : '') +
+          'Medidas y capacidades orientativas: confírmelas con su técnico, la guía de su línea y el fabricante del equipo.'};
+    }
+  };
+  PBCALC.equilibrio = {
+    t:'Punto de equilibrio y recuperación', que:'Precio mínimo, kilos mínimos, capital de trabajo y lotes para recuperar la inversión.',
+    campos:[['costo', 'Costo total del lote', 'RD$', 240000], ['depre', 'De eso, depreciación', 'RD$', 4000], ['pollitos', 'Pollitos del lote', '', 1000],
+            ['mort', 'Mortalidad', '%', 4], ['peso', 'Peso de venta', 'kg', 2.3], ['precio', 'Precio de venta', 'RD$/kg', 120], ['inversion', 'Inversión inicial', 'RD$', 450000], ['lotes', 'Lotes al año', '', 6]],
+    calc:function(v){
+      if(!v.costo || !v.pollitos || !v.peso) return {falta:'Escriba el costo del lote, los pollitos y el peso de venta.'};
+      var vend = Math.round(v.pollitos * (1 - v.mort / 100)), kg = vend * v.peso;
+      if(kg <= 0) return {falta:'Con esa mortalidad no quedan kilos para vender.'};
+      var pe = v.costo / kg, ing = kg * v.precio, ben = ing - v.costo, caja = ben + v.depre;
+      var f = [
+        ['Kg vendidos', pbN(kg, 1) + ' kg', pbN(vend) + ' pollos × ' + v.peso + ' kg'],
+        ['Precio de equilibrio', pbRD(pe) + ' / kg', pbRD(v.costo, 0) + ' ÷ ' + pbN(kg, 1) + ' kg'],
+        ['Kg de equilibrio a su precio', v.precio ? pbN(v.costo / v.precio, 0) + ' kg' : '—', pbRD(v.costo, 0) + ' ÷ ' + pbRD(v.precio)],
+        ['Beneficio del lote', pbRD(ben, 0), 'ingreso ' + pbRD(ing, 0) + ' − costo'],
+        ['Capital de trabajo (+10 %)', pbRD((v.costo - v.depre) * 1.1, 0), '(costo − depreciación) × 1.10']
+      ];
+      if(v.inversion && caja > 0){
+        var nl = v.inversion / caja;
+        f.push(['Lotes para recuperar la inversión', pbN(nl, 1), pbRD(v.inversion, 0) + ' ÷ (' + pbRD(ben, 0) + ' + ' + pbRD(v.depre, 0) + ')']);
+        if(v.lotes) f.push(['Tiempo aproximado', pbN(nl / v.lotes, 1) + ' años', pbN(nl, 1) + ' lotes ÷ ' + v.lotes + ' por año']);
+      }
+      return {filas:f, nivel: ben >= 0 ? 'bien' : 'mal',
+        interp: ben >= 0
+          ? 'Por debajo de ' + pbRD(pe) + ' el kilo, este lote pierde. <i>' + PBILUS + '</i>'
+          : 'Con este precio el lote pierde ' + pbRD(-ben, 0) + ': así no se recupera la inversión. Necesita al menos ' + pbRD(pe) + ' por kilo.'};
+    }
+  };
+}
+
+/* ---------- 2 · gráficos y escenarios ---------- */
+var PBFLUJO = (function(){
+  /* lote de ejemplo de 1,000 pollos: RD$ 236,000 en efectivo (240,000 − 4,000 de depreciación) */
+  var sal = [72000, 10000, 17000, 27000, 38000, 44000, 28000];   /* semana 0 (pollitos, cama, preparación) a semana 6 */
+  var ing = 1000 * 0.96 * 2.3 * 120;                                /* 264,960 al vender */
+  return { sal:sal, ing:ing, tot:sal.reduce(function(a, b){ return a + b; }, 0) };
+})();
+function pbFlujoGraf(){
+  var c = pbGrafCompacto(), W = c ? 360 : 720, H = 280, x0 = c ? 56 : 90, x1 = W - 16, y0 = 230, top = 24;
+  var pts = [], acum = 0;
+  PBFLUJO.sal.forEach(function(v){ acum -= v; pts.push(acum); });
+  var fin = acum + PBFLUJO.ing; pts.push(fin);
+  /* escala de 100 en 100 mil, con holgura abajo para que la etiqueta del punto bajo no pise el eje */
+  var mn = -300000, mx = 60000, py = function(v){ return top + (y0 - top) * (mx - v) / (mx - mn); };
+  var n = pts.length, paso = (x1 - x0) / n, bw = Math.min(46, paso * 0.62), s = '';
+  [-300000, -200000, -100000, 0].forEach(function(v){
+    s += '<line x1="' + x0 + '" y1="' + py(v) + '" x2="' + x1 + '" y2="' + py(v) + '" class="' + (v === 0 ? 'pb-g-eje' : 'pb-g-rej') + '"/>' +
+      pbT(x0 - 8, py(v) + 4, 'pb-g-lbl', (v / 1000) + 'k', 'end');
+  });
+  pts.forEach(function(v, i){
+    var x = x0 + i * paso + (paso - bw) / 2, ult = i === n - 1;
+    var ya = py(Math.max(v, 0)), yb = py(Math.min(v, 0));
+    s += '<rect x="' + x + '" y="' + ya + '" width="' + bw + '" height="' + Math.max(2, yb - ya) + '" rx="4" fill="' + (v >= 0 ? PBCOL.bien : (ult ? PBCOL.bien : PBCOL.mal)) + '" fill-opacity="' + (v >= 0 ? 1 : 0.85) + '"/>';
+    s += pbT(x + bw / 2, y0 + 18, 'pb-g-nota', ult ? (c ? 'Venta' : 'Venta') : (c ? 'S' + i : 'Sem ' + i), 'middle');
+  });
+  /* el punto más bajo */
+  var low = Math.min.apply(null, pts.slice(0, n - 1)), il = pts.indexOf(low);
+  s += pbT(x0 + il * paso + paso / 2, py(low) + 18, 'pb-g-val', (c ? '−' : '−RD$ ') + pbN(-low / 1000, 0) + 'k', 'middle');
+  s += pbT(x0 + (n - 1) * paso + paso / 2, py(fin) - 8, 'pb-g-val', '+' + pbN(fin / 1000, 0) + 'k', 'middle');
+  return pbGrafCaja('El dinero sale cada semana y entra al final', 'Saldo acumulado de un lote de 1,000 pollos. El punto más bajo, justo antes de vender, es el <b>capital de trabajo</b> que hace falta.',
+    pbSvg(W, H, s, 'Flujo de caja acumulado de un lote: baja hasta unos 236 mil pesos negativos y sube a unos 29 mil positivos con la venta'),
+    'Ejemplo ilustrativo: salidas de efectivo RD$ ' + pbN(PBFLUJO.tot) + ' (sin la depreciación) e ingreso RD$ ' + pbN(PBFLUJO.ing) + ' (960 pollos × 2.30 kg × RD$ 120). Si el comprador paga a 15 días, el punto bajo dura dos semanas más.', 'flujo',
+    pbLey(PBCOL.mal, 'Dinero que ya salió (saldo negativo)') + pbLey(PBCOL.bien, 'Saldo tras cobrar la venta'));
+}
+
+function pbEscenariosHTML(){
+  var morts = [3, 6, 10], precios = [105, 115, 125], costo = 240000, pollitos = 1000, peso = 2.3;
+  var celda = function(m, p){
+    var kg = Math.round(pollitos * (1 - m / 100)) * peso, b = kg * p - costo;
+    var cls = b >= 15000 ? 'ok' : (b >= 0 ? 'jus' : 'mal');
+    return '<td class="pb-esc-' + cls + '"><b>' + (b >= 0 ? '+' : '−') + 'RD$ ' + pbN(Math.abs(b)) + '</b></td>';
+  };
+  return '<section class="nx-b nx-full"><div class="pb-esc rv">' +
+    '<span class="pb-esc-k">📊 Escenarios</span><h3>¿Y si las cosas no salen como espero?</h3>' +
+    '<p>El mismo lote de 1,000 pollitos (costo RD$ 240,000, venta a 2.30 kg), con tres mortalidades y tres precios. Antes de invertir, mire siempre la esquina de abajo a la izquierda.</p>' +
+    '<div class="pb-esc-t"><table><thead><tr><th>Mortalidad ↓ · Precio →</th>' + precios.map(function(p){ return '<th>RD$ ' + p + '/kg</th>'; }).join('') + '</tr></thead><tbody>' +
+      morts.map(function(m){ return '<tr><th>' + m + ' %</th>' + precios.map(function(p){ return celda(m, p); }).join('') + '</tr>'; }).join('') +
+    '</tbody></table></div>' +
+    '<div class="pb-esc-l"><span><i class="ok"></i>Gana</span><span><i class="jus"></i>Gana poco</span><span><i class="mal"></i>Pierde</span></div>' +
+    '<p class="pb-esc-n">Beneficio = (pollos vivos × 2.30 kg × precio) − 240,000. <i>' + PBILUS + '</i> Con 10 % de mortalidad y precio bajo, el lote pierde: por eso el manejo y el comprador importan tanto como el galpón.</p>' +
+  '</div></section>';
+}
+
+/* ---------- 3 · plantillas descargables ---------- */
+var PBPLANT = {
+  diario: { n:'registro-diario-del-lote.csv', t:'Registro diario del lote', d:'Muertes, alimento, agua, temperatura y observaciones de cada día.',
+    cab:['Fecha', 'Día de edad', 'Muertos del día', 'Muertos acumulados', 'Alimento dado (kg)', 'Agua (litros)', 'Temp. mínima (°C)', 'Temp. máxima (°C)', 'Observaciones'], filas:43 },
+  pesaje: { n:'pesaje-semanal.csv', t:'Pesaje semanal y uniformidad', d:'Peso promedio, uniformidad y comparación con la guía de la línea.',
+    cab:['Semana', 'Fecha', 'Pollos pesados', 'Suma de pesos (kg)', 'Peso promedio (kg)', 'Dentro de ±10 %', 'Uniformidad (%)', 'Peso de la guía (kg)', 'Diferencia (kg)'], filas:7 },
+  mortalidad: { n:'control-de-mortalidad.csv', t:'Control de mortalidad', d:'Cuántos, dónde y con qué señales, para mostrarle al veterinario.',
+    cab:['Fecha', 'Día de edad', 'Cantidad', 'Lugar del galpón', 'Señales observadas', 'Acción tomada', 'Avisé al veterinario (sí/no)'], filas:43 },
+  alimento: { n:'consumo-de-alimento.csv', t:'Entradas y consumo de alimento', d:'Sacos que llegan, tipo de alimento y precio.',
+    cab:['Fecha', 'Tipo de alimento (inicio/crecimiento/final)', 'Sacos recibidos', 'Kg por saco', 'Kg totales', 'Precio por saco (RD$)', 'Total (RD$)', 'Proveedor'], filas:20 },
+  presupuesto: { n:'presupuesto-del-proyecto.csv', t:'Presupuesto del proyecto', d:'Inversión inicial y capital de trabajo, con dos cotizaciones por renglón.',
+    cab:['Renglón', 'Cotización 1 (RD$)', 'Cotización 2 (RD$)', 'Elegida (RD$)', 'Proveedor', 'Notas'],
+    base:[['Galpón: estructura, techo y piso'], ['Malla, cortinas y puertas'], ['Comederos, bebederos, criadoras, balanza, termómetros'], ['Tanque, tubería y filtro de agua'], ['Instalación eléctrica'], ['Bodega, pediluvio y cerca'], ['Permisos y trámites'], ['Capital de trabajo del primer lote'], ['Reserva para imprevistos'], ['TOTAL']] },
+  economia: { n:'evaluacion-economica-del-lote.csv', t:'Evaluación económica del lote', d:'Costos, kilos, ingreso, beneficio, margen y costo por kg al cerrar cada lote.',
+    cab:['Concepto', 'Valor', 'Cómo se calcula'],
+    base:[['Pollitos recibidos', '', ''], ['Pollos vendidos', '', ''], ['Kg vendidos', '', 'pollos vendidos × peso promedio'], ['Pollitos (RD$)', '', ''], ['Alimento (RD$)', '', ''], ['Mano de obra (RD$)', '', ''],
+          ['Sanidad (RD$)', '', ''], ['Agua y electricidad (RD$)', '', ''], ['Cama y otros (RD$)', '', ''], ['Depreciación (RD$)', '', ''], ['Costo total (RD$)', '', 'suma de costos'],
+          ['Costo por pollo vendido', '', 'costo total ÷ pollos vendidos'], ['Costo por kg', '', 'costo total ÷ kg vendidos'], ['Precio por kg', '', ''], ['Ingreso', '', 'kg × precio'],
+          ['Beneficio', '', 'ingreso − costo total'], ['Margen (%)', '', 'beneficio ÷ ingreso × 100'], ['Conversión alimenticia', '', 'kg de alimento ÷ kg ganados'], ['Mortalidad (%)', '', 'muertos ÷ recibidos × 100']] }
+};
+function pbCsv(filas){
+  return '﻿' + filas.map(function(f){ return f.map(function(c){ c = String(c == null ? '' : c); return /[;"\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(';'); }).join('\r\n');
+}
+window.pbPlantilla = function(id){
+  var p = PBPLANT[id]; if(!p) return;
+  var filas = [p.cab];
+  if(p.base) filas = filas.concat(p.base.map(function(b){ var r = b.slice(); while(r.length < p.cab.length) r.push(''); return r; }));
+  else for(var i = 0; i < p.filas; i++){ var r = []; for(var j = 0; j < p.cab.length; j++) r.push(id === 'diario' && j === 1 ? i : (id === 'pesaje' && j === 0 ? i + 1 : '')); filas.push(r); }
+  try{
+    var url = URL.createObjectURL(new Blob([pbCsv(filas)], {type:'text/csv;charset=utf-8'}));
+    var a = document.createElement('a'); a.href = url; a.download = p.n; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 400);
+    if(typeof toast === 'function') toast('Plantilla descargada: ' + p.t, '📥');
+  }catch(e){ if(typeof toast === 'function') toast('Su navegador no permitió la descarga', '⚠️'); }
+};
+function pbPlantillasHTML(){
+  return '<section class="nx-b nx-full"><div class="pb-pt rv">' +
+    '<span class="pb-esc-k">📥 Plantillas descargables</span><h3>Sus registros, listos para usar</h3>' +
+    '<p>Se descargan como archivos CSV que se abren en Excel, Google Sheets o el teléfono. Imprímalos o llénelos en la computadora. Además está la calculadora en Excel del módulo 7.</p>' +
+    '<div class="pb-pt-g">' + Object.keys(PBPLANT).map(function(k){
+      var p = PBPLANT[k];
+      return '<button class="pb-pt-b" onclick="pbPlantilla(\'' + k + '\')"><b>📄 ' + p.t + '</b><span>' + p.d + '</span><em>Descargar</em></button>';
+    }).join('') + '</div></div></section>';
+}
+
+/* ---------- 4 · mi proyecto ---------- */
+var PBPROY = [
+  ['grupo', '1 · Capacidad inicial'],
+  ['pollitos', 'Pollitos por lote y línea', 'Cuántos y de qué línea; a quién se los compra.'],
+  ['lotes', 'Lotes al año', 'Use la calculadora del módulo 9.'],
+  ['galpon', 'Galpón', 'Área, medidas, orientación y equipo (módulo 10).'],
+  ['grupo', '2 · Presupuesto'],
+  ['inversion', 'Inversión inicial', 'Total con cotizaciones (módulo 11).'],
+  ['capital', 'Capital de trabajo', 'Costo en efectivo de un lote + reserva + días de cobro.'],
+  ['financia', 'Cómo lo financia', 'Ahorros, socio, préstamo: y a qué plazo.'],
+  ['equilibrio', 'Precio de equilibrio', 'Costo por kg de su lote planificado.'],
+  ['grupo', '3 · Plan sanitario (para validar con un veterinario)'],
+  ['bioseg', 'Bioseguridad', 'Entrada, visitas, roedores, muertos, limpieza y vacío sanitario.'],
+  ['vacunas', 'Vacunación y sanidad', 'Lo que le indique su veterinario: anote su nombre y la fecha de la revisión.'],
+  ['grupo', '4 · Estrategia comercial'],
+  ['comprador', 'Comprador principal', 'Quién, a qué peso, precio, forma y plazo de pago.'],
+  ['respaldo', 'Comprador de respaldo', 'Por si el principal falla.'],
+  ['grupo', '5 · Permisos'],
+  ['permisos', 'Permisos y trámites', 'DIGEGA, Medio Ambiente, ayuntamiento: qué pidió, cuándo y qué le dijeron.']
+];
+function pbProyLee(){ return (typeof pbLee === 'function') ? pbLee('proyecto', {}) : {}; }
+function pbProyCalendario(f){
+  if(!f) return '<p class="pb-pr-vacio">Escriba la fecha de llegada de los pollitos y aquí aparece su calendario.</p>';
+  var base = new Date(f + 'T12:00:00'); if(isNaN(base)) return '';
+  var tareas = [
+    [-21, 'Confirmar comprador, peso y fecha de venta; pedir alimento y pollitos'],
+    [-14, 'Sacar cama, lavar y secar el galpón; revisar equipos'],
+    [-10, 'Desinfectar (con el producto y la dosis que indique su técnico) y dejar descansar'],
+    [-3, 'Poner cama nueva, instalar comederos, bebederos y criadoras'],
+    [-1, 'Encender el calor horas antes; llenar bebederos; checklist del módulo 2'],
+    [0, 'Recepción: contar, revisar, agua y alimento de inmediato'],
+    [1, 'Revisar buches y reparto de los pollitos (módulo 3)'],
+    [7, 'Primer pesaje; ajustar calor y altura de equipos'],
+    [14, 'Pesaje semanal; abrir espacio y cambiar a equipos de crecimiento'],
+    [21, 'Pesaje semanal; revisar conversión y mortalidad'],
+    [28, 'Pesaje semanal; ventilación y agua fresca contra el calor'],
+    [35, 'Pesaje para confirmar peso y fecha de venta con el comprador'],
+    [41, 'Retirar el alimento 8–12 h antes de la captura (agua hasta el final)'],
+    [42, 'Captura en horas frescas, entrega, cobro y registro de kilos'],
+    [43, 'Cerrar las cuentas del lote: costo por kg, beneficio, margen'],
+    [56, 'Fin del vacío sanitario: listo para el siguiente lote']
+  ];
+  var fmt = function(d){ return d.toLocaleDateString('es-DO', {weekday:'short', day:'numeric', month:'short', year:'numeric'}); };
+  return '<table class="pb-pr-cal"><thead><tr><th>Fecha</th><th>Día</th><th>Actividad</th></tr></thead><tbody>' + tareas.map(function(t){
+    var d = new Date(base.getTime() + t[0] * 864e5);
+    return '<tr' + (t[0] === 0 ? ' class="hoy"' : '') + '><td>' + fmt(d) + '</td><td>' + (t[0] > 0 ? '+' : '') + t[0] + '</td><td>' + t[1] + '</td></tr>';
+  }).join('') + '</tbody></table>' +
+  '<p class="pb-pr-n">Calendario orientativo para un lote de 42 días: ajústelo a la guía de su línea y al peso que pide su comprador.</p>';
+}
+function pbProyectoHTML(mod){
+  var d = pbProyLee();
+  var campos = PBPROY.map(function(p){
+    if(p[0] === 'grupo') return '<h4 class="pb-pr-gr">' + p[1] + '</h4>';
+    return '<label class="pb-pl-c"><span>' + p[1] + '</span><em>' + p[2] + '</em>' +
+      '<textarea rows="2" oninput="pbProyNota(\'' + p[0] + '\',this.value)">' + agEsc(d[p[0]] || '') + '</textarea></label>';
+  }).join('');
+  var llenos = PBPROY.filter(function(p){ return p[0] !== 'grupo' && (d[p[0]] || '').trim(); }).length;
+  var total = PBPROY.filter(function(p){ return p[0] !== 'grupo'; }).length;
+  return '<div class="pb-pl pb-pr rv" style="--ac:' + pbAc(mod) + '">' +
+    '<span class="pb-pl-k">🏁 Proyecto final del curso</span><h3>Mi proyecto de pollos de engorde</h3>' +
+    '<p>Junta todo lo del curso en un solo documento: capacidad, presupuesto, calendario, plan sanitario, estrategia comercial y permisos. Se guarda en este dispositivo con su cuenta y se imprime para llevárselo al técnico, al veterinario o al banco.</p>' +
+    '<div class="pb-pl-g">' + campos + '</div>' +
+    '<h4 class="pb-pr-gr">6 · Calendario de actividades del primer lote</h4>' +
+    '<label class="pb-pr-f"><span>Fecha de llegada de los pollitos</span><input type="date" value="' + agEsc(d.fecha || '') + '" onchange="pbProyFecha(this.value)"></label>' +
+    '<div id="pbProyCal">' + pbProyCalendario(d.fecha) + '</div>' +
+    '<div class="pb-pl-acc"><span id="pbProyCuenta">' + llenos + ' de ' + total + ' puntos completados</span><button class="btn btn-primary" onclick="pbProyImprimir()">🖨️ Imprimir mi proyecto</button></div>' +
+  '</div>';
+}
+window.pbProyNota = function(k, v){
+  var d = pbProyLee(); d[k] = v; pbEscribe('proyecto', d);
+  var llenos = PBPROY.filter(function(p){ return p[0] !== 'grupo' && (d[p[0]] || '').trim(); }).length;
+  var c = document.getElementById('pbProyCuenta'); if(c) c.textContent = llenos + ' de ' + PBPROY.filter(function(p){ return p[0] !== 'grupo'; }).length + ' puntos completados';
+};
+window.pbProyFecha = function(v){
+  var d = pbProyLee(); d.fecha = v; pbEscribe('proyecto', d);
+  var c = document.getElementById('pbProyCal'); if(c) c.innerHTML = pbProyCalendario(v);
+};
+window.pbProyImprimir = function(){
+  var d = pbProyLee();
+  var h = '<h2 style="margin:0 0 4px">Mi proyecto de pollos de engorde</h2><p style="color:#555;margin:0 0 14px">Productor: ______________________ · Fecha: ____________</p>' +
+    '<table style="width:100%;border-collapse:collapse">' + PBPROY.map(function(p){
+      if(p[0] === 'grupo') return '<tr><td colspan="2" style="padding:12px 0 4px;font-weight:700;color:#C2410C">' + p[1] + '</td></tr>';
+      return '<tr><td style="width:32%;border:1px solid #999;padding:7px 9px;vertical-align:top"><b>' + p[1] + '</b><br><span style="color:#777;font-size:11px">' + p[2] + '</span></td>' +
+        '<td style="border:1px solid #999;padding:7px 9px;vertical-align:top">' + agEsc(d[p[0]] || '') + '</td></tr>';
+    }).join('') + '</table>' +
+    '<h3 style="margin:16px 0 6px">Calendario del primer lote</h3>' + pbProyCalendario(d.fecha) +
+    '<p style="color:#888;font-size:11px;margin-top:10px">Plan sanitario y permisos: validar con un veterinario y con las instituciones correspondientes. Importes ilustrativos hasta tener cotizaciones. AgroAcademy · Pollos de engorde.</p>';
+  if(typeof openPrint === 'function') openPrint('Mi proyecto de pollos de engorde', '#C2410C', h, {landscape:false});
+};
+
+/* ---------- 5 · registrar las piezas ---------- */
+if(typeof window.nxSeccion === 'function'){
+  var _nxSecPbProy = window.nxSeccion;
+  window.nxSeccion = function(s, mod){
+    if(s && s.k === 'pbgraf2' && s.id === 'flujo') return pbFlujoGraf();
+    if(s && s.k === 'pbescenarios') return pbEscenariosHTML();
+    if(s && s.k === 'pbplantillas') return pbPlantillasHTML();
+    if(s && s.k === 'pbproyecto') return '<section class="nx-b nx-full">' + pbProyectoHTML(mod) + '</section>';
+    return _nxSecPbProy.apply(this, arguments);
+  };
+}
+/* que el gráfico de flujo también se redibuje al cambiar de tamaño */
+if(typeof PBGRAF !== 'undefined') PBGRAF.flujo = pbFlujoGraf;
+
+/* ---------- 6 · ampliación de los módulos existentes (solo se añade) ---------- */
+(function pbAmplia(){
+  if(typeof PBMOD === 'undefined') return;
+  var m1 = PBMOD[0];
+  if(m1 && !m1.sec.some(function(s){ return s.t === 'Los errores más comunes del principiante'; })){
+    var i = m1.sec.findIndex(function(s){ return s.k === 'pbcaso'; });
+    m1.sec.splice(i < 0 ? m1.sec.length - 2 : i, 0,
+      {k:'agcards', t:'Los errores más comunes del principiante', p:'Casi todos se evitan con lo que enseña este curso.', l:[
+        ['🛒', 'Comprar sin comprador', 'Llega el día de venta y nadie compra: el lote sigue comiendo.'],
+        ['🏚️', 'Recibir sin preparar', 'Galpón frío, sin agua o con la cama vieja: el lote arranca mal.'],
+        ['🔥', 'Calor «a ojo»', 'Pollitos amontonados o jadeando y nadie mira el termómetro.'],
+        ['📓', 'No anotar', 'Sin registros no se sabe cuánto costó ni qué falló.'],
+        ['🌽', 'El saco más barato', 'Si rinde menos, el kilo de pollo sale más caro.'],
+        ['💸', 'Sin capital de trabajo', 'Todo el dinero en el galpón y nada para criar el lote (módulo 11).']
+      ]});
+  }
+  var m5 = PBMOD[4];
+  if(m5 && !m5.sec.some(function(s){ return s.k === 'pbplantillas'; })){
+    var j = m5.sec.findIndex(function(s){ return s.k === 'pbchk'; });
+    m5.sec.splice(j < 0 ? m5.sec.length : j, 0, {k:'pbplantillas'});
+  }
+  var m8 = PBMOD[7];
+  if(m8 && !m8.sec.some(function(s){ return s.t === 'Su siguiente paso: la parte 2'; })){
+    m8.sec.splice(m8.sec.length - 1, 0, {k:'alerta', tipo:'dato', ico:'🏗️', t:'Su siguiente paso: la parte 2',
+      p:'Ya sabe manejar un lote. Los módulos 9 a 12 le enseñan a montar su propio proyecto desde cero: tamaño, terreno y permisos, galpón y equipos, presupuesto y flujo de caja, venta y su proyecto final con calendario.'});
+  }
+})();
+
+/* ---------- 7 · preguntas de los módulos 9 a 12 ---------- */
+if(typeof PBQUIZ !== 'undefined'){
+  PBQUIZ[9] = [
+    {q:'¿Qué debe decidir primero al planificar un proyecto de pollos?', o:['El color del galpón','A quién le va a vender, cuántos pollos y a qué peso','La marca de los bebederos','El nombre de la granja'], c:1, fb:'El mercado decide el tamaño del lote.'},
+    {q:'Crianza de 6 semanas y 2 de vacío sanitario. ¿Cuántos lotes al año conviene planificar?', o:['8','6','9','12'], c:1, fb:'52 ÷ 8 = 6.5; se planifica con 6, redondeando hacia abajo.'},
+    {q:'Con 1,000 pollitos por lote y 6 lotes al año, ¿cuántos pollitos entran al año?', o:['600','6,000','8,000','1,600'], c:1, fb:'1,000 × 6 = 6,000.'},
+    {q:'¿Para qué sirve el vacío sanitario entre lotes?', o:['Para descansar el productor','Para limpiar, desinfectar y cortar las enfermedades entre un lote y el siguiente','No sirve para nada','Para ahorrar luz'], c:1, fb:'Es una medida de bioseguridad, no tiempo perdido.'},
+    {q:'¿Cuál de estos terrenos es mejor para el galpón?', o:['Bajo, que se inunda, junto a otra granja de pollos','Alto, con drenaje, agua segura, luz y acceso para camiones','Junto a una escuela','Sin acceso en tiempo de lluvia'], c:1, fb:'Agua, luz, acceso, drenaje y distancia de casas y otras granjas.'},
+    {q:'¿Con qué institución se averigua el registro del establecimiento y las normas avícolas?', o:['Con el banco','Con la Dirección General de Ganadería (DIGEGA) del Ministerio de Agricultura','Con el proveedor del alimento','No hace falta averiguar nada'], c:1, fb:'Y con Medio Ambiente (autorización ambiental) y el ayuntamiento (uso de suelo y construcción).'}
+  ];
+  PBQUIZ[10] = [
+    {q:'1,000 pollos a 10 pollos por m². ¿Qué área necesita?', o:['10 m²','100 m²','1,000 m²','50 m²'], c:1, fb:'1,000 ÷ 10 = 100 m².'},
+    {q:'100 m² con 8 m de ancho. ¿Qué largo tiene el galpón?', o:['8 m','12.5 m','20 m','80 m'], c:1, fb:'100 ÷ 8 = 12.5 m.'},
+    {q:'1,000 pollos y comederos para 30 pollos cada uno. ¿Cuántos comederos?', o:['33','34','30','3'], c:1, fb:'1,000 ÷ 30 = 33.3; se redondea hacia arriba: 34.'},
+    {q:'¿Cómo conviene orientar un galpón abierto en clima cálido?', o:['De norte a sur','Con el eje largo de este a oeste','No importa','Mirando al sol de la tarde'], c:1, fb:'Así el sol entra menos por los laterales.'},
+    {q:'Al mediodía los pollos jadean en un galpón ancho y de techo bajo. ¿Qué ayuda más?', o:['Cerrar el galpón','Abrir laterales, quitar calor del techo, ventiladores y bajar la densidad','Meter más pollos','Dar menos agua'], c:1, fb:'Ventilación cruzada y menos calor del techo; cerrar atrapa el calor.'},
+    {q:'¿Por qué el galpón debe tener una sola entrada con pediluvio?', o:['Por estética','Porque la bioseguridad empieza en el diseño: se controla todo lo que entra','Para ahorrar puertas','Por los vecinos'], c:1, fb:'Una entrada controlada reduce la entrada de enfermedades.'}
+  ];
+  PBQUIZ[11] = [
+    {q:'¿Qué es el capital de trabajo?', o:['El valor del terreno','El dinero para criar el lote mientras crece, antes de cobrar la venta','El sueldo del productor','La ganancia del lote'], c:1, fb:'Pollitos, alimento y gastos del lote, más una reserva.'},
+    {q:'Costo del lote RD$ 240,000; vende 2,208 kg. ¿Cuál es el precio de equilibrio?', o:['RD$ 100.00','RD$ 108.70','RD$ 120.00','RD$ 92.00'], c:1, fb:'240,000 ÷ 2,208 = 108.70 por kg.'},
+    {q:'Con un costo de RD$ 240,000 y precio de RD$ 120/kg, ¿cuántos kg debe vender para no perder?', o:['1,200 kg','2,000 kg','2,400 kg','2,208 kg'], c:1, fb:'240,000 ÷ 120 = 2,000 kg.'},
+    {q:'¿Por qué el flujo de caja de un lote baja tanto antes de la venta?', o:['Porque los pollos pierden peso','Porque el dinero sale cada semana y entra todo al final','Porque sube el precio','No baja'], c:1, fb:'Por eso hace falta capital de trabajo.'},
+    {q:'Inversión de RD$ 450,000; cada lote deja RD$ 28,960 de efectivo. ¿En cuántos lotes se recupera?', o:['Unos 5.5','Unos 15.5','Unos 45','Unos 2.6'], c:1, fb:'450,000 ÷ 28,960 = 15.5 lotes (unos 2.6 años con 6 lotes al año).'},
+    {q:'En la tabla de escenarios, ¿qué combinación hace perder el lote de ejemplo?', o:['3 % de mortalidad y RD$ 125','10 % de mortalidad y RD$ 105','6 % y RD$ 125','3 % y RD$ 115'], c:1, fb:'900 vivos × 2.3 × 105 = 217,350, menos 240,000 = −22,650.'}
+  ];
+  PBQUIZ[12] = [
+    {q:'¿Cuándo se acuerda la venta del lote?', o:['Cuando los pollos están listos','Antes de comprar los pollitos','Después de venderlos','Nunca, siempre aparece comprador'], c:1, fb:'Comprador, peso, fecha, precio y pago, antes del lote.'},
+    {q:'Según las guías de las líneas, ¿cuánto antes del procesamiento se retira el alimento?', o:['2 días','Unas 8 a 12 horas, contando transporte y espera','Nunca','30 minutos'], c:1, fb:'Y el agua se deja hasta la captura.'},
+    {q:'¿Cuándo es mejor capturar los pollos?', o:['A pleno sol','En horas frescas o de noche, con calma y poca luz','Corriendo detrás de ellos','Después de darles comida'], c:1, fb:'Menos estrés, menos golpes y menos muertes en el transporte.'},
+    {q:'Si va a vender pollo sacrificado a colmados o restaurantes, ¿qué debe confirmar?', o:['Nada','Los requisitos sanitarios de sacrificio con las autoridades (matadero autorizado)','Solo el precio','El color del empaque'], c:1, fb:'La carne debe venir de un sacrificio que cumpla los requisitos sanitarios.'},
+    {q:'¿Quién debe revisar el plan sanitario de su proyecto?', o:['El vendedor de alimento','Un veterinario','Nadie','El comprador'], c:1, fb:'Vacunas y tratamientos los indica el veterinario.'},
+    {q:'¿Qué incluye un proyecto completo de pollos de engorde?', o:['Solo el galpón','Capacidad, presupuesto, calendario, plan sanitario, estrategia comercial y permisos','Solo el número de pollitos','Solo el precio de venta'], c:1, fb:'Es lo que arma el proyecto final del módulo 12.'},
+    {q:'Evaluación final · Lote de 500 pollitos, 4 % de mortalidad. ¿Cuántos pollos vende?', o:['500','480','460','496'], c:1, fb:'500 × 0.96 = 480.'},
+    {q:'Evaluación final · Un lote comió 2,000 kg y ganó 1,084 kg. ¿Su conversión?', o:['1.54','1.85','2.00','0.54'], c:1, fb:'2,000 ÷ 1,084 = 1.85.'},
+    {q:'Evaluación final · Pollitos amontonados bajo la criadora la primera semana indican…', o:['Calor','Frío','Hambre','Que están sanos'], c:1, fb:'Se amontonan por frío; con calor se alejan y jadean.'},
+    {q:'Evaluación final · Costo por kg RD$ 108.70 y le ofrecen RD$ 105. ¿Qué pasa?', o:['Gana poco','Pierde RD$ 3.70 por kilo','Queda igual','Gana RD$ 105 por kilo'], c:1, fb:'Vende por debajo de su costo: 105 − 108.70 = −3.70.'},
+    {q:'Evaluación final · ¿Cuál es el orden correcto de limpieza entre lotes?', o:['Desinfectar sobre la cama vieja','Sacar cama, lavar, secar, desinfectar y vacío sanitario','Solo barrer','Echar cal y meter el lote'], c:1, fb:'El desinfectante no funciona sobre la suciedad.'},
+    {q:'Evaluación final · Antes de crecer de 1,000 a 2,000 pollos por lote, ¿qué conviene?', o:['Duplicar ya','Repetir lotes buenos con números claros, comprador asegurado y capital de trabajo para el doble','Construir y luego ver','Bajar la bioseguridad para ahorrar'], c:1, fb:'Crecer con números, mercado y dinero para el lote completo.'}
+  ];
+  /* variar la posición de la respuesta correcta en los módulos nuevos (fijo) */
+  [9, 10, 11, 12].forEach(function(m){
+    PBQUIZ[m].forEach(function(q, i){
+      var n = q.o.length, k = (m * 2 + i * 3) % n; if(!k) return;
+      q.o = q.o.slice(k).concat(q.o.slice(0, k)); q.c = (q.c - k + n) % n;
+    });
+  });
+}
+
+/* ---------- 8 · certificado: quien ya terminó los 8 módulos lo conserva ---------- */
+(function pbCertConserva(){
+  if(typeof window.pbCertElegible !== 'function') return;
+  var _orig = window.pbCertElegible;
+  var CORTE = new Date('2026-10-15T00:00:00-04:00').getTime();
+  window.pbCertElegible = function(id){
+    if(_orig.apply(this, arguments)) return true;
+    for(var i = 1; i <= 8; i++) if(!pbAprob(i, id)) return false;
+    /* terminó la primera versión (8 módulos) antes de la ampliación */
+    var r = pbRec(8, id), t = r && (r.date || r.at);
+    if(!t && typeof cloudRec === 'function'){ try{ var c = cloudRec(id || pbYo(), 8, 'pollos'); t = c && c.date; }catch(e){} }
+    return !!(t && t < CORTE);
+  };
+})();
+if(typeof AGCURSOSCERT !== 'undefined') AGCURSOSCERT.forEach(function(c){ if(c.id === 'pollos') c.mods = 12; });
+if(typeof AGCERTDEF !== 'undefined' && AGCERTDEF.pollos){
+  AGCERTDEF.pollos.body = 'Por su cumplimiento exitoso del {curso}, compuesto por 12 módulos sobre el modelo productivo del pollo de engorde, preparación del galpón, recepción y primeros días, alimentación y agua, control del crecimiento, bioseguridad, costos y rentabilidad, planificación del proyecto, diseño del galpón, presupuesto y flujo de caja y comercialización, con un proyecto de producción propio.';
+  AGCERTDEF.pollos.dur = '12 módulos';
+}
+if(typeof NXCURSOS !== 'undefined') NXCURSOS.forEach(function(c){ if(c.id === 'pollos'){ c.mods = 12; c.sub = '12 módulos · del primer lote a tu propio proyecto'; } });
+
+/* ---------- 9 · fotos de las páginas nuevas ---------- */
+if(typeof PBFOTOS !== 'undefined'){
+  PBFOTOS[1] = (PBFOTOS[1] || []).concat([['Los errores más comunes del principiante', 'pb-n-pollito', 'Un pollito bien atendido']]);
+  PBFOTOS[5] = (PBFOTOS[5] || []).concat([['Sus registros, listos para usar', 'pb-n-pollos', 'Pollos que se miden']]);
+  PBFOTOS[9]  = [['Empieza por el final', 'pb-n-lote', 'El lote que se va a vender'], ['Las líneas comerciales', 'pb-n-pollos', 'Pollos de una línea comercial'], ['Cuántos lotes y cuántos pollos', 'pb-n-suelo', 'Un lote en crecimiento'], ['¿Cuántos pollos al año?', 'pb-n-galpon-luz', 'Producción todo el año'], ['Cómo elegir el terreno', 'pb-n-galpon-luz', 'Galpón en el campo'], ['¿Mi proyecto está planificado?', 'pb-n-comedero', 'El primer lote']];
+  PBFOTOS[10] = [['El tamaño del galpón', 'pb-n-comederos-rojos', 'Un galpón a la medida'], ['Tamaño y equipo del galpón', 'pb-n-galpon-luz', 'Galpón equipado'], ['Las partes del galpón', 'pb-n-galpon-abierto', 'Galpón abierto'], ['Cuántos comederos', 'pb-n-comedero', 'Comederos repartidos'], ['La lista de equipos', 'pb-n-criadora', 'Criadoras encendidas'], ['¿Mi galpón está bien diseñado?', 'pb-n-criadora', 'Equipos en su lugar']];
+  PBFOTOS[11] = [['Inversión inicial', 'pb-n-granja', 'La inversión'], ['Capital de trabajo', 'pb-n-suelo', 'El lote que hay que alimentar'], ['El dinero sale cada semana', 'pb-n-lote', 'Un lote en crecimiento'], ['Punto de equilibrio', 'pb-n-lote', 'Kilos que hay que vender'], ['¿Y si las cosas no salen', 'pb-n-pollos', 'Escenarios'], ['¿En cuánto tiempo recupero', 'pb-n-moderno', 'Recuperar la inversión'], ['¿Mis números están completos?', 'pb-n-moderno', 'Un proyecto con números']];
+  PBFOTOS[12] = [['La salida del lote', 'pb-n-suelo', 'Pollos listos'], ['¿A quién le vendo?', 'pb-n-lote', 'Lote listo para la venta'], ['Sus registros, listos', 'pb-n-equipos', 'Registrar cada lote'], ['Mi proyecto de pollos', 'pb-n-comederos-rojos', 'El proyecto'], ['¿Estoy listo para empezar', 'pb-n-galpon-abierto', 'El proyecto en marcha']];
+  PBFOTOS[9] = PBFOTOS[9].concat([['Permisos: qué averiguar','pb-n-galpon-abierto','Antes de construir'],['Tengo el terreno, pero no tengo comprador','pb-n-granja','Terreno y proyecto'],['Evaluación del módulo','pb-n-pollito','Un pollito sano']]);
+  PBFOTOS[10] = PBFOTOS[10].concat([['Mi galpón es un horno','pb-n-moderno','Ventilar el galpón'],['Evaluación del módulo','pb-n-comederos-rojos','Galpón equipado']]);
+  PBFOTOS[11] = PBFOTOS[11].concat([['¿Qué voy a aprender?','pb-n-granja','Los números del proyecto'],['Me quedé sin dinero','pb-n-comedero','El alimento de cada semana'],['Evaluación del módulo','pb-n-pollos','Pollos de engorde']]);
+  PBFOTOS[12] = PBFOTOS[12].concat([['Por qué 8 a 12 horas','pb-n-suelo','Antes de la captura'],['El comprador no llegó','pb-n-moderno','Pollos listos para salir'],['Evaluación del módulo','pb-n-pollito','El próximo lote']]);
+}
+
+/* ---------- 10 · estilos ---------- */
+(function pbProyCss(){
+  if(document.getElementById('pbProyCss')) return;
+  var st = document.createElement('style'); st.id = 'pbProyCss';
+  st.textContent = [
+    '.pb-esc,.pb-pt{padding:22px;border-radius:18px;border:1px solid var(--border);background:var(--panel)}',
+    '.pb-esc-k{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:#9A6D14;font-weight:700}',
+    '.pb-esc h3,.pb-pt h3{margin:6px 0 8px;font-family:var(--display);font-size:clamp(19px,2.4vw,24px);color:var(--text)}',
+    '.pb-esc > p,.pb-pt > p{margin:0 0 14px;font-size:14.5px;line-height:1.6;color:var(--text-2);max-width:75ch}',
+    '.pb-esc-t{overflow-x:auto}',
+    '.pb-esc table{width:100%;min-width:300px;border-collapse:separate;border-spacing:4px;font-variant-numeric:tabular-nums}',
+    '.pb-esc th{padding:8px;font-size:12.5px;color:var(--muted);text-align:center;font-weight:700}',
+    '.pb-esc tbody th{text-align:right;color:var(--text)}',
+    '.pb-esc td{padding:12px 8px;border-radius:10px;text-align:center;font-size:14px}',
+    '.pb-esc-ok{background:color-mix(in srgb,#2F7D4F 20%,transparent);color:var(--text)}',
+    '.pb-esc-jus{background:color-mix(in srgb,#C08A1E 22%,transparent);color:var(--text)}',
+    '.pb-esc-mal{background:color-mix(in srgb,#B42318 20%,transparent);color:var(--text)}',
+    '.pb-esc-l{display:flex;gap:16px;margin:10px 0;font-size:13px;color:var(--text-2)}',
+    /* en el teléfono la tabla cabe entera: sin desplazamiento lateral */
+    '@media(max-width:640px){.pb-esc{padding:16px 12px}.pb-esc table{min-width:0;border-spacing:3px;table-layout:fixed}.pb-esc thead th:first-child{width:24%}.pb-esc th{padding:6px 2px;font-size:10.5px;letter-spacing:0}.pb-esc td{padding:9px 2px;font-size:11.5px;line-height:1.25}.pb-esc td b{display:block;word-break:break-word}}',
+    '.pb-esc-l i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px}',
+    '.pb-esc-l i.ok{background:#2F7D4F}.pb-esc-l i.jus{background:#C08A1E}.pb-esc-l i.mal{background:#B42318}',
+    '.pb-esc-n{font-size:13px!important;color:var(--muted)!important}',
+    '.pb-pt-g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}',
+    '.pb-pt-b{display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:var(--panel);color:var(--text);font:inherit;text-align:left;cursor:pointer}',
+    '.pb-pt-b:hover{border-color:#C2410C}',
+    '.pb-pt-b:focus-visible{outline:3px solid #C2410C;outline-offset:2px}',
+    '.pb-pt-b span{font-size:13px;line-height:1.5;color:var(--text-2)}',
+    '.pb-pt-b em{font-style:normal;font-size:13px;font-weight:700;color:#C2410C}',
+    '.pb-pr-gr{grid-column:1/-1;margin:18px 0 8px;font-family:var(--display);font-size:16px;color:var(--ac,#C2410C)}',
+    '.pb-pr-f{display:flex;flex-direction:column;gap:6px;max-width:280px;margin-bottom:12px;font-size:14px;color:var(--text)}',
+    '.pb-pr-f input{padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--panel);color:var(--text);font:inherit}',
+    '.pb-pr-cal{width:100%;border-collapse:collapse;font-size:13.5px}',
+    '.pb-pr-cal th,.pb-pr-cal td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text)}',
+    '.pb-pr-cal td:nth-child(2){font-family:var(--mono);color:var(--muted);white-space:nowrap}',
+    '.pb-pr-cal td:first-child{white-space:nowrap}',
+    '.pb-pr-cal tr.hoy td{background:color-mix(in srgb,#C2410C 10%,transparent);font-weight:700}',
+    '.pb-pr-n,.pb-pr-vacio{font-size:13px;color:var(--muted)}',
+    '@media(max-width:620px){.pb-pr-cal td:first-child{white-space:normal}.pb-esc,.pb-pt{padding:16px}}'
+  ].join('\n');
+  (document.head || document.documentElement).appendChild(st);
+})();
+
+/* ---------- 11 · la ficha de pago dice lo que el curso trae hoy ---------- */
+function pbFichaPago(){
+  if(typeof AGPAGO === 'undefined' || !AGPAGO.pollos) return false;
+  AGPAGO.pollos.incluye = [
+    '12 módulos: del pollito al negocio, galpón, primeros 7 días, alimento y agua, control del lote, bioseguridad, costos y lote rentable, ' +
+      'y la parte 2: planificar, construir, presupuestar y vender su propio proyecto',
+    '10 casos prácticos resueltos y 6 calculadoras',
+    'Calculadora básica del lote en Excel y 6 plantillas descargables de registros',
+    'Su plan de producción y su proyecto propio con calendario del lote, listos para imprimir',
+    'Certificado de Aprovechamiento al aprobar los 12 módulos'
+  ];
+  return true;
+}
+if(!pbFichaPago()) document.addEventListener('DOMContentLoaded', pbFichaPago);
+
 </script>
+
+
+
+
+
+
+
+
+
 
 
 
