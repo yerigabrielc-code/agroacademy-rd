@@ -44307,22 +44307,22 @@ function rtTieneAcceso(){ return true; }
 function rtPortada(){
   var p = rtProgreso();
   var n = RTMOD.length;
-  return '<div class="nx-port rt-port" style="--foto:url(&quot;images/nutri-b-cerdos-comedero.jpg&quot;)">' +
+  return '<div class="nx-port rt-port" style="--foto:url(&quot;images/eg-p-34.jpg&quot;)">' +
     '<div class="nx-port-velo"></div>' +
     '<div class="nx-cover">' +
-      '<span class="rt-libre">🟢 Gratis · sin pagar nada</span>' +
-      '<h1>Introducción a la Porcicultura Rentable</h1>' +
-      '<p class="nx-cover-s">Tu primera clase en AgroAcademy. Cinco módulos cortos para entender de qué depende ' +
-      'de verdad el dinero de una granja de cerdos — y para descubrir qué le toca aprender a usted.</p>' +
+      '<span class="rt-libre">🟢 Curso gratis · empieza aquí</span>' +
+      '<h1>La Granja Rentable</h1>' +
+      '<p class="nx-cover-s">Descubre dónde se va el dinero de tu granja y qué puedes hacer para producir de forma más rentable. ' +
+      'Cinco módulos cortos, casos prácticos y un diagnóstico hecho con tus respuestas.</p>' +
       '<div class="nx-cover-kpis">' +
         '<div><b>' + n + '</b><span>módulos cortos</span></div>' +
         '<div><b>15–25</b><span>minutos en total</span></div>' +
-        '<div><b>1</b><span>simulador con sus datos</span></div>' +
-        '<div><b>' + p + '/' + n + '</b><span>su avance</span></div>' +
+        '<div><b>1</b><span>diagnóstico de tu granja</span></div>' +
+        '<div><b>' + p + '/' + n + '</b><span>tu avance</span></div>' +
       '</div>' +
       '<button class="btn btn-primary nx-empieza" onclick="rtIr(1)">' +
-        (p ? 'Continuar' : 'Empezar gratis') + ' →</button>' +
-      '<p class="rt-port-n">No hace falta pagar, ni registrarse de nuevo, ni terminar hoy. Su avance se guarda solo.</p>' +
+        (p ? 'Continuar donde lo dejé' : 'Empezar gratis') + ' →</button>' +
+      '<p class="rt-port-n">No hace falta pagar ni terminar hoy. Tu avance se guarda solo y puedes volver cuando quieras.</p>' +
     '</div></div>';
 }
 
@@ -44343,7 +44343,7 @@ function rtPinta(){
   /* el puente comercial, discreto y solo si el módulo lo trae */
   if(m.mas){
     h += '<section class="nx-b nx-full"><div class="rt-mas rv" style="--ac:' + m.ac + '">' +
-      '<div><b>¿Quiere aprender esto a profundidad?</b><p>' + m.mas.p + '</p></div>' +
+      '<div><b>¿Quieres aprender esto a fondo?</b><p>' + m.mas.p + '</p></div>' +
       '<button class="rt-mas-b" onclick="rtVerCurso(\'' + m.mas.curso + '\')">' +
         'Ver el curso de ' + m.mas.n + ' →</button>' +
     '</div></section>';
@@ -44354,7 +44354,7 @@ function rtPinta(){
      cinco cursos. rtExamen() ya entrega el examen sin la clave a la vista. */
   try{ h += rtExamen(m.n) || ''; }catch(e){}
   h += '<section class="nx-b nx-full"><div class="rt-check rv' + (rtAprob(m.n) ? ' on' : '') + '">' +
-    '<span>' + (rtAprob(m.n) ? '✅ Módulo aprobado' : 'Responda la evaluación para aprobar este módulo') + '</span>' +
+    '<span>' + (rtAprob(m.n) ? '✅ Módulo aprobado' : 'Responde la evaluación para aprobar este módulo') + '</span>' +
     '<em>' + rtProgreso() + ' de ' + RTMOD.length + ' módulos aprobados</em>' +
   '</div></section>';
 
@@ -44364,7 +44364,7 @@ function rtPinta(){
       : '<button class="btn btn-ghost" onclick="rtIr(0)">← Portada</button>') +
     (RTCUR < RTMOD.length
       ? '<button class="btn btn-primary" onclick="rtIr(' + (RTCUR + 1) + ')">' + esc(RTMOD[RTCUR].t) + ' →</button>'
-      : '<button class="btn btn-primary" onclick="rtIr(' + (RTMOD.length + 1) + ')">Terminar la ruta →</button>') +
+      : '<button class="btn btn-primary" onclick="rtIr(' + (RTMOD.length + 1) + ')">Terminar el curso →</button>') +
     '</div></div>';
 
   c.innerHTML = h;
@@ -44384,16 +44384,16 @@ function rtFinal(){
   return '<div class="rt-fin2">' +
     '<div class="rt-fin2-h">' +
       '<span class="rt-fin-ico">🎯</span>' +
-      '<h2>Ya sabe dónde quiere mejorar</h2>' +
-      '<p>Cada granja tiene necesidades diferentes. Ahora puede elegir por dónde continuar — ' +
-      'y elegirlo con un motivo, no a ciegas.</p>' +
+      '<h2>Ya sabes dónde mirar</h2>' +
+      '<p>Entiendes mejor lo que tienes que revisar en tu granja. Ahora toca aprender a manejar bien cada área ' +
+      'para tomar mejores decisiones con tus propios números.</p>' +
       '<div class="rt-fin-pg"><i style="width:' + (p / n * 100) + '%"></i></div>' +
       '<span class="rt-fin-n">' + p + ' de ' + n + ' módulos completados</span>' +
     '</div>' +
     '<div class="rt-fin2-plan" id="rtpCaja">' + plan + '</div>' +
     '<div class="rt-fin2-pie">' +
-      '<button class="rt-fin-b" onclick="rtExplorar()">🎯 Explorar toda la academia →</button>' +
-      '<button class="btn btn-ghost rt-fin-v" onclick="rtIr(1)">Volver a ver la ruta</button>' +
+      '<button class="rt-fin-b" onclick="rtExplorar()">🎯 Explorar los cursos de AgroAcademy →</button>' +
+      '<button class="btn btn-ghost rt-fin-v" onclick="rtIr(1)">Repasar el curso</button>' +
     '</div>' +
   '</div>';
 }
@@ -44414,7 +44414,7 @@ function rtNav(){
       var v = (typeof rtAprob === 'function') ? rtAprob(m.n) : false;
       var abierto = (typeof rtDesbloq === 'function') ? rtDesbloq(m.n) : true;
       return '<button class="nx-nl' + (RTCUR === m.n ? ' on' : '') + (abierto ? '' : ' rt-nl-lock') +
-        '" onclick="rtIr(' + m.n + ')"' + (abierto ? '' : ' title="Apruebe antes el módulo anterior"') + '>' +
+        '" onclick="rtIr(' + m.n + ')"' + (abierto ? '' : ' title="Aprueba primero el módulo anterior"') + '>' +
         '<span class="nx-nn" style="' + (RTCUR === m.n ? 'background:' + m.ac + ';color:#fff' : '') + '">' +
         (v ? '✓' : (abierto ? m.num : '🔒')) + '</span> ' + esc(m.t) + '</button>';
     }).join('') +
@@ -44423,8 +44423,8 @@ function rtNav(){
       var libre = (typeof rtDesbloq === 'function') ? rtDesbloq(fin) : true;
       return '<button class="nx-nl rt-nl-fin' + (RTCUR > RTMOD.length ? ' on' : '') +
         (libre ? '' : ' rt-nl-lock') + '" onclick="rtIr(' + fin + ')"' +
-        (libre ? '' : ' title="Apruebe los cinco módulos"') + '>' +
-        '<span class="nx-nn">' + (libre ? '🚀' : '🔒') + '</span> Esto es solo el comienzo</button>';
+        (libre ? '' : ' title="Aprueba los cinco módulos"') + '>' +
+        '<span class="nx-nn">' + (libre ? '🚀' : '🔒') + '</span> Tu próximo paso</button>';
     })();
 }
 
@@ -44434,8 +44434,8 @@ function rtIr(id){
   if(typeof rtDesbloq === 'function' && id >= 1 && !rtDesbloq(id)){
     if(typeof toast === 'function'){
       toast(id > RTMOD.length
-        ? 'Apruebe los ' + RTMOD.length + ' módulos para llegar aquí'
-        : 'Apruebe antes el módulo ' + (id - 1), '🔒');
+        ? 'Aprueba los ' + RTMOD.length + ' módulos para llegar aquí'
+        : 'Aprueba primero el módulo ' + (id - 1), '🔒');
     }
     return;
   }
@@ -44480,7 +44480,7 @@ window.openRuta = function(){
   if(!ov){
     ov = document.createElement('div'); ov.id = 'rtOv'; ov.className = 'nx-ov rt-ov';
     ov.innerHTML = '<aside class="nx-side"><div class="nx-side-h"><div class="nx-logo">🐖</div>' +
-      '<div><b>Introducción a la Porcicultura Rentable</b><span>Gratis · su primera clase</span></div></div>' +
+      '<div><b>La Granja Rentable</b><span>Curso gratis · empieza aquí</span></div></div>' +
       '<nav class="nx-nav" id="rtNav"></nav>' +
       '<div class="nx-side-f">' +
         '<button class="btn btn-ghost" onclick="rtCerrar()">← Volver a mis cursos</button>' +
@@ -44518,145 +44518,123 @@ window.rtVerCurso = function(id){
     try{ agVerCurso(id); return; }catch(e){}
   }
   if(typeof agAbrirPago === 'function'){ try{ agAbrirPago(id); return; }catch(e){} }
-  if(typeof toast === 'function') toast('Abra «Mis cursos» para ver este curso', 'ℹ️');
+  if(typeof toast === 'function') toast('Abre «Mis cursos» para ver este curso', 'ℹ️');
 };
 
 
 /* ---------- rt-datos.js ---------- */
 /* ============================================================
-   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · LOS CINCO MÓDULOS
+   LA GRANJA RENTABLE · LOS CINCO MÓDULOS
    ------------------------------------------------------------
-   Hilo conductor: ¿cuánto dinero puede generar realmente una
-   granja porcina? Y la respuesta incómoda que el curso entero
-   trata de demostrar: CRIAR CERDOS NO ES LO MISMO QUE SER
-   RENTABLE.
+   Rediseño completo, 2026-10-14. Curso gratis de entrada.
 
-   La fórmula de cada módulo es siempre la misma:
+   Progresión narrativa:
+     PROBLEMA → DESCUBRIMIENTO → ERROR → SOLUCIÓN INICIAL →
+     DIAGNÓSTICO → SIGUIENTE NIVEL
 
-     problema → descubrimiento → números → consecuencia →
-     diagnóstico → recomendación → siguiente curso
+     01 · ¿Tu granja te está dejando dinero o solo trabajo?  (problema)
+     02 · El dinero que se te puede estar yendo               (descubrimiento)
+     03 · El error que puede cambiar todo el resultado        (error + solución)
+     04 · Descubre el punto débil de tu granja                (diagnóstico)
+     05 · Tu próximo paso hacia una granja más rentable       (siguiente nivel)
 
-   Regla de este curso, distinta a la de los demás: aquí NO se
-   enseña a fondo. Se enseña lo justo para que el productor
-   entienda de qué depende su resultado y se dé cuenta de lo que
-   no sabe. Si un tema necesita más de cuatro líneas de texto,
-   no va en este curso: va en el curso especializado, y aquí
-   solo se nombra — o mejor, se convierte en algo que se toca.
+   Cada módulo: una situación que el productor reconoce, una pieza
+   que se toca, una pregunta con respuesta inmediata, una acción
+   para esta semana y una evaluación de tres preguntas.
 
-   Por eso la proporción está invertida respecto a un curso
-   normal: más piezas interactivas que párrafos.
+   SE CONSERVAN LOS CINCO MÓDULOS Y SU NUMERACIÓN: el avance se
+   guarda por número ('rt::<alumno>::exam_m<N>'). Cambiar cuántos
+   son haría perder lo ya aprobado.
+
+   Todas las cifras son de EJEMPLO, con precios de referencia, y
+   se dicen como tales en pantalla. Ningún caso es una persona real.
    ============================================================ */
 
 var RTMOD = [
 
-/* ============================ 01 ============================
-   ¿Qué tan rentable puede ser una granja?
-   Abre con la pregunta del dinero y cierra con la infografía de
-   las seis variables, que es el mapa de todo el curso. */
+/* ============================ 01 ============================ */
 {
   n:1, num:'01', ac:'#2F7D4F', min:4,
-  t:'¿Qué tan rentable puede ser una granja?',
-  sub:'Criar cerdos y ganar dinero con cerdos no son la misma cosa',
-  mas:{curso:'porcicultura', n:'Porcicultura aplicada a RD',
-       p:'Las bases completas para manejar una granja adaptada a la realidad dominicana: instalaciones, manejo, sanidad, registros, economía y comercialización.'},
+  t:'¿Tu granja te está dejando dinero o solo trabajo?',
+  sub:'Trabajas todos los días, compras, vendes… pero ¿cuánto te quedó de verdad?',
   sec:[
-    {k:'rtfoto', id:'granja'},
-    {k:'rtidea'},
-    {k:'rtfoto', id:'lechones'},
-    {k:'rtmas100'},
-    {k:'rtfoto', id:'granjero'},
-    {k:'rtvariables'},
-    {k:'rtfoto', id:'nave'},
-    {k:'agnota', tipo:'dato', nt:'La pregunta que casi nadie sabe responder', p:
-      '¿<b>Cuánto le costó producir el último cerdo que vendió?</b> Si no tiene el número, no está solo — la mayoría de los productores tampoco lo tiene. ' +
-      'Y por eso se puede estar perdiendo dinero durante años sin enterarse, porque el ingreso entra igual. ' +
-      'En el módulo siguiente vamos a sacar ese número con los datos de su granja.'}
+    {k:'rtfoto', id:'g-nave'},
+    {k:'rtgabre'},
+    {k:'rtgcaso'},
+    {k:'rtfoto', id:'g-libreta'},
+    {k:'rtgpregunta', id:'p1',
+      q:'Vendiste un lote y te entraron RD$ 300,000. ¿Eso es lo que ganaste?',
+      o:['Sí, eso fue lo que me entró', 'No: falta restarle todo lo que costó producirlo', 'Depende de cuánto pagué por el último saco'],
+      c:1,
+      fb:'Lo que entra es <b>venta</b>, no ganancia. La ganancia es lo que queda después de restar los lechones, todo el alimento —también el de los que se murieron—, las medicinas y los demás gastos del lote.'},
+    {k:'rtgaccion', id:'a1', ico:'📒',
+      t:'Esta semana: anota todo lo que gastas en la granja',
+      p:'Una libreta y cuatro columnas: <b>fecha, qué compraste, cuánto pagaste y para qué lote</b>. Sin ese papel no hay número que sacar.'}
   ]
 },
 
-/* ============================ 02 ============================
-   Póngale números a su granja.
-   El simulador y las cuatro palancas. Es el módulo más largo y
-   el que justifica el curso entero. */
+/* ============================ 02 ============================ */
 {
-  n:2, num:'02', ac:'#1F6F8B', min:7,
-  t:'Póngale números a su granja',
-  sub:'Ingresos, costos y margen — con sus datos, no con los de un folleto',
-  mas:{curso:'engorde', n:'Engorde porcino',
-       p:'Los cinco números, calculados con los datos de SU granja: quince calculadoras, doce casos resueltos y un proyecto final que cierra un lote completo.'},
+  n:2, num:'02', ac:'#c4544a', min:5,
+  t:'El dinero que se te puede estar yendo sin darte cuenta',
+  sub:'Seis fugas que casi nunca se ven en el bolsillo, pero que se pagan igual',
   sec:[
-    {k:'rtfoto', id:'numeros'},
-    {k:'rtnumeros'},
-    {k:'rtfoto', id:'comedero'},
+    {k:'rtfoto', id:'g-comedero'},
+    {k:'rtgfugas'},
+    {k:'rtgejemplo'},
+    {k:'rtgpregunta', id:'p2',
+      q:'Se te muere un cerdo de 70 kg. ¿Cuánto perdiste?',
+      o:['Lo que pagué por el lechón', 'El lechón más todo el alimento que ya se comió', 'Nada, porque no lo vendí'],
+      c:1,
+      fb:'El lechón <b>y</b> todo lo que se comió hasta ese día. Con precios de ejemplo —lechón de RD$ 3,200 y unos 150 kg de alimento a RD$ 30— son cerca de RD$ 7,700 que no vuelven — y por eso los que sí llegan a la venta tienen que pagar esa pérdida.'},
+    {k:'rtgaccion', id:'a2', ico:'🔎',
+      t:'Esta semana: revisa comederos y bebederos',
+      p:'Mira si caen restos de alimento al piso o si hay bebederos goteando. Es la fuga más fácil de ver y de cerrar, y no cuesta casi nada.'}
+  ]
+},
+
+/* ============================ 03 ============================ */
+{
+  n:3, num:'03', ac:'#1F6F8B', min:6,
+  t:'El error que puede cambiar todo el resultado',
+  sub:'Producir más no siempre es ganar más',
+  sec:[
+    {k:'rtgdos'},
+    {k:'rtfoto', id:'g-bascula'},
+    {k:'rtgdecide'},
     {k:'rtsimu'},
-    {k:'rtfoto', id:'sacos'},
-    {k:'rtquepasa'},
-    {k:'rtfoto', id:'pesaje'},
-    {k:'agnota', tipo:'plata', nt:'Dos granjas, el mismo cerdo', p:
-      'Dos productores venden cerdos de 100 kg el mismo mes y al mismo precio. Uno gana bastante más que el otro. ' +
-      'La diferencia no está en el cerdo: está en <b>cuánto alimento hizo falta</b> y en <b>cuántos animales llegaron</b>. ' +
-      'Los controles de arriba son exactamente esas dos cosas.'}
+    {k:'rtgaccion', id:'a3', ico:'⚖️',
+      t:'Esta semana: pesa una muestra de tu lote',
+      p:'Pesa 5 cerdos, anota el peso y la fecha. Dentro de dos semanas vuelve a pesarlos: con esa diferencia sabes cuánto están ganando por día.'}
   ]
 },
 
-/* ============================ 03 ============================
-   ¿Dónde se le puede ir el dinero?
-   Las seis fugas y la línea de tiempo: el mismo problema visto
-   por variable y visto por etapa. */
-{
-  n:3, num:'03', ac:'#c4544a', min:5,
-  t:'¿Dónde se le puede ir el dinero?',
-  sub:'Seis fugas y siete momentos — ninguno es raro y casi nunca vienen solos',
-  mas:{curso:'sanidad', n:'Sanidad y bioseguridad · PPA',
-       p:'Prevención, control y respuesta ante la Peste Porcina Africana, con el plan de bioseguridad de su propia granja escrito y puntuado.'},
-  sec:[
-    {k:'rtfugas'},
-    {k:'rtfoto', id:'genetica'},
-    {k:'rtlinea'},
-    {k:'rtfoto', id:'crecimiento'},
-    {k:'rterrores'},
-    {k:'rtfoto', id:'charco'},
-    {k:'rtfoto', id:'registros'},
-    {k:'agnota', tipo:'ojo', nt:'Si reconoció alguna, va bien', p:
-      'Darse cuenta es la parte difícil. Casi ningún productor tiene las seis fugas abiertas, y casi ninguno está libre de las seis. ' +
-      'Lo que separa una granja que mejora de una que no es que <b>alguien se pare a mirar y anote</b>.'}
-  ]
-},
-
-/* ============================ 04 ============================
-   El diagnóstico. El módulo más corto en texto y el que más
-   trabaja: aquí se decide qué se le recomienda al estudiante. */
+/* ============================ 04 ============================ */
 {
   n:4, num:'04', ac:'#6b4e9e', min:4,
-  t:'Descubra qué necesita aprender',
-  sub:'Cuatro preguntas y un resultado escrito con sus propias respuestas',
+  t:'Descubre el punto débil de tu granja',
+  sub:'Siete preguntas rápidas y una orientación hecha con tus respuestas',
   sec:[
-    {k:'rtfoto', id:'cerda'},
+    {k:'rtfoto', id:'g-paridera'},
     {k:'rtdiag'},
-    {k:'rtfoto', id:'filtro'},
-    {k:'agnota', tipo:'campo', nt:'Por qué preguntamos y no adivinamos', p:
-      'No todas las granjas tienen el mismo problema, así que no a todas les sirve el mismo curso. ' +
-      'Un productor que no lleva ningún registro no necesita lo mismo que uno que ya calcula su conversión. ' +
-      'Su resultado <b>queda guardado</b> y lo verá otra vez en el módulo siguiente.'}
+    {k:'agnota', tipo:'campo', nt:'Una orientación, no una auditoría', p:
+      'Este diagnóstico es una simulación orientativa: te ayuda a ver por dónde empezar, pero no reemplaza la visita de un técnico a tu granja. ' +
+      'Tu resultado <b>queda guardado</b> y lo verás otra vez en el módulo siguiente.'}
   ]
 },
 
-/* ============================ 05 ============================
-   Su siguiente paso. La pantalla comercial, y la única del
-   curso que lo es abiertamente — después de veinte minutos en
-   los que no se le vendió nada. */
+/* ============================ 05 ============================ */
 {
-  n:5, num:'05', ac:'#c8912f', min:4,
-  t:'Su siguiente paso',
-  sub:'Cada granja necesita algo distinto. Este es el suyo',
+  n:5, num:'05', ac:'#B5651D', min:4,
+  t:'Tu próximo paso hacia una granja más rentable',
+  sub:'Lo que aprendiste, lo que vas a hacer y lo que te toca aprender',
   sec:[
-    {k:'rtfoto', id:'corralLleno'},
-    {k:'rtcta'},
+    {k:'rtfoto', id:'g-cerdo'},
+    {k:'rtgresumen'},
     {k:'rtplan'},
-    {k:'agnota', tipo:'campo', nt:'Cómo se adquieren', p:
-      'La <b>Introducción a la Porcicultura Rentable</b> que acaba de hacer es gratis y lo seguirá siendo. ' +
-      'Los demás cursos se adquieren por separado: al pulsar «Ver curso» encontrará el precio, el temario completo y las cuentas para transferir. ' +
-      'Cuando el instructor confirme el pago, el curso se le desbloquea con <b>la misma cuenta que ya tiene</b> — no hay que registrarse de nuevo.'}
+    {k:'agnota', tipo:'campo', nt:'Cómo se adquieren los cursos', p:
+      'Este curso es gratis y lo seguirá siendo. Los cursos especializados se adquieren por separado: al pulsar «Ver el curso» encontrarás el precio y el temario completo. ' +
+      'Puedes pagar con tarjeta o por transferencia, y el curso se abre con <b>la misma cuenta que ya tienes</b>.'}
   ]
 }
 
@@ -44834,9 +44812,9 @@ function rtSecErrores(){
 function rtSecCta(){
   return '<section class="nx-b nx-full"><div class="rt-cta rv">' +
     '<span class="rt-cta-ico">🚀</span>' +
-    '<h3>¿Listo para llevar su producción al siguiente nivel?</h3>' +
-    '<p>Cada uno de estos cursos entra a fondo en una parte del negocio. ' +
-      'No hace falta tomarlos todos, ni en orden: empiece por donde más le duela hoy.</p>' +
+    '<h3>Ahora sabes qué revisar. Lo que sigue es aprender a manejarlo.</h3>' +
+    '<p>Cada curso de AgroAcademy entra a fondo en una parte de la granja, con calculadoras, casos y evaluaciones. ' +
+      'Empieza por tu punto débil: es donde más rápido vas a notar la diferencia.</p>' +
   '</div></section>';
 }
 
@@ -45416,9 +45394,9 @@ function rtSecSimu(){
   return '<section class="nx-b nx-full"><div class="rts rv">' +
     '<div class="rtv-cab">' +
       '<span class="rtv-k">Simulador · mueva los controles</span>' +
-      '<h3>💰 Póngale números a su granja</h3>' +
-      '<p>Ponga los datos de su granja, o deje los de ejemplo y muévalos. Todo se recalcula mientras usted arrastra: ' +
-      'no hay botón de calcular ni hay que esperar a nada.</p>' +
+      '<h3>💰 Ahora ponle números a tu granja</h3>' +
+      '<p>Pon los datos de tu granja, o deja los de ejemplo y muévelos. Todo se recalcula mientras arrastras: ' +
+      'mira qué pasa con la ganancia cuando cambias la conversión o la mortalidad.</p>' +
     '</div>' +
     '<div class="rts-g">' +
       '<div class="rts-ctrl">' + ctrl +
@@ -45459,16 +45437,16 @@ function rtSimResHTML(){
   var alerta = '';
   if(r.margen < 0){
     alerta = '<div class="rts-al rts-al-mal"><b>🔴 Este lote pierde dinero.</b> ' +
-      'Para no perder tendría que venderse a <b>RD$ ' + rtNum(r.equil, 1) + ' por libra</b>, y usted puso RD$ ' + rtNum(RTSIM.pr, 0) + '. ' +
+      'Para no perder tendría que venderse a <b>RD$ ' + rtNum(r.equil, 1) + ' por libra</b>, y pusiste RD$ ' + rtNum(RTSIM.pr, 0) + '. ' +
       'La diferencia no está en el cerdo: está en lo que costó producirlo.</div>';
   } else if(r.pctMargen < 8){
     alerta = '<div class="rts-al rts-al-ojo"><b>🟡 Margen muy justo.</b> ' +
-      'Queda un ' + rtNum(r.pctMargen, 1) + ' % del ingreso. Su punto de equilibrio está en <b>RD$ ' + rtNum(r.equil, 1) + ' por libra</b>: ' +
+      'Queda un ' + rtNum(r.pctMargen, 1) + ' % del ingreso. Tu punto de equilibrio está en <b>RD$ ' + rtNum(r.equil, 1) + ' por libra</b>: ' +
       'una bajada pequeña del precio, o una subida del alimento, lo deja en pérdida.</div>';
   } else {
     alerta = '<div class="rts-al rts-al-ok"><b>🟢 El lote deja margen.</b> ' +
-      'Su punto de equilibrio está en <b>RD$ ' + rtNum(r.equil, 1) + ' por libra</b> y usted vende a RD$ ' + rtNum(RTSIM.pr, 0) + '. ' +
-      'Ese colchón de RD$ ' + rtNum(RTSIM.pr - r.equil, 1) + ' por libra es lo que lo protege cuando el mercado se mueve.</div>';
+      'Tu punto de equilibrio está en <b>RD$ ' + rtNum(r.equil, 1) + ' por libra</b> y vendes a RD$ ' + rtNum(RTSIM.pr, 0) + '. ' +
+      'Ese colchón de RD$ ' + rtNum(RTSIM.pr - r.equil, 1) + ' por libra es lo que te protege cuando el mercado se mueve.</div>';
   }
 
   return '<div class="rts-kpis">' +
@@ -45581,172 +45559,715 @@ function rtSecQuePasa(){
 RTREG.rtquepasa = rtSecQuePasa;
 
 
+/* ---------- rt-granja.js ---------- */
+/* ============================================================
+   LA GRANJA RENTABLE · PIEZAS DEL REDISEÑO (2026-10-14)
+   ------------------------------------------------------------
+     rtgabre     · la pregunta que abre el curso (módulo 1)
+     rtgcaso     · el caso de Ramón: ¿ganó o perdió?   (módulo 1)
+     rtgpregunta · pregunta rápida con respuesta inmediata (todos)
+     rtgaccion   · la acción de la semana, que se marca (todos)
+     rtgfugas    · seis fugas: ¿te pasa a ti?           (módulo 2)
+     rtgejemplo  · cuánto cuestan las fugas en un lote   (módulo 2)
+     rtgdos      · dos productores, adivina quién ganó  (módulo 3)
+     rtgdecide   · el saco más barato                   (módulo 3)
+     rtgresumen  · lo que aprendiste y lo que hiciste   (módulo 5)
+
+   TODAS LAS CIFRAS SALEN DE UNA MISMA CUENTA (rtgLote) con precios
+   de ejemplo, para que ningún número contradiga a otro. Se dicen
+   como ejemplo en pantalla: no son estadísticas ni promesas.
+   Ramón y los productores A y B son casos ilustrativos, no
+   personas reales.
+   ============================================================ */
+
+var RTREG = (typeof RTREG !== 'undefined' && RTREG) ? RTREG : {};
+
+/* ---------- precios de ejemplo, en un solo sitio ---------- */
+var RTGP = { lechon:3200, pi:20, pv:100, alim:30, lb:62, med:250, otros:400 };
+
+/* la cuenta de un lote de engorde. A los que mueren se les cuenta la
+   mitad del alimento, que es lo que por término medio alcanzaron a comer */
+function rtgLote(o){
+  var P = RTGP, n = o.n, muertos = o.m || 0, ca = o.ca, pv = o.pv || P.pv, palim = o.palim || P.alim;
+  var vivos = n - muertos, gana = pv - P.pi;
+  var kgAlim = vivos * gana * ca + muertos * gana * ca * 0.5;
+  var cAlim = kgAlim * palim, cLech = n * P.lechon, cMed = n * (o.med != null ? o.med : P.med), cOtros = n * P.otros;
+  var libras = vivos * pv * 2.20462;
+  var ingreso = libras * P.lb;
+  var costo = cAlim + cLech + cMed + cOtros;
+  return { n:n, vivos:vivos, muertos:muertos, kgAlim:kgAlim, cAlim:cAlim, cLech:cLech, cMed:cMed, cOtros:cOtros,
+           libras:libras, ingreso:ingreso, costo:costo, gana:ingreso - costo };
+}
+function rtgM(v){
+  var n = Math.round(v || 0), neg = n < 0; n = Math.abs(n);
+  return (neg ? '−RD$ ' : 'RD$ ') + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function rtgE(t){ return (typeof rtvEsc === 'function') ? rtvEsc(t) : String(t == null ? '' : t); }
+
+/* ---------- lo que el estudiante va marcando, por alumno ---------- */
+function rtgK(){ return 'rt::' + rtYo() + '::granja'; }
+function rtgEstado(){ try{ return JSON.parse(localStorage.getItem(rtgK()) || '{}') || {}; }catch(e){ return {}; } }
+function rtgGuarda(st){ try{ localStorage.setItem(rtgK(), JSON.stringify(st)); }catch(e){} }
+function rtgSet(campo, k, v){ var st = rtgEstado(); st[campo] = st[campo] || {}; st[campo][k] = v; rtgGuarda(st); return st; }
+function rtgRepinta(id, html){ var c = document.getElementById(id); if(c){ c.innerHTML = html; c.classList.add('in'); } }
+
+function rtgCab(k, t, p){
+  return '<div class="rtv-cab"><span class="rtv-k">' + k + '</span><h3>' + t + '</h3>' + (p ? '<p>' + p + '</p>' : '') + '</div>';
+}
+function rtgCursoChip(id){
+  var n = id;
+  try{ if(typeof COURSES !== 'undefined' && COURSES[id] && COURSES[id].name) n = COURSES[id].name; }catch(e){}
+  var i = n.search(/[:·]/); if(i > 0) n = n.slice(0, i).trim();
+  return '<button class="rtg-chip" onclick="rtVerCurso(\'' + id + '\')">' + rtgE(n) + ' →</button>';
+}
+
+/* ============================================================
+   1 · LA PREGUNTA QUE ABRE EL CURSO
+   ============================================================ */
+RTREG.rtgabre = function(){
+  var dia = [
+    ['🌅', 'Madrugas', 'a dar comida y limpiar corrales'],
+    ['🛒', 'Compras', 'alimento, a veces fiado en el agrocomercial'],
+    ['💵', 'Vendes', 'el lote cuando el comprador pasa'],
+    ['❓', 'Y al final…', '¿cuánto te quedó de verdad?']
+  ];
+  return '<section class="nx-b nx-full"><div class="rtg-abre rv">' +
+    '<p class="rtg-abre-q">Si hoy vendieras todo tu lote, <b>¿sabrías decir cuánto dinero te queda en el bolsillo?</b></p>' +
+    '<div class="rtg-dia">' + dia.map(function(d, i){
+      return '<div class="rtg-dia-i' + (i === 3 ? ' fin' : '') + '"><span>' + d[0] + '</span><b>' + d[1] + '</b><em>' + d[2] + '</em></div>';
+    }).join('') + '</div>' +
+    '<p class="rtg-abre-p">Si esto te sonó conocido, no estás solo. Mucha gente trabaja duro todos los días y vende bien, pero no sabe si la granja le está dejando dinero o solo trabajo. ' +
+    'En los próximos minutos vas a aprender a responder esa pregunta.</p>' +
+  '</div></section>';
+};
+
+/* ============================================================
+   2 · EL CASO DE RAMÓN
+   ============================================================ */
+var RTGRAMON = { n:30, m:2, ca:3.1 };
+var RTGRAMON_FIADO = 60000;
+function rtgCasoHTML(){
+  var r = rtgLote(RTGRAMON);
+  var cree = r.ingreso - RTGRAMON_FIADO;
+  var st = rtgEstado(), elegida = st.caso && st.caso.r;
+  var ops = [
+    ['Ganó unos ' + rtgM(cree).replace('RD$ ', 'RD$ ') + ', como él dice', 'mal'],
+    ['Ganó, pero mucho menos de lo que cree', 'ok'],
+    ['Perdió dinero', 'mal']
+  ];
+  var h = rtgCab('Caso práctico · ilustrativo', '🐖 El lote de Ramón',
+      'Ramón es un caso de ejemplo, no una persona real — pero su cuenta es la de muchas granjas.') +
+    '<div class="rtg-caso-g">' +
+      '<div class="rtg-caso-h">' +
+        '<p>Ramón compró <b>' + RTGRAMON.n + ' lechones</b> de 20 kg hace cuatro meses. Se le murieron <b>' + RTGRAMON.m + '</b> por el camino. ' +
+        'Hoy vendió los otros <b>' + r.vivos + '</b> a 100 kg, a RD$ ' + RTGP.lb + ' la libra en pie.</p>' +
+        '<div class="rtg-caso-big"><em>Le entraron</em><b>' + rtgM(r.ingreso) + '</b></div>' +
+        '<p>Los lechones los pagó hace meses y el alimento lo fue pagando poco a poco. Solo le falta la última factura del agrocomercial: <b>' + rtgM(RTGRAMON_FIADO) + '</b>.</p>' +
+        '<p class="rtg-caso-cree">💭 Ramón hace la cuenta: <b>«' + rtgM(r.ingreso).replace('RD$ ', '') + ' menos ' + rtgM(RTGRAMON_FIADO).replace('RD$ ', '') + ': gané ' + rtgM(cree) + '»</b>.</p>' +
+      '</div>' +
+      '<div class="rtg-caso-q"><p><b>¿Tú qué crees?</b></p>' +
+        ops.map(function(o, i){
+          var cls = elegida == null ? '' : (i === 1 ? ' ok' : (i === elegida ? ' mal' : ' off'));
+          return '<button class="rtg-op' + cls + '" onclick="rtgCaso(' + i + ')"' + (elegida != null ? ' disabled' : '') + '>' +
+            '<span>' + String.fromCharCode(65 + i) + '</span>' + rtgE(o[0]) + '</button>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+
+  if(elegida != null){
+    var filas = [
+      ['🐷 Lechones (' + RTGRAMON.n + ' × ' + rtgM(RTGP.lechon) + ')', r.cLech, '#1F6F8B'],
+      ['🌽 Alimento de todo el lote (' + Math.round(r.kgAlim).toLocaleString('en-US') + ' kg, también el de los que murieron)', r.cAlim, '#2F7D4F'],
+      ['💊 Vacunas y medicinas', r.cMed, '#c4544a'],
+      ['🚚 Transporte, agua, luz y otros', r.cOtros, '#c8912f']
+    ];
+    var max = r.ingreso;
+    h += '<div class="rtg-caso-r">' +
+      '<p class="rtg-caso-rt">' + (elegida === 1 ? '✅ ¡Exacto!' : '🤔 Casi nadie acierta a la primera.') +
+        ' Ramón ganó dinero, pero <b>mucho menos de lo que cree</b>. Mira la cuenta completa:</p>' +
+      '<div class="rtg-lib">' +
+        '<div class="rtg-lib-f in"><span>💵 Venta</span><div><i style="width:100%"></i></div><b>' + rtgM(r.ingreso) + '</b></div>' +
+        filas.map(function(f){
+          return '<div class="rtg-lib-f"><span>' + f[0] + '</span><div><i style="width:' + (f[1] / max * 100).toFixed(1) + '%;background:' + f[2] + '"></i></div><b>−' + rtgM(f[1]).replace('RD$ ', 'RD$ ') + '</b></div>';
+        }).join('') +
+        '<div class="rtg-lib-t"><span>Lo que de verdad le quedó</span><b>' + rtgM(r.gana) + '</b></div>' +
+      '</div>' +
+      '<div class="rtg-caso-l"><b>Lo que se le escapó a Ramón:</b> contó solo la última factura. Los lechones y el alimento de los tres primeros meses ya estaban pagados, pero <b>también fueron gastos de este lote</b>. ' +
+        'Le quedaron ' + rtgM(r.gana) + ' por cuatro meses de trabajo: unos <b>' + rtgM(r.gana / 120) + ' al día</b>. No es un mal lote… pero no es lo que él creía, y con una subida pequeña del alimento se queda en nada.</div>' +
+      '<p class="rt-fuente">Precios de ejemplo: lechón ' + rtgM(RTGP.lechon) + ', alimento ' + rtgM(RTGP.alim) + ' el kilo, conversión ' + RTGRAMON.ca + ', venta RD$ ' + RTGP.lb + ' la libra. Cambian según la zona y el mes.</p>' +
+      '<button class="rtg-otra" onclick="rtgCaso(-1)">↺ Volver a intentar</button>' +
+    '</div>';
+  }
+  return h;
+}
+RTREG.rtgcaso = function(){ return '<section class="nx-b nx-full"><div class="rtg-caso rv" id="rtgCaso">' + rtgCasoHTML() + '</div></section>'; };
+window.rtgCaso = function(i){
+  var st = rtgEstado(); if(i < 0) delete st.caso; else st.caso = { r:i }; rtgGuarda(st);
+  rtgRepinta('rtgCaso', rtgCasoHTML());
+};
+
+/* ============================================================
+   3 · PREGUNTA RÁPIDA (no cuenta para la nota)
+   ============================================================ */
+function rtgPregHTML(s){
+  var st = rtgEstado(), r = st.preg && st.preg[s.id];
+  return '<span class="rtg-preg-k">⚡ Pregunta rápida</span><p class="rtg-preg-q">' + rtgE(s.q) + '</p>' +
+    '<div class="rtg-preg-o">' + s.o.map(function(o, i){
+      var cls = r == null ? '' : (i === s.c ? ' ok' : (i === r ? ' mal' : ' off'));
+      return '<button class="rtg-op' + cls + '" onclick="rtgPreg(\'' + s.id + '\',' + i + ')"' + (r != null ? ' disabled' : '') + '>' +
+        '<span>' + String.fromCharCode(65 + i) + '</span>' + rtgE(o) + '</button>';
+    }).join('') + '</div>' +
+    (r != null ? '<div class="rtg-preg-fb ' + (r === s.c ? 'ok' : 'mal') + '"><b>' + (r === s.c ? '✅ Correcto.' : '❌ No exactamente.') + '</b> ' + s.fb + '</div>' : '');
+}
+var RTGPREG = {};
+RTREG.rtgpregunta = function(s){
+  RTGPREG[s.id] = s;
+  return '<section class="nx-b nx-full"><div class="rtg-preg rv" id="rtgP-' + s.id + '">' + rtgPregHTML(s) + '</div></section>';
+};
+window.rtgPreg = function(id, i){
+  rtgSet('preg', id, i);
+  if(RTGPREG[id]) rtgRepinta('rtgP-' + id, rtgPregHTML(RTGPREG[id]));
+};
+
+/* ============================================================
+   4 · LA ACCIÓN DE LA SEMANA
+   ============================================================ */
+var RTGACC = {};
+function rtgAccHTML(s){
+  var st = rtgEstado(), v = st.acc && st.acc[s.id];
+  return '<div class="rtg-acc-i">' + (s.ico || '✅') + '</div>' +
+    '<div class="rtg-acc-c"><span class="rtg-acc-k">Tu acción práctica</span><b>' + rtgE(s.t) + '</b><p>' + s.p + '</p></div>' +
+    '<div class="rtg-acc-b">' +
+      '<button class="rtg-acc-o' + (v === 'voy' ? ' on' : '') + '" onclick="rtgAcc(\'' + s.id + '\',\'voy\')">📌 Lo voy a hacer</button>' +
+      '<button class="rtg-acc-o' + (v === 'hecho' ? ' on hecho' : '') + '" onclick="rtgAcc(\'' + s.id + '\',\'hecho\')">✅ Ya lo hice</button>' +
+    '</div>';
+}
+RTREG.rtgaccion = function(s){
+  RTGACC[s.id] = s;
+  return '<section class="nx-b nx-full"><div class="rtg-acc rv" id="rtgA-' + s.id + '">' + rtgAccHTML(s) + '</div></section>';
+};
+window.rtgAcc = function(id, v){
+  var st = rtgEstado(); st.acc = st.acc || {};
+  st.acc[id] = (st.acc[id] === v) ? null : v; rtgGuarda(st);
+  if(RTGACC[id]) rtgRepinta('rtgA-' + id, rtgAccHTML(RTGACC[id]));
+  if(st.acc[id] && typeof toast === 'function') toast(v === 'hecho' ? '¡Bien hecho! Eso ya es control.' : 'Anotado. Te lo recordamos al final del curso.', v === 'hecho' ? '✅' : '📌');
+};
+
+/* ============================================================
+   5 · LAS SEIS FUGAS: ¿TE PASA A TI?
+   ============================================================ */
+var RTGFUGA = [
+  { id:'bota', ico:'🌽', c:'#c8912f', t:'Alimento que se bota',
+    p:'Comederos mal regulados, sacos mojados o comidos por ratones. Lo que cae al piso también se pagó.',
+    curso:'nutricion' },
+  { id:'rinde', ico:'📉', c:'#2F7D4F', t:'Alimento que rinde poco',
+    p:'Un alimento que no corresponde a la etapa del cerdo, o una mezcla hecha a ojo. El cerdo come igual, pero crece menos.',
+    curso:'nutricion' },
+  { id:'muere', ico:'💀', c:'#7F1D1D', t:'Animales que se mueren',
+    p:'Lechones aplastados, diarreas, calor. Cada animal que se muere se lleva todo lo que ya se invirtió en él.',
+    curso:'lechones' },
+  { id:'entra', ico:'🦠', c:'#c4544a', t:'Enfermedades que entran',
+    p:'Visitas, camiones y animales nuevos que llegan sin cuarentena. Una enfermedad puede costar más que un año de ganancias.',
+    curso:'sanidad' },
+  { id:'cerda', ico:'❤️', c:'#C2185B', t:'Cerdas que no se preñan a tiempo',
+    p:'Celos que se pasan y cerdas vacías que comen igual todos los días. Menos lechones al año con el mismo gasto.',
+    curso:'reproduccion' },
+  { id:'tarda', ico:'⏳', c:'#1F6F8B', t:'Cerdos que tardan en salir',
+    p:'Vender a ojo, sin pesar y sin saber el costo. Cada día de más en el corral es alimento de más.',
+    curso:'engorde' }
+];
+function rtgFugasHTML(){
+  var st = rtgEstado(), m = st.fuga || {};
+  var cards = RTGFUGA.map(function(f){
+    var v = m[f.id];
+    var b = function(val, txt){ return '<button class="rtg-fo' + (v === val ? ' on ' + val : '') + '" onclick="rtgFuga(\'' + f.id + '\',\'' + val + '\')">' + txt + '</button>'; };
+    return '<article class="rtg-fuga' + (v === 'si' ? ' marcada' : '') + '" style="--c:' + f.c + '">' +
+      '<div class="rtg-fuga-h"><span>' + f.ico + '</span><b>' + rtgE(f.t) + '</b></div>' +
+      '<p>' + rtgE(f.p) + '</p>' +
+      '<div class="rtg-fuga-b"><em>¿Te pasa?</em>' + b('si', 'Sí') + b('nose', 'No sé') + b('no', 'No') + '</div>' +
+    '</article>';
+  }).join('');
+  var si = RTGFUGA.filter(function(f){ return m[f.id] === 'si'; });
+  var ns = RTGFUGA.filter(function(f){ return m[f.id] === 'nose'; });
+  var resp = Object.keys(m).filter(function(k){ return m[k]; }).length;
+  var res;
+  if(resp < RTGFUGA.length){
+    res = '<div class="rtg-fres vacio">Marca las seis y aquí verás tu resumen. Responde con sinceridad: nadie más lo ve.</div>';
+  } else {
+    var cursos = [];
+    si.concat(ns).forEach(function(f){ if(cursos.indexOf(f.curso) < 0) cursos.push(f.curso); });
+    res = '<div class="rtg-fres">' +
+      '<div class="rtg-fres-n"><b>' + si.length + '</b><span>fugas que reconoces</span></div>' +
+      '<div class="rtg-fres-n"><b>' + ns.length + '</b><span>que no sabes si tienes</span></div>' +
+      '<p>' + (si.length + ns.length === 0
+        ? 'Dices que tienes las seis cerradas. ¡Muy bien! En el módulo 4 vas a confirmar si los números te dan la razón.'
+        : (ns.length ? 'Fíjate en los «No sé»: <b>lo que no se mide no se puede cerrar</b>. Muchas veces la fuga más cara es la que no se ve. ' : '') +
+          'Las que marcaste se aprenden a cerrar en: ' + cursos.map(rtgCursoChip).join(' ')) + '</p>' +
+    '</div>';
+  }
+  return rtgCab('Autoevaluación · toca para responder', '🕳️ ¿Por dónde se te puede estar yendo el dinero?',
+      'Seis fugas que se repiten en muchas granjas. Ninguna es rara, casi nunca viene sola y ninguna se ve en el bolsillo el mismo día.') +
+    '<div class="rtg-fugas">' + cards + '</div>' + res;
+}
+RTREG.rtgfugas = function(){ return '<section class="nx-b nx-full"><div class="rtg-fugaw rv" id="rtgFugas">' + rtgFugasHTML() + '</div></section>'; };
+window.rtgFuga = function(id, v){
+  var st = rtgEstado(); st.fuga = st.fuga || {};
+  st.fuga[id] = (st.fuga[id] === v) ? null : v; rtgGuarda(st);
+  rtgRepinta('rtgFugas', rtgFugasHTML());
+};
+
+/* ============================================================
+   6 · CUÁNTO PUEDEN COSTAR LAS FUGAS EN UN LOTE DE EJEMPLO
+   Mismo lote que Ramón, para que se pueda comparar.
+   ============================================================ */
+RTREG.rtgejemplo = function(){
+  var base = rtgLote({ n:30, m:0, ca:3.1 });
+  var bota = base.cAlim * 0.05;
+  var muertos = rtgLote({ n:30, m:0, ca:3.1 }).gana - rtgLote({ n:30, m:2, ca:3.1 }).gana;
+  var rinde = rtgLote({ n:30, m:0, ca:3.4 }).cAlim - base.cAlim;
+  var med = 30 * 150;
+  var items = [
+    ['🌽', 'Un 5 % del alimento cae al piso', bota, '#c8912f'],
+    ['💀', 'Se mueren 2 cerdos en el engorde', muertos, '#7F1D1D'],
+    ['📉', 'El alimento rinde 3.4 en vez de 3.1', rinde, '#2F7D4F'],
+    ['💊', 'Tratamientos repetidos por mal uso', med, '#c4544a']
+  ];
+  var max = Math.max.apply(null, items.map(function(x){ return x[2]; }));
+  var tot = items.reduce(function(s, x){ return s + x[2]; }, 0);
+  return '<section class="nx-b nx-full"><div class="rtg-ej rv">' +
+    rtgCab('Ejemplo hipotético · lote de 30 cerdos', '🧮 ¿Cuánto cuesta cada fuga?',
+      'El mismo lote del caso de Ramón, sin ninguna fuga, deja unos <b>' + rtgM(base.gana) + '</b>. Esto es lo que cada fuga le restaría por separado:') +
+    '<div class="rtg-ej-l">' + items.map(function(x){
+      return '<div class="rtg-ej-f" style="--c:' + x[3] + '"><span><i>' + x[0] + '</i>' + rtgE(x[1]) + '</span>' +
+        '<div><i style="width:' + (x[2] / max * 100).toFixed(1) + '%"></i></div><b>−' + rtgM(x[2]).replace('RD$ ', 'RD$ ') + '</b></div>';
+    }).join('') + '</div>' +
+    '<div class="rtg-ej-t"><span>Si las cuatro pasaran a la vez</span><b>−' + rtgM(tot).replace('RD$ ', 'RD$ ') + '</b>' +
+      '<em>de ' + rtgM(base.gana) + ' que deja el lote: un ' + Math.round(tot / base.gana * 100) + ' %</em></div>' +
+    '<p class="rt-fuente"><b>Datos hipotéticos para entender el orden de magnitud, no cifras reales ni promedios del país.</b> ' +
+      'Precios de ejemplo: lechón ' + rtgM(RTGP.lechon) + ', alimento ' + rtgM(RTGP.alim) + ' el kilo, venta RD$ ' + RTGP.lb + ' la libra. En tu granja las cifras serán otras; la lógica es la misma.</p>' +
+  '</div></section>';
+};
+
+/* ============================================================
+   7 · DOS PRODUCTORES: ¿QUIÉN GANÓ MÁS?
+   ============================================================ */
+var RTGA = { n:40, m:1, ca:2.9 }, RTGB = { n:45, m:5, ca:3.4 };
+function rtgDosHTML(){
+  var A = rtgLote(RTGA), B = rtgLote(RTGB);
+  var st = rtgEstado(), r = st.dos && st.dos.r;
+  var caja = function(nom, L, o, col, gana, ver){
+    return '<div class="rtg-dos-c' + (ver && gana ? ' gana' : '') + '" style="--c:' + col + '">' +
+      '<span class="rtg-dos-k">' + nom + '</span>' +
+      '<div class="rtg-dos-n">' + o.n + '<em>cerdos</em></div>' +
+      '<ul><li>Conversión <b>' + o.ca + '</b></li><li>' + o.m + ' muerto' + (o.m === 1 ? '' : 's') + '</li><li>Vende <b>' + L.vivos + '</b> a 100 kg</li></ul>' +
+      (ver ? '<div class="rtg-dos-r"><em>Le queda</em><b>' + rtgM(L.gana) + '</b><span>' + rtgM(L.gana / o.n) + ' por cerdo que entró</span></div>'
+           : '<div class="rtg-dos-r oculto"><em>Le queda</em><b>RD$ ?</b></div>') +
+    '</div>';
+  };
+  var ver = r != null;
+  var h = rtgCab('Caso práctico · adivina antes de ver', '⚖️ Dos productores, el mismo mes, el mismo precio',
+      'Los dos compran el mismo lechón, venden a 100 kg y cobran lo mismo por libra. El productor B tiene <b>cinco cerdos más</b>. ¿Quién crees que se lleva más dinero a casa?') +
+    '<div class="rtg-dos">' + caja('Productor A', A, RTGA, '#2F7D4F', A.gana > B.gana, ver) +
+      '<div class="rtg-dos-vs">vs</div>' + caja('Productor B', B, RTGB, '#c4544a', B.gana > A.gana, ver) + '</div>';
+  if(!ver){
+    h += '<div class="rtg-dos-q"><button class="rtg-op" onclick="rtgDos(0)"><span>A</span>El productor A</button>' +
+      '<button class="rtg-op" onclick="rtgDos(1)"><span>B</span>El productor B, porque tiene más cerdos</button>' +
+      '<button class="rtg-op" onclick="rtgDos(2)"><span>C</span>Los dos más o menos igual</button></div>';
+  } else {
+    h += '<div class="rtg-preg-fb ' + (r === 0 ? 'ok' : 'mal') + '"><b>' + (r === 0 ? '✅ Bien visto.' : '😮 Sorprende, ¿verdad?') + '</b> ' +
+      'El productor A gana <b>' + Math.round(A.gana / Math.max(1, B.gana) * 10) / 10 + ' veces más</b> con cinco cerdos menos. ' +
+      'B gastó ' + Math.round(B.kgAlim - A.kgAlim).toLocaleString('en-US') + ' kg más de alimento y perdió cuatro animales más que ya habían comido. ' +
+      '<b>El tamaño no decide: deciden la conversión y la mortalidad.</b></div>' +
+      '<button class="rtg-otra" onclick="rtgDos(-1)">↺ Volver a intentar</button>';
+  }
+  return h + '<p class="rt-fuente">Productores ilustrativos con los mismos precios de ejemplo del resto del curso.</p>';
+}
+RTREG.rtgdos = function(){ return '<section class="nx-b nx-full"><div class="rtg-doswrap rv" id="rtgDos">' + rtgDosHTML() + '</div></section>'; };
+window.rtgDos = function(i){
+  var st = rtgEstado(); if(i < 0) delete st.dos; else st.dos = { r:i }; rtgGuarda(st);
+  rtgRepinta('rtgDos', rtgDosHTML());
+};
+
+/* ============================================================
+   8 · TOMA LA DECISIÓN: EL SACO MÁS BARATO
+   ============================================================ */
+function rtgDecideHTML(){
+  var kg = 40 * 80;                                /* kilos de cerdo que gana el lote */
+  var pBar = 26.7, caBar = 3.4, pBueno = RTGP.alim, caBueno = 2.9;
+  var cBar = kg * caBar * pBar, cBueno = kg * caBueno * pBueno, dif = cBar - cBueno;
+  var st = rtgEstado(), r = st.dec && st.dec.r;
+  var ops = ['Lo compro: es más barato', 'Me quedo con el que tengo', 'Antes de decidir, hago la cuenta por kilo de cerdo'];
+  var h = rtgCab('Decisión · elige qué harías', '🛒 Te ofrecen un saco más barato',
+      'Usas un alimento de <b>RD$ ' + pBueno + ' el kilo</b> y tus cerdos necesitan <b>' + caBueno + ' kg</b> para ganar un kilo. ' +
+      'Un vendedor te ofrece otro a <b>RD$ ' + pBar + ' el kilo</b> (RD$ 150 menos por saco de 45 kg). Un vecino que lo usa te dice que con ese sus cerdos necesitan <b>' + caBar + ' kg</b>. Tu lote es de 40 cerdos, de 20 a 100 kg.') +
+    '<div class="rtg-preg-o">' + ops.map(function(o, i){
+      var cls = r == null ? '' : (i === 2 ? ' ok' : (i === r ? ' mal' : ' off'));
+      return '<button class="rtg-op' + cls + '" onclick="rtgDec(' + i + ')"' + (r != null ? ' disabled' : '') + '><span>' + String.fromCharCode(65 + i) + '</span>' + rtgE(o) + '</button>';
+    }).join('') + '</div>';
+  if(r != null){
+    var fb = r === 0 ? '❌ Parece ahorro, pero sale más caro.' : (r === 1 ? '🟡 Esta vez aciertas, pero por intuición.' : '✅ Esa es la decisión de un productor que controla su granja.');
+    h += '<div class="rtg-dec-r">' +
+      '<p><b>' + fb + '</b> La cuenta que hay que hacer es cuánto cuesta el alimento <b>por cada kilo de cerdo</b>, no por saco:</p>' +
+      '<div class="rtg-dec-g">' +
+        '<div class="rtg-dec-c"><em>Saco «barato»</em><b>RD$ ' + (pBar * caBar).toFixed(1) + '</b><span>por kilo de cerdo (' + pBar + ' × ' + caBar + ')</span><strong>' + rtgM(cBar) + ' en el lote</strong></div>' +
+        '<div class="rtg-dec-c bien"><em>Tu alimento</em><b>RD$ ' + (pBueno * caBueno).toFixed(1) + '</b><span>por kilo de cerdo (' + pBueno + ' × ' + caBueno + ')</span><strong>' + rtgM(cBueno) + ' en el lote</strong></div>' +
+      '</div>' +
+      '<p>El saco «barato» te costaría <b>' + rtgM(dif) + ' más</b> en este lote. La próxima vez que te ofrezcan un alimento, la pregunta no es «¿cuánto vale el saco?», sino <b>«¿cuántos kilos de cerdo me da?»</b>. ' +
+      'Y para responderla tienes que pesar y anotar — lo mismo que viste en Ramón.</p>' +
+      '<p class="rt-fuente">Cifras de ejemplo. Lo que rinde un alimento depende de la fórmula, la etapa y el manejo: no hay que fiarse de una sola opinión, hay que medirlo en la propia granja.</p>' +
+      '<button class="rtg-otra" onclick="rtgDec(-1)">↺ Volver a intentar</button>' +
+    '</div>';
+  }
+  return h;
+}
+RTREG.rtgdecide = function(){ return '<section class="nx-b nx-full"><div class="rtg-dec rv" id="rtgDec">' + rtgDecideHTML() + '</div></section>'; };
+window.rtgDec = function(i){
+  var st = rtgEstado(); if(i < 0) delete st.dec; else st.dec = { r:i }; rtgGuarda(st);
+  rtgRepinta('rtgDec', rtgDecideHTML());
+};
+
+/* ============================================================
+   9 · LO QUE APRENDISTE (módulo 5)
+   ============================================================ */
+RTREG.rtgresumen = function(){
+  var st = rtgEstado(), acc = st.acc || {};
+  var lec = [
+    ['💵', 'Venta no es ganancia', 'La ganancia es lo que queda después de restar todo lo que costó el lote, también lo que pagaste hace meses.', 1],
+    ['🕳️', 'Las fugas pequeñas suman', 'Alimento que se bota, animales que mueren, cerdas vacías: juntas pueden llevarse la mayor parte de lo que deja un lote.', 2],
+    ['⚖️', 'Más cerdos no es más dinero', 'Con menos animales se puede ganar más si se convierte mejor el alimento y se pierden menos.', 3],
+    ['🛒', 'El saco barato no siempre es barato', 'Lo que importa es cuánto alimento cuesta producir un kilo de cerdo.', 3],
+    ['🔎', 'Tu granja tiene un punto débil', 'Y ya sabes cuál es: lo descubriste en el diagnóstico del módulo 4.', 4]
+  ];
+  var acciones = [
+    ['a1', '📒', 'Anotar todo lo que gastas'],
+    ['a2', '🔎', 'Revisar comederos y bebederos'],
+    ['a3', '⚖️', 'Pesar una muestra del lote']
+  ];
+  return '<section class="nx-b nx-full"><div class="rtg-res rv">' +
+    rtgCab('Lo que aprendiste', '🧠 Cinco ideas que ya son tuyas', '') +
+    '<div class="rtg-res-g">' + lec.map(function(l){
+      return '<div class="rtg-res-i"><span>' + l[0] + '</span><div><b>' + l[1] + '</b><p>' + l[2] + '</p></div><em>Módulo ' + l[3] + '</em></div>';
+    }).join('') + '</div>' +
+    '<div class="rtg-res-acc"><b>Tus acciones de la semana</b>' + acciones.map(function(a){
+      var v = acc[a[0]];
+      return '<div class="rtg-res-a ' + (v || 'pend') + '"><span>' + a[1] + '</span>' + a[2] +
+        '<em>' + (v === 'hecho' ? '✅ Hecho' : (v === 'voy' ? '📌 Pendiente' : '— Sin marcar')) + '</em></div>';
+    }).join('') + '</div>' +
+  '</div></section>';
+};
+
+/* ============================================================
+   10 · LAS FOTOS (HD) — se suman al registro de rt-piezas.js
+   ============================================================ */
+if(typeof RTFOTO !== 'undefined'){
+  RTFOTO['g-nave'] = { f:'eg-p-03', t:'Detrás de cada corral hay una cuenta',
+    p:'Una nave de engorde llena se ve como dinero. Pero lo que decide si deja ganancia <b>no se ve desde aquí</b>: está en lo que costó cada uno de esos cerdos.' };
+  RTFOTO['g-libreta'] = { f:'gr-p-164686', t:'La herramienta más rentable de una granja',
+    p:'Una libreta, un lápiz y una calculadora. No hace falta más para saber cuánto te cuesta producir un cerdo — y quien no hace esa cuenta puede pasar años sin saber si gana.' };
+  RTFOTO['g-comedero'] = { f:'nutri-b-cerdos-comedero', t:'Aquí se va la mayor parte del dinero',
+    p:'El alimento suele ser el gasto más grande de la granja. Por eso cada kilo que se bota, que rinde poco o que se lo come un animal que después se muere, <b>se paga completo</b>.' };
+  RTFOTO['g-bascula'] = { f:'gr-p-10297698', t:'Lo que no se pesa, se adivina',
+    p:'Una báscula es la diferencia entre «yo creo que están en 90 kilos» y saberlo. Y entre vender a tiempo o regalar días de alimento.' };
+  RTFOTO['g-paridera'] = { f:'gr-p-31548249', t:'Cada granja tiene su punto débil',
+    p:'En unas falla la maternidad, en otras el alimento, en otras los números. No todas necesitan lo mismo: por eso antes de recomendarte nada, te preguntamos.' };
+  RTFOTO['g-cerdo'] = { f:'eg-p-34', t:'Esto es solo el comienzo',
+    p:'Ya sabes dónde mirar. Lo que sigue es aprender a manejar bien cada área para tomar mejores decisiones con tus propios números.' };
+}
+
+/* ============================================================
+   11 · ESTILOS (prefijo rtg-)
+   ============================================================ */
+(function rtgCss(){
+  if(document.getElementById('rtgCss')) return;
+  var s = document.createElement('style');
+  s.id = 'rtgCss';
+  s.textContent = [
+/* abre */
+'.rtg-abre{padding:26px 24px;border-radius:22px;border:1px solid var(--border);background:linear-gradient(160deg,color-mix(in srgb,#2F7D4F 10%,var(--panel)),var(--panel))}',
+'.rtg-abre-q{margin:0 0 20px;font-family:var(--display);font-size:clamp(21px,3vw,28px);line-height:1.25;color:var(--text);text-wrap:balance}',
+'.rtg-abre-q b{color:#2F7D4F}',
+'.rtg-dia{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}',
+'.rtg-dia-i{display:flex;flex-direction:column;gap:3px;padding:14px;border-radius:16px;background:var(--panel);border:1px solid var(--border)}',
+'.rtg-dia-i span{font-size:26px;line-height:1}',
+'.rtg-dia-i b{font-size:15.5px;color:var(--text)}',
+'.rtg-dia-i em{font-style:normal;font-size:13px;line-height:1.45;color:var(--text-2)}',
+'.rtg-dia-i.fin{border-color:#c8912f;background:color-mix(in srgb,#c8912f 12%,var(--panel))}',
+'.rtg-abre-p{margin:18px 0 0;font-size:15px;line-height:1.65;color:var(--text-2);max-width:70ch}',
+/* opciones comunes */
+'.rtg-op{display:flex;align-items:center;gap:11px;width:100%;padding:12px 14px;border-radius:13px;border:1.5px solid var(--border);background:var(--panel);color:var(--text);font:inherit;font-size:14.5px;text-align:left;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}',
+'.rtg-op span{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:color-mix(in srgb,var(--text) 8%,transparent);font-weight:800;font-size:13px}',
+'.rtg-op:hover:not([disabled]){border-color:#1F6F8B;transform:translateY(-1px)}',
+'.rtg-op:focus-visible,.rtg-fo:focus-visible,.rtg-acc-o:focus-visible,.rtg-chip:focus-visible,.rtg-otra:focus-visible{outline:3px solid #1F6F8B;outline-offset:2px}',
+'.rtg-op[disabled]{cursor:default}',
+'.rtg-op.ok{border-color:#2F7D4F;background:color-mix(in srgb,#2F7D4F 14%,var(--panel))}',
+'.rtg-op.ok span{background:#2F7D4F;color:#fff}',
+'.rtg-op.mal{border-color:#c4544a;background:color-mix(in srgb,#c4544a 12%,var(--panel))}',
+'.rtg-op.mal span{background:#c4544a;color:#fff}',
+'.rtg-op.off{opacity:.55}',
+'.rtg-otra{margin-top:12px;padding:8px 13px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}',
+'.rtg-chip{margin:3px 4px 3px 0;padding:7px 12px;border-radius:999px;border:1px solid color-mix(in srgb,#2F7D4F 45%,var(--border));background:color-mix(in srgb,#2F7D4F 9%,transparent);color:var(--text);font:inherit;font-size:13px;font-weight:700;cursor:pointer}',
+'.rtg-chip:hover{background:color-mix(in srgb,#2F7D4F 18%,transparent)}',
+/* caso */
+'.rtg-caso-g{display:grid;gap:18px;margin-top:14px}',
+'@media(min-width:880px){.rtg-caso-g{grid-template-columns:1.15fr .85fr}}',
+'.rtg-caso-h p{margin:0 0 12px;font-size:15px;line-height:1.65;color:var(--text-2)}',
+'.rtg-caso-h b{color:var(--text)}',
+'.rtg-caso-big{margin:4px 0 14px;padding:14px 18px;border-radius:16px;background:color-mix(in srgb,#2F7D4F 12%,var(--panel));border:1px solid color-mix(in srgb,#2F7D4F 35%,var(--border))}',
+'.rtg-caso-big em{display:block;font-style:normal;font-size:12.5px;color:var(--muted)}',
+'.rtg-caso-big b{font-family:var(--display);font-size:32px;color:#2F7D4F;font-variant-numeric:tabular-nums}',
+'.rtg-caso-cree{padding:12px 14px;border-radius:12px;background:color-mix(in srgb,#c8912f 12%,transparent)}',
+'.rtg-caso-q{display:flex;flex-direction:column;gap:9px}',
+'.rtg-caso-q > p{margin:0;font-size:15px;color:var(--text)}',
+'.rtg-caso-r{margin-top:18px;padding-top:16px;border-top:1px dashed var(--border)}',
+'.rtg-caso-rt{margin:0 0 12px;font-size:15px;line-height:1.6;color:var(--text)}',
+'.rtg-lib{display:flex;flex-direction:column;gap:9px}',
+'.rtg-lib-f{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13.5px;color:var(--text-2)}',
+'.rtg-lib-f > div{height:12px;border-radius:999px;background:color-mix(in srgb,var(--text) 7%,transparent);overflow:hidden}',
+'.rtg-lib-f > div i{display:block;height:100%;border-radius:999px;background:#2F7D4F}',
+'.rtg-lib-f.in > div i{background:#1F6F8B}',
+'.rtg-lib-f b{font-variant-numeric:tabular-nums;color:var(--text);white-space:nowrap}',
+'.rtg-lib-t{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:6px;padding:13px 16px;border-radius:14px;background:color-mix(in srgb,#c8912f 14%,var(--panel));border:1.5px solid #c8912f}',
+'.rtg-lib-t span{font-weight:700;color:var(--text)}',
+'.rtg-lib-t b{font-family:var(--display);font-size:24px;color:#a8751a;font-variant-numeric:tabular-nums}',
+'.rtg-caso-l{margin-top:14px;padding:14px 16px;border-radius:14px;background:color-mix(in srgb,var(--text) 5%,transparent);font-size:14.5px;line-height:1.65;color:var(--text-2)}',
+'.rtg-caso-l b{color:var(--text)}',
+'@media(max-width:620px){.rtg-lib-f{grid-template-columns:1fr auto}.rtg-lib-f > div{grid-column:1 / -1;order:3}}',
+/* pregunta rápida */
+'.rtg-preg{padding:20px;border-radius:20px;border:1.5px solid color-mix(in srgb,#1F6F8B 40%,var(--border));background:color-mix(in srgb,#1F6F8B 6%,var(--panel))}',
+'.rtg-preg-k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#1F6F8B;font-weight:700}',
+'.rtg-preg-q{margin:6px 0 12px;font-family:var(--display);font-size:18.5px;line-height:1.35;color:var(--text)}',
+'.rtg-preg-o{display:flex;flex-direction:column;gap:9px;margin-top:12px}',
+'.rtg-preg-fb{margin-top:12px;padding:13px 15px;border-radius:13px;font-size:14.5px;line-height:1.6;color:var(--text-2)}',
+'.rtg-preg-fb.ok{background:color-mix(in srgb,#2F7D4F 12%,transparent)}',
+'.rtg-preg-fb.mal{background:color-mix(in srgb,#c4544a 10%,transparent)}',
+'.rtg-preg-fb b{color:var(--text)}',
+/* acción */
+'.rtg-acc{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;padding:18px 20px;border-radius:20px;border:2px dashed color-mix(in srgb,#c8912f 60%,var(--border));background:color-mix(in srgb,#c8912f 7%,var(--panel))}',
+'.rtg-acc-i{grid-row:span 2;font-size:34px;line-height:1}',
+'.rtg-acc-k{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#a8751a;font-weight:700}',
+'.rtg-acc-c b{display:block;margin:2px 0 4px;font-family:var(--display);font-size:17px;color:var(--text)}',
+'.rtg-acc-c p{margin:0;font-size:14px;line-height:1.55;color:var(--text-2)}',
+'.rtg-acc-b{grid-column:2;display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}',
+'.rtg-acc-o{padding:9px 14px;border-radius:999px;border:1.5px solid var(--border);background:var(--panel);color:var(--text);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}',
+'.rtg-acc-o.on{border-color:#c8912f;background:color-mix(in srgb,#c8912f 18%,var(--panel))}',
+'.rtg-acc-o.on.hecho{border-color:#2F7D4F;background:#2F7D4F;color:#fff}',
+'@media(max-width:560px){.rtg-acc{grid-template-columns:1fr}.rtg-acc-i{grid-row:auto}.rtg-acc-b{grid-column:1}}',
+/* fugas */
+'.rtg-fugas{display:grid;gap:12px;margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}',
+'.rtg-fuga{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:18px;border:1.5px solid var(--border);background:var(--panel);transition:border-color .2s,background .2s}',
+'.rtg-fuga.marcada{border-color:var(--c);background:color-mix(in srgb,var(--c) 9%,var(--panel))}',
+'.rtg-fuga-h{display:flex;align-items:center;gap:10px}',
+'.rtg-fuga-h span{font-size:24px}',
+'.rtg-fuga-h b{font-size:15.5px;color:var(--text)}',
+'.rtg-fuga p{margin:0;font-size:13.5px;line-height:1.55;color:var(--text-2);flex:1}',
+'.rtg-fuga-b{display:flex;align-items:center;gap:6px;flex-wrap:wrap}',
+'.rtg-fuga-b em{font-style:normal;font-size:12.5px;color:var(--muted);margin-right:2px}',
+'.rtg-fo{padding:6px 12px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--text);font:inherit;font-size:13px;font-weight:700;cursor:pointer}',
+'.rtg-fo.on.si{border-color:#c4544a;background:#c4544a;color:#fff}',
+'.rtg-fo.on.nose{border-color:#c8912f;background:#c8912f;color:#1d1406}',
+'.rtg-fo.on.no{border-color:#2F7D4F;background:#2F7D4F;color:#fff}',
+'.rtg-fres{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-top:16px;padding:16px 18px;border-radius:16px;background:color-mix(in srgb,var(--text) 5%,transparent)}',
+'.rtg-fres.vacio{display:block;font-size:14px;color:var(--muted)}',
+'.rtg-fres-n b{display:block;font-family:var(--display);font-size:30px;line-height:1;color:var(--text)}',
+'.rtg-fres-n span{font-size:12.5px;color:var(--muted)}',
+'.rtg-fres p{flex:1 1 320px;margin:0;font-size:14.5px;line-height:1.6;color:var(--text-2)}',
+/* ejemplo */
+'.rtg-ej-l{display:flex;flex-direction:column;gap:11px;margin-top:14px}',
+'.rtg-ej-f{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:12px;align-items:center;font-size:14px;color:var(--text)}',
+'.rtg-ej-f span{display:flex;align-items:center;gap:8px}',
+'.rtg-ej-f span i{font-style:normal;font-size:18px}',
+'.rtg-ej-f > div{height:14px;border-radius:999px;background:color-mix(in srgb,var(--text) 7%,transparent);overflow:hidden}',
+'.rtg-ej-f > div i{display:block;height:100%;border-radius:999px;background:var(--c)}',
+'.rtg-ej-f b{font-variant-numeric:tabular-nums;color:#c4544a;white-space:nowrap}',
+'.rtg-ej-t{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-top:14px;padding:14px 16px;border-radius:14px;border:1.5px solid #c4544a;background:color-mix(in srgb,#c4544a 8%,var(--panel))}',
+'.rtg-ej-t span{font-weight:700;color:var(--text)}',
+'.rtg-ej-t b{font-family:var(--display);font-size:24px;color:#c4544a;font-variant-numeric:tabular-nums}',
+'.rtg-ej-t em{font-style:normal;font-size:13px;color:var(--muted)}',
+'@media(max-width:620px){.rtg-ej-f{grid-template-columns:1fr auto}.rtg-ej-f > div{grid-column:1 / -1;order:3}}',
+/* dos productores */
+'.rtg-dos{display:grid;gap:16px;grid-template-columns:1fr auto 1fr;align-items:stretch;margin-top:14px}',
+'@media(max-width:620px){.rtg-dos{grid-template-columns:1fr}.rtg-dos-vs{padding:2px 0}}',
+'.rtg-dos-c{padding:20px;border-radius:20px;border:2px solid color-mix(in srgb,var(--c) 40%,var(--border));background:linear-gradient(160deg,color-mix(in srgb,var(--c) 8%,var(--panel)),var(--panel))}',
+'.rtg-dos-c.gana{box-shadow:0 0 0 3px color-mix(in srgb,#2F7D4F 35%,transparent)}',
+'.rtg-dos-k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--c);font-weight:700}',
+'.rtg-dos-n{margin:6px 0 4px;font-family:var(--display);font-size:46px;font-weight:800;line-height:1;color:var(--text)}',
+'.rtg-dos-n em{display:block;margin-top:2px;font-style:normal;font-family:var(--body);font-size:13px;font-weight:500;color:var(--muted)}',
+'.rtg-dos-c ul{margin:12px 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--text-2)}',
+'.rtg-dos-c li b{color:var(--text)}',
+'.rtg-dos-r{padding:12px 14px;border-radius:13px;background:color-mix(in srgb,var(--text) 6%,transparent)}',
+'.rtg-dos-r em{display:block;font-style:normal;font-size:12px;color:var(--muted)}',
+'.rtg-dos-r b{font-family:var(--display);font-size:24px;color:var(--text);font-variant-numeric:tabular-nums}',
+'.rtg-dos-r span{display:block;font-size:12.5px;color:var(--muted)}',
+'.rtg-dos-c.gana .rtg-dos-r{background:color-mix(in srgb,#2F7D4F 15%,transparent)}',
+'.rtg-dos-c.gana .rtg-dos-r b{color:#2F7D4F}',
+'.rtg-dos-r.oculto b{color:var(--muted);letter-spacing:.06em}',
+'.rtg-dos-vs{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}',
+'.rtg-dos-q{display:flex;flex-direction:column;gap:9px;margin-top:16px}',
+/* decisión */
+'.rtg-dec-r{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border)}',
+'.rtg-dec-r > p{margin:0 0 12px;font-size:14.5px;line-height:1.65;color:var(--text-2)}',
+'.rtg-dec-r b{color:var(--text)}',
+'.rtg-dec-g{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-bottom:12px}',
+'@media(max-width:560px){.rtg-dec-g{grid-template-columns:1fr}}',
+'.rtg-dec-c{padding:15px;border-radius:16px;border:1.5px solid #c4544a;background:color-mix(in srgb,#c4544a 8%,var(--panel))}',
+'.rtg-dec-c.bien{border-color:#2F7D4F;background:color-mix(in srgb,#2F7D4F 10%,var(--panel))}',
+'.rtg-dec-c em{display:block;font-style:normal;font-size:12.5px;color:var(--muted)}',
+'.rtg-dec-c b{display:block;font-family:var(--display);font-size:26px;color:var(--text);font-variant-numeric:tabular-nums}',
+'.rtg-dec-c span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}',
+'.rtg-dec-c strong{font-size:14px;color:var(--text)}',
+/* resumen */
+'.rtg-res-g{display:flex;flex-direction:column;gap:10px;margin-top:14px}',
+'.rtg-res-i{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 16px;border-radius:16px;border:1px solid var(--border);background:var(--panel)}',
+'.rtg-res-i > span{font-size:26px}',
+'.rtg-res-i b{display:block;font-size:15.5px;color:var(--text)}',
+'.rtg-res-i p{margin:2px 0 0;font-size:13.5px;line-height:1.5;color:var(--text-2)}',
+'.rtg-res-i em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}',
+'@media(max-width:560px){.rtg-res-i{grid-template-columns:auto 1fr}.rtg-res-i em{display:none}}',
+'.rtg-res-acc{margin-top:16px;padding:16px;border-radius:16px;background:color-mix(in srgb,#c8912f 8%,var(--panel));border:1px solid color-mix(in srgb,#c8912f 40%,var(--border))}',
+'.rtg-res-acc > b{display:block;margin-bottom:8px;color:var(--text)}',
+'.rtg-res-a{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid color-mix(in srgb,var(--text) 8%,transparent);font-size:14px;color:var(--text)}',
+'.rtg-res-a em{margin-left:auto;font-style:normal;font-size:12.5px;color:var(--muted)}',
+'.rtg-res-a.hecho em{color:#2F7D4F;font-weight:700}',
+/* diagnóstico y plan (rt-diag.js) */
+'.rtg-dg-q{display:flex;flex-direction:column;gap:9px}',
+'.rtg-dg-area{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--c);font-weight:700}',
+'.rtg-dg-barra{height:6px;border-radius:999px;background:color-mix(in srgb,var(--text) 8%,transparent);overflow:hidden;margin-bottom:14px}',
+'.rtg-dg-barra i{display:block;height:100%;background:#6b4e9e;transition:width .3s}',
+'.rtg-dg-p{margin:2px 0 10px;font-family:var(--display);font-size:19px;line-height:1.35;color:var(--text)}',
+'.rtg-dg-pie{display:flex;justify-content:space-between;gap:10px;margin-top:10px}',
+'.rtg-perf{display:flex;flex-direction:column;gap:9px;margin:14px 0}',
+'.rtg-perf-f{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 60px;gap:10px;align-items:center;font-size:14px;color:var(--text)}',
+'.rtg-perf-f > div{height:11px;border-radius:999px;background:color-mix(in srgb,var(--text) 7%,transparent);overflow:hidden}',
+'.rtg-perf-f > div i{display:block;height:100%;border-radius:999px;background:var(--c)}',
+'.rtg-perf-f b{text-align:right;font-size:12.5px;color:var(--muted);font-weight:700}',
+'.rtg-perf-f.debil{font-weight:800}',
+'.rtg-perf-f.debil b{color:#c4544a}',
+'@media(max-width:560px){.rtg-perf-f{grid-template-columns:1fr 60px}.rtg-perf-f > div{grid-column:1 / -1;order:3}}',
+'.rtg-op-no{opacity:.75;font-size:13.5px}'
+  ].join('\n');
+  document.head.appendChild(s);
+})();
+
+
 /* ---------- rt-diag.js ---------- */
 /* ============================================================
-   INTRODUCCIÓN A LA PORCICULTURA RENTABLE · EL DIAGNÓSTICO
+   LA GRANJA RENTABLE · DIAGNÓSTICO Y SIGUIENTE PASO
    ------------------------------------------------------------
-   «Descubre tu principal reto». Una pregunta para elegir el área
-   y tres más dentro de ella. Al final, un resultado escrito con
-   LAS RESPUESTAS que dio, no un texto fijo por área.
+   Rediseño 2026-10-14.
 
-   Por qué tres preguntas y no más: el curso entero dura veinte
-   minutos. Un cuestionario de diez preguntas se abandona a la
-   cuarta, y un diagnóstico abandonado no recomienda nada.
+   EL DIAGNÓSTICO (módulo 4)
+   Una pregunta de entrada (¿ya tienes granja o estás empezando?)
+   y una pregunta por área. Cada respuesta puntúa 0, 1 o 2; algunas
+   tienen «no aplica» (por ejemplo, quien compra lechones y no tiene
+   cerdas). El área con menos puntos es el PUNTO DÉBIL, y de ahí sale
+   el curso recomendado. Así la recomendación corresponde siempre a
+   lo que la persona contestó, no a lo que eligió de una lista.
 
-   El resultado se guarda en 'rt::<alumno>::diag', y de ahí lo
-   leen el módulo 5 y la pantalla final. Si alguien se salta el
-   diagnóstico, esas pantallas siguen funcionando: enseñan el
-   curso base, que es la recomendación por defecto para quien
-   todavía no sabe qué necesita.
+   Áreas → cursos (los que existen hoy en el catálogo; el nombre se
+   lee de COURSES al pintar, no se escribe a mano):
+     alim  Alimentación y costos            → nutricion
+     rep   Reproducción y manejo de marranas → reproduccion
+     san   Salud y bioseguridad              → sanidad
+     lech  Mortalidad y manejo de lechones   → lechones
+     eng   Engorde y comercialización        → engorde
+     reg   Registros y administración        → rentabilidad
+   Quien está empezando → porcicultura (el curso base).
+
+   Se guarda en 'rt::<alumno>::diag2' (el diagnóstico viejo,
+   'rt::<alumno>::diag', se deja intacto y sin uso).
+
+   EL PLAN (módulo 5 y pantalla final): punto débil, curso
+   recomendado con su estado real (precio o «ya lo tienes», que
+   lee agEstadoCurso — no se toca el acceso), una lista de
+   acciones para empezar y los demás cursos de porcicultura.
    ============================================================ */
 
 var RTAREAS = [
-  {
-    id:'rep', ico:'🐖', t:'Reproducción', c:'#C2185B', curso:'reproduccion',
-    lema:'de aquí salen los cerdos que usted va a engordar',
-    q:[
-      { t:'¿Sabe cuántos lechones desteta al año cada una de sus cerdas?',
-        o:[ ['Sí, lo tengo anotado por cerda', 2, 'ya lleva la cuenta por cerda'],
-            ['Más o menos, de memoria', 1, 'lleva la cuenta de memoria'],
-            ['No lo he calculado nunca', 0, 'todavía no ha hecho esa cuenta'] ] },
-      { t:'¿Cómo detecta el celo?',
-        o:[ ['Reviso a hora fija, con el verraco delante', 2, 'revisa el celo con método'],
-            ['Cuando noto a la cerda inquieta', 1, 'detecta el celo a ojo'],
-            ['La verdad es que se me pasan varios', 0, 'se le están pasando celos'] ] },
-      { t:'¿Cuántos días pasan sus cerdas vacías después del destete?',
-        o:[ ['Menos de 7 días, casi siempre', 2, 'sus cerdas vuelven pronto'],
-            ['Entre 1 y 3 semanas', 1, 'sus cerdas tardan en volver'],
-            ['No lo sé', 0, 'no está midiendo los días vacíos'] ] }
-    ]
-  },
-  {
-    id:'alim', ico:'🌽', t:'Alimentación', c:'#2F7D4F', curso:'nutricion',
-    lema:'es la mayor parte del costo de producir un cerdo',
-    q:[
-      { t:'¿Sabe cuántos kilos de alimento gasta por cada kilo de cerdo que produce?',
-        o:[ ['Sí, calculo la conversión por lote', 2, 'ya calcula su conversión'],
-            ['Sé cuánto alimento compro, pero no la conversión', 1, 'sabe lo que compra pero no lo que rinde'],
-            ['No sé qué es eso', 0, 'todavía no mide la conversión'] ] },
-      { t:'El alimento que usa, ¿de dónde sale?',
-        o:[ ['Lo fabrico yo y sé qué lleva', 2, 'fabrica su propio alimento'],
-            ['Lo compro hecho', 1, 'compra el alimento hecho'],
-            ['Mezclo lo que consigo, según el precio', 0, 'mezcla según lo que consigue'] ] },
-      { t:'¿Cambia la fórmula según la etapa del animal?',
-        o:[ ['Sí, tengo fases definidas', 2, 'alimenta por fases'],
-            ['Cambio una o dos veces, a ojo', 1, 'cambia de fórmula a ojo'],
-            ['Uso el mismo alimento todo el ciclo', 0, 'usa un solo alimento todo el ciclo'] ] }
-    ]
-  },
-  {
-    id:'san', ico:'🦠', t:'Sanidad y bioseguridad', c:'#c4544a', curso:'sanidad',
-    lema:'cada animal que no llega a la venta se lleva todo lo invertido',
-    q:[
-      { t:'¿Sabe qué porcentaje de su lote se le muere antes de vender?',
-        o:[ ['Sí, lo anoto cada vez', 2, 'lleva registro de sus bajas'],
-            ['Sé que se mueren algunos', 1, 'sabe que pierde animales pero no cuántos'],
-            ['No llevo esa cuenta', 0, 'no está contando la mortalidad'] ] },
-      { t:'Quien entra a su granja, ¿pasa por algún filtro?',
-        o:[ ['Sí: ropa, botas y desinfección', 2, 'tiene control de entrada'],
-            ['Solo la gente de fuera, a veces', 1, 'controla la entrada a medias'],
-            ['Entra quien llega', 0, 'la granja está abierta'] ] },
-      { t:'¿Tiene un plan escrito por si aparece Peste Porcina Africana?',
-        o:[ ['Sí, y sé a quién llamar', 2, 'tiene plan ante la PPA'],
-            ['Sé de qué se trata, pero no tengo plan', 1, 'conoce la PPA pero no tiene plan'],
-            ['No sabría qué hacer', 0, 'no tiene ningún plan ante la PPA'] ] }
-    ]
-  },
-  {
-    id:'eng', ico:'📈', t:'Engorde', c:'#1F6F8B', curso:'engorde',
-    lema:'es la etapa más larga y la que más alimento consume',
-    q:[
-      { t:'¿Pesa sus cerdos o los vende «cuando se ven listos»?',
-        o:[ ['Los peso antes de vender', 2, 'pesa antes de vender'],
-            ['Peso algunos, de muestra', 1, 'pesa solo una muestra'],
-            ['Voy a ojo', 0, 'vende a ojo'] ] },
-      { t:'¿Cuántos días tarda su cerdo del destete al peso de mercado?',
-        o:[ ['Lo sé con bastante precisión', 2, 'conoce sus días al mercado'],
-            ['Unos cinco o seis meses, calculo', 1, 'calcula los días por encima'],
-            ['No lo he medido', 0, 'no ha medido los días al mercado'] ] },
-      { t:'¿Sabe cuánto le cuesta producir un kilo de cerdo?',
-        o:[ ['Sí, lo calculo por lote', 2, 'calcula su costo por kilo'],
-            ['Tengo una idea aproximada', 1, 'tiene una idea aproximada del costo'],
-            ['No', 0, 'no conoce su costo por kilo'] ] }
-    ]
-  },
-  {
-    id:'cost', ico:'💰', t:'Costos y rentabilidad', c:'#c8912f', curso:'porcicultura',
-    lema:'sin estos números, vender es apostar',
-    q:[
-      { t:'¿Lleva registros de lo que entra y sale de la granja?',
-        o:[ ['Sí, por lote y por escrito', 2, 'lleva registros por lote'],
-            ['Anoto algunas cosas', 1, 'anota algunas cosas'],
-            ['Lo llevo en la cabeza', 0, 'lo lleva todo en la cabeza'] ] },
-      { t:'¿Sabe cuánto ganó o perdió en su último lote?',
-        o:[ ['Sí, con números', 2, 'cerró su último lote con números'],
-            ['Creo que gané, pero no sabría decir cuánto', 1, 'cree que ganó pero no sabe cuánto'],
-            ['No tengo idea', 0, 'no sabe cómo terminó su último lote'] ] },
-      { t:'Cuando le sube el alimento, ¿sabe a qué precio deja de ser negocio?',
-        o:[ ['Sí, conozco mi punto de equilibrio', 2, 'conoce su punto de equilibrio'],
-            ['Me lo imagino', 1, 'se imagina su punto de equilibrio'],
-            ['Nunca lo he calculado', 0, 'nunca ha calculado su punto de equilibrio'] ] }
-    ]
-  },
-  {
-    id:'man', ico:'🏠', t:'Manejo general', c:'#6b4e9e', curso:'porcicultura',
-    lema:'es por donde se empieza cuando todavía no se sabe qué falla',
-    q:[
-      { t:'¿Cuánto tiempo lleva con cerdos?',
-        o:[ ['Más de tres años', 2, 'lleva años en esto'],
-            ['Entre uno y tres años', 1, 'lleva poco tiempo'],
-            ['Estoy empezando o todavía no tengo', 0, 'está empezando'] ] },
-      { t:'¿Cómo aprendió lo que sabe?',
-        o:[ ['Con formación técnica', 2, 'tiene formación técnica'],
-            ['Viendo a otros productores', 1, 'aprendió mirando a otros'],
-            ['Probando y equivocándome', 0, 'aprendió probando'] ] },
-      { t:'Si algo va mal en su granja, ¿sabría por dónde empezar a buscar?',
-        o:[ ['Sí, reviso por partes', 2, 'sabe dónde buscar'],
-            ['A veces sí, a veces no', 1, 'a veces sabe dónde buscar'],
-            ['No, normalmente pregunto', 0, 'todavía no sabe por dónde empezar'] ] }
-    ]
-  }
+  { id:'alim', ico:'🌽', t:'Alimentación y costos', c:'#2F7D4F', curso:'nutricion',
+    q:'¿Sabes cuántos kilos de alimento gastas por cada kilo de cerdo que vendes?',
+    o:[ ['Sí, lo calculo en cada lote', 2], ['Sé cuánto alimento compro, pero no cuánto rinde', 1], ['No, nunca lo he calculado', 0] ],
+    lec:'El alimento es el gasto más grande de la granja. Saber cuánto rinde y cuánto cuesta por kilo de cerdo es lo primero que mueve tu resultado.',
+    hacer:'Anota los sacos que entran a un lote y los kilos de cerdo que salen: con esos dos números ya tienes tu conversión.' },
+  { id:'rep', ico:'❤️', t:'Reproducción y manejo de marranas', c:'#C2185B', curso:'reproduccion',
+    q:'Después del destete, ¿sabes cuántos días tardan tus cerdas en volver a quedar preñadas?',
+    o:[ ['Sí, lo anoto por cerda', 2], ['Más o menos, de memoria', 1], ['No lo sé, a veces se me pasan los celos', 0], ['No tengo cerdas: compro lechones', null] ],
+    lec:'Cada día que una cerda pasa vacía come igual y no produce. Controlar el celo y el servicio es poner más lechones al año con las mismas cerdas.',
+    hacer:'Haz un calendario con cuatro fechas por cerda: celo, servicio, parto y destete.' },
+  { id:'san', ico:'🦠', t:'Salud y bioseguridad', c:'#c4544a', curso:'sanidad',
+    q:'Las personas, vehículos y animales que llegan a tu granja, ¿pasan por algún control?',
+    o:[ ['Sí: ropa, botas, desinfección y cuarentena', 2], ['A veces, sobre todo con gente de fuera', 1], ['No, entra quien llega', 0] ],
+    lec:'Una enfermedad que entra puede costar más que un año de trabajo. La bioseguridad es lo más barato que puedes hacer por tu granja.',
+    hacer:'Pon un solo punto de entrada con agua, jabón y botas exclusivas para la granja.' },
+  { id:'lech', ico:'🍼', t:'Mortalidad y manejo de lechones', c:'#B5651D', curso:'lechones',
+    q:'De cada camada, ¿cuántos lechones se te mueren antes del destete?',
+    o:[ ['Muy pocos, y lo anoto', 2], ['Algunos, pero no sé cuántos', 1], ['Bastantes: aplastados, diarreas, frío', 0], ['No tengo maternidad', null] ],
+    lec:'Las primeras horas y días del lechón deciden cuántos llegan al destete. Ahí se pierde mucho dinero sin que se note.',
+    hacer:'Anota por camada cuántos nacieron vivos y cuántos llegaron al destete.' },
+  { id:'eng', ico:'📈', t:'Engorde y comercialización', c:'#1F6F8B', curso:'engorde',
+    q:'¿Cómo decides cuándo vender tus cerdos?',
+    o:[ ['Los peso y comparo con lo que me cuesta producirlos', 2], ['Cuando pasa el comprador o necesito dinero', 1], ['A ojo, cuando se ven listos', 0] ],
+    lec:'El engorde es donde más alimento se gasta. Vender a tiempo y con peso conocido es dejar de regalar días de comida.',
+    hacer:'Pesa una muestra del lote cada dos semanas y anota la ganancia diaria.' },
+  { id:'reg', ico:'📋', t:'Registros y administración', c:'#c8912f', curso:'rentabilidad',
+    q:'¿Sabes cuánto ganaste o perdiste en tu último lote?',
+    o:[ ['Sí, con números y por escrito', 2], ['Creo que gané, pero no sé cuánto', 1], ['No tengo idea', 0] ],
+    lec:'Sin registros no se puede saber cuál área está fallando. Es la base de todas las demás decisiones de la granja.',
+    hacer:'Abre una libreta por lote: qué entró, qué comió, qué murió, qué salió y por cuánto.' }
 ];
+/* orden de desempate: lo que más pesa en el dinero primero */
+var RTDESEMP = ['reg', 'alim', 'san', 'lech', 'rep', 'eng'];
+var RTDESC = {
+  porcicultura:'El curso base: instalaciones, manejo, sanidad, registros, economía y comercialización de una granja porcina adaptada a República Dominicana.',
+  nutricion:'Formular y fabricar el alimento según la etapa y el costo, con las materias primas que se consiguen aquí.',
+  reproduccion:'Del celo a la inseminación y al parto: más lechones destetados por cerda y menos días vacíos.',
+  sanidad:'Prevenir, controlar y responder ante enfermedades como la Peste Porcina Africana, con un plan de bioseguridad para tu granja.',
+  lechones:'Del nacimiento al destete: calostro, temperatura, manejo de la camada y cómo evitar las pérdidas en maternidad.',
+  engorde:'Del destete al peso de mercado: conversión, ganancia diaria, costo por kilo y cuándo conviene vender.',
+  rentabilidad:'Registros, indicadores, punto de equilibrio y flujo de caja para decidir con números.'
+};
 
 function rtAreaDe(id){
   for(var i = 0; i < RTAREAS.length; i++) if(RTAREAS[i].id === id) return RTAREAS[i];
   return null;
 }
 
-/* ---------- el estado, que sobrevive al repintado ---------- */
-var RTDIAG = { area:null, paso:0, resp:[] };
+/* ---------- estado ---------- */
+var RTDIAG = { inicio:null, r:{}, paso:0 };
+function rtDiagK(){ return 'rt::' + rtYo() + '::diag2'; }
 function rtDiagCargar(){
-  try{
-    var v = JSON.parse(localStorage.getItem('rt::' + rtYo() + '::diag') || 'null');
-    if(v && v.area){ RTDIAG = v; }
-  }catch(e){}
+  try{ var v = JSON.parse(localStorage.getItem(rtDiagK()) || 'null'); RTDIAG = (v && typeof v === 'object') ? v : { inicio:null, r:{}, paso:0 }; }
+  catch(e){ RTDIAG = { inicio:null, r:{}, paso:0 }; }
+  RTDIAG.r = RTDIAG.r || {};
 }
-function rtDiagGuardar(){
-  try{ localStorage.setItem('rt::' + rtYo() + '::diag', JSON.stringify(RTDIAG)); }catch(e){}
-}
+function rtDiagGuardar(){ try{ localStorage.setItem(rtDiagK(), JSON.stringify(RTDIAG)); }catch(e){} }
 function rtDiagHecho(){
-  return !!(RTDIAG.area && RTDIAG.resp.length === 3);
+  rtDiagCargar();
+  if(RTDIAG.inicio === 'nuevo') return true;
+  if(RTDIAG.inicio !== 'tengo') return false;
+  return RTAREAS.every(function(a){ return RTDIAG.r.hasOwnProperty(a.id); });
 }
 window.rtDiagHecho = rtDiagHecho;
 
-/* la recomendación: el curso, y por qué ese */
+/* la recomendación sale de las respuestas */
 function rtRecomienda(){
-  if(!rtDiagHecho()) return { curso:'porcicultura', area:null, punt:null, base:true };
-  var a = rtAreaDe(RTDIAG.area);
-  var punt = RTDIAG.resp.reduce(function(s, r){ return s + (r ? r.p : 0); }, 0);
-  /* quien saca muy poco en su propia área no necesita especializarse
-     todavía: necesita las bases. Es la recomendación honesta. */
-  var curso = a ? a.curso : 'porcicultura';
-  var base = (punt <= 1 && curso !== 'porcicultura');
-  return { curso: base ? 'porcicultura' : curso, especial: curso, area: a, punt: punt, base: base };
+  if(!rtDiagHecho()) return { curso:'porcicultura', area:null, base:true, sin:true };
+  if(RTDIAG.inicio === 'nuevo') return { curso:'porcicultura', area:null, base:true, nuevo:true };
+  var puntos = RTAREAS.map(function(a){ return { a:a, p:RTDIAG.r[a.id] }; })
+    .filter(function(x){ return x.p !== null && x.p !== undefined; });
+  if(!puntos.length) return { curso:'porcicultura', area:null, base:true };
+  var min = Math.min.apply(null, puntos.map(function(x){ return x.p; }));
+  var debiles = puntos.filter(function(x){ return x.p === min; });
+  debiles.sort(function(x, y){ return RTDESEMP.indexOf(x.a.id) - RTDESEMP.indexOf(y.a.id); });
+  var a = debiles[0].a;
+  var total = puntos.reduce(function(s, x){ return s + x.p; }, 0), max = puntos.length * 2;
+  /* si casi nada se mide, el curso base va como complemento */
+  var conBase = total <= Math.floor(max * 0.3);
+  return { curso:a.curso, area:a, punt:min, total:total, max:max, puntos:puntos, conBase:conBase, todoBien:min === 2 };
 }
 window.rtRecomienda = rtRecomienda;
 
 /* ============================================================
-   LA PIEZA
+   LA PIEZA DEL DIAGNÓSTICO
    ============================================================ */
 function rtSecDiag(){
   rtDiagCargar();
@@ -45755,168 +46276,134 @@ function rtSecDiag(){
 RTREG.rtdiag = rtSecDiag;
 
 function rtDiagHTML(){
-  if(rtDiagHecho() && RTDIAG.paso >= 3) return rtDiagResultadoHTML();
-  if(!RTDIAG.area) return rtDiagAreasHTML();
+  rtDiagCargar();
+  if(rtDiagHecho() && RTDIAG.paso >= RTAREAS.length) return rtDiagResultadoHTML();
+  if(RTDIAG.inicio === 'nuevo') return rtDiagResultadoHTML();
+  if(RTDIAG.inicio !== 'tengo') return rtDiagInicioHTML();
   return rtDiagPreguntaHTML();
 }
-
-function rtDiagAreasHTML(){
-  var op = RTAREAS.map(function(a){
-    return '<button class="rtd-area" style="--c:' + a.c + '" onclick="rtDiagArea(\'' + a.id + '\')">' +
-      '<span class="rtd-area-i">' + a.ico + '</span>' +
-      '<span class="rtd-area-t">' + rtvEsc(a.t) + '</span>' +
-      '<span class="rtd-area-l">' + rtvEsc(a.lema) + '</span></button>';
-  }).join('');
-  return '<div class="rtv-cab rtd-cab">' +
-      '<span class="rtv-k">Diagnóstico · 4 preguntas</span>' +
-      '<h3>🔎 Descubra su principal reto</h3>' +
-      '<p>No todas las granjas tienen el mismo problema, así que no a todas les sirve el mismo curso. ' +
-      'Responda cuatro preguntas y verá por dónde le conviene empezar a usted.</p>' +
-    '</div>' +
-    '<p class="rtd-preg">¿Qué área de su granja quiere mejorar?</p>' +
-    '<div class="rtd-areas">' + op + '</div>';
-}
-
-function rtDiagPreguntaHTML(){
-  var a = rtAreaDe(RTDIAG.area);
-  if(!a) return rtDiagAreasHTML();
-  var i = RTDIAG.paso;
-  var q = a.q[i];
-  if(!q) return rtDiagResultadoHTML();
-  var op = q.o.map(function(o, j){
-    return '<button class="rtd-op" onclick="rtDiagResp(' + j + ')">' +
-      '<span class="rtd-op-l">' + String.fromCharCode(65 + j) + '</span>' +
-      '<span>' + rtvEsc(o[0]) + '</span></button>';
-  }).join('');
-  var pct = Math.round((i + 1) / (a.q.length + 1) * 100);
-  return '<div class="rtd-run" style="--c:' + a.c + '">' +
-      '<div class="rtd-barra"><i style="width:' + pct + '%"></i></div>' +
-      '<div class="rtd-run-h"><span>' + a.ico + '</span><b>' + rtvEsc(a.t) + '</b>' +
-        '<em>pregunta ' + (i + 1) + ' de ' + a.q.length + '</em></div>' +
-      '<p class="rtd-preg">' + rtvEsc(q.t) + '</p>' +
-      '<div class="rtd-ops">' + op + '</div>' +
-      '<button class="rtd-atras" onclick="rtDiagAtras()">← ' + (i === 0 ? 'Elegir otra área' : 'Pregunta anterior') + '</button>' +
+function rtDiagInicioHTML(){
+  return '<div class="rtv-cab rtd-cab"><span class="rtv-k">Diagnóstico orientativo · 7 preguntas · 2 minutos</span>' +
+      '<h3>🔎 Descubre el punto débil de tu granja</h3>' +
+      '<p>Una pregunta por área. Al final verás en cuál estás más fuerte, en cuál más débil y por dónde te conviene empezar.</p></div>' +
+    '<p class="rtg-dg-p">Primero: ¿en qué punto estás?</p>' +
+    '<div class="rtg-dg-q">' +
+      '<button class="rtg-op" onclick="rtDiagInicio(\'tengo\')"><span>A</span>Tengo una granja de cerdos funcionando</button>' +
+      '<button class="rtg-op" onclick="rtDiagInicio(\'nuevo\')"><span>B</span>Estoy empezando o pensando en empezar</button>' +
     '</div>';
 }
-
-window.rtDiagArea = function(id){
-  RTDIAG = { area:id, paso:0, resp:[] };
-  rtDiagGuardar();
-  rtDiagRepinta();
+function rtDiagPreguntaHTML(){
+  var i = Math.min(RTDIAG.paso || 0, RTAREAS.length - 1), a = RTAREAS[i];
+  var pct = Math.round((i + 1) / (RTAREAS.length + 1) * 100);
+  return '<div style="--c:' + a.c + '">' +
+      '<div class="rtg-dg-barra"><i style="width:' + pct + '%"></i></div>' +
+      '<span class="rtg-dg-area">' + a.ico + ' ' + rtvEsc(a.t) + ' · pregunta ' + (i + 2) + ' de ' + (RTAREAS.length + 1) + '</span>' +
+      '<p class="rtg-dg-p">' + rtvEsc(a.q) + '</p>' +
+      '<div class="rtg-dg-q">' + a.o.map(function(o, j){
+        var sel = RTDIAG.r[a.id] === o[1] && RTDIAG.r.hasOwnProperty(a.id);
+        return '<button class="rtg-op' + (sel ? ' ok' : '') + (o[1] === null ? ' rtg-op-no' : '') + '" onclick="rtDiagResp(' + j + ')">' +
+          '<span>' + String.fromCharCode(65 + j) + '</span>' + rtvEsc(o[0]) + '</button>';
+      }).join('') + '</div>' +
+      '<div class="rtg-dg-pie"><button class="rtg-otra" onclick="rtDiagAtras()">← Anterior</button></div>' +
+    '</div>';
+}
+window.rtDiagInicio = function(v){
+  rtDiagCargar();
+  RTDIAG.inicio = v; RTDIAG.paso = 0;
+  rtDiagGuardar(); rtDiagRepinta();
 };
 window.rtDiagResp = function(j){
-  var a = rtAreaDe(RTDIAG.area);
-  if(!a) return;
-  var q = a.q[RTDIAG.paso];
-  if(!q) return;
-  RTDIAG.resp[RTDIAG.paso] = { i:j, p:q.o[j][1], txt:q.o[j][2] };
+  rtDiagCargar();
+  var a = RTAREAS[RTDIAG.paso]; if(!a) return;
+  RTDIAG.r[a.id] = a.o[j][1];
   RTDIAG.paso++;
-  rtDiagGuardar();
-  rtDiagRepinta();
+  rtDiagGuardar(); rtDiagRepinta();
 };
 window.rtDiagAtras = function(){
-  if(RTDIAG.paso === 0){ RTDIAG = { area:null, paso:0, resp:[] }; }
-  else { RTDIAG.paso--; RTDIAG.resp.length = RTDIAG.paso; }
-  rtDiagGuardar();
-  rtDiagRepinta();
+  rtDiagCargar();
+  if(!RTDIAG.paso){ RTDIAG.inicio = null; }
+  else RTDIAG.paso--;
+  rtDiagGuardar(); rtDiagRepinta();
 };
 window.rtDiagOtra = function(){
-  RTDIAG = { area:null, paso:0, resp:[] };
-  rtDiagGuardar();
-  rtDiagRepinta();
+  RTDIAG = { inicio:null, r:{}, paso:0 };
+  rtDiagGuardar(); rtDiagRepinta();
 };
 function rtDiagRepinta(){
   var c = document.getElementById('rtdCaja');
   if(c){ c.innerHTML = rtDiagHTML(); c.classList.add('in'); }
-  /* el módulo 5 y la pantalla final leen el diagnóstico: si están
-     pintados en otro sitio de la página, se refrescan solos */
   var p = document.getElementById('rtpCaja');
   if(p) p.innerHTML = rtPlanHTML();
 }
 
-/* ---------- el resultado ---------- */
+function rtNomCurso(id){
+  try{ if(typeof COURSES !== 'undefined' && COURSES[id] && COURSES[id].name) return COURSES[id].name; }catch(e){}
+  return id;
+}
+
 function rtDiagResultadoHTML(){
-  var a = rtAreaDe(RTDIAG.area);
   var rec = rtRecomienda();
-  if(!a) return rtDiagAreasHTML();
-
-  var punt = rec.punt, max = a.q.length * 2;
-  var nivel, nt, nc;
-  if(punt <= 1){ nivel = 'Está empezando por aquí'; nc = '#c4544a';
-    nt = 'Sus respuestas dicen que en esta área todavía no hay nada medido. Eso no es malo: es el punto de partida de casi todo el mundo, y es el que más rápido mejora.'; }
-  else if(punt <= 4){ nivel = 'Va por buen camino, con huecos'; nc = '#c8912f';
-    nt = 'Hay cosas que ya controla y otras que se le están escapando. Justo en esa mezcla es donde el dinero se va sin que se note.'; }
-  else { nivel = 'Controla bastante de esta área'; nc = '#2f7d4f';
-    nt = 'Ya mide y ya decide con números. A partir de aquí lo que queda es afinar, y eso se hace con técnica, no con más esfuerzo.'; }
-
-  var suyo = RTDIAG.resp.map(function(r){ return r ? r.txt : ''; }).filter(Boolean);
-  var porque = suyo.length
-    ? 'Se lo recomendamos porque usted mismo dijo que ' + suyo.slice(0, 2).join(' y que ') +
-      (suyo[2] ? ', y que ' + suyo[2] : '') + '.'
-    : '';
-
-  var C = null;
-  try{ C = (typeof COURSES !== 'undefined') ? COURSES[rec.curso] : null; }catch(e){}
-  var nom = C ? C.name : rec.curso;
-
+  if(rec.nuevo){
+    return '<div class="rtd-res" style="--c:#2F7D4F">' +
+      '<span class="rtd-res-k">🎯 Tu punto de partida</span>' +
+      '<div class="rtd-res-a"><span>🌱</span><b>EMPEZAR CON BUENAS BASES</b></div>' +
+      '<p class="rtg-abre-p" style="margin-top:6px">Si estás empezando, lo más rentable es no aprender a base de errores. Antes de especializarte en un área, te conviene entender la granja completa: instalaciones, manejo, sanidad, registros y números.</p>' +
+      '<div class="rtd-res-r"><span class="rtd-res-rk">📚 Te recomendamos</span><b>' + rtvEsc(rtNomCurso('porcicultura')) + '</b>' +
+        '<p>' + RTDESC.porcicultura + '</p>' +
+        '<button class="rtd-res-cta" onclick="rtVerCurso(\'porcicultura\')">Ver el curso →</button></div>' +
+      '<div class="rtd-res-pie"><button class="rtd-otra" onclick="rtDiagOtra()">↺ Repetir el diagnóstico</button>' +
+        '<span>Orientación inicial, no una auditoría técnica. Queda guardada para el módulo 5.</span></div>' +
+    '</div>';
+  }
+  var a = rec.area;
+  var barras = RTAREAS.map(function(x){
+    var p = RTDIAG.r[x.id];
+    var na = (p === null || p === undefined);
+    var w = na ? 0 : Math.max(6, p / 2 * 100);
+    return '<div class="rtg-perf-f' + (x.id === a.id ? ' debil' : '') + '" style="--c:' + x.c + '">' +
+      '<span>' + x.ico + ' ' + rtvEsc(x.t) + '</span><div><i style="width:' + w + '%"></i></div>' +
+      '<b>' + (na ? 'no aplica' : (p === 2 ? 'fuerte' : (p === 1 ? 'a medias' : 'débil'))) + '</b></div>';
+  }).join('');
+  var nivel = rec.todoBien
+    ? 'Tu granja ya mide bastante. Lo que queda es afinar, y conviene empezar por el área que más dinero mueve.'
+    : 'Es el área donde tus respuestas muestran menos control. No quiere decir que la granja vaya mal: quiere decir que <b>ahí está tu mayor oportunidad de mejora</b>.';
   return '<div class="rtd-res" style="--c:' + a.c + '">' +
-      '<span class="rtd-res-k">🎯 Su área prioritaria</span>' +
+      '<span class="rtd-res-k">🎯 Tu principal oportunidad de mejora</span>' +
       '<div class="rtd-res-a"><span>' + a.ico + '</span><b>' + rtvEsc(a.t.toUpperCase()) + '</b></div>' +
-      '<div class="rtd-res-n" style="--n:' + nc + '">' +
-        '<div class="rtd-res-p"><b>' + punt + '</b><em>de ' + max + '</em></div>' +
-        '<div><strong>' + nivel + '</strong><p>' + nt + '</p></div>' +
-      '</div>' +
-      '<div class="rtd-res-r">' +
-        '<span class="rtd-res-rk">📚 Le recomendamos</span>' +
-        '<b>' + rtvEsc(nom) + '</b>' +
-        (rec.base
-          ? '<p>Antes de especializarse le conviene el <b>curso base</b>: con lo que contestó, ' +
-            'entrar directo a un curso técnico sería empezar la casa por el techo. ' + porque + '</p>'
-          : '<p>' + porque + ' Este curso entra exactamente en eso.</p>') +
-        '<button class="rtd-res-cta" onclick="rtVerCurso(\'' + rec.curso + '\')">Ver este curso →</button>' +
-      '</div>' +
-      '<div class="rtd-res-pie">' +
-        '<button class="rtd-otra" onclick="rtDiagOtra()">↺ Probar con otra área</button>' +
-        '<span>Su resultado queda guardado y lo verá otra vez al final de la ruta.</span>' +
-      '</div>' +
+      '<p class="rtg-abre-p" style="margin-top:6px">' + nivel + ' ' + a.lec + '</p>' +
+      '<div class="rtg-perf">' + barras + '</div>' +
+      '<div class="rtd-res-r"><span class="rtd-res-rk">✅ Para empezar esta semana</span><p>' + a.hacer + '</p></div>' +
+      '<div class="rtd-res-r"><span class="rtd-res-rk">📚 El curso que entra en esto</span><b>' + rtvEsc(rtNomCurso(a.curso)) + '</b>' +
+        '<p>' + (RTDESC[a.curso] || '') + (rec.conBase ? ' Como en casi todas las áreas falta medir, te conviene también el curso base de ' + rtvEsc(rtNomCurso('porcicultura')) + '.' : '') + '</p>' +
+        '<button class="rtd-res-cta" onclick="rtVerCurso(\'' + a.curso + '\')">Ver el curso →</button></div>' +
+      '<div class="rtd-res-pie"><button class="rtd-otra" onclick="rtDiagOtra()">↺ Repetir el diagnóstico</button>' +
+        '<span>Simulación orientativa con tus respuestas, no una auditoría técnica. Queda guardada para el módulo 5.</span></div>' +
     '</div>';
 }
 
 /* ============================================================
-   MÓDULO 5 · SU SIGUIENTE PASO
-   ------------------------------------------------------------
-   La pantalla comercial, en el orden que se pidió: primero el
-   curso que sale del diagnóstico, después el curso base y al
-   final los especializados. Si no hizo el diagnóstico, el
-   primer bloque invita a hacerlo en vez de mentirle con una
-   recomendación que nadie calculó.
+   EL PLAN · MÓDULO 5 Y PANTALLA FINAL
    ============================================================ */
 var RTPORTADA = {
-  ruta:'m1-vista-general-granja',
-  porcicultura:'m2-pasillos',
-  nutricion:'nutri-m01-alimento-peletizado',
-  reproduccion:'rp-portada',
-  sanidad:'sb-portada',
-  engorde:'m7-corral-engorde'
+  porcicultura:'m2-pasillos', nutricion:'nutri-portada', reproduccion:'rp-portada',
+  sanidad:'sb-portada', engorde:'eg-p-03', lechones:'lc-portada', rentabilidad:'gr-p-164686'
 };
-/* agCatDe().cover guarda solo el NOMBRE del archivo — ni carpeta ni
-   extension — porque quien lo usa arma la ruta por su cuenta. Se vio
-   midiendo: las cinco fotos del plan salian rotas por esto. */
 function rtFoto(id){
   var f = null;
   try{ var c = (typeof agCatDe === 'function') ? agCatDe(id) : null; if(c && c.cover) f = String(c.cover); }catch(e){}
-  if(!f) f = RTPORTADA[id] || "m1-vista-general-granja";
-  if(f.indexOf("/") < 0) f = "images/" + f;
+  if(!f) f = RTPORTADA[id] || 'eg-p-03';
+  if(f.indexOf('/') < 0) f = 'images/' + f;
   if(!/\.(jpg|jpeg|png|webp|avif)$/i.test(f)) f += '.jpg';
   return f;
 }
 
 function rtSecPlan(){
-  rtDiagCargar();
   return '<section class="nx-b nx-full"><div class="rtp rv" id="rtpCaja">' + rtPlanHTML() + '</div></section>';
 }
 RTREG.rtplan = rtSecPlan;
 
+/* la tarjeta respeta el estado real: «ya lo tienes» o el precio que
+   diga el sistema. No se cambia ni se habilita nada desde aquí. */
 function rtCursoTarjeta(id, porque, cta, destacada){
   var C = null;
   try{ C = (typeof COURSES !== 'undefined') ? COURSES[id] : null; }catch(e){}
@@ -45925,15 +46412,13 @@ function rtCursoTarjeta(id, porque, cta, destacada){
   try{ e = (typeof agEstadoCurso === 'function') ? agEstadoCurso(id) : null; }catch(x){}
   var tiene = e ? e.tiene : false;
   var precio = '';
-  try{ if(typeof AGPRECIOS !== 'undefined' && AGPRECIOS[id] && AGPRECIOS[id].usd != null) precio = 'US$ ' + AGPRECIOS[id].usd; }catch(x){}
-  var etiq = tiene ? '<span class="rtp-t-ya">✓ Ya lo tiene</span>' :
-    (precio ? '<span class="rtp-t-pr">' + precio + '</span>' : '');
+  try{ if(typeof agPrecio === 'function') precio = agPrecio(id); }catch(x){}
+  if(!precio){ try{ if(typeof AGPRECIOS !== 'undefined' && AGPRECIOS[id] && AGPRECIOS[id].usd != null) precio = 'US$ ' + AGPRECIOS[id].usd; }catch(x){} }
+  var etiq = tiene ? '<span class="rtp-t-ya">✓ Ya lo tienes</span>' : (precio ? '<span class="rtp-t-pr">🔒 ' + precio + '</span>' : '');
   return '<div class="rtp-t' + (destacada ? ' rtp-t-top' : '') + '">' +
     '<div class="rtp-t-f"><img src="' + rtFoto(id) + '" alt="' + rtvEsc(C.name) + '" loading="lazy">' + etiq + '</div>' +
-    '<div class="rtp-t-c">' +
-      '<b>' + rtvEsc(C.name) + '</b>' +
-      '<p>' + porque + '</p>' +
-      '<button class="rtp-t-b" onclick="rtVerCurso(\'' + id + '\')">' + cta + '</button>' +
+    '<div class="rtp-t-c"><b>' + rtvEsc(C.name) + '</b><p>' + porque + '</p>' +
+      '<button class="rtp-t-b" onclick="rtVerCurso(\'' + id + '\')">' + (tiene ? 'Entrar al curso →' : cta) + '</button>' +
     '</div></div>';
 }
 
@@ -45941,58 +46426,43 @@ function rtPlanHTML(){
   var rec = rtRecomienda();
   var h = '';
 
-  /* 1 · su curso recomendado */
-  if(rtDiagHecho()){
-    var a = rec.area;
-    var C = null;
-    try{ C = (typeof COURSES !== 'undefined') ? COURSES[rec.curso] : null; }catch(e){}
-    var suyo = RTDIAG.resp.map(function(r){ return r ? r.txt : ''; }).filter(Boolean);
-    var porque = rec.base
-      ? 'Usted eligió mejorar <b>' + rtvEsc(a.t.toLowerCase()) + '</b>, pero por lo que contestó todavía no hay nada medido en su granja. ' +
-        'El curso base le da el suelo sobre el que después cualquier curso técnico tiene sentido.'
-      : 'Usted eligió mejorar <b>' + rtvEsc(a.t.toLowerCase()) + '</b>' +
-        (suyo.length ? ', y dijo que ' + suyo.slice(0, 2).join(' y que ') : '') + '. Este curso entra exactamente ahí.';
-    h += '<div class="rtp-bloque rtp-top">' +
-      '<span class="rtp-k">⭐ Su curso recomendado</span>' +
-      '<p class="rtp-sub">Sale de las respuestas que usted dio en el módulo 4. Si quiere otro resultado, puede repetir el diagnóstico.</p>' +
-      rtCursoTarjeta(rec.curso, porque, 'Ver este curso →', true) +
-    '</div>';
+  if(rec.sin){
+    h += '<div class="rtp-bloque rtp-top rtp-sin"><span class="rtp-k">⭐ Tu siguiente paso</span>' +
+      '<p class="rtp-sub">Todavía no has hecho el diagnóstico, así que no hay nada que recomendarte: una recomendación sin tus respuestas no vale nada. Son siete preguntas y toma dos minutos.</p>' +
+      '<button class="rtp-ir" onclick="rtIr(4)">🔎 Hacer el diagnóstico →</button></div>';
+  } else if(rec.nuevo){
+    h += '<div class="rtp-bloque rtp-top"><span class="rtp-k">⭐ Tu siguiente paso</span>' +
+      '<p class="rtp-sub">Dijiste que estás empezando. Lo recomendable es aprender la granja completa antes de especializarte.</p>' +
+      rtCursoTarjeta('porcicultura', RTDESC.porcicultura, 'Ver el curso →', true) + '</div>';
   } else {
-    h += '<div class="rtp-bloque rtp-top rtp-sin">' +
-      '<span class="rtp-k">⭐ Su curso recomendado</span>' +
-      '<p class="rtp-sub">Todavía no ha hecho el diagnóstico, así que aquí no hay nada que recomendarle: ' +
-      'una recomendación sin sus respuestas detrás no vale nada. Son cuatro preguntas y tarda un minuto.</p>' +
-      '<button class="rtp-ir" onclick="rtIr(4)">🔎 Hacer el diagnóstico →</button>' +
-    '</div>';
+    var a = rec.area;
+    h += '<div class="rtp-bloque rtp-top"><span class="rtp-k">🎯 Tu principal oportunidad: ' + a.ico + ' ' + rtvEsc(a.t) + '</span>' +
+      '<p class="rtp-sub">Sale de tus respuestas del módulo 4. ' + a.lec + '</p>' +
+      rtCursoTarjeta(a.curso, RTDESC[a.curso] || '', 'Ver el curso →', true) + '</div>';
   }
 
-  /* 2 · el curso base */
-  if(rec.curso !== 'porcicultura'){
-    h += '<div class="rtp-bloque">' +
-      '<span class="rtp-k">🥇 ¿Quiere empezar desde las bases?</span>' +
-      '<p class="rtp-sub">Si todavía está comenzando, o quiere el manejo completo de la granja y no una parte, este es el punto de partida de AgroAcademy.</p>' +
-      rtCursoTarjeta('porcicultura',
-        'Las bases completas para manejar una granja adaptada a la realidad dominicana: instalaciones, manejo, sanidad, registros, economía y comercialización.',
-        'Conocer el curso base →', false) +
-    '</div>';
-  }
+  /* la lista para empezar */
+  var hacer = [
+    ['📒', 'Abre una libreta por lote y anota todo lo que entra y sale.'],
+    ['⚖️', 'Pesa una muestra cada dos semanas y saca la ganancia diaria.'],
+    ['🔎', 'Revisa comederos, bebederos y el control de entrada a la granja.'],
+    ['🧮', 'Al vender, calcula cuánto te costó producir cada libra.']
+  ];
+  if(rec.area) hacer.unshift(['🎯', rec.area.hacer]);
+  h += '<div class="rtp-bloque"><span class="rtp-k">✅ Tu lista para empezar</span>' +
+    '<p class="rtp-sub">Cosas que puedes hacer desde mañana, sin gastar casi nada.</p>' +
+    '<div class="rtg-res-acc" style="margin-top:6px">' + hacer.map(function(x){
+      return '<div class="rtg-res-a"><span>' + x[0] + '</span>' + x[1] + '</div>';
+    }).join('') + '</div></div>';
 
-  /* 3 · especialícese */
-  var otros = ['nutricion', 'reproduccion', 'sanidad', 'engorde'].filter(function(x){ return x !== rec.curso; });
-  var desc = {
-    nutricion:'Formular y fabricar el alimento según la etapa y el costo, con las materias primas que de verdad se consiguen aquí.',
-    reproduccion:'Del celo a la inseminación y al parto: más lechones destetados por cerda y menos días vacíos.',
-    sanidad:'Prevenir, controlar y responder ante la Peste Porcina Africana, con el plan de bioseguridad de su granja escrito.',
-    engorde:'Del destete al peso de mercado: conversión, ganancia diaria, costo por kilo y cuándo conviene vender.'
-  };
-  h += '<div class="rtp-bloque">' +
-    '<span class="rtp-k">🎯 Especialícese</span>' +
-    '<p class="rtp-sub">Cada uno entra a fondo en una parte del negocio. Se adquieren por separado y se le abren con la misma cuenta que ya tiene.</p>' +
-    '<div class="rtp-g">' + otros.map(function(id){
-      return rtCursoTarjeta(id, desc[id] || '', 'Ver qué incluye →', false);
-    }).join('') + '</div>' +
-  '</div>';
-
+  /* los demás cursos de porcicultura que existen en el catálogo */
+  var todos = ['porcicultura', 'nutricion', 'reproduccion', 'lechones', 'sanidad', 'engorde', 'rentabilidad'];
+  var otros = todos.filter(function(x){
+    try{ return x !== rec.curso && typeof COURSES !== 'undefined' && COURSES[x]; }catch(e){ return false; }
+  });
+  h += '<div class="rtp-bloque"><span class="rtp-k">🐖 Sigue aprendiendo</span>' +
+    '<p class="rtp-sub">Cada curso entra a fondo en una parte de la granja. Se adquieren por separado y se abren con la misma cuenta. No hace falta tomarlos todos ni en orden: empieza por donde más te duela hoy.</p>' +
+    '<div class="rtp-g">' + otros.map(function(id){ return rtCursoTarjeta(id, RTDESC[id] || '', 'Ver qué incluye →', false); }).join('') + '</div></div>';
   return h;
 }
 
@@ -46658,8 +47128,8 @@ function rtPlanHTML(){
    1 · REGISTRO EN COURSES, con el mismo contrato de siempre
    ------------------------------------------------------------ */
 if(typeof NXCURSOS !== 'undefined' && !NXCURSOS.some(function(c){ return c.id === 'ruta'; })){
-  NXCURSOS.push({id:'ruta', ico:'🐖', n:'Introducción a la Porcicultura Rentable',
-    sub:'4 módulos · gratis · su primera clase', mods:4, base:false});
+  NXCURSOS.push({id:'ruta', ico:'🐖', n:'La Granja Rentable',
+    sub:'5 módulos · gratis · empieza aquí', mods:5, base:false});
 }
 if(typeof NXPUB !== 'undefined' && NXPUB.ruta === undefined){
   NXPUB.ruta = RTPUB;
@@ -46669,7 +47139,7 @@ if(typeof NXPUB !== 'undefined' && NXPUB.ruta === undefined){
 if(typeof window.COURSES !== 'undefined' && !COURSES.ruta){
   COURSES.ruta = {
     id:'ruta', icon:'🐖', label:'Introducción',
-    name:'Introducción a la Porcicultura Rentable',
+    name:'La Granja Rentable',
     hasFormulas:false,
     /* no se vende: es gratis */
     sellsSeparately:false,
@@ -46705,7 +47175,7 @@ if(typeof window.COURSES !== 'undefined' && !COURSES.ruta){
     },
     /* gratis: lo tiene cualquier cuenta que exista */
     enrolled: function(s){ return !!(s && s.status !== 'borrado'); },
-    certLabel:'Introducción a la Porcicultura Rentable'
+    certLabel:'La Granja Rentable'
   };
 }
 
@@ -46733,8 +47203,8 @@ if(typeof window.agEstadoCurso === 'function'){
    ------------------------------------------------------------ */
 if(typeof AGCAT !== 'undefined' && !AGCAT.ruta){
   AGCAT.ruta = {
-    cover:'nutri-s05-lechones-granjero', cat:'Gratis · empiece aquí',
-    desc:'Su primera clase en AgroAcademy: cinco módulos cortos, un simulador con sus propios números y un diagnóstico que le dice qué le toca aprender. 15–25 minutos, sin pagar nada.',
+    cover:'eg-p-34', cat:'Gratis · empieza aquí',
+    desc:'Descubre dónde se va el dinero de tu granja y qué puedes hacer para producir de forma más rentable. Cinco módulos cortos, casos prácticos y un diagnóstico hecho con tus respuestas. 15–25 minutos, gratis.',
     abrir:function(){ if(typeof cerrarCursos === 'function') cerrarCursos(); openRuta(); },
     pagar:null
   };
@@ -46810,9 +47280,9 @@ function rtTarjeta(){
   b.className = 'cs-c cs-c0';
   b.setAttribute('onclick', 'cerrarCursos(); openRuta();');
   b.innerHTML =
-    '<div class="cs-ico">🐖</div><span class="cs-tag">🟢 Gratis · empiece aquí</span>' +
-    '<h3>Introducción a la Porcicultura Rentable</h3>' +
-    '<p>Su primera clase en AgroAcademy. Cuatro módulos cortos sobre qué hace rentable una granja. 15 minutos, sin pagar nada.</p>' +
+    '<div class="cs-ico">🐖</div><span class="cs-tag">🟢 Gratis · empieza aquí</span>' +
+    '<h3>La Granja Rentable</h3>' +
+    '<p>Descubre dónde se va el dinero de tu granja y qué puedes hacer para producir de forma más rentable. Cinco módulos cortos, gratis.</p>' +
     '<div class="cs-pg"><div class="cs-pgb"><i style="width:' + (p / RTMOD.length * 100) + '%"></i></div>' +
       '<span>' + p + ' de ' + RTMOD.length + ' módulos</span></div>' +
     '<em>Entrar →</em>';
@@ -46962,87 +47432,63 @@ window.rtSetGate = rtSetGate;
 var RTQUIZ = {
 
 1: [
-  { q:'¿De qué depende que una granja porcina sea rentable?', c:1,
-    o:['Del tamaño: cuantos más cerdos tenga, más gana',
-       'De seis variables que se controlan a la vez',
-       'Solo del precio de venta que haya ese día'],
-    fb:'De las seis juntas. El tamaño no aparece en la lista: una granja de 30 cerdos bien llevada puede dejar más que una de 100 mal llevada.' },
-  { q:'De esas seis variables, ¿cuál es la única que usted NO controla?', c:1,
-    o:['La conversión alimenticia', 'El precio de venta', 'La mortalidad del lote'],
-    fb:'El precio lo pone el mercado. Precisamente por eso hay que controlar bien las otras cinco, que sí dependen de la granja.' },
-  { q:'¿Cuánto del costo del engorde se va en alimento?', c:1,
-    o:['Entre 20 y 30 de cada 100 pesos',
-       'Entre 65 y 75 de cada 100 pesos',
-       'Menos de la mitad, casi siempre'],
-    fb:'Entre 65 y 75 %. Es con diferencia el gasto más grande, y por eso la conversión pesa tanto en el resultado.' }
+  { q:'Vendiste un lote y te entraron RD$ 300,000. ¿Qué es eso?', c:1,
+    o:['Tu ganancia del lote', 'Tu venta: todavía falta restar lo que costó producirlo', 'Lo que te queda después de pagar la última factura'],
+    fb:'Es la venta. La ganancia es lo que queda después de restar lechones, todo el alimento, medicinas y demás gastos del lote.' },
+  { q:'¿Cuál fue el error de Ramón al sacar su cuenta?', c:1,
+    o:['Vendió muy barato', 'Contó solo la última factura y olvidó lo que ya había pagado antes para ese lote', 'Compró demasiados lechones'],
+    fb:'Los lechones y el alimento de los primeros meses ya estaban pagados, pero también eran gastos de ese lote.' },
+  { q:'¿Qué es lo primero que necesitas para saber si tu granja te deja dinero?', c:0,
+    o:['Anotar lo que gastas y lo que vendes en cada lote', 'Tener más cerdos', 'Esperar a fin de año'],
+    fb:'Sin anotar no hay número. Una libreta con fecha, gasto, monto y lote es el punto de partida.' }
 ],
 
 2: [
-  { q:'El punto de equilibrio de un lote es…', c:1,
-    o:['El peso al que conviene vender el cerdo',
-       'El precio por libra por debajo del cual el lote pierde dinero',
-       'La cantidad de cerdos que caben en el corral'],
-    fb:'Es el precio mínimo al que puede vender sin perder. Si su costo por libra producida es RD$ 51.6, vender por debajo de eso es perder.' },
-  { q:'Dos granjas venden cerdos de 100 kg el mismo día y al mismo precio, pero una gana bastante más. ¿Por qué?', c:1,
-    o:['Porque tiene más cerdos en total',
-       'Porque gastó menos alimento por kilo y le llegaron más animales a la venta',
-       'Porque le vendió a un comprador distinto'],
-    fb:'Conversión y supervivencia. Son las dos cosas que separan a dos granjas que venden el mismo cerdo al mismo precio.' },
-  { q:'En la cuenta de un lote, los cerdos que se mueren…', c:1,
-    o:['No cuentan, porque no se vendieron',
-       'Ya se comieron su alimento, y esa pérdida la pagan los que sí llegaron',
-       'Se descuentan del costo del lechón'],
-    fb:'Comieron y no se vendieron. Esa pérdida no desaparece: se reparte entre los animales que sí llegaron, y les sube el costo a todos.' }
+  { q:'Se te muere un cerdo de 70 kg. ¿Qué perdiste?', c:1,
+    o:['Solo lo que pagaste por el lechón', 'El lechón y todo el alimento que ya se comió', 'Nada, porque no lo vendiste'],
+    fb:'Se lleva el lechón y lo que comió. Y esa pérdida la terminan pagando los cerdos que sí llegan a la venta.' },
+  { q:'¿Por qué el alimento que cae al piso es una fuga importante?', c:0,
+    o:['Porque el alimento suele ser el gasto más grande de la granja', 'Porque ensucia el corral', 'No es importante: es poquito'],
+    fb:'El alimento es el gasto más grande. Un pequeño porcentaje que se bota, en un lote completo, son miles de pesos.' },
+  { q:'Marcaste «No sé» en una fuga. ¿Qué significa?', c:1,
+    o:['Que esa fuga no existe en tu granja', 'Que no la estás midiendo, y por eso no puedes saber si te cuesta dinero', 'Que es la menos importante'],
+    fb:'Lo que no se mide no se puede cerrar. Muchas veces la fuga más cara es la que no se ve.' }
 ],
 
 3: [
-  { q:'De las seis fugas de dinero, ¿cuál no cuesta dinero cerrar?', c:1,
-    o:['La genética', 'Los registros', 'La sanidad'],
-    fb:'Los registros. Cuatro columnas —qué entró, qué comió, qué murió, qué salió— y es además la que permite ver las otras cinco.' },
+  { q:'Dos productores venden al mismo precio. ¿Qué decide más quién gana?', c:1,
+    o:['Quién tiene más cerdos', 'La conversión del alimento y cuántos animales llegan a la venta', 'Quién vende primero'],
+    fb:'El productor A ganó casi cuatro veces más con cinco cerdos menos, porque convirtió mejor y perdió menos animales.' },
+  { q:'¿Cómo se compara correctamente un alimento con otro?', c:2,
+    o:['Por el precio del saco', 'Por la marca', 'Por lo que cuesta producir un kilo de cerdo con cada uno'],
+    fb:'Precio del kilo de alimento × kilos que hacen falta por kilo de cerdo. El saco barato puede salir más caro.' },
   { q:'La conversión alimenticia mide…', c:0,
-    o:['Cuántos kilos de alimento hacen falta para producir un kilo de cerdo',
-       'Cuántos sacos de alimento compra usted al mes',
-       'Cuánto pesa el lechón al nacer'],
-    fb:'Kilos de alimento por kilo de cerdo producido. No es cuánto compra: es cuánto rinde lo que compra.' },
-  { q:'Un cerdo que se muere a los 80 kg…', c:1,
-    o:['Cuesta solo lo que se pagó por el lechón',
-       'Se lleva el lechón más todo el alimento que ya se comió',
-       'No afecta al costo por kilo del lote'],
-    fb:'Se lleva unos RD$ 12,000 de alimento ya comido, más el lechón. Cuanto más tarde muere, más caro sale.' }
+    o:['Cuántos kilos de alimento hacen falta para que el cerdo gane un kilo', 'Cuántos sacos compras al mes', 'Cuánto pesa el cerdo al venderlo'],
+    fb:'Kilos de alimento por kilo ganado. Mientras más baja, menos alimento cuesta cada kilo que vendes.' }
 ],
 
 4: [
-  { q:'¿Por qué el diagnóstico pregunta antes de recomendar un curso?', c:1,
-    o:['Porque todas las granjas tienen el mismo problema',
-       'Porque no todas las granjas necesitan lo mismo',
-       'Porque así el curso dura un poco más'],
-    fb:'Un productor que no mide nada no necesita lo mismo que uno que ya calcula su conversión. Recomendar sin preguntar es adivinar.' },
-  { q:'Un productor no lleva ningún registro y quiere mejorar la alimentación. ¿Por dónde le conviene empezar?', c:1,
-    o:['Por el curso técnico de formulación, directo',
-       'Por las bases: sin medir nada, un curso técnico no tiene sobre qué apoyarse',
-       'Por comprar mejor genética'],
-    fb:'Por las bases. Una fórmula perfecta no sirve de nada si nadie sabe cuánto come el lote ni cuántos animales llegan.' },
-  { q:'¿Qué indicador resume si la reproducción va bien?', c:0,
-    o:['Lechones destetados por cerda al año',
-       'El peso del verraco',
-       'El número de corrales de la granja'],
-    fb:'Lechones destetados por cerda al año. Junta en un solo número la fertilidad, los días vacíos y la mortalidad de lactancia.' }
+  { q:'¿Para qué sirve el diagnóstico del módulo 4?', c:1,
+    o:['Para dar una nota oficial de la granja', 'Para orientarte sobre tu principal área de mejora a partir de tus respuestas', 'Para reemplazar la visita de un técnico'],
+    fb:'Es una orientación inicial con tus respuestas, no una auditoría técnica.' },
+  { q:'Si tus cerdas tardan en volver a quedar preñadas, ¿qué área tienes que fortalecer?', c:0,
+    o:['Reproducción y manejo de marranas', 'Engorde y comercialización', 'Registros'],
+    fb:'Los días que la cerda pasa vacía son reproducción: come igual y no produce lechones.' },
+  { q:'Si no sabes cuánto ganaste en tu último lote, ¿por dónde conviene empezar?', c:2,
+    o:['Comprando mejor genética', 'Cambiando de alimento', 'Por los registros: sin ellos no se ve qué área está fallando'],
+    fb:'Los registros son la base: permiten ver cuál de las otras áreas te está costando dinero.' }
 ],
 
 5: [
-  { q:'¿Cuál es el curso base de AgroAcademy?', c:1,
-    o:['Engorde porcino',
-       'Porcicultura aplicada a República Dominicana',
-       'Formulación y fabricación de alimentos balanceados'],
-    fb:'Porcicultura aplicada a RD. Es el que da el manejo completo de la granja; los otros cuatro entran a fondo en una parte.' },
-  { q:'¿Qué curso entra a fondo en la conversión, la ganancia diaria y el costo por kilo?', c:0,
-    o:['Engorde porcino', 'Reproducción porcina', 'Sanidad y bioseguridad'],
-    fb:'Engorde porcino: del destete al peso de mercado, que es donde se gasta la mayor parte del alimento del ciclo.' },
-  { q:'Los cursos especializados de AgroAcademy…', c:1,
-    o:['Hay que tomarlos todos y en orden',
-       'Se adquieren por separado y se abren con la misma cuenta que ya tiene',
-       'Vienen incluidos con este curso gratuito'],
-    fb:'Por separado y sin registrarse de nuevo. Empiece por donde más le duela hoy: no hace falta tomarlos todos ni en orden.' }
+  { q:'¿Cuál es el curso base de AgroAcademy para quien está empezando?', c:1,
+    o:['Engorde porcino', 'Porcicultura aplicada a República Dominicana', 'Manejo de lechones'],
+    fb:'El curso base da la granja completa; los demás entran a fondo en un área.' },
+  { q:'Si tu punto débil es la mortalidad de los lechones, ¿qué curso entra en eso?', c:0,
+    o:['Manejo de lechones', 'Gestión y rentabilidad', 'Formulación de alimentos'],
+    fb:'Manejo de lechones: del nacimiento al destete, donde más se pierde en maternidad.' },
+  { q:'Los cursos especializados…', c:1,
+    o:['Vienen incluidos con este curso gratis', 'Se adquieren por separado y se abren con la misma cuenta', 'Hay que tomarlos todos y en orden'],
+    fb:'Se adquieren por separado y no hay que registrarse de nuevo. Empieza por donde más te duela hoy.' }
 ]
 
 };
@@ -47127,7 +47573,7 @@ window.rtEnviar = function(id){
   if(typeof exArmar === 'function') try{ exArmar(ex, 'ruta', id, '.nx-q', 'data-c', '.nx-fb'); }catch(e){}
   var qs = [].slice.call(ex.querySelectorAll('.nx-q'));
   if(!qs.every(function(q){ return q.querySelector('.nx-opt.sel'); })){
-    if(typeof toast === 'function') toast('Responda las tres preguntas', '✍️');
+    if(typeof toast === 'function') toast('Responde las tres preguntas', '✍️');
     if(typeof exTapar === 'function') try{ exTapar(ex, 'ruta', id, '.nx-q', 'data-c', '.nx-opt', '.nx-fb', 'ok', 'bad'); }catch(e){}
     return;
   }
@@ -47148,11 +47594,11 @@ window.rtEnviar = function(id){
     var sig = '';
     if(pasa){
       if(id < RTMOD.length) sig = RTGATE ? ' Módulo siguiente desbloqueado.' : ' Puede seguir al módulo siguiente.';
-      else if(rtCompleto()) sig = ' Ha terminado el curso: su certificado ya está disponible.';
+      else if(rtCompleto()) sig = ' Ha terminado el curso: tu certificado ya está disponible.';
     }
     res.className = 'nx-ex-r ' + (pasa ? 'pass' : 'fail');
     res.innerHTML = '<b>' + nota + ' %</b><span>' + ok + ' de ' + qs.length + ' correctas · ' +
-      (pasa ? 'Aprobado.' + sig : 'No aprobado. Puede volver a intentarlo: no se pierde nada.') + '</span>';
+      (pasa ? 'Aprobado.' + sig : 'No aprobado. Puedes volver a intentarlo: no se pierde nada.') + '</span>';
   }
   if(typeof exTapar === 'function') try{ exTapar(ex, 'ruta', id, '.nx-q', 'data-c', '.nx-opt', '.nx-fb', 'ok', 'bad'); }catch(e){}
   try{ rtNav(); }catch(e){}
@@ -47205,18 +47651,18 @@ if(typeof exDesarmar === 'function'){
      queda bloqueado aunque este aprobado.
    ============================================================ */
 if(typeof AGCURSOSCERT !== 'undefined' && !AGCURSOSCERT.some(function(c){ return c.id === 'ruta'; })){
-  AGCURSOSCERT.push({id:'ruta', ico:'🐖', n:'Introducción a la Porcicultura Rentable', mods:5, pref:'AGRO-INTRO'});
+  AGCURSOSCERT.push({id:'ruta', ico:'🐖', n:'La Granja Rentable', mods:5, pref:'AGRO-INTRO'});
 }
 if(typeof AGCERTDEF !== 'undefined' && !AGCERTDEF.ruta){
   AGCERTDEF.ruta = {
     title:'Certificado de Finalización',
     org:'AgroAcademy RD · Formación agropecuaria profesional',
     intro:'Certificamos que',
-    course:'INTRODUCCIÓN A LA PORCICULTURA RENTABLE',
-    body:'Ha completado satisfactoriamente el {curso}, compuesto por 5 módulos con evaluación por módulo, ' +
-         'sobre las variables que determinan la rentabilidad de una granja porcina, el cálculo de ingresos, ' +
-         'costos, margen y punto de equilibrio, el control de las fugas de dinero y el diagnóstico de sus ' +
-         'propias necesidades de formación.',
+    course:'LA GRANJA RENTABLE',
+    body:'Ha completado satisfactoriamente el curso {curso}, compuesto por 5 módulos con evaluación por módulo, ' +
+         'sobre la diferencia entre venta y ganancia en una granja porcina, las fugas de dinero más frecuentes, ' +
+         'la conversión alimenticia y la mortalidad como factores del resultado, y el diagnóstico de su ' +
+         'principal área de mejora.',
     seal:'Curso Completado',
     accent:'#2F7D4F',
     dur:'5 módulos'
@@ -47388,7 +47834,7 @@ function pcPanelBloqueado(){
       '<b>Porcicultura aplicada a RD</b>' +
       '<span class="ag-pend-n">' + (precio || 'curso base') + '</span>' +
       '<p>Este es el <b>curso base</b> de AgroAcademy y se adquiere aparte. ' +
-      'Mientras tanto tiene abierta la <b>Introducción a la Porcicultura Rentable</b>, que es gratis y no le cuesta nada empezar.</p>' +
+      'Mientras tanto tienes abierto <b>La Granja Rentable</b>, el curso gratis para empezar.</p>' +
       '<div class="ag-pend-acc">' +
         '<button class="btn btn-primary" onclick="agAbrirPago(\'porcicultura\')">🔓 Desbloquear curso</button>' +
         '<button class="btn btn-ghost" onclick="openRuta()">Empezar el curso gratuito</button>' +
@@ -47536,7 +47982,7 @@ function pcColumnaBase(html){
   var n = document.createElement('p');
   n.className = 'adm-note';
   n.innerHTML = '<b>Porcicultura</b> se habilita aquí, uno por uno, igual que los demás cursos. ' +
-    'Un usuario nuevo entra y solo encuentra abierta la <b>Introducción a la Porcicultura Rentable</b>, que es gratis; ' +
+    'Un usuario nuevo entra y solo encuentra abierto <b>La Granja Rentable</b>, que es gratis; ' +
     'el resto se le va habilitando según vaya pagando. ' +
     'El <b>estado de la cuenta</b> sigue sirviendo para otra cosa: decide si la persona puede usar la plataforma.';
   if(notas.length) notas[0].parentNode.insertBefore(n, notas[0]);
@@ -47807,6 +48253,8 @@ if(typeof window.pcAccesoTodos === 'function'){
 })();
 
 </script>
+
+
 
 
 
