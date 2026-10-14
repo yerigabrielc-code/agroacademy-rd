@@ -4857,6 +4857,11 @@ router();
     if(prof.role==='admin'){SESSION={role:'ADMIN'};saveSession();await pullSettings();location.hash='#/admin';router();return;}
     SESSION={role:'STUDENT',id:user.id};saveSession();STU=user.id;localStorage.setItem('porci_active',user.id);
     putLocalStudent(user.id,prof);
+    /* 2026-10-14 · REINICIO DE AVANCE ORDENADO POR EL INSTRUCTOR. Si el perfil trae
+       profiles.reinicio_porcicultura (fecha) y este equipo no lo ha aplicado, se borra
+       ANTES de respaldar el avance local de Porcicultura de este alumno; si no, el
+       respaldo lo volvería a subir a la nube. Se aplica una sola vez por fecha. */
+    try{const rz=prof&&prof.reinicio_porcicultura;if(rz){const mk='porci_reinicio::'+user.id;if(localStorage.getItem(mk)!==String(rz)){Object.keys(localStorage).filter(k=>k.indexOf('porci::'+user.id+'::')===0).forEach(k=>localStorage.removeItem(k));localStorage.setItem(mk,String(rz));}}}catch(e){}
     await pushLocalProgress(user.id);   /* respalda a la nube lo que solo esté en este equipo */
     await pullProgress(user.id);        /* y trae lo que haya en la nube */
     await pullSettings();loadStudent();location.hash='#/curso';router();}
