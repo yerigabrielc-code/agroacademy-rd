@@ -23517,12 +23517,11 @@ var AGPAGO = {
       'Certificado de Aprovechamiento al aprobar los 8 módulos'
     ]
   },
-  /* precio sin fijar: «Consultar» hasta que el instructor lo ponga en Solicitudes → Precios */
   tilapia: {
     ico:'🐟', tag:'Curso de acuicultura',
     n:'Producción de tilapia: crianza, manejo y rentabilidad',
     sub:'Se adquiere por separado. Al confirmarse el pago, el instructor le habilita el acceso y entra con la misma cuenta que ya tiene.',
-    usd:null, pesos:'',
+    usd:84, pesos:'RD$ 5,040',
     incluye:[
       '8 módulos: el negocio, diseño de la unidad, alevines, calidad del agua, alimentación, salud y bioseguridad, cosecha y venta, costos',
       '6 casos prácticos resueltos, 3 calculadoras y el registro diario del agua',
@@ -23531,15 +23530,14 @@ var AGPAGO = {
       'Certificado de Aprovechamiento al aprobar los 8 módulos'
     ]
   },
-  /* precio sin fijar: «Consultar» hasta que el instructor lo ponga en Solicitudes → Precios */
   cabras: {
     ico:'🐐', tag:'Curso de ganadería · caprinos y ovinos',
     n:'Crianza de cabras y ovejas: del inicio a la rentabilidad',
     sub:'Se adquiere por separado. Al confirmarse el pago, el instructor le habilita el acceso y entra con la misma cuenta que ya tiene.',
-    usd:null, pesos:'',
+    usd:79, pesos:'RD$ 4,740',
     incluye:[
       '8 módulos: el negocio, finca e instalaciones, compra de animales, alimentación y agua, reproducción y crías, sanidad y bienestar, engorde y venta, costos',
-      '6 casos prácticos resueltos, 3 calculadoras, el calendario reproductivo y el comparador tilapia frente a chivos y ovejos',
+      '6 casos prácticos resueltos, 3 calculadoras, el calendario reproductivo',
       'Plantillas de la finca y calculadora de rentabilidad en Excel',
       'Mi finca de cabras y ovejas: plan de inicio y rentabilidad, listo para imprimir',
       'Certificado de Aprovechamiento al aprobar los 8 módulos'
@@ -34623,6 +34621,9 @@ window.agVolAdapta = agVolAdapta;
 })();
 
 </script>
+
+
+
 
 
 
@@ -75323,11 +75324,6 @@ if(typeof window.apCalcRun === 'function'){
 #tlOv .tl-cal-t td input{min-width:64px;width:100%}
 #tlOv .tl-cal-rev{font-weight:700;color:#b45309;white-space:nowrap}
 .tl-cred{display:block;margin-top:4px;font-size:11px;font-style:italic;font-weight:400;opacity:.8}
-.tl-cmp-g{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;padding:12px;border:1px solid rgba(127,127,127,.25);border-radius:12px;margin-bottom:10px}
-.tl-cmp-g>b{grid-column:1/-1;font-size:15px}
-.tl-cmp-t thead th{font-size:13px;text-align:right;padding:6px}
-.tl-cmp-t td{text-align:right}
-.tl-cmp-t th:first-child{text-align:left}
 @media (max-width:640px){#tlOv .tl-graf-c::before{content:"↔ Deslice para ver el gráfico completo";display:block;position:sticky;left:0;font:600 12px/1.4 var(--mono);color:var(--muted);margin:0 0 6px}}
 
 </style>
@@ -75381,7 +75377,7 @@ function tlEsInstructor(){
    El precio NO se fija aquí: se configura desde el panel. Mientras
    no se haya puesto, la tarjeta dice «consultar» en vez de inventar
    una cifra. TLPRECIO.curso === null significa «sin definir». */
-var TLPRECIO = { curso: null, moneda: 'US$' };
+var TLPRECIO = { curso: 84, moneda: 'US$' };
 (function tlCargarPrecio(){
   try{
     var p = JSON.parse(localStorage.getItem('tl_precio') || 'null');
@@ -76081,7 +76077,7 @@ var TLMOD = [
       ['Soltar con calma', 'Dejar que salgan nadando; no vaciar de golpe desde arriba.', 'al final'],
       ['Contar y anotar', 'Anotar cantidad, peso promedio, hora, temperatura y muertos de la entrega.', 'el mismo día']
     ]},
-    {k:'agfig', f:'tl-f-35', t:'Transporte de peces vivos en bolsas', p:'Bolsas con agua y oxígeno, cerradas. En la imagen, peces ornamentales: con los alevines de tilapia se trabaja igual.'},
+    {k:'agfig', f:'tl-f-35', t:'Alevines en el tanque de recepción', p:'Antes y después del viaje, los alevines esperan en agua limpia y aireada. Se trasladan en bolsas con agua y oxígeno, o en tanques con aireación, y se aclimatan antes de soltarlos.'},
     {k:'prosa', t:'La densidad de siembra: no hay un número universal', p:[
       'La densidad dice cuántos peces se siembran por metro cuadrado o por metro cúbico. <b>No existe una densidad correcta para todos</b>: depende del sistema, de la calidad y el recambio del agua, de la aireación y su respaldo, de la biomasa que espera tener al final y de cuánto puede vigilar.',
       'Algunas referencias publicadas muestran por qué cambia tanto (SRAC 283 y 282): en estanques con aireación y sin recambio se reportaron unos 6,000 a 8,000 machos por acre (aprox. 1.5 a 2 peces por m²), y con un recambio diario del 20 % del agua, de 20,000 a 28,000 por acre (aprox. 5 a 7 por m²). En tanques muy aireados se habla de una biomasa máxima cercana a 30 kg por m³, y con oxígeno puro, mucho más. <b>Son referencias de sistemas concretos, no recetas.</b>'
@@ -76724,7 +76720,6 @@ TLMOD.push(
         ['Producción nacional 2020–2024', '6,749 toneladas (unos 14.8 millones de libras)', 'CODOPESCA, en elDinero, 4 de agosto de 2025'],
         ['El ciclo de ejemplo de este curso', 'RD$ 144.94 por kg = RD$ 65.74 por libra', 'Simulación: cerca del costo de baja densidad citado por CODOPESCA']
       ]},
-    {k:'tlcomparar'},
     {k:'tlplan'},
     {k:'tlchk', id:'m8', t:'¿Tiene sus números?', p:'Marque lo que ya puede calcular con sus propios datos.', l:[
       'Separo la inversión inicial de los costos del ciclo.',
@@ -76948,7 +76943,6 @@ function tlSeccion(s, mod){
     case 'tlherramienta': return tlSecHerramienta(s, mod);
     case 'tlcalendario': return tlSecCalendario(s, mod);
     case 'tlequipo': return tlSecEquipo(s, mod);
-    case 'tlcomparar': return tlSecComparar(s, mod);
   }
   return null;
 }
@@ -77309,114 +77303,7 @@ function tlCalcRun(id){
   }).join('') + '</tbody></table><div class="tl-interp tl-i-' + r.nivel + '"><b>Qué significa</b><p>' + r.interp + '</p></div>';
 }
 window.tlCalcRun = tlCalcRun;
-function tlCalcArrancar(){ Object.keys(TLCALC).forEach(function(id){ if(document.getElementById('tlout-' + id)) tlCalcRun(id); }); if(document.getElementById('tlcmp-out')) tlCompararRun(); }
-
-/* ---------- comparador de inversiones: tilapia frente a chivos y ovejos ----------
-   Una sola herramienta para los dos cursos (el curso 14 la usa con
-   {k:'tlcomparar'}): misma lógica, mismos supuestos, sin duplicar.
-   Todo se compara en un AÑO. Separa inversión, gastos operativos,
-   ingresos, margen operativo (NO es beneficio neto: no descuenta
-   impuestos, intereses ni depreciación), equilibrio, recuperación,
-   capital de trabajo y escenarios. Valores de ejemplo = los de los
-   módulos 8 de cada curso; 1 tarea = 628.86 m². */
-var TLCOMP = {
-  comun:[['presupuesto', 'Presupuesto disponible', 'RD$', 250000], ['tareas', 'Terreno disponible', 'tareas', 8]],
-  tilapia:[['inv', 'Inversión: tanques o estanques, aireación, planta y equipos', 'RD$', 150000], ['tterreno', 'Terreno que necesita', 'tareas', 0.5],
-           ['alevines', 'Alevines por ciclo', '', 1000], ['mort', 'Mortalidad por ciclo', '%', 15], ['peso', 'Peso de cosecha', 'kg', 0.45],
-           ['fca', 'Conversión alimenticia (FCA)', 'kg/kg', 1.6], ['palim', 'Precio del alimento', 'RD$/kg', 50], ['palev', 'Costo de cada alevín', 'RD$', 5],
-           ['otros', 'Mano de obra, energía y otros por ciclo', 'RD$', 20000], ['pventa', 'Precio de venta', 'RD$/kg', 200], ['ciclos', 'Ciclos por año', '', 2]],
-  cabras:[['inv', 'Inversión: cercas, corrales, techo y equipos', 'RD$', 80000], ['cterreno', 'Terreno que necesita', 'tareas', 10],
-          ['animales', 'Animales iniciales', '', 20], ['pcompra', 'Precio de compra por animal', 'RD$', 6000],
-          ['alim', 'Alimentación del año', 'RD$', 90000], ['sanidad', 'Sanidad del año', 'RD$', 15000], ['mano', 'Mano de obra y otros del año', 'RD$', 60000],
-          ['vendidos', 'Animales vendidos en el año', '', 25], ['pventa', 'Precio de venta por animal', 'RD$', 7500], ['otrosing', 'Otros ingresos del año (leche, estiércol)', 'RD$', 30000],
-          ['meses', 'Meses sin ventas al empezar', 'meses', 5]]
-};
-function tlSecComparar(s, mod){
-  var P = s.pfx || 'tl';   /* clases del curso que lo muestra: tl- o cb- */
-  var campo = function(g, f){
-    return '<label class="' + P + '-f"><span>' + f[1] + (f[2] ? ' <i>' + f[2] + '</i>' : '') + '</span>' +
-      '<input type="number" step="any" min="0" id="tlcmp_' + g + '_' + f[0] + '" value="' + f[3] + '" oninput="tlCompararRun()"></label>';
-  };
-  return '<section class="nx-b nx-full"><div class="rv"><div class="' + P + '-calc ' + P + '-calc-2c tl-cmp" id="tlcmp" data-pfx="' + P + '" style="--ac:' + (mod && mod.ac ? mod.ac : '#0F766E') + '">' +
-    '<div class="' + P + '-calc-h"><span class="' + P + '-calc-k">⚖️ Comparador de inversiones</span><b>¿Tilapia o chivos y ovejos?</b>' +
-      '<p>Compare en un año los dos proyectos con sus propios números. Cambie cualquier valor y todo se recalcula. Los valores que trae son los ejemplos de los cursos de AgroAcademy.</p></div>' +
-    '<div class="' + P + '-calc-body"><div class="' + P + '-calc-in">' +
-      '<div class="tl-cmp-g"><b>🧭 Sus recursos</b>' + TLCOMP.comun.map(function(f){ return campo('comun', f); }).join('') +
-        '<label class="' + P + '-f"><span>Agua disponible</span><select id="tlcmp_comun_agua" onchange="tlCompararRun()"><option value="abundante">abundante todo el año</option><option value="suficiente" selected>suficiente</option><option value="limitada">limitada en época seca</option></select></label></div>' +
-      '<div class="tl-cmp-g"><b>🐟 Granja de tilapia</b>' + TLCOMP.tilapia.map(function(f){ return campo('tilapia', f); }).join('') + '</div>' +
-      '<div class="tl-cmp-g"><b>🐐 Chivos y ovejos</b>' + TLCOMP.cabras.map(function(f){ return campo('cabras', f); }).join('') + '</div>' +
-    '</div><div class="' + P + '-calc-out" id="tlcmp-out"></div></div>' +
-    '<div class="' + P + '-calc-f"><b>Importante</b><p>Es una <b>comparación orientativa</b>, con supuestos simplificados. El <b>margen operativo</b> no es el beneficio neto: no descuenta impuestos, intereses de préstamos ni el desgaste de los equipos. Los <b>ingresos</b> no son ganancia, y la ganancia no es dinero disponible. Antes de invertir, valide los números con compradores, proveedores y un técnico.</p></div>' +
-  '</div></div></section>';
-}
-function tlCompararVal(g){
-  var v = {}, malo = null;
-  TLCOMP[g].forEach(function(f){
-    var e = document.getElementById('tlcmp_' + g + '_' + f[0]);
-    var raw = e ? String(e.value).trim() : '', n = raw === '' ? 0 : parseFloat(raw);
-    if(!isFinite(n) || n < 0){ malo = f[1]; n = 0; }
-    v[f[0]] = n;
-  });
-  return {v:v, malo:malo};
-}
-function tlCompararCalc(c, t, k){
-  var r = {};
-  /* tilapia: un ciclo con la misma lógica de la calculadora del módulo 8, multiplicado por los ciclos del año */
-  if(t.alevines && t.peso && t.ciclos && t.mort < 100){
-    var bio = t.alevines * (1 - t.mort / 100) * t.peso, alim = Math.max(0, bio - t.alevines * 0.002) * t.fca;
-    var varCiclo = alim * t.palim + t.alevines * t.palev, costoCiclo = varCiclo + t.otros;
-    var kgAno = bio * t.ciclos, opAno = costoCiclo * t.ciclos, ingAno = kgAno * t.pventa, varKg = varCiclo / bio;
-    r.tl = {inv:t.inv, op:opAno, ing:ingAno, mar:ingAno - opAno, capital:costoCiclo, terreno:t.tterreno,
-            pe:(t.pventa > varKg ? (t.otros * t.ciclos) / (t.pventa - varKg) : null), peU:'kg al año', prod:kgAno, prodU:'kg al año',
-            esc:[0.85, 1, 1.10].map(function(f){ return ingAno * f - opAno; })};
-  }
-  /* chivos y ovejos: inversión = animales + instalaciones; el resto, por año */
-  if(k.vendidos || k.otrosing){
-    var invK = k.animales * k.pcompra + k.inv, opK = k.alim + k.sanidad + k.mano, ingK = k.vendidos * k.pventa + k.otrosing;
-    r.cb = {inv:invK, op:opK, ing:ingK, mar:ingK - opK, capital:Math.max(0, (opK - k.otrosing) / 12 * k.meses), terreno:k.cterreno,
-            pe:(k.pventa > 0 ? Math.max(0, (opK - k.otrosing) / k.pventa) : null), peU:'animales al año', prod:k.vendidos, prodU:'animales al año',
-            esc:[0.85, 1, 1.10].map(function(f){ return ingK * f - opK; })};
-  }
-  return r;
-}
-function tlCompararRun(){
-  var out = document.getElementById('tlcmp-out'); if(!out) return;
-  var box = document.getElementById('tlcmp'), P = (box && box.dataset.pfx) || 'tl';
-  var C = tlCompararVal('comun'), T = tlCompararVal('tilapia'), K = tlCompararVal('cabras');
-  var malo = C.malo || T.malo || K.malo;
-  if(malo){ out.innerHTML = '<div class="' + P + '-interp ' + P + '-i-ojo"><b>Dato no válido</b><p>«' + malo + '» tiene que ser un número de cero o más.</p></div>'; return; }
-  if(T.v.mort >= 100){ out.innerHTML = '<div class="' + P + '-interp ' + P + '-i-ojo"><b>Falta o no cuadra un dato</b><p>La mortalidad de la tilapia tiene que ser menor que 100 %.</p></div>'; return; }
-  var agua = (document.getElementById('tlcmp_comun_agua') || {}).value || 'suficiente';
-  var r = tlCompararCalc(C.v, T.v, K.v);
-  if(!r.tl || !r.cb){ out.innerHTML = '<div class="' + P + '-interp ' + P + '-i-ojo"><b>Falta o no cuadra un dato</b><p>Escriba alevines, peso de cosecha y ciclos (tilapia) y animales vendidos u otros ingresos (chivos y ovejos).</p></div>'; return; }
-  var rec = function(p){ return p.mar > 0 ? tlN(Math.ceil(p.inv / p.mar), 0) + ' años' : 'no se recupera'; };
-  var fila = function(t, a, b){ return '<tr><th>' + t + '</th><td>' + a + '</td><td>' + b + '</td></tr>'; };
-  var avisos = [];
-  [['tl', '🐟 Tilapia'], ['cb', '🐐 Chivos y ovejos']].forEach(function(x){
-    var p = r[x[0]], nec = p.inv + p.capital;
-    if(nec > C.v.presupuesto) avisos.push(x[1] + ': necesita ' + tlRD(nec, 0) + ' (inversión + capital de trabajo) y su presupuesto es ' + tlRD(C.v.presupuesto, 0) + '.');
-    if(p.terreno > C.v.tareas) avisos.push(x[1] + ': necesita ' + tlN(p.terreno, 1) + ' tareas y usted tiene ' + tlN(C.v.tareas, 1) + '.');
-    if(p.mar <= 0) avisos.push(x[1] + ': con estos números el margen operativo es negativo.');
-  });
-  if(agua === 'limitada') avisos.push('🐟 Tilapia: con agua limitada en época seca el riesgo es alto; los peces dependen por completo del agua.');
-  out.innerHTML = '<table class="' + P + '-res tl-cmp-t"><thead><tr><th></th><th>🐟 Tilapia</th><th>🐐 Chivos y ovejos</th></tr></thead><tbody>' +
-    fila('Inversión inicial', tlRD(r.tl.inv, 0), tlRD(r.cb.inv, 0)) +
-    fila('Gastos operativos del año', tlRD(r.tl.op, 0), tlRD(r.cb.op, 0)) +
-    fila('Ingresos del año (no es ganancia)', tlRD(r.tl.ing, 0), tlRD(r.cb.ing, 0)) +
-    fila('Margen operativo del año', tlRD(r.tl.mar, 0), tlRD(r.cb.mar, 0)) +
-    fila('Producción', tlN(r.tl.prod, 1) + ' ' + r.tl.prodU, tlN(r.cb.prod, 0) + ' ' + r.cb.prodU) +
-    fila('Punto de equilibrio', r.tl.pe == null ? '—' : tlN(r.tl.pe, 1) + ' ' + r.tl.peU, r.cb.pe == null ? '—' : tlN(r.cb.pe, 1) + ' ' + r.cb.peU) +
-    fila('Capital de trabajo', tlRD(r.tl.capital, 0), tlRD(r.cb.capital, 0)) +
-    fila('Presupuesto necesario', tlRD(r.tl.inv + r.tl.capital, 0), tlRD(r.cb.inv + r.cb.capital, 0)) +
-    fila('Recuperación de la inversión', rec(r.tl), rec(r.cb)) +
-    fila('Escenario conservador (precio y producción −15 %)', tlRD(r.tl.esc[0], 0), tlRD(r.cb.esc[0], 0)) +
-    fila('Escenario favorable (+10 %)', tlRD(r.tl.esc[2], 0), tlRD(r.cb.esc[2], 0)) +
-    '</tbody></table>' +
-    '<div class="' + P + '-interp ' + P + '-i-' + (avisos.length ? 'ojo' : 'dato') + '"><b>' + (avisos.length ? 'Lo que debe revisar' : 'Qué significa') + '</b><p>' +
-      (avisos.length ? avisos.join('<br>') : 'Con estos números, los dos proyectos caben en su presupuesto y su terreno.') +
-      ' Compare también lo que no sale en la tabla: su experiencia, su tiempo, el agua, la energía y a quién le va a vender. <i>Comparación orientativa: no garantiza resultados.</i></p></div>';
-}
-window.tlCompararRun = tlCompararRun;
+function tlCalcArrancar(){ Object.keys(TLCALC).forEach(function(id){ if(document.getElementById('tlout-' + id)) tlCalcRun(id); }); }
 
 /* ---------- el proyecto final: mi plan de producción de tilapia ---------- */
 var TLPLAN = [
@@ -77760,11 +77647,15 @@ if(typeof window.tlPinta === 'function'){
 /* piezas del dibujo */
 .tl-g-eje{ stroke:color-mix(in srgb,var(--text) 34%,transparent); stroke-width:1.4 }
 .tl-g-rej{ stroke:color-mix(in srgb,var(--text) 12%,transparent); stroke-width:1 }
-.tl-g-lbl{ fill:var(--muted); font-family:var(--mono); font-size:12px }
-.tl-g-ax{ fill:var(--muted); font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase }
+.tl-g-lbl{ fill:var(--muted); font-family:var(--body); font-size:12px }
+.tl-g-ax{ fill:var(--muted); font-family:var(--body); font-size:11px; letter-spacing:.04em; text-transform:uppercase }
 .tl-g-val{ fill:var(--text); font-family:var(--display); font-size:14px; font-weight:700 }
-.tl-g-extra{ fill:#c4544a; font-family:var(--mono); font-size:11.5px; font-weight:700 }
+.tl-g-extra{ fill:#c4544a; font-family:var(--body); font-size:12px; font-weight:700 }
 .tl-g-nota{ fill:var(--text-2); font-family:var(--body); font-size:12.5px }
+.tl-g-in{ fill:#fff; font-family:var(--body); font-size:12px; font-weight:600; opacity:.95 }
+.tl-g-inv{ fill:#fff; font-family:var(--display); font-size:14px; font-weight:700 }
+.tl-g-in-osc{ fill:#1f2933; font-family:var(--body); font-size:12px; font-weight:600 }
+.tl-g-inv-osc{ fill:#1f2933; font-family:var(--display); font-size:14px; font-weight:700 }
 .tl-g-tit{ fill:var(--text); font-family:var(--display); font-size:15px; font-weight:700 }
 .tl-g-pct{ fill:#fff; font-family:var(--display); font-size:13.5px; font-weight:700 }
 .tl-g-den{ fill:var(--text); font-family:var(--display); font-size:17px; font-weight:800 }
@@ -79500,8 +79391,8 @@ var TLFOTOS = {
   1:[
     ['Sobre las fotografías', 'tl-p-31291832', 'Unidad de cultivo junto a un río'],
     ['Tilapia roja y tilapia del Nilo', 'tl-p-8352786', 'Tilapia exhibida para la venta'],
-    ['¿Qué es la tilapia?', 'tl-p-36618323', 'Tilapia fresca revisada a mano'],
-    ['Lotes mixtos', 'tl-p-12250553', 'Peces jóvenes: el lote que se compra a un centro de alevines'],
+    ['¿Qué es la tilapia?', 'tl-p-37052317', 'Granja de tilapia en jaulas flotantes'],
+    ['Lotes mixtos', 'tl-p-9743471', 'Estanques de un centro de producción de alevines'],
     ['Cómo funciona la producción', 'tl-p-39043216', 'Una producción acuícola en marcha'],
     ['¿Qué voy a aprender?', 'tl-p-36967893', 'Tilapia recién capturada'],
     ['Lo que conviene saber de la tilapia', 'tl-p-36967888', 'Tilapia del Nilo de buen tamaño'],
@@ -79511,7 +79402,7 @@ var TLFOTOS = {
     ['¿Es viable antes de invertir?', 'tl-p-17953596', 'Tilapia fresca apilada'],
     ['Errores frecuentes de quien empieza', 'tl-p-7509421', 'Una granja de peces con sus canales'],
     ['Un presupuesto limitado', 'tl-p-17065418', 'Estanques entre campos de cultivo'],
-    ['Actividad Elija el sistema', 'tl-p-34150738', 'Producción de peces y hortalizas en un espacio urbano'],
+    ['Actividad Elija el sistema', 'tl-p-28738440', 'Vista aérea de una granja de jaulas'],
     ['¿Está listo para pensar', 'tl-p-36967886', 'Una tilapia recién sacada del estanque'],
     ['Evaluación del módulo', 'tl-p-12349154', 'Tilapias en el agua']
   ],
@@ -79530,28 +79421,28 @@ var TLFOTOS = {
     ['Preparar un estanque de tierra', 'tl-p-5774415', 'Estanques de cultivo listos'],
     ['¿Cuánta agua cabe en mi unidad?', 'tl-p-15007759', 'Una unidad circular de cultivo'],
     ['Distribución y bioseguridad desde el diseño', 'tl-p-26088759', 'Instalaciones con redes y pasarelas'],
-    ['¿Su unidad está lista para sembrar?', 'tl-p-36834230', 'Bomba de agua en el campo'],
-    ['Actividad Diseñe una unidad', 'tl-p-32713414', 'Planta eléctrica portátil'],
+    ['¿Su unidad está lista para sembrar?', 'tl-p-32368885', 'Estanques de concreto listos para sembrar'],
+    ['Actividad Diseñe una unidad', 'tl-p-5834061', 'Estanques planificados en una finca acuícola'],
     ['Evaluación del módulo', 'tl-p-5795822', 'Peces en estanques de cultivo']
   ],
   3:[
     ['En una frase', 'tl-p-36967886', 'Un lote bien sembrado'],
     ['¿Qué es un alevín', 'tl-p-12349154', 'Peces jóvenes en el agua'],
     ['La densidad de siembra', 'tl-p-5795822', 'Densidad: cuántos peces caben en cada unidad'],
-    ['¿Qué voy a aprender?', 'tl-p-12250553', 'Peces jóvenes que se acercan a comer'],
+    ['¿Qué voy a aprender?', 'tl-p-7509420', 'Productor alimentando los peces del estanque'],
     ['Lote sano y lote dudoso', 'tl-p-31291832', 'Unidad de cultivo junto a un río'],
-    ['Recepción, transporte y aclimatación', 'tl-p-16764504', 'Peces pequeños revisados a mano'],
+    ['Recepción, transporte y aclimatación', 'tl-p-9890560', 'Alevines en el tanque de recepción'],
     ['Extensivo, semiintensivo e intensivo', 'tl-p-39043216', 'Unidades acuícolas en un lago'],
     ['¿Cuántos alevines siembro?', 'tl-p-30780717', 'Unidades circulares de cultivo vistas desde arriba'],
     ['Actividad La ficha', 'tl-p-4975377', 'Anotar los datos de la siembra'],
-    ['Modelo de ficha', 'tl-p-29301853', 'Peces recién capturados en una caja'],
-    ['Mortalidad después de la siembra', 'tl-p-18072772', 'Peces en una tina grande'],
-    ['¿Está listo para recibir', 'tl-p-35676058', 'Peces frescos en cajas'],
+    ['Modelo de ficha', 'tl-p-20404984', 'Muestras rotuladas: cada dato se anota'],
+    ['Mortalidad después de la siembra', 'tl-p-7509424', 'Peces en un tanque de producción'],
+    ['¿Está listo para recibir', 'tl-p-11048741', 'Sala de tanques lista para recibir alevines'],
     ['Evaluación del módulo', 'tl-p-37052314', 'Productores trabajando en jaulas flotantes']
   ],
   4:[
     ['Los rangos dependen', 'tl-p-5640315', 'Estanques: cada sistema tiene su propia agua'],
-    ['El amoníaco que dice el kit', 'tl-p-29301853', 'Peces que dependen de un agua limpia'],
+    ['El amoníaco que dice el kit', 'tl-p-16960261', 'Muestra de agua en el laboratorio'],
     ['El registro diario de mi unidad', 'tl-p-26088759', 'Rutina diaria en la unidad'],
     ['Señales de alerta en el comportamiento', 'tl-p-36967886', 'Observar a los peces'],
     ['En una frase', 'tl-p-30780717', 'Unidades bajo vigilancia diaria'],
@@ -79562,25 +79453,25 @@ var TLFOTOS = {
     ['Cómo medir y registrar', 'tl-p-37052312', 'Rutina diaria en una granja de peces'],
     ['Aireación, recambio y circulación', 'tl-p-35136953', 'Productor alimentando en una plataforma'],
     ['Los peces comen menos', 'tl-p-12349154', 'Tilapias en la superficie del agua'],
-    ['Falla la aireación', 'tl-p-32713414', 'La planta eléctrica: el respaldo de la noche'],
+    ['Falla la aireación', 'tl-p-5693845', 'La planta eléctrica: el respaldo de la noche'],
     ['Actividad Interprete este registro', 'tl-p-4975377', 'Leer el registro cada mañana'],
-    ['Ante una emergencia de agua', 'tl-p-36834230', 'Bomba de agua para un recambio'],
+    ['Ante una emergencia de agua', 'tl-p-18155713', 'Aireador de paletas funcionando en el estanque'],
     ['Evaluación del módulo', 'tl-p-5795822', 'Peces nadando en su estanque']
   ],
   5:[
     ['En una frase', 'tl-p-5806533', 'Estanques de un lote bien alimentado'],
     ['Lo que necesita comer', 'tl-p-14924016', 'Tilapias bien alimentadas'],
-    ['El muestreo de peso', 'tl-p-18072772', 'Una muestra de peces para pesar'],
-    ['Biomasa y ración diaria después', 'tl-p-35676058', 'Peces de la muestra'],
+    ['El muestreo de peso', 'tl-p-35136955', 'Trabajador revisando los peces de la jaula'],
+    ['Biomasa y ración diaria después', 'tl-p-37052317', 'Granja en producción: hora del muestreo'],
     ['¿Qué voy a aprender?', 'tl-p-37052312', 'Hora de alimentar'],
     ['Cómo elegir el alimento', 'tl-p-35136953', 'Alimentando desde una plataforma'],
-    ['La ración baja', 'tl-p-12250553', 'Peces que suben a comer'],
+    ['La ración baja', 'tl-p-16296413', 'Productor trabajando en sus jaulas'],
     ['Tamaño de alimento y ración diaria', 'tl-p-37052314', 'Alimentación en jaulas flotantes'],
     ['Frecuencia y observación', 'tl-p-30780717', 'Unidades donde se alimenta varias veces al día'],
-    ['La biomasa del lote', 'tl-p-8352784', 'Pesar con una balanza confiable'],
-    ['La ración diaria', 'tl-p-29301853', 'Peces de una muestra'],
-    ['La conversión alimenticia', 'tl-p-36014919', 'Kilos de pescado: lo que se gana con el alimento'],
-    ['Más alimento, pero el lote no crece', 'tl-p-16764504', 'Revisar la talla de los peces'],
+    ['La biomasa del lote', 'tl-p-8851779', 'Pesar con una balanza confiable'],
+    ['La ración diaria', 'tl-p-37052316', 'Alimentación de los peces en la jaula'],
+    ['La conversión alimenticia', 'tl-p-14993421', 'Jaulas de engorde vistas desde arriba'],
+    ['Más alimento, pero el lote no crece', 'tl-p-29388727', 'Jaulas circulares de engorde'],
     ['Actividad Su tabla', 'tl-p-4975377', 'Anotar el seguimiento del lote'],
     ['¿Controla la alimentación', 'tl-p-12349154', 'Un lote que come con ganas'],
     ['Evaluación del módulo', 'tl-p-36967893', 'Tilapia de buen tamaño']
@@ -79588,38 +79479,37 @@ var TLFOTOS = {
   6:[
     ['La prevención empieza por el agua', 'tl-p-15007759', 'Agua en buen estado: la primera defensa'],
     ['Medicamentos', 'tl-p-36967893', 'Pescado sano para la mesa'],
-    ['En una frase', 'tl-p-12250553', 'Un lote sano que come'],
+    ['En una frase', 'tl-p-12167096', 'Granja de jaulas en plena producción'],
     ['¿Qué voy a aprender?', 'tl-p-26088759', 'Una unidad ordenada y protegida'],
     ['Lote sano y lote con problemas', 'tl-p-12349154', 'Observar a los peces al alimentar'],
     ['La bioseguridad de todos los días', 'tl-p-31291832', 'Unidad con accesos definidos'],
     ['Señal qué revisar', 'tl-p-6258855', 'Revisar los peces con la red'],
     ['Registro de mortalidad', 'tl-p-4975377', 'Registrar cada observación'],
     ['Actividad Mortalidad inusual', 'tl-p-38468875', 'Revisión de un estanque'],
-    ['Cuándo consultar a un profesional', 'tl-p-36618323', 'Inspección cuidadosa de los peces'],
+    ['Cuándo consultar a un profesional', 'tl-p-9259940', 'Análisis de laboratorio'],
     ['¿Su unidad está protegida?', 'tl-p-5488777', 'Estanques con bordes limpios'],
     ['Evaluación del módulo', 'tl-p-5806533', 'Estanques sanos vistos desde arriba']
   ],
   7:[
     ['¿Qué voy a aprender?', 'tl-p-36967888', 'Tilapia lista para la venta'],
-    ['Planificar la cosecha', 'tl-p-18072772', 'Peces cosechados'],
-    ['La biomasa comercial', 'tl-p-35676058', 'Peces en cajas para pesar'],
+    ['Planificar la cosecha', 'tl-p-37052302', 'Cosecha con red en la granja'],
+    ['La biomasa comercial', 'tl-p-10852695', 'Clasificación del pescado cosechado'],
     ['La cosecha, paso a paso', 'tl-p-38468875', 'Captura en un estanque'],
     ['Preparar el sistema y cosechar', 'tl-p-6258855', 'Red de cosecha'],
-    ['Higiene, conservación y transporte', 'tl-p-34450686', 'Pescado en nevera con hielo'],
-    ['Canales de venta posibles', 'tl-p-8351649', 'Puesto de venta de pescado'],
+    ['Higiene, conservación y transporte', 'tl-p-19789770', 'Pescado conservado en hielo'],
+    ['Canales de venta posibles', 'tl-p-38546589', 'Mostrador de pescadería en un supermercado'],
     ['Evaluar la demanda antes de ampliar', 'tl-p-37255814', 'Tilapia servida en un restaurante'],
     ['Requisitos sanitarios y comerciales', 'tl-p-14062100', 'Filete de pescado en hielo'],
-    ['¿Puede cosechar?', 'tl-p-36014919', 'Pescado fresco en hielo'],
-    ['Menos kilos comerciales', 'tl-p-20234954', 'Puesto de pescado fresco'],
-    ['Actividad Plan de cosecha', 'tl-p-5863421', 'Venta de pescado en el mercado'],
-    ['Registro de cosecha y ventas', 'tl-p-32732023', 'Venta de pescado al por menor'],
+    ['¿Puede cosechar?', 'tl-p-29321568', 'Pescado entero, fresco y parejo'],
+    ['Menos kilos comerciales', 'tl-p-8629085', 'Preparación del pescado para la venta'],
+    ['Actividad Plan de cosecha', 'tl-p-36608781', 'Carga del pedido para la entrega'],
+    ['Registro de cosecha y ventas', 'tl-p-17060249', 'Fileteado profesional para la venta'],
     ['Evaluación del módulo', 'tl-p-14924016', 'Tilapias en una pescadería']
   ],
   8:[
     ['Cifras dominicanas verificadas', 'tl-p-14924016', 'Tilapias en una pescadería'],
-    ['¿Tilapia o chivos y ovejos?', 'tl-p-30780717', 'Comparar antes de invertir'],
     ['La evaluación final', 'tl-p-5774415', 'Último paso: la evaluación final'],
-    ['Calculadora orientativa de producción', 'tl-p-35676058', 'Kilos que salen al mercado'],
+    ['Calculadora orientativa de producción', 'tl-p-13693969', 'Granja de jaulas: los kilos que salen al mercado'],
     ['Calculadora de producción de tilapia', 'tl-p-17953596', 'Tilapia lista para pesar'],
     ['Lo que dice el flujo de caja', 'tl-p-5806533', 'Varios estanques, varias ventas al año'],
     ['Mi plan de producción de tilapia', 'tl-p-36967888', 'La meta: tilapia de calidad para vender'],
@@ -79627,9 +79517,9 @@ var TLFOTOS = {
     ['Dos tipos de dinero', 'tl-p-30982503', 'Tanques: parte de la inversión inicial'],
     ['Los costos del ciclo de ejemplo', 'tl-p-8629086', 'Preparación de pescado en cocina'],
     ['De qué está hecho el costo', 'tl-p-37052314', 'El alimento: el costo más grande'],
-    ['La mortalidad también cuesta', 'tl-p-29301853', 'Cada pez cuenta'],
+    ['La mortalidad también cuesta', 'tl-p-9022605', 'Jaulas en producción: cada pez cuenta'],
     ['Costo por kilo, ingresos', 'tl-p-14924016', 'El precio de venta por kilo'],
-    ['Punto de equilibrio', 'tl-p-8351649', 'Vender por encima del equilibrio'],
+    ['Punto de equilibrio', 'tl-p-8629089', 'Valor agregado: filete listo para vender'],
     ['Capital de trabajo y flujo', 'tl-p-4975377', 'Cuentas del ciclo'],
     ['Riesgos técnicos y comerciales', 'tl-p-39043216', 'Una producción a escala'],
     ['¿Conviene ampliar?', 'tl-p-39930943', 'Crecer por etapas'],
@@ -79783,9 +79673,9 @@ var TLGRAF = {
   /* M1 · los cuatro sistemas comparados */
   sistemas: function(){
     var W = 720, H = 300, s = '', x0 = 250, dx = 118;
-    var cols = ['Inversión', 'Complejidad', 'Control del agua', 'Depende de la luz'];
+    var cols = ['Inversión', 'Complejidad', 'Control|del agua', 'Depende|de la luz'];
     var filas = [['Estanque de tierra', [1, 1, 1, 1]], ['Geomembrana', [2, 2, 2, 2]], ['Tanques', [2, 2, 3, 2]], ['Recirculación (RAS)', [3, 3, 3, 3]]];
-    cols.forEach(function(c, j){ s += tlT(x0 + j * dx + 40, 30, 'tl-g-tit', c, 'middle'); });
+    cols.forEach(function(c, j){ var l = c.split('|'); l.forEach(function(t, k){ s += tlT(x0 + j * dx + 40, 38 - (l.length - 1 - k) * 18, 'tl-g-tit', t, 'middle'); }); });
     filas.forEach(function(f, i){
       var y = 70 + i * 56;
       s += tlT(x0 - 16, y + 6, 'tl-g-nota', f[0], 'end');
@@ -79820,19 +79710,19 @@ var TLGRAF = {
   /* M2 · cómo se distribuye una unidad */
   unidad: function(){
     var W = 720, H = 320, s = '';
-    s += tlR(20, 40, 110, 70, TLCOL.agua2, .8, 10) + tlT(75, 70, 'tl-g-val', 'Fuente', 'middle') + tlT(75, 88, 'tl-g-lbl', 'pozo, río o canal', 'middle');
+    s += tlR(20, 40, 110, 70, TLCOL.agua2, .8, 10) + tlT(75, 70, 'tl-g-inv-osc', 'Fuente', 'middle') + tlT(75, 88, 'tl-g-in-osc', 'pozo, río o canal', 'middle');
     s += '<path d="M130 75 L 200 75" class="tl-g-flecha"/>' + tlT(165, 64, 'tl-g-lbl', 'filtro', 'middle');
     [0, 1, 2].forEach(function(i){
       var x = 210 + i * 150;
-      s += tlR(x, 40, 130, 110, TLCOL.agua, .85, 8) + tlT(x + 65, 92, 'tl-g-val', 'Estanque ' + (i + 1), 'middle');
-      s += tlT(x + 65, 112, 'tl-g-lbl', i === 0 ? 'precría' : 'engorde', 'middle');
+      s += tlR(x, 40, 130, 110, TLCOL.agua, .85, 8) + tlT(x + 65, 92, 'tl-g-inv', 'Estanque ' + (i + 1), 'middle');
+      s += tlT(x + 65, 112, 'tl-g-in', i === 0 ? 'precría' : 'engorde', 'middle');
       s += '<circle cx="' + (x + 108) + '" cy="60" r="9" fill="#fff" opacity=".85"/>' + tlT(x + 108, 64, 'tl-g-lbl', '⚙', 'middle');
     });
     s += '<path d="M275 150 L 275 190 L 575 190 L 575 150 M425 150 L 425 190" fill="none" class="tl-g-meta"/>';
-    s += '<path d="M575 190 L 640 190" class="tl-g-flecha"/>' + tlR(645, 165, 60, 50, TLCOL.tierra, .75, 8) + tlT(675, 186, 'tl-g-lbl', 'drenaje', 'middle') + tlT(675, 202, 'tl-g-lbl', 'y riego', 'middle');
-    s += tlR(210, 230, 110, 56, TLCOL.alim, .8, 8) + tlT(265, 255, 'tl-g-val', 'Bodega', 'middle') + tlT(265, 273, 'tl-g-lbl', 'alimento seco', 'middle');
-    s += tlR(340, 230, 110, 56, TLCOL.luz, .85, 8) + tlT(395, 255, 'tl-g-val', 'Planta', 'middle') + tlT(395, 273, 'tl-g-lbl', 'respaldo eléctrico', 'middle');
-    s += tlR(470, 230, 110, 56, TLCOL.verde, .8, 8) + tlT(525, 255, 'tl-g-val', 'Entrada', 'middle') + tlT(525, 273, 'tl-g-lbl', 'pediluvio y control', 'middle');
+    s += '<path d="M575 190 L 640 190" class="tl-g-flecha"/>' + tlR(645, 165, 60, 50, TLCOL.tierra, .75, 8) + tlT(675, 186, 'tl-g-in', 'drenaje', 'middle') + tlT(675, 202, 'tl-g-in', 'y riego', 'middle');
+    s += tlR(210, 230, 110, 56, TLCOL.alim, .8, 8) + tlT(265, 255, 'tl-g-inv', 'Bodega', 'middle') + tlT(265, 273, 'tl-g-in', 'alimento seco', 'middle');
+    s += tlR(340, 230, 110, 56, TLCOL.luz, .85, 8) + tlT(395, 255, 'tl-g-inv-osc', 'Planta', 'middle') + tlT(395, 273, 'tl-g-in-osc', 'respaldo eléctrico', 'middle');
+    s += tlR(470, 230, 110, 56, TLCOL.verde, .8, 8) + tlT(525, 255, 'tl-g-inv', 'Entrada', 'middle') + tlT(525, 273, 'tl-g-in', 'pediluvio y control', 'middle');
     s += tlT(75, 160, 'tl-g-lbl', '⚙ = aireador', 'middle') + tlT(75, 176, 'tl-g-lbl', 'cerca perimetral', 'middle');
     s += tlT(360, 312, 'tl-g-extra', 'El agua entra limpia por un lado y sale por el otro: nunca de un estanque a otro sin control', 'middle');
     return tlGrafCaja('Una unidad bien distribuida', 'Agua que entra filtrada, estanques separados, drenaje que no contamina, alimento seco, respaldo eléctrico y una sola entrada controlada.',
@@ -79847,10 +79737,10 @@ var TLGRAF = {
     var pts = [], k;
     for(k = 0; k <= 48; k++){ var h = k / 2, v = 5.5 + 4 * Math.sin((h - 10) / 24 * 2 * Math.PI); pts.push(px(h).toFixed(1) + ',' + py(v).toFixed(1)); }
     s += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + TLCOL.agua + '" stroke-width="4" class="tl-g-l"/>';
-    [0, 6, 12, 18, 24].forEach(function(h){ s += tlT(px(h), y0 + 18, 'tl-g-lbl', (h === 24 ? 0 : h) + ':00', 'middle'); });
+    [0, 6, 12, 18, 24].forEach(function(h){ s += tlT(px(h), y0 + 24, 'tl-g-lbl', (h === 24 ? 0 : h) + ':00', 'middle'); });
     s += tlT(px(16), py(9.5) - 8, 'tl-g-val', 'tarde: lo más alto', 'middle');
     s += tlT(px(5), py(1.5) + 18, 'tl-g-val', 'amanecer: lo más bajo', 'middle');
-    s += tlT(x1 - 4, py(3.5) - 5, 'tl-g-lbl', '3.5 mg/L: por debajo, el crecimiento se resiente', 'end');
+    s += tlT(px(16), py(3.5) - 5, 'tl-g-lbl', '3.5 mg/L: por debajo, el crecimiento se resiente', 'middle');
     s += tlT(x1 - 4, py(1) - 5, 'tl-g-lbl', '1 mg/L: zona de peligro en estanques', 'end');
     s += tlT((x0 + x1) / 2, 284, 'tl-g-ax', 'hora del día · oxígeno disuelto en mg/L (eje izquierdo)', 'middle');
     return tlGrafCaja('El oxígeno sube de día y baja de noche', 'Las algas producen oxígeno con la luz y todo el estanque lo consume de noche: el momento crítico es el amanecer.',
@@ -80354,6 +80244,12 @@ if(typeof window.tlCalcRun === 'function'){
 
 
 
+
+
+
+
+
+
 <style>
 
 /* ===== curso 14: solo lo que no existe ya ===== */
@@ -80415,7 +80311,7 @@ function cbEsInstructor(){
    El precio NO se fija aquí: se configura desde el panel. Mientras
    no se haya puesto, la tarjeta dice «consultar» en vez de inventar
    una cifra. CBPRECIO.curso === null significa «sin definir». */
-var CBPRECIO = { curso: null, moneda: 'US$' };
+var CBPRECIO = { curso: 79, moneda: 'US$' };
 (function cbCargarPrecio(){
   try{
     var p = JSON.parse(localStorage.getItem('cb_precio') || 'null');
@@ -81551,7 +81447,7 @@ CBMOD.push(
       ['🍽️', 'Consumo', 'Saber cuánto comen y cuánto cuesta (calculadora del módulo 4).'],
       ['📉', 'Pérdidas', 'Muertes, robos y animales que no crecen se anotan: suben el costo de los demás.']
     ]},
-    {k:'agfig', f:'cb-f-29', t:'Animales en un mercado (imagen ilustrativa)', p:'En la venta de animales vivos, el peso, la condición y la presentación deciden el precio.'},
+    {k:'agfig', f:'cb-f-29', t:'Lote parejo listo para la venta', p:'En la venta de animales vivos, el peso, la condición y la presentación deciden el precio: un lote parejo y sano se vende mejor.'},
     {k:'prosa', t:'Identificación, trazabilidad y movilización', p:[
       'Cada animal identificado (arete o marca) y registrado permite saber de dónde viene, qué tratamientos recibió y si cumple el tiempo de retiro: eso es <b>trazabilidad</b>, y da confianza al comprador.',
       'Para transportar animales en República Dominicana, la Dirección General de Ganadería (<b>DIGEGA</b>) emite las <b>guías de movilización</b>. Antes de vender o mover animales, verifique con DIGEGA los requisitos vigentes en su caso.'
@@ -81713,7 +81609,6 @@ CBMOD.push(
       'En 2024, el Fondo Especial para el Desarrollo Agropecuario (FEDA) anunció un plan para el sector ovino-caprino con préstamos de RD$ 300,000 a través del Banco Agrícola, al 5 % anual, con un año de gracia y cuatro años para pagar, además de un centro genético en Cumayasa, La Romana (7 Días, 18 de abril de 2024). Verifique con esas instituciones si el programa sigue vigente y sus condiciones.',
       'Un préstamo se paga con el margen: antes de endeudarse, calcule si su margen operativo cubre la cuota. Crezca por etapas, reinvirtiendo con los números de su propia finca.'
     ]},
-    {k:'tlcomparar', pfx:'cb'},   /* el comparador común, definido en el curso de Tilapia */
     {k:'cbplan'},
     {k:'cbchk', id:'m8', t:'¿Tiene sus números?', p:'Marque lo que ya puede calcular con datos de su finca.', l:[
       'Separo la inversión de los gastos del período.',
@@ -82278,7 +82173,7 @@ function cbCalcRun(id){
   }).join('') + '</tbody></table><div class="cb-interp cb-i-' + r.nivel + '"><b>Qué significa</b><p>' + r.interp + '</p></div>';
 }
 window.cbCalcRun = cbCalcRun;
-function cbCalcArrancar(){ Object.keys(CBCALC).forEach(function(id){ if(document.getElementById('cbout-' + id)) cbCalcRun(id); }); if(document.getElementById('tlcmp-out') && typeof tlCompararRun === 'function') tlCompararRun(); }
+function cbCalcArrancar(){ Object.keys(CBCALC).forEach(function(id){ if(document.getElementById('cbout-' + id)) cbCalcRun(id); }); }
 
 /* ---------- el proyecto final: mi finca de cabras y ovejas ---------- */
 var CBPLAN = [
@@ -82623,11 +82518,15 @@ if(typeof window.cbPinta === 'function'){
 /* piezas del dibujo */
 .cb-g-eje{ stroke:color-mix(in srgb,var(--text) 34%,transparent); stroke-width:1.4 }
 .cb-g-rej{ stroke:color-mix(in srgb,var(--text) 12%,transparent); stroke-width:1 }
-.cb-g-lbl{ fill:var(--muted); font-family:var(--mono); font-size:12px }
-.cb-g-ax{ fill:var(--muted); font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase }
+.cb-g-lbl{ fill:var(--muted); font-family:var(--body); font-size:12px }
+.cb-g-ax{ fill:var(--muted); font-family:var(--body); font-size:11px; letter-spacing:.04em; text-transform:uppercase }
 .cb-g-val{ fill:var(--text); font-family:var(--display); font-size:14px; font-weight:700 }
-.cb-g-extra{ fill:#c4544a; font-family:var(--mono); font-size:11.5px; font-weight:700 }
+.cb-g-extra{ fill:#c4544a; font-family:var(--body); font-size:12px; font-weight:700 }
 .cb-g-nota{ fill:var(--text-2); font-family:var(--body); font-size:12.5px }
+.cb-g-in{ fill:#fff; font-family:var(--body); font-size:12px; font-weight:600; opacity:.95 }
+.cb-g-inv{ fill:#fff; font-family:var(--display); font-size:14px; font-weight:700 }
+.cb-g-in-osc{ fill:#1f2933; font-family:var(--body); font-size:12px; font-weight:600 }
+.cb-g-inv-osc{ fill:#1f2933; font-family:var(--display); font-size:14px; font-weight:700 }
 .cb-g-tit{ fill:var(--text); font-family:var(--display); font-size:15px; font-weight:700 }
 .cb-g-pct{ fill:#fff; font-family:var(--display); font-size:13.5px; font-weight:700 }
 .cb-g-den{ fill:var(--text); font-family:var(--display); font-size:17px; font-weight:800 }
@@ -84451,7 +84350,7 @@ var CBFOTOS = {
     ['Medicamentos y tiempos de', 'cb-p-6585010', 'Cabras en la finca'],
     ['Registro', 'cb-p-5953854', 'Cabras en el corral'],
     ['Bienestar y manejo sin', 'cb-p-4760978', 'Ovejas en un corral de metal'],
-    ['Residuos y animales', 'cb-p-35980994', 'Revisión de un animal'],
+    ['Residuos y animales', 'cb-p-5953676', 'Trabajador limpiando el galpón'],
     ['Mi revisión sanitaria de cada', 'cb-p-9441870', 'Oveja con arete'],
     ['Las señales son', 'cb-p-11960662', 'Cabra Anglo-Nubia comiendo'],
     ['En una', 'cb-p-5953670', 'Trabajador en el galpón'],
@@ -84460,11 +84359,11 @@ var CBFOTOS = {
   7:[
     ['¿Qué voy a', 'cb-p-40259169', 'Productor con un cabrito en el mercado'],
     ['Carne, leche o', 'cb-p-35723163', 'Transporte de ovejas'],
-    ['Engorde con', 'cb-p-29000146', 'Feria de ganado'],
-    ['Identificación, trazabilidad y', 'cb-p-37805796', 'Mercado de ovejas'],
-    ['Precios publicados en República', 'cb-p-11638821', 'Macho cabrío en un mercado'],
+    ['Engorde con', 'cb-p-5953817', 'Engorde con heno en el comedero'],
+    ['Identificación, trazabilidad y', 'cb-p-5953800', 'Cabras identificadas con aretes'],
+    ['Precios publicados en República', 'cb-p-5953852', 'Galpón ordenado y ventilado'],
     ['Canales de venta', 'cb-p-19140464', 'Productor con su rebaño'],
-    ['Leche y derivados: higiene, inocuidad y', 'cb-p-35980994', 'Revisión de un animal'],
+    ['Leche y derivados: higiene, inocuidad y', 'cb-p-5953780', 'Elaboración higiénica de quesos de cabra'],
     ['El costo de un animal antes de', 'cb-p-38896955', 'Productor con un cordero en brazos'],
     ['¿Cuánto me cuesta un animal antes de', 'cb-p-4479568', 'Ovejas en el corral'],
     ['Actividad Plan comercial para un', 'cb-p-33011244', 'Rebaño camino al potrero'],
@@ -84485,11 +84384,10 @@ var CBFOTOS = {
     ['Riesgos financieros y', 'cb-p-38370258', 'Rebaño pastoreando'],
     ['Vendió, pero los ingresos no cubren los', 'cb-p-16302221', 'Cabritos en el pasto'],
     ['Financiamiento y crecimiento', 'cb-p-4479568', 'Ovejas en el corral'],
-    ['¿Tilapia o chivos y', 'cb-p-13765220', 'Finca ganadera'],
-    ['Mi finca de cabras y ovejas: plan de', 'cb-p-32277758', 'Productor con sus cabras'],
-    ['¿Tiene sus', 'cb-p-2452313', 'Pastor con su rebaño'],
-    ['La evaluación', 'cb-p-19140464', 'Productor con su rebaño'],
-    ['Evaluación del módulo', 'cb-p-39789515', 'Cabras bajo techo con heno']
+    ['Mi finca de cabras y ovejas: plan de', 'cb-p-13765220', 'Finca ganadera'],
+    ['¿Tiene sus', 'cb-p-32277758', 'Productor con sus cabras'],
+    ['La evaluación', 'cb-p-2452313', 'Pastor con su rebaño'],
+    ['Evaluación del módulo', 'cb-p-19140464', 'Productor con su rebaño']
   ]
 };
 
@@ -84661,9 +84559,9 @@ var CBGRAF = {
   /* M1 · cuatro modelos de negocio */
   modelos: function(){
     var W = 720, H = 300, s = '', x0 = 250, dx = 118;
-    var cols = ['Inversión', 'Mano de obra', 'Exige mercado', 'Ingreso frecuente'];
+    var cols = ['Inversión', 'Mano|de obra', 'Exige|mercado', 'Ingreso|frecuente'];
     var filas = [['Cría y venta de animales', [1, 1, 2, 1]], ['Engorde para carne', [2, 2, 2, 2]], ['Leche y derivados', [3, 3, 3, 3]], ['Reproductores', [3, 2, 3, 1]]];
-    cols.forEach(function(c, j){ s += cbT(x0 + j * dx + 40, 30, 'cb-g-tit', c, 'middle'); });
+    cols.forEach(function(c, j){ var l = c.split('|'); l.forEach(function(t, k){ s += cbT(x0 + j * dx + 40, 38 - (l.length - 1 - k) * 18, 'cb-g-tit', t, 'middle'); }); });
     filas.forEach(function(f, i){
       var y = 70 + i * 56;
       s += cbT(x0 - 16, y + 6, 'cb-g-nota', f[0], 'end');
@@ -84679,15 +84577,15 @@ var CBGRAF = {
   /* M2 · el plano de una finca pequeña */
   finca: function(){
     var W = 720, H = 330, s = '';
-    [0, 1, 2, 3].forEach(function(i){ var x = 20 + i * 120; s += cbR(x, 20, 112, 110, CBCOL.pasto, .55 + (i % 2) * .15, 8) + cbT(x + 56, 72, 'cb-g-val', 'Potrero ' + (i + 1), 'middle') + cbT(x + 56, 92, 'cb-g-lbl', i === 0 ? 'en uso' : 'descansa', 'middle'); });
+    [0, 1, 2, 3].forEach(function(i){ var x = 20 + i * 120; s += cbR(x, 20, 112, 110, CBCOL.pasto, .55 + (i % 2) * .15, 8) + cbT(x + 56, 72, 'cb-g-inv', 'Potrero ' + (i + 1), 'middle') + cbT(x + 56, 92, 'cb-g-in', i === 0 ? 'en uso' : 'descansa', 'middle'); });
     s += cbT(260, 146, 'cb-g-lbl', 'rotar los potreros deja descansar el pasto y corta el ciclo de los parásitos', 'middle');
-    s += cbR(510, 20, 190, 110, CBCOL.cabra, .85, 8) + cbT(605, 62, 'cb-g-val', 'Techo y dormidero', 'middle') + cbT(605, 82, 'cb-g-lbl', 'piso seco, ventilado', 'middle') + cbT(605, 100, 'cb-g-lbl', 'comederos y bebederos', 'middle');
-    s += cbR(20, 170, 150, 70, CBCOL.agua, .8, 8) + cbT(95, 200, 'cb-g-val', 'Corral de manejo', 'middle') + cbT(95, 220, 'cb-g-lbl', 'revisar, pesar, separar', 'middle');
-    s += cbR(190, 170, 150, 70, CBCOL.cria, .75, 8) + cbT(265, 200, 'cb-g-val', 'Área de parto', 'middle') + cbT(265, 220, 'cb-g-lbl', 'limpia y tranquila', 'middle');
-    s += cbR(360, 170, 150, 70, CBCOL.alim, .8, 8) + cbT(435, 200, 'cb-g-val', 'Bodega', 'middle') + cbT(435, 220, 'cb-g-lbl', 'heno, sal y alimento', 'middle');
-    s += cbR(530, 170, 170, 70, CBCOL.san, .8, 8) + cbT(615, 200, 'cb-g-val', 'Cuarentena', 'middle') + cbT(615, 220, 'cb-g-lbl', 'lejos del rebaño', 'middle');
-    s += cbR(20, 258, 150, 50, CBCOL.otros, .7, 8) + cbT(95, 288, 'cb-g-val', 'Estercolero', 'middle');
-    s += cbR(190, 258, 150, 50, CBCOL.bien, .75, 8) + cbT(265, 288, 'cb-g-val', 'Entrada única', 'middle');
+    s += cbR(510, 20, 190, 110, CBCOL.cabra, .85, 8) + cbT(605, 62, 'cb-g-inv', 'Techo y dormidero', 'middle') + cbT(605, 82, 'cb-g-in', 'piso seco, ventilado', 'middle') + cbT(605, 100, 'cb-g-in', 'comederos y bebederos', 'middle');
+    s += cbR(20, 170, 150, 70, CBCOL.agua, .8, 8) + cbT(95, 200, 'cb-g-inv', 'Corral de manejo', 'middle') + cbT(95, 220, 'cb-g-in', 'revisar, pesar, separar', 'middle');
+    s += cbR(190, 170, 150, 70, CBCOL.cria, .75, 8) + cbT(265, 200, 'cb-g-inv', 'Área de parto', 'middle') + cbT(265, 220, 'cb-g-in', 'limpia y tranquila', 'middle');
+    s += cbR(360, 170, 150, 70, CBCOL.alim, .8, 8) + cbT(435, 200, 'cb-g-inv', 'Bodega', 'middle') + cbT(435, 220, 'cb-g-in', 'heno, sal y alimento', 'middle');
+    s += cbR(530, 170, 170, 70, CBCOL.san, .8, 8) + cbT(615, 200, 'cb-g-inv', 'Cuarentena', 'middle') + cbT(615, 220, 'cb-g-in', 'lejos del rebaño', 'middle');
+    s += cbR(20, 258, 150, 50, CBCOL.otros, .7, 8) + cbT(95, 288, 'cb-g-inv', 'Estercolero', 'middle');
+    s += cbR(190, 258, 150, 50, CBCOL.bien, .75, 8) + cbT(265, 288, 'cb-g-inv', 'Entrada única', 'middle');
     s += cbT(530, 290, 'cb-g-extra', 'del potrero al corral sin cruzar la cuarentena', 'middle');
     return cbGrafCaja('El plano de una finca pequeña', 'Cada área con su función: potreros que rotan, techo seco, corral de manejo, parto, bodega, cuarentena aparte y una sola entrada.',
       cbSvg(W, H, s, 'Esquema de distribución de una finca de cabras y ovejas'), 'Esquema para aprender, no un plano a escala: las medidas dependen del número de animales, su peso, el clima y la normativa aplicable.');
@@ -84696,11 +84594,11 @@ var CBGRAF = {
   /* M4 · la condición corporal */
   condicion: function(){
     var W = 720, H = 260, s = '';
-    var e = [['1', 'muy flaca', 'columna y costillas muy marcadas', CBCOL.mal], ['2', 'flaca', 'costillas fáciles de sentir', CBCOL.ojo], ['3', 'ideal', 'costillas se sienten, no se ven', CBCOL.bien], ['4', 'gorda', 'cuesta sentir las costillas', CBCOL.ojo], ['5', 'muy gorda', 'grasa en lomo y cola', CBCOL.mal]];
+    var e = [['1', 'muy flaca', 'columna y costillas|muy marcadas', CBCOL.mal], ['2', 'flaca', 'costillas fáciles|de sentir', CBCOL.ojo], ['3', 'ideal', 'costillas se sienten,|no se ven', CBCOL.bien], ['4', 'gorda', 'cuesta sentir|las costillas', CBCOL.ojo], ['5', 'muy gorda', 'grasa en|lomo y cola', CBCOL.mal]];
     e.forEach(function(x, i){
       var cx = 84 + i * 138;
       s += '<circle cx="' + cx + '" cy="80" r="40" fill="' + x[3] + '" opacity=".9"/>' + cbT(cx, 94, 'cb-g-pct', x[0], 'middle');
-      s += cbT(cx, 148, 'cb-g-tit', x[1], 'middle') + cbT(cx, 172, 'cb-g-lbl', x[2], 'middle');
+      s += cbT(cx, 148, 'cb-g-tit', x[1], 'middle') + x[2].split('|').map(function(t, k){ return cbT(cx, 170 + k * 16, 'cb-g-lbl', t, 'middle'); }).join('');
     });
     s += '<path d="M84 205 L 636 205" class="cb-g-eje"/>' + cbT(360, 228, 'cb-g-extra', 'Se mide con la mano sobre el lomo, detrás de las costillas: no solo con la vista', 'middle');
     s += cbT(360, 250, 'cb-g-lbl', 'el valor que conviene cambia con la etapa (gestación, lactancia, engorde): pregúntele a su técnico', 'middle');
@@ -84728,12 +84626,12 @@ var CBGRAF = {
   /* M5 · el ciclo reproductivo */
   ciclo: function(){
     var W = 720, H = 240, s = '';
-    var e = [['🔁', 'Celo', 'cada 21 d (cabra) · 17 d (oveja)'], ['💞', 'Monta', 'anotar fecha y macho'], ['🔎', 'Revisar', '¿volvió a celo?'], ['🤰', 'Gestación', '~150 d cabra · ~147 d oveja'], ['🐣', 'Parto', 'área limpia y vigilada'], ['🍼', 'Destete', 'según el sistema']];
+    var e = [['🔁', 'Celo', 'cada 21 d (cabra)|cada 17 d (oveja)'], ['💞', 'Monta', 'anotar fecha|y macho'], ['🔎', 'Revisar', '¿volvió|a celo?'], ['🤰', 'Gestación', '~150 d cabra|~147 d oveja'], ['🐣', 'Parto', 'área limpia|y vigilada'], ['🍼', 'Destete', 'según|el sistema']];
     s += '<line x1="70" y1="96" x2="650" y2="96" class="cb-g-eje"/>';
     e.forEach(function(x, i){
       var cx = 70 + i * 116;
       s += '<circle cx="' + cx + '" cy="96" r="30" fill="' + (i < 3 ? CBCOL.cria : (i < 5 ? CBCOL.cabra : CBCOL.pasto)) + '"/>';
-      s += cbT(cx, 105, 'cb-g-pct', x[0], 'middle') + cbT(cx, 48, 'cb-g-tit', x[1], 'middle') + cbT(cx, 152, 'cb-g-nota', x[2], 'middle');
+      s += cbT(cx, 105, 'cb-g-pct', x[0], 'middle') + cbT(cx, 48, 'cb-g-tit', x[1], 'middle') + x[2].split('|').map(function(t, k){ return cbT(cx, 150 + k * 17, 'cb-g-nota', t, 'middle'); }).join('');
       if(i < e.length - 1) s += '<path d="M' + (cx + 38) + ' 96 l 40 0" class="cb-g-flecha"/>';
     });
     s += cbT(360, 200, 'cb-g-extra', 'Si la hembra vuelve a celo un ciclo después de la monta, no quedó preñada: anótelo', 'middle');
@@ -85203,6 +85101,10 @@ if(typeof window.cbCalcRun === 'function'){
 })();
 
 </script>
+
+
+
+
 
 
 
