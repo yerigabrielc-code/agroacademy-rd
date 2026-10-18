@@ -34805,6 +34805,7 @@ window.agVolAdapta = agVolAdapta;
 
 
 
+
 <style>
 
 /* ===== curso 4: solo lo que no existe ya ===== */
@@ -79615,7 +79616,7 @@ if(typeof window.tlLaminas === 'function'){
    de TLCRED son fotos reales dominicanas con autor, licencia y
    lugar; todas las demás son ilustrativas (Pexels, licencia libre).
    ------------------------------------------------------------ */
-var TLCRED = {};
+var TLCRED = { 'tl-portada': 'Foto de AgroAcademy RD · tilapia roja cosechada' };
 var TLCREDILUS = 'Imagen ilustrativa (Pexels, licencia libre): no corresponde a un proyecto dominicano';
 function tlCreditos(){
   var m = document.getElementById('tlMain'); if(!m) return;
@@ -80237,6 +80238,7 @@ if(typeof window.tlCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
