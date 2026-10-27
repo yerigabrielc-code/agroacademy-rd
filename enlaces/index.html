@@ -105,6 +105,25 @@ footer a{color:var(--tinta)}
 .sellos span{padding:6px 10px;border-radius:999px;border:1px solid var(--linea);font-size:12.5px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.js .curso.oculto{opacity:1;transform:none}}
 </style>
+<!-- meta-pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','2397057834158314');fbq('track','PageView');
+(function(){
+  var hot=/pay\.hotmart\.com/i, wa=/(wa\.me|api\.whatsapp\.com|whatsapp:)/i;
+  function pago(url,nombre){try{fbq('track','InitiateCheckout',{content_name:(nombre||'').slice(0,80),currency:'USD',content_ids:[String(url).split('?')[0].split('/').pop()]})}catch(e){}}
+  document.addEventListener('click',function(ev){
+    var a=ev.target&&ev.target.closest&&ev.target.closest('a[href]');if(!a)return;
+    if(hot.test(a.href))pago(a.href,a.getAttribute('data-curso')||a.textContent.replace(/\s+/g,' ').trim());
+    else if(wa.test(a.href)){try{fbq('track','Contact')}catch(e){}}
+  },true);
+  var abrir=window.open;window.open=function(u){if(u&&hot.test(u))pago(u,document.title);return abrir.apply(window,arguments)};
+  if(window.fetch){var f0=window.fetch;window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url)||'';var p=f0.apply(this,arguments);
+    if(/\/auth\/v1\/signup/.test(u))p.then(function(r){if(r&&r.ok){try{fbq('track','CompleteRegistration')}catch(e){}}}).catch(function(){});return p}}
+})();
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2397057834158314&ev=PageView&noscript=1" alt=""></noscript>
+<!-- /meta-pixel -->
 </head>
 <body>
 <header class="portada"><svg class="fondo" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">

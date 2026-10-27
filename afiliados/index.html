@@ -53,6 +53,25 @@ body{overflow-x:hidden}
 pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word;font:14px/1.5 system-ui,sans-serif;max-height:260px;overflow:auto}
 footer{padding:32px 0 48px;color:var(--suave);font-size:14px}
 </style>
+<!-- meta-pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','2397057834158314');fbq('track','PageView');
+(function(){
+  var hot=/pay\.hotmart\.com/i, wa=/(wa\.me|api\.whatsapp\.com|whatsapp:)/i;
+  function pago(url,nombre){try{fbq('track','InitiateCheckout',{content_name:(nombre||'').slice(0,80),currency:'USD',content_ids:[String(url).split('?')[0].split('/').pop()]})}catch(e){}}
+  document.addEventListener('click',function(ev){
+    var a=ev.target&&ev.target.closest&&ev.target.closest('a[href]');if(!a)return;
+    if(hot.test(a.href))pago(a.href,a.getAttribute('data-curso')||a.textContent.replace(/\s+/g,' ').trim());
+    else if(wa.test(a.href)){try{fbq('track','Contact')}catch(e){}}
+  },true);
+  var abrir=window.open;window.open=function(u){if(u&&hot.test(u))pago(u,document.title);return abrir.apply(window,arguments)};
+  if(window.fetch){var f0=window.fetch;window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url)||'';var p=f0.apply(this,arguments);
+    if(/\/auth\/v1\/signup/.test(u))p.then(function(r){if(r&&r.ok){try{fbq('track','CompleteRegistration')}catch(e){}}}).catch(function(){});return p}}
+})();
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2397057834158314&ev=PageView&noscript=1" alt=""></noscript>
+<!-- /meta-pixel -->
 </head>
 <body>
 <header class="portada"><div class="envoltura">
