@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-10-30c · panel: ventanas que se cierran y sin campos de video -->
+<!-- AgroAcademy RD 2.0 · build 2026-10-31a · dashboard del instructor rediseñado -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -96136,7 +96136,186 @@ window.pvActivo = function(){ return !!document.querySelector('#main .pv-mod'); 
   }
 })();
 
+
+/* ---------- pv-dash.js ---------- */
+/* ============================================================
+   DASHBOARD DEL INSTRUCTOR · DISEÑO 2 (2026-10-31)
+   Mismos datos y mismo orden que el tablero (agTbPantalla); cambia
+   cómo se ve y cómo se mueve, sin perder el azul futurista:
+   · etapas con colores que se entienden solos: gris = sin empezar,
+     cian = en progreso, verde = terminaron (con rayas en «sin empezar»
+     para quien no distingue bien colores);
+   · tarjetas de cifras con ícono, brillo y números que cuentan;
+   · resumen nuevo: dona de matrículas y anillo de avance global;
+   · barras que crecen al entrar, una fila detrás de otra;
+   · embudo con un color por escalón y la caída escrita en palabras;
+   · altas por mes con columnas que suben.
+   ============================================================ */
+(function(){
+var css = `
+#adminBody .agtb,#adminBody .aggr-par{--ag-et1:#55657F;--ag-et1-t:#FFFFFF;--ag-et2:#22D3EE;--ag-et2-t:#04202B;--ag-et3:#34D399;--ag-et3-t:#03281A}
+#adminBody .agtb-s.e1,#adminBody .agtb-ley i.e1{background:repeating-linear-gradient(135deg,#55657F 0 7px,#4A596F 7px 14px)!important}
+#adminBody .agtb-s.e2,#adminBody .agtb-ley i.e2{background:linear-gradient(90deg,#0EA5E9,#22D3EE)!important;box-shadow:0 0 14px -2px rgba(34,211,238,.55)}
+#adminBody .agtb-s.e3,#adminBody .agtb-ley i.e3{background:linear-gradient(90deg,#10B981,#34D399)!important;box-shadow:0 0 14px -2px rgba(52,211,153,.55)}
+#adminBody .agtb-ley span{font-weight:600;font-size:13px}
+#adminBody .agtb-ley i{width:14px!important;height:14px!important;border-radius:4px!important}
+/* tarjetas de cifras */
+#adminBody .agtb-c{position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(56,189,248,.14),rgba(15,23,42,.6) 55%)!important;border:1px solid rgba(56,189,248,.28)!important;
+  box-shadow:0 18px 40px -26px rgba(14,165,233,.7),inset 0 1px 0 rgba(255,255,255,.06);transition:transform .25s,box-shadow .25s;animation:agdSube .6s cubic-bezier(.2,.8,.2,1) both}
+#adminBody .agtb-c:hover{transform:translateY(-4px);box-shadow:0 24px 50px -24px rgba(14,165,233,.9)}
+#adminBody .agtb-c::after{content:"";position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.28),transparent 70%);pointer-events:none}
+#adminBody .agtb-c::before{position:absolute;right:14px;bottom:12px;font-size:34px;opacity:.9;filter:drop-shadow(0 6px 14px rgba(34,211,238,.55));pointer-events:none}
+#adminBody .agtb-c-p{padding-right:44px}
+#adminBody .agtb-cifras > .agtb-c:nth-child(1)::before{content:"👥"}#adminBody .agtb-cifras > .agtb-c:nth-child(2)::before{content:"📚"}
+#adminBody .agtb-cifras > .agtb-c:nth-child(3)::before{content:"🔓"}#adminBody .agtb-cifras > .agtb-c:nth-child(4)::before{content:"✅"}
+#adminBody .agtb-cifras > .agtb-c:nth-child(5)::before{content:"🎓"}
+#adminBody .agtb-cifras > .agtb-c:nth-child(2){animation-delay:.06s}#adminBody .agtb-cifras > .agtb-c:nth-child(3){animation-delay:.12s}
+#adminBody .agtb-cifras > .agtb-c:nth-child(4){animation-delay:.18s}#adminBody .agtb-cifras > .agtb-c:nth-child(5){animation-delay:.24s}
+#adminBody .agtb-c b{background:linear-gradient(180deg,#FFFFFF,#A5E8FF);-webkit-background-clip:text;background-clip:text;color:transparent!important}
+#adminBody .agtb-m{height:8px!important;background:rgba(148,163,184,.18)!important}
+#adminBody .agtb-m > i{background:linear-gradient(90deg,#0EA5E9,#22D3EE,#34D399)!important;box-shadow:0 0 12px rgba(34,211,238,.7);transform-origin:left;animation:agdCrece 1.1s .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes agdSube{from{opacity:0;transform:translateY(16px)}}
+@keyframes agdCrece{from{transform:scaleX(0)}}
+@keyframes agdSubeY{from{transform:scaleY(0)}}
+/* resumen: dona + anillo */
+.agd-sum{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;margin-top:14px}
+@media(max-width:1000px){.agd-sum{grid-template-columns:1fr}}
+.agd-caja{position:relative;overflow:hidden;padding:20px 22px;border-radius:18px;background:radial-gradient(700px 300px at 0% 0%,rgba(56,189,248,.16),transparent 60%),var(--agp-deep);border:1px solid rgba(56,189,248,.28);animation:agdSube .7s .2s both}
+.agd-caja h3{margin:0 0 2px;font-family:var(--display);font-size:17px;color:var(--agp-tx)}
+.agd-caja > p{margin:0 0 14px;font-size:12.5px;color:var(--agp-dim)}
+.agd-dona{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.agd-dona svg{width:170px;height:170px;flex:none;filter:drop-shadow(0 0 18px rgba(34,211,238,.35))}
+.agd-sum circle.s{fill:none;stroke-width:16;stroke-linecap:butt;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dasharray 1.2s cubic-bezier(.2,.8,.2,1)}
+.agd-sum text{fill:var(--agp-tx);font-family:var(--display);font-weight:800}
+.agd-items{display:grid;gap:10px;flex:1;min-width:200px}
+.agd-it{display:grid;grid-template-columns:16px 1fr auto;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(15,23,42,.45);border:1px solid rgba(148,163,184,.14)}
+.agd-it i{width:14px;height:14px;border-radius:4px}
+.agd-it span{font-size:13.5px;color:var(--agp-tx2)}
+.agd-it b{font-size:20px;color:var(--agp-tx);font-family:var(--display)}
+.agd-it em{grid-column:2 / -1;font-style:normal;font-size:11.5px;color:var(--agp-dim);margin-top:-4px}
+.agd-anillo{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.agd-anillo svg{width:150px;height:150px;flex:none}
+.agd-top{display:grid;gap:8px;flex:1;min-width:180px}
+.agd-top div{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:13px;color:var(--agp-tx2)}
+.agd-top div u{text-decoration:none;display:block;height:6px;border-radius:9px;background:rgba(148,163,184,.18);overflow:hidden;grid-column:1 / -1}
+.agd-top div u i{display:block;height:100%;background:linear-gradient(90deg,#0EA5E9,#34D399);transform-origin:left;animation:agdCrece 1.2s .4s both}
+/* gráfico de etapas */
+#adminBody .agtb-g,#adminBody .aggr-caja{background:radial-gradient(900px 260px at 100% 0%,rgba(56,189,248,.12),transparent 60%),var(--agp-deep)!important;border:1px solid rgba(56,189,248,.26)!important;box-shadow:0 30px 60px -40px rgba(14,165,233,.6)}
+#adminBody .agtb-r-b{height:26px!important;gap:3px!important}
+#adminBody .agtb-s{transform-origin:left;animation:agdCrece .9s cubic-bezier(.2,.8,.2,1) both;border-radius:6px!important}
+#adminBody .agtb-s em{font-size:12.5px!important}
+#adminBody .agtb-r{padding:4px 6px;border-radius:12px;transition:background .2s}
+#adminBody .agtb-r:hover{background:rgba(56,189,248,.07)}
+#adminBody .agtb-r-t b{font-size:17px}
+/* embudo */
+#adminBody .aggr-paso-b{height:14px!important;border-radius:99px!important;background:rgba(148,163,184,.16)!important;overflow:hidden}
+#adminBody .aggr-paso-b i{border-radius:99px!important;transform-origin:left;animation:agdCrece 1s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 0 12px rgba(34,211,238,.45)}
+#adminBody .aggr-paso:nth-child(1) .aggr-paso-b i{background:linear-gradient(90deg,#1D4ED8,#3B82F6)!important}
+#adminBody .aggr-paso:nth-child(2) .aggr-paso-b i{background:linear-gradient(90deg,#0284C7,#38BDF8)!important;animation-delay:.12s}
+#adminBody .aggr-paso:nth-child(3) .aggr-paso-b i{background:linear-gradient(90deg,#0891B2,#22D3EE)!important;animation-delay:.24s}
+#adminBody .aggr-paso:nth-child(4) .aggr-paso-b i{background:linear-gradient(90deg,#0D9488,#2DD4BF)!important;animation-delay:.36s}
+#adminBody .aggr-paso:nth-child(5) .aggr-paso-b i{background:linear-gradient(90deg,#059669,#34D399)!important;animation-delay:.48s}
+#adminBody .agd-caida{color:#FDA4AF!important;font-weight:700;white-space:nowrap}
+/* altas por mes */
+#adminBody .aggr-mes-b i{background:linear-gradient(0deg,#0EA5E9,#22D3EE 70%,#A5F3FC)!important;border-radius:8px 8px 3px 3px!important;box-shadow:0 0 18px -2px rgba(34,211,238,.6);transform-origin:bottom;animation:agdSubeY 1s cubic-bezier(.2,.8,.2,1) both}
+#adminBody .aggr-mes:hover .aggr-mes-b i{filter:brightness(1.2)}
+#adminBody .aggr-meses{justify-content:center}
+#adminBody .aggr-mes{flex:0 1 90px!important;max-width:90px}
+/* últimos registrados */
+#adminBody .agtb-n{transition:transform .2s,border-color .2s;animation:agdSube .5s both}
+#adminBody .agtb-n:hover{transform:translateY(-3px);border-color:rgba(34,211,238,.6)!important}
+#adminBody .agtb-n-av{background:linear-gradient(135deg,#0EA5E9,#34D399)!important;color:#04202B!important;font-weight:800}
+@media(prefers-reduced-motion:reduce){#adminBody .agtb *,#adminBody .aggr-par *,.agd-sum *{animation:none!important;transition:none!important}}
+`;
+/* filas del gráfico de etapas: una detrás de otra */
+for(var i = 1; i <= 16; i++) css += '#adminBody .agtb-r:nth-child(' + i + ') .agtb-s{animation-delay:' + (0.05 * i).toFixed(2) + 's}';
+var st = document.createElement('style'); st.id = 'agdCss'; st.textContent = css; document.head.appendChild(st);
+
+function arco(cx, r, frac, color, off){
+  var c = 2 * Math.PI * r, l = Math.max(0, frac) * c;
+  return '<circle class="s" cx="' + cx + '" cy="' + cx + '" r="' + r + '" stroke="' + color + '" stroke-dasharray="0 ' + c.toFixed(1) + '" data-d="' + l.toFixed(1) + ' ' + (c - l).toFixed(1) + '" stroke-dashoffset="' + (-off * c).toFixed(1) + '"/>';
+}
+function resumenHTML(){
+  var r; try{ r = agTbResumen(); }catch(e){ return ''; }
+  if(!r || !r.accesos) return '';
+  var s = 0, p = 0, t = 0;
+  r.porCurso.forEach(function(c){ s += c.sinEmp; p += c.enProg; t += c.completos; });
+  var tot = s + p + t || 1, fs = s / tot, fp = p / tot, ft = t / tot;
+  var gid = 'agdG' + Date.now();
+  var dona = '<svg viewBox="0 0 170 170" role="img" aria-label="Matrículas por etapa">' +
+    '<circle cx="85" cy="85" r="62" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="16"/>' +
+    arco(85, 62, fs, '#64748B', 0) + arco(85, 62, fp, '#22D3EE', fs) + arco(85, 62, ft, '#34D399', fs + fp) +
+    '<text x="85" y="82" text-anchor="middle" font-size="30" data-agd="' + tot + '">0</text>' +
+    '<text x="85" y="104" text-anchor="middle" font-size="12" style="fill:var(--agp-dim);font-weight:600">matrículas</text></svg>';
+  var it = function(col, nom, n, txt){
+    return '<div class="agd-it"><i style="background:' + col + '"></i><span>' + nom + '</span><b data-agd="' + n + '">0</b><em>' +
+      Math.round(n / tot * 100) + ' % · ' + txt + '</em></div>';
+  };
+  var avance = r.posibles ? r.aprobados / r.posibles : 0;
+  var anillo = '<svg viewBox="0 0 150 150" role="img" aria-label="Avance global ' + Math.round(avance * 100) + ' %">' +
+    '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0EA5E9"/><stop offset="1" stop-color="#34D399"/></linearGradient></defs>' +
+    '<circle cx="75" cy="75" r="56" fill="none" stroke="rgba(148,163,184,.16)" stroke-width="14"/>' +
+    arco(75, 56, avance, 'url(#' + gid + ')', 0).replace('class="s"', 'class="s" stroke-linecap="round"') +
+    '<text x="75" y="80" text-anchor="middle" font-size="28" data-agd="' + Math.round(avance * 100) + '" data-suf=" %">0 %</text></svg>';
+  var top = r.porCurso.filter(function(c){ return c.conAcceso; }).slice().sort(function(a, b){ return b.pct - a.pct; }).slice(0, 4);
+  return '<div class="agd-sum">' +
+    '<div class="agd-caja"><h3>Matrículas por etapa</h3><p>Todas las personas con acceso, sumando todos los cursos.</p><div class="agd-dona">' + dona +
+      '<div class="agd-items">' + it('repeating-linear-gradient(135deg,#55657F 0 4px,#4A596F 4px 8px)', 'Sin empezar', s, 'no han aprobado ningún módulo') +
+      it('#22D3EE', 'En progreso', p, 'ya aprobaron algún módulo') + it('#34D399', 'Terminaron', t, 'aprobaron todo el curso') + '</div></div></div>' +
+    '<div class="agd-caja"><h3>Avance global</h3><p>Módulos aprobados de todo lo que tienen abierto.</p><div class="agd-anillo">' + anillo +
+      '<div class="agd-top">' + (top.length ? top.map(function(c){ return '<div><span>' + c.icon + '</span><span>' + agEsc(c.label) + '</span><b>' + c.pct + ' %</b><u><i style="width:' + Math.max(c.pct, 2) + '%"></i></u></div>'; }).join('') : '') + '</div></div></div>' +
+  '</div>';
+}
+function anima(){
+  var b = document.getElementById('adminBody'); if(!b || !b.querySelector('.agtb') || b.dataset.agdHecho === '1') return;
+  b.dataset.agdHecho = '1';
+  var reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  /* arcos */
+  requestAnimationFrame(function(){ [].forEach.call(b.querySelectorAll('.agd-sum circle.s'), function(c){ c.setAttribute('stroke-dasharray', c.getAttribute('data-d')); }); });
+  /* números que cuentan */
+  var cuenta = function(el, fin, suf){
+    if(reduce){ el.textContent = fin + (suf || ''); return; }
+    var t0 = performance.now(), dur = 1100;
+    (function paso(t){ var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(fin * e) + (suf || ''); if(k < 1) requestAnimationFrame(paso); })(t0);
+  };
+  [].forEach.call(b.querySelectorAll('[data-agd]'), function(el){ cuenta(el, +el.getAttribute('data-agd'), el.getAttribute('data-suf')); });
+  [].forEach.call(b.querySelectorAll('.agtb-c > b, .agtb-r-t > b, .aggr-paso-c'), function(el){
+    var tn = el.firstChild; if(!tn || tn.nodeType !== 3) return;
+    var v = parseInt(tn.nodeValue, 10); if(!(v > 0)) return;
+    var span = document.createElement('span'); el.replaceChild(span, tn); cuenta(span, v);
+  });
+}
+function engancha(){
+  if(typeof window.agTbPantalla !== 'function') return false;
+  if(window.agTbPantalla.__agd) return true;
+  var orig = window.agTbPantalla;
+  var nuevo = function(){
+    var h = orig.apply(this, arguments);
+    try{
+      var marca = h.indexOf('<div class="agtb-hoy">') > 0 ? '<div class="agtb-hoy">' : '<section class="agtb-g">';
+      var sum = resumenHTML();
+      if(sum && h.indexOf(marca) > 0) h = h.replace(marca, sum + marca);
+      h = h.replace(/<em>−(\d+) %<\/em>/g, '<em class="agd-caida" data-tip="$1 % de los del paso anterior no llegó a este">↘ $1 %</em>');
+      var b = document.getElementById('adminBody'); if(b) b.dataset.agdHecho = '';
+      setTimeout(anima, 40); setTimeout(anima, 300);
+    }catch(e){}
+    return h;
+  };
+  nuevo.__agd = true; nuevo.__graf = true;
+  window.agTbPantalla = nuevo;
+  return true;
+}
+/* hay que quedar por encima de las otras envolturas (gráficos), que se ponen al cargar */
+[0, 500, 1500, 3000, 6000, 10000].forEach(function(t){ setTimeout(function(){
+  if(window.agTbPantalla && window.agTbPantalla.__agd) return;
+  engancha();
+}, t); });
+})();
+
 </script>
+
+
+
 
 
 
