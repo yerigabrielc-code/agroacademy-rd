@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-10-31a · dashboard del instructor rediseñado -->
+<!-- AgroAcademy RD 2.0 · build 2026-10-31c · Granja Rentable v2, ambiente futurista, reglas iguales, consultas, opiniones, logo de la academia -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -46295,10 +46295,10 @@ if(typeof RTFOTO !== 'undefined'){
 
 RTREG.rtglatam = function(){
   var kpis = [
-    ['🌎', '116.7', 'millones de toneladas', 'de carne de cerdo produjo el mundo en 2025, según las proyecciones del USDA.'],
-    ['🏭', '4.8', 'millones de toneladas', 'produce Brasil, la gran potencia porcina de Latinoamérica (USDA).'],
+    ['🌎', '116.7', 'millones de toneladas', 'de carne de cerdo produjo el mundo en 2025.'],
+    ['🏭', '4.8', 'millones de toneladas', 'produce Brasil, la gran potencia porcina de Latinoamérica.'],
     ['🚢', '1.64', 'millones de toneladas', 'exportó Brasil en 2025, un récord (+13 %). Entre sus destinos está la República Dominicana.'],
-    ['🦠', '2021', 'Peste Porcina Africana', 'confirmada en RD el 28 de julio: la primera detección en las Américas en unos 40 años (USDA).']
+    ['🦠', '2021', 'Peste Porcina Africana', 'confirmada en RD el 28 de julio: la primera detección en las Américas en unos 40 años.']
   ];
   var prod = 4.8, exp = 1.64;
   return '<section class="nx-b nx-full"><div class="rtg-lat rv">' +
@@ -46316,7 +46316,7 @@ RTREG.rtglatam = function(){
         '<p>Más de una de cada tres toneladas sale del país. Así compite una porcicultura que se maneja con números.</p></div>' +
       '<div class="rtg-lat-l"><b>¿Qué quiere decir esto para ti?</b> Que en la porcicultura de hoy gana quien produce cada kilo al menor costo posible, sin perder animales y sin dejar entrar enfermedades. ' +
         'La buena noticia: eso no depende del tamaño de la granja, depende de <b>cómo se maneja</b>. De eso trata este curso.</div>' +
-      '<p class="rt-fuente">Fuentes: USDA FAS, «Livestock and Poultry: World Markets and Trade» (2025); AHDB, actualización del mercado porcino (2026); 3tres3; USDA/APHIS y NPPC sobre la PPA en RD (julio 2021). Cifras redondeadas.</p>' +
+      '<p class="rt-fuente">Cifras redondeadas.</p>' +
     '</div></div></section>';
 };
 
@@ -48698,6 +48698,7 @@ if(typeof window.pcAccesoTodos === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -90593,7 +90594,7 @@ function aiEsContenido(el){
   /* dentro de un curso abierto, no en el campus ni en los paneles */
   return !!(el.closest && el.closest(
     '#main, #nxMain, #nxOv, #rpOv, #sbOv, #egOv, #rtOv, #lcOv, #grOv, #gpOv, #pbOv, #bvOv, #apOv, #tlOv, #cbOv, #agFicha'
-  )) && !el.closest('#screenAdmin, #admin, .ai-eq, .ai-gl, [contenteditable], .ai-glp, svg, .nx-q, .exam, .ex-q, figcaption, .ai-nxfig, .ai-bfig, .ai-calc, .ai-kpis, [class*="kpi"], [data-count], .pv-mod');
+  )) && !el.closest('#screenAdmin, #admin, .ai-eq, .ai-gl, [contenteditable], .ai-glp, svg, .nx-q, .exam, .ex-q, figcaption, .ai-nxfig, .ai-bfig, .ai-calc, .ai-kpis, [class*="kpi"], [data-count], .pv-mod, .agv2, #rtOv');
 }
 
 function aiProcesaTexto(nodo){
@@ -92664,6 +92665,7 @@ aiNxCentra = function(){
 };
 
 </script>
+
 
 
 
@@ -95803,12 +95805,20 @@ PV.glosario = {
   'traspatio':'Crianza de pocos cerdos junto a la vivienda, sin instalaciones de granja.'
 };
 (function(){
-  var claves = Object.keys(PV.glosario).sort(function(a, b){ return b.length - a.length; });
   var esc = function(t){ return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
-  var RX = new RegExp('(^|[^A-Za-zÁÉÍÓÚÑáéíóúñü])(' + claves.map(esc).join('|') + ')(?=$|[^A-Za-zÁÉÍÓÚÑáéíóúñü])', 'i');
+  var claves, RX, GACT = null;
+  /* la lista de palabras se arma para el glosario activo (cada curso usa el suyo) */
+  var prepara = function(){
+    if(GACT === PV.glosario) return;
+    GACT = PV.glosario;
+    claves = Object.keys(GACT).sort(function(a, b){ return b.length - a.length; });
+    RX = new RegExp('(^|[^A-Za-zÁÉÍÓÚÑáéíóúñü])(' + claves.map(esc).join('|') + ')(?=$|[^A-Za-zÁÉÍÓÚÑáéíóúñü])', 'i');
+  };
+  prepara();
   var clave = function(m){ var l = m.toLowerCase(); for(var i = 0; i < claves.length; i++) if(claves[i].toLowerCase() === l) return claves[i]; return null; };
   window.pvGlosa = function(bloque){
     if(!bloque || bloque.dataset.pvgl) return;
+    prepara();
     bloque.dataset.pvgl = '1';
     var vistas = {}, nodos = [], w = document.createTreeWalker(bloque, NodeFilter.SHOW_TEXT, null, false), n;
     while((n = w.nextNode())) nodos.push(n);
@@ -95820,7 +95830,7 @@ PV.glosario = {
       var k = clave(m[2]); if(!k || vistas[k]) return;
       vistas[k] = 1;
       var ini = m.index + m[1].length, fin = ini + m[2].length;
-      var b = document.createElement('button'); b.type = 'button'; b.className = 'pv-gl'; b.dataset.g = k; b.textContent = txt.slice(ini, fin);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pv-gl'; b.dataset.g = k; b.dataset.d = GACT[k]; b.textContent = txt.slice(ini, fin);
       var frag = document.createDocumentFragment();
       frag.appendChild(document.createTextNode(txt.slice(0, ini))); frag.appendChild(b); frag.appendChild(document.createTextNode(txt.slice(fin)));
       p.replaceChild(frag, t);
@@ -95837,7 +95847,7 @@ PV.glosario = {
     if(!g){ if(!(e.target.closest && e.target.closest('#pvGlPop'))) cerrar(); return; }
     e.preventDefault(); cerrar();
     var d = document.createElement('div'); d.id = 'pvGlPop'; d.setAttribute('role', 'dialog');
-    d.innerHTML = '<b>' + g.dataset.g + '</b><p>' + PV.glosario[g.dataset.g] + '</p><button type="button" onclick="this.parentNode.remove()">Entendido</button>';
+    d.innerHTML = '<b>' + g.dataset.g + '</b><p>' + (g.dataset.d || PV.glosario[g.dataset.g]) + '</p><button type="button" onclick="this.parentNode.remove()">Entendido</button>';
     document.body.appendChild(d);
     var r = g.getBoundingClientRect();
     if(innerWidth > 700){ d.style.left = Math.max(12, Math.min(innerWidth - 392, r.left - 20)) + 'px'; d.style.top = (r.bottom + 10 + 220 > innerHeight ? Math.max(12, r.top - 230) : r.bottom + 10) + 'px'; }
@@ -96135,6 +96145,39 @@ window.pvActivo = function(){ return !!document.querySelector('#main .pv-mod'); 
     };
   }
 })();
+/* ============================================================
+   MENÚ DEL PANEL · LIMPIEZA (2026-10-31)
+   · «Módulos» se retira: sus dos botones repetían otras pantallas
+     («Ver» = Contenido, «Editar evaluación» = Evaluaciones) y sus
+     ajustes ya se gobiernan en Evaluaciones. Quien llegue a esa ruta
+     va a Evaluaciones.
+   · «Grupos» se retira de Configuración: los grupos no dan ni quitan
+     acceso a nada (el acceso se abre curso por curso en la ficha del
+     estudiante) y sus nombres de cursos confundían. Los datos no se
+     tocan: siguen en la ficha y en los Excel.
+   ============================================================ */
+(function(){
+  var quita = function(){
+    [].forEach.call(document.querySelectorAll('#adminMenu [data-t="modules"]'), function(b){ b.remove(); });
+    [].forEach.call(document.querySelectorAll('.agcf-chip'), function(b){ if(/Grupos/.test(b.textContent)) b.remove(); });
+  };
+  if(typeof AGPANELMENU !== 'undefined'){ for(var i = AGPANELMENU.length - 1; i >= 0; i--) if(AGPANELMENU[i][0] === 'modules') AGPANELMENU.splice(i, 1); }
+  if(typeof admTab === 'function'){
+    var _admLimpio = admTab;
+    window.admTab = admTab = function(t){
+      if(t === 'modules') t = 'evals';
+      try{ if(t === 'config' && typeof AGCFGSEC !== 'undefined' && AGCFGSEC === 'grupos') AGCFGSEC = 'instructor'; }catch(e){}
+      var r = _admLimpio.call(this, t);
+      setTimeout(quita, 0); setTimeout(quita, 300);
+      return r;
+    };
+  }
+  if(typeof window.agCfgSec === 'function'){
+    var _cs = window.agCfgSec;
+    window.agCfgSec = function(k){ var r = _cs.call(this, k === 'grupos' ? 'instructor' : k); setTimeout(quita, 0); return r; };
+  }
+  quita(); setTimeout(quita, 1500); setTimeout(quita, 4000);
+})();
 
 
 /* ---------- pv-dash.js ---------- */
@@ -96312,7 +96355,868 @@ function engancha(){
 }, t); });
 })();
 
+
+/* ---------- pv-cursos.js ---------- */
+/* ============================================================
+   AGROACADEMY · EXPERIENCIA V2 PARA LOS DEMÁS CURSOS (2026-10-31)
+   Lo mismo que se hizo en Porcicultura, aplicado a los cursos que
+   usan el paginador común (agMuestra). Se activa curso por curso en
+   AGV2; cada curso declara:
+     ov / main   · su ventana y su contenedor
+     glosario    · el glosario PROPIO del curso (nunca el de otro)
+     tu          · si el curso tutea (cambia el texto de las pistas)
+     temas       · tema de fotos por módulo (para las páginas generales)
+     mod()       · el módulo que está abierto
+     videos      · [módulo, posición en su lista de secciones, id]
+   En cada página que se muestra:
+     · si no tiene imagen, gráfico ni video, se le pone al lado una foto
+       HD del TEMA de la página (banco PV.pool), sin repetirla en el módulo;
+     · las palabras del glosario del curso se pueden tocar;
+     · lo que se toca o se escribe lleva su indicación «👆»;
+     · entra con movimiento; el texto y el ancho se adaptan a la pantalla.
+   ============================================================ */
+var AGV2 = window.AGV2 = {
+  ruta: {ov:'rtOv', main:'rtMain', tu:true, glosario:function(){ return PV.glosario; },
+    mod:function(){ return (typeof RTCUR !== 'undefined') ? RTCUR : 0; },
+    temas:{1:'dinero', 2:'alimento', 3:'engorde', 4:'engorde', 5:'venta'},
+    videos:[[1, 2, 'rt-dinero'], [2, 2, 'rt-fugas'], [4, 1, 'rt-diag']],
+    datos:function(){ return (typeof RTMOD !== 'undefined') ? RTMOD : null; }}
+};
+PV.video = PV.video || {};
+Object.assign(PV.video, {
+  'rt-dinero': ['¿Tu granja te deja dinero?', '0:50', 'Lote de ejemplo con los precios de referencia del curso.'],
+  'rt-fugas': ['El dinero que se te va', '0:43', 'Cifras hipotéticas del mismo lote de ejemplo.'],
+  'rt-diag': ['Tu diagnóstico', '0:40', '']
+});
+
+(function(){
+var css = `
+.agv2 .nx-wrap{max-width:min(1560px,95%)!important;width:100%}
+.agv2 section.nx-b{font-size:clamp(16px,1.05vw,20px)}
+.agv2 section.nx-b p{line-height:1.6}
+.agv2 section.nx-b h3,.agv2 .rtv-cab h3{font-size:clamp(24px,2.2vw,42px)!important;line-height:1.1!important;letter-spacing:-.015em}
+.agv2 .nx-hero h2{font-size:clamp(30px,3.4vw,62px)!important}
+.agv2 section.agv2-lado{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(18px,2.6vw,48px);align-items:stretch}
+.agv2 section.agv2-lado > :not(.agv2-foto){min-width:0;align-self:center}
+.agv2-foto{position:relative;margin:0;border-radius:24px;overflow:hidden;min-height:clamp(260px,52vh,640px);background:#1b2a20;box-shadow:0 30px 60px -30px rgba(0,0,0,.55)}
+.agv2-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:pvKen 22s ease-in-out infinite alternate}
+.agv2-foto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.55));pointer-events:none}
+.agv2-foto figcaption{position:absolute;z-index:2;left:14px;right:14px;bottom:10px;font-size:11.5px;color:#fff;opacity:.85}
+.agv2-foto figcaption a{color:#fff}
+.agv2-foto .pv-ico-k{position:absolute;z-index:3;top:14px;left:14px}
+@media(max-width:1100px){.agv2 section.agv2-lado{grid-template-columns:1fr}.agv2-foto{order:-1;min-height:0;height:clamp(190px,32vh,320px)}}
+.agv2 section.agv2-entra{animation:agv2Sube .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes agv2Sube{from{opacity:0;transform:translateY(22px)}}
+.agv2 .pv-video{max-width:min(100%,calc((100vh - 330px) * 16 / 9));min-width:min(100%,560px);margin:8px auto}
+@media(prefers-reduced-motion:reduce){.agv2 section.agv2-entra,.agv2-foto img{animation:none}}
+`;
+var st = document.createElement('style'); st.id = 'agv2Css'; st.textContent = css; document.head.appendChild(st);
+
+/* ---------- videos: una sección más en el módulo, antes de pintarlo ---------- */
+function videoHTML(id, tu){
+  var v = PV.video[id]; if(!v) return '';
+  return pvPista(tu ? 'Toca ▶ para ver el video. En el celular, usa la pantalla completa.' : 'Toque ▶ para ver el video. En el celular, use la pantalla completa.') +
+    '<figure class="pv-video"><video controls preload="metadata" playsinline poster="videos/porcicultura/' + id + '.jpg">' +
+    '<source src="videos/porcicultura/' + id + '.mp4" type="video/mp4"><track kind="subtitles" srclang="es" label="Español" src="videos/porcicultura/' + id + '.vtt"></video>' +
+    '<figcaption>🎬 ' + v[0] + ' · ' + v[1] + ' · animación propia de AgroAcademy RD, con narración y subtítulos. ' + (v[2] || '') + '</figcaption></figure>';
+}
+Object.keys(AGV2).forEach(function(c){
+  var cfg = AGV2[c], M = cfg.datos && cfg.datos();
+  if(!M || !cfg.videos) return;
+  cfg.videos.forEach(function(x){
+    var m = M[x[0] - 1]; if(!m || !m.sec || !PV.video[x[2]]) return;
+    if(m.sec.some(function(s){ return s.agv2v === x[2]; })) return;
+    m.sec.splice(Math.min(x[1], m.sec.length), 0, {k:'agmix', agv2v:x[2], t:'🎬 Video: ' + PV.video[x[2]][0], partes:[{k:'html', h:videoHTML(x[2], cfg.tu)}]});
+  });
+});
+
+/* ---------- foto por tema ---------- */
+var usadas = {};
+function temaDe(txt, def){
+  var r = [];
+  (typeof PVTEMAS !== 'undefined' ? PVTEMAS : []).forEach(function(t){ var n = (txt.match(t[1]) || []).length; if(n) r.push([t[0], n]); });
+  r.sort(function(a, b){ return b[1] - a[1]; });
+  if(r.length && r[0][0] === 'lactando' && r[0][1] >= 2) return ['lactando'];
+  return r.slice(0, 2).map(function(x){ return x[0]; }).concat(def ? [def] : [], ['engorde', 'galpon', 'cerda']);
+}
+function fotoPara(curso, mod, txt, def){
+  var k = curso + '|' + mod, u = usadas[k] = usadas[k] || {}, temas = temaDe(txt, def), pool = PV.pool || [];
+  for(var i = 0; i < temas.length; i++){
+    var L = pool.filter(function(x){ return (' ' + x[1] + ' ').indexOf(' ' + temas[i] + ' ') >= 0 && !u[x[0]]; });
+    if(temas[0] === 'lactando' && i > 0) break;
+    if(L.length){ L.sort(function(a, b){ return pvHash(a[0] + k) - pvHash(b[0] + k); }); u[L[0][0]] = 1; return L[0]; }
+  }
+  return null;
+}
+var SINFOTO = 'img, video, svg, canvas, iframe, table, .exam, .ex-q, .nx-q, .agv2-foto, [class*="-calc"], [class*="simu"], [class*="diag"], [class*="dona"], [class*="graf"], .rtg-ej, .rtg-ci, .rtg-lat, .rtg-dos';
+
+function pistas(s, tu){
+  if(s.querySelector('.pv-pista')) return;
+  var rango = s.querySelector('input[type="range"], input[type="number"], select');
+  var texto = s.querySelector('textarea, input[type="text"]');
+  var botones = [].filter.call(s.querySelectorAll('button'), function(b){ return !/btn-primary|btn-ghost|nx-navb|rtg-chip|rt-mas-b/.test(b.className) && !b.closest('.nx-navb, .pv-video'); });
+  var t = rango ? (tu ? 'Cambia los valores: el resultado se recalcula solo.' : 'Cambie los valores: el resultado se recalcula solo.')
+    : texto ? (tu ? 'Toca el recuadro y escribe tu respuesta.' : 'Toque el recuadro y escriba su respuesta.')
+    : botones.length >= 2 ? (tu ? 'Toca la opción que elegirías.' : 'Toque la opción que elegiría.') : '';
+  if(!t) return;
+  var d = document.createElement('div'); d.innerHTML = pvPista(t); var p = d.firstChild;
+  var dentro = s.querySelector('.rv, div') || s;
+  var h = dentro.querySelector('h3, .rtv-cab');
+  if(h && h.parentNode) h.parentNode.insertBefore(p, h.nextSibling); else dentro.insertBefore(p, dentro.firstChild);
+}
+
+function decora(curso){
+  var cfg = AGV2[curso]; if(!cfg) return;
+  var ov = document.getElementById(cfg.ov), main = document.getElementById(cfg.main);
+  if(!ov || !main) return;
+  ov.classList.add('agv2');
+  var mod = cfg.mod();
+  var vis = [].filter.call(main.querySelectorAll('section.nx-b'), function(s){ return s.style.display !== 'none' && s.offsetParent !== null; });
+  if(!vis.length) return;
+  vis.forEach(function(s, i){
+    s.classList.remove('agv2-entra'); void s.offsetWidth; s.classList.add('agv2-entra'); s.style.animationDelay = (i * 0.07) + 's';
+    try{ pistas(s, cfg.tu); }catch(e){}
+    try{ if(cfg.glosario && typeof pvGlosa === 'function') pvGlosaCon(s, cfg.glosario()); }catch(e){}
+  });
+  /* la foto, una por página: en la primera sección que no tenga apoyo visual */
+  if(vis.some(function(s){ return s.querySelector(SINFOTO); })) return;
+  var s0 = vis[0];
+  if(s0.dataset.agv2f) return;
+  var f = fotoPara(curso, mod, vis.map(function(s){ return s.textContent; }).join(' '), (cfg.temas || {})[mod]);
+  if(!f) return;
+  s0.dataset.agv2f = f[0];
+  var fig = document.createElement('figure'); fig.className = 'agv2-foto';
+  fig.innerHTML = '<img src="images/' + f[0] + '.jpg" alt="" loading="lazy" onerror="this.parentNode.remove()"><figcaption>' + f[2] + '</figcaption>';
+  s0.classList.add('agv2-lado'); s0.appendChild(fig);
+}
+window.agv2Decora = decora;
+
+/* el glosario de ESTE curso (pvGlosa usa el de Porcicultura por defecto) */
+window.pvGlosaCon = function(bloque, G){
+  if(!bloque || bloque.dataset.pvgl || !G) return;
+  var antes = PV.glosario; PV.glosario = G;
+  try{ pvGlosa(bloque); } finally { PV.glosario = antes; }
+};
+
+if(typeof window.agMuestra === 'function'){
+  var _amV2 = window.agMuestra;
+  window.agMuestra = function(curso, i){
+    var r = _amV2.apply(this, arguments);
+    if(AGV2[curso]){ try{ decora(curso); }catch(e){} setTimeout(function(){ try{ decora(curso); }catch(e){} }, 250); }
+    return r;
+  };
+  try{ agMuestra = window.agMuestra; }catch(e){}
+}
+/* al cambiar de módulo se vuelve a elegir fotos para ese módulo */
+if(typeof window.rtIr === 'function'){
+  var _rtIrV2 = window.rtIr;
+  window.rtIr = function(id){ usadas['ruta|' + id] = {}; return _rtIrV2.apply(this, arguments); };
+}
+})();
+
+
+/* ---------- pv-reglas.js ---------- */
+/* ============================================================
+   REGLAS IGUALES EN LOS 14 CURSOS (2026-10-31)
+   Pedido del usuario: nota mínima 70 %, avanzar en orden, 5 intentos
+   por examen y certificado, en todos los cursos; y que ningún examen
+   muestre la respuesta correcta cuando el estudiante se equivoca.
+   · Los intentos solo existían en Porcicultura. Aquí se agregan a los
+     demás cursos envolviendo su botón «Enviar respuestas» (xxEnviar):
+     se cuentan solo los envíos calificados (no los que se rechazan por
+     dejar preguntas en blanco). Agotados los intentos, el examen queda
+     cerrado 24 horas y luego se reabre con 5 intentos nuevos.
+   · La primera vez que el instructor abre el panel, las reglas se
+     igualan y se guardan en la nube (settings.reglas). Después las
+     puede seguir cambiando curso por curso, o volver a igualarlas con
+     el botón «Aplicar a todos los cursos».
+   ============================================================ */
+(function(){
+var HOMO = {pass:70, gate:true, int:5, cert:true};
+var PREF = {nutricion:'nx', reproduccion:'rp', sanidad:'sb', engorde:'eg', lechones:'lc', rentabilidad:'gr', ponedoras:'gp',
+  pollos:'pb', bovinos:'bv', apicultura:'ap', tilapia:'tl', cabras:'cb', ruta:'rt'};
+window.AGINT = window.AGINT || {};
+var ESPERA = 24 * 3600 * 1000;
+
+/* 1 · los intentos existen ahora en todos los cursos */
+if(typeof AGREGLASMAPA !== 'undefined'){
+  Object.keys(PREF).forEach(function(c){
+    if(!AGREGLASMAPA[c]) return;
+    if(!AGREGLASMAPA[c].int) AGREGLASMAPA[c].int = 'AGINT.' + c;
+    if(AGINT[c] == null) AGINT[c] = HOMO.int;
+  });
+  try{ agRgAplicarTodo(); }catch(e){}
+}
+window.agEvIntentos = function(){
+  var c = 'porcicultura'; try{ if(typeof ADM !== 'undefined' && ADM.course) c = ADM.course; }catch(e){}
+  if(c === 'porcicultura'){ try{ return CFG.attempts; }catch(e){ return HOMO.int; } }
+  return (AGINT[c] != null) ? AGINT[c] : HOMO.int;
+};
+try{ agEvIntentos = window.agEvIntentos; }catch(e){}
+/* el campo de intentos escribe la regla del curso que se gestiona (antes solo CFG) */
+window.agEvPonIntentos = function(v){
+  var n = Math.max(0, Math.min(10, parseInt(v, 10) || 0));
+  var c = 'porcicultura'; try{ if(ADM.course) c = ADM.course; }catch(e){}
+  if(typeof agRgPon === 'function') agRgPon(c, 'int', n);
+  if(c === 'porcicultura'){ try{ CFG.attempts = n; if(typeof saveCFG === 'function') saveCFG(); }catch(e){} }
+  if(typeof toast === 'function') toast(n ? n + ' intentos por examen' : 'Intentos ilimitados', '⚙️');
+};
+
+/* 2 · igualar las reglas de los 14 cursos */
+window.agReglasIgualar = function(silencio){
+  if(typeof AGREGLASMAPA === 'undefined' || typeof agRgPon !== 'function') return;
+  Object.keys(AGREGLASMAPA).forEach(function(c){
+    agRgPon(c, 'pass', HOMO.pass); agRgPon(c, 'gate', HOMO.gate); agRgPon(c, 'int', HOMO.int); agRgPon(c, 'cert', HOMO.cert);
+  });
+  try{ CFG.attempts = HOMO.int; CFG.passing = HOMO.pass; CFG.gating = HOMO.gate; if(typeof saveCFG === 'function') saveCFG(); }catch(e){}
+  AGREGLAS._igualadas = '2026-10-31';
+  try{ agRgGuardarLocal(); agRgSubir(); }catch(e){}
+  if(!silencio && typeof toast === 'function') toast('Reglas iguales en los 14 cursos: 70 %, en orden, 5 intentos y certificado', '✅');
+  try{ if(ADM.tab === 'evals') renderAdmin(); }catch(e){}
+};
+/* la primera vez que el instructor entra con la nube ya leída */
+(function auto(){
+  var n = 0;
+  var probar = function(){
+    var admin = false; try{ admin = SESSION && SESSION.role === 'ADMIN' && !PREVIEW; }catch(e){}
+    var lista = typeof AGRGNUBE !== 'undefined' && AGRGNUBE.consultada;
+    if(admin && lista){ if(!AGREGLAS._igualadas) agReglasIgualar(true); return; }
+    if(++n < 60) setTimeout(probar, 1000);
+  };
+  setTimeout(probar, 3500);
+})();
+/* botón en la tarjeta de reglas */
+if(typeof agEvReglasHTML === 'function'){
+  var _rgHtml = agEvReglasHTML;
+  window.agEvReglasHTML = agEvReglasHTML = function(){
+    var h = _rgHtml.apply(this, arguments);
+    return h.replace('<p class="agev-pie">', '<div style="margin:12px 0 4px"><button class="adm-add" onclick="agReglasIgualar()">⚖️ Aplicar estas reglas a los 14 cursos (70 %, en orden, 5 intentos, certificado)</button></div><p class="agev-pie">')
+      .replace('Este curso no limita los intentos. El ajuste existe solo en <b>Porcicultura</b>, que es donde lo usa su motor de exámenes.', 'Cuántas veces puede presentarse al mismo examen.');
+  };
+}
+
+/* nunca queda marcada la opción correcta que el estudiante no eligió,
+   ni la explicación de una pregunta fallada */
+function tapar(exId){
+  var ex = document.getElementById(exId); if(!ex) return;
+  [].forEach.call(ex.querySelectorAll('.nx-q'), function(q){
+    var mal = !!q.querySelector('.nx-opt.bad') || !q.querySelector('.nx-opt.sel.ok');
+    [].forEach.call(q.querySelectorAll('.nx-opt.ok'), function(o){ if(!o.classList.contains('sel')) o.classList.remove('ok'); });
+    if(mal) [].forEach.call(q.querySelectorAll('.nx-fb'), function(f){ f.style.display = 'none'; });
+  });
+}
+/* 3 · hacer cumplir los intentos en los cursos que no los tenían */
+function yo(){ try{ var s = (typeof curStudent === 'function') ? curStudent() : null; return (s && s.id) || (SESSION && SESSION.id) || 'anon'; }catch(e){ return 'anon'; } }
+function clave(c, id){ return 'ag_int::' + yo() + '::' + c + '::' + id; }
+function leer(c, id){ try{ return JSON.parse(localStorage.getItem(clave(c, id)) || 'null') || {n:0, t:0}; }catch(e){ return {n:0, t:0}; } }
+function aprobado(c, id){ try{ return !!COURSES[c].passed(yo(), id); }catch(e){ return false; } }
+function limite(c){ var v = AGINT[c]; return (v == null) ? HOMO.int : v; }
+function horas(ms){ var h = Math.ceil(ms / 3600000); return h + (h === 1 ? ' hora' : ' horas'); }
+Object.keys(PREF).forEach(function(c){
+  var nom = PREF[c] + 'Enviar', orig = window[nom];
+  if(typeof orig !== 'function' || orig.__int) return;
+  var nuevo = function(id){
+    var lim = limite(c), r = leer(c, id), tu = (c === 'ruta');
+    if(lim > 0 && !aprobado(c, id)){
+      if(r.n >= lim){
+        var falta = ESPERA - (Date.now() - r.t);
+        if(falta > 0){
+          if(typeof toast === 'function') toast((tu ? 'Usaste' : 'Usó') + ' los ' + lim + ' intentos de este examen. ' + (tu ? 'Repasa el módulo y vuelve' : 'Repase el módulo y vuelva') + ' en ' + horas(falta) + '.', '⏳');
+          return;
+        }
+        r = {n:0, t:0};
+      }
+    }
+    /* ¿lo calificó o lo rechazó por preguntas en blanco? */
+    var rechazo = false, _t = window.toast;
+    if(typeof _t === 'function') window.toast = toast = function(m){ if(/respond|contest|falta|en blanco|todas las preguntas|elige|marca/i.test(String(m))) rechazo = true; return _t.apply(this, arguments); };
+    var antes = aprobado(c, id), res;
+    try{ res = orig.apply(this, arguments); } finally { if(_t) window.toast = toast = _t; }
+    tapar(PREF[c] + 'ex-' + id);
+    if(!rechazo && lim > 0 && !antes){
+      r.n += 1; r.t = Date.now();
+      try{ localStorage.setItem(clave(c, id), JSON.stringify(r)); }catch(e){}
+      if(!aprobado(c, id) && typeof _t === 'function'){
+        var q = lim - r.n;
+        setTimeout(function(){ _t(q > 0 ? ((tu ? 'Te quedan ' : 'Le quedan ') + q + (q === 1 ? ' intento' : ' intentos') + ' en este examen.') : ((tu ? 'Agotaste' : 'Agotó') + ' los intentos: el examen se reabre en 24 horas.'), q > 0 ? '🔁' : '⏳'); }, 900);
+      }
+    }
+    return res;
+  };
+  nuevo.__int = true;
+  window[nom] = nuevo;
+});
+
+/* 4 · ningún examen muestra la respuesta correcta: la revisión comentada
+   de Porcicultura ya no dice cuál era, solo qué repasar */
+window.pvRevision = function(id){
+  return '<h3 class="rv">Después de la evaluación</h3><div class="pv-nota pv-n-dato rv"><span>📖</span><div><b>Repase lo que falló</b>' +
+    '<p>El examen no muestra las respuestas correctas, para que cada intento mida lo que usted sabe. Si falló una pregunta, vuelva a la lección de ese tema: la evaluación le indica qué sección repasar.</p></div></div>';
+};
+try{ pvRevision = window.pvRevision; }catch(e){}
+
+/* 5 · el logo de la academia (hexágono multiespecie) en el panel, el login y los
+   certificados, sin la copia vieja del cerdo que pudiera quedar en caché */
+(function(){
+  var cambia = function(){ [].forEach.call(document.querySelectorAll('img[src="logo.png"]'), function(i){ i.src = 'logo.png?v=3'; }); };
+  cambia(); setTimeout(cambia, 1500);
+  var ic = document.querySelector('link[rel="icon"]'); if(ic) ic.href = 'logo.png?v=3';
+})();
+if(typeof certLogoURL === 'function'){
+  var _cl = certLogoURL;
+  window.certLogoURL = certLogoURL = function(){ var u = _cl.apply(this, arguments); return u + (u.indexOf('?') < 0 ? '?v=3' : '&v=3'); };
+}
+})();
+
+
+/* ---------- pv-consultas.js ---------- */
+/* ============================================================
+   CONSULTAS DE ESTUDIANTES · PANEL 2 (2026-10-31)
+   Antes: solo Porcicultura y Formulación, una lista de títulos sin la
+   pregunta a la vista y sin forma de responder sin entrar una por una.
+   Ahora:
+   · todos los cursos (y «Todos»), con su conteo;
+   · filtros: Sin responder · Respondidas · Foro · Privadas · Reflexiones;
+   · buscador por texto, estudiante o módulo;
+   · cada consulta muestra la pregunta y se abre ahí mismo con la
+     conversación y una caja para responder, con respuestas rápidas;
+   · las sin responder van primero, con cuántos días llevan esperando
+     (ámbar a los 2 días, rojo a los 4);
+   · el menú lateral muestra cuántas hay sin responder.
+   Usa las mismas tablas (consultas, consulta_respuestas): responder
+   inserta una respuesta de instructor y la consulta pasa a respondida.
+   ============================================================ */
+(function(){
+var css = `
+.cq2{display:grid;gap:14px}
+.cq2-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.cq2-k{padding:16px 18px;border-radius:16px;border:1px solid rgba(56,189,248,.26);background:linear-gradient(160deg,rgba(56,189,248,.12),rgba(15,23,42,.5) 60%);cursor:pointer;text-align:left;color:var(--agp-tx,#E4EAF3);font:inherit}
+.cq2-k b{display:block;font:800 30px/1 var(--display);background:linear-gradient(180deg,#fff,#A5E8FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cq2-k span{display:block;margin-top:6px;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--agp-dim,#8193AD)}
+.cq2-k.alerta{border-color:rgba(251,191,36,.6);background:linear-gradient(160deg,rgba(251,191,36,.18),rgba(15,23,42,.5) 60%)}
+.cq2-k.alerta b{background:linear-gradient(180deg,#FFF7D6,#FBBF24);-webkit-background-clip:text;background-clip:text}
+.cq2-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cq2-chip{font:600 13px inherit;padding:8px 13px;border-radius:99px;border:1px solid rgba(56,189,248,.25);background:rgba(15,23,42,.45);color:var(--agp-tx2,#A9B8CE);cursor:pointer}
+.cq2-chip.on{border-color:#22D3EE;background:rgba(34,211,238,.16);color:#E6F7FF}
+.cq2-chip i{font-style:normal;margin-left:6px;padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.1);font-size:11.5px}
+.cq2-q{flex:1;min-width:220px;padding:11px 14px;border-radius:12px;border:1px solid rgba(56,189,248,.25);background:rgba(2,6,16,.4);color:var(--agp-tx,#E4EAF3);font:15px inherit}
+.cq2-l{display:grid;gap:10px}
+.cq2-it{border-radius:16px;border:1px solid rgba(56,189,248,.2);background:rgba(15,23,42,.55);overflow:hidden;border-left:4px solid #34D399}
+.cq2-it.pend{border-left-color:#22D3EE}.cq2-it.pend.d2{border-left-color:#FBBF24}.cq2-it.pend.d4{border-left-color:#F43F5E}
+.cq2-cab{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:start;padding:14px 16px;cursor:pointer;width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit}
+.cq2-cab:hover{background:rgba(56,189,248,.06)}
+.cq2-av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#04202B;background:linear-gradient(135deg,#0EA5E9,#34D399)}
+.cq2-cab h4{margin:0 0 4px;font:700 16px/1.3 var(--display);color:var(--agp-tx,#E4EAF3)}
+.cq2-cab p{margin:0 0 6px;font-size:14px;line-height:1.45;color:var(--agp-tx2,#A9B8CE);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cq2-meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--agp-dim,#8193AD);align-items:center}
+.cq2-b{font:700 10.5px/1 var(--mono,monospace);letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:99px;border:1px solid}
+.cq2-b.pub{color:#7DD3FC;border-color:rgba(125,211,252,.4)}.cq2-b.priv{color:#C4B5FD;border-color:rgba(196,181,253,.45)}
+.cq2-b.ok{color:#6EE7B7;border-color:rgba(110,231,183,.45)}.cq2-b.esp{color:#FCD34D;border-color:rgba(252,211,77,.5)}.cq2-b.ref{color:#F9A8D4;border-color:rgba(249,168,212,.45)}
+.cq2-b.cer{color:#94A3B8;border-color:rgba(148,163,184,.4)}
+.cq2-esp{font-weight:800;font-size:12.5px;white-space:nowrap;color:#7DD3FC}.d2 .cq2-esp{color:#FBBF24}.d4 .cq2-esp{color:#FB7185}
+.cq2-det{padding:0 16px 16px 72px;display:grid;gap:10px}
+@media(max-width:700px){.cq2-det{padding:0 12px 14px}.cq2-cab{grid-template-columns:36px 1fr}.cq2-esp{grid-column:2}}
+.cq2-msg{padding:12px 14px;border-radius:14px;background:rgba(2,6,16,.35);border:1px solid rgba(148,163,184,.16);font-size:14.5px;line-height:1.55;color:var(--agp-tx,#E4EAF3);white-space:pre-wrap}
+.cq2-msg.ins{background:rgba(34,211,238,.09);border-color:rgba(34,211,238,.35)}
+.cq2-msg small{display:block;margin-bottom:4px;font-size:11.5px;color:var(--agp-dim,#8193AD);white-space:normal}
+.cq2-msg.ins small{color:#67E8F9}
+.cq2-rap{display:flex;flex-wrap:wrap;gap:6px}
+.cq2-rap button{font:600 12px inherit;padding:6px 10px;border-radius:99px;border:1px dashed rgba(56,189,248,.45);background:none;color:#7DD3FC;cursor:pointer}
+.cq2-det textarea{width:100%;min-height:96px;padding:12px 14px;border-radius:12px;border:1px solid rgba(56,189,248,.3);background:rgba(2,6,16,.45);color:var(--agp-tx,#E4EAF3);font:15px/1.5 inherit;resize:vertical;box-sizing:border-box}
+.cq2-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cq2-acc .sec{font:600 13px inherit;padding:9px 13px;border-radius:10px;border:1px solid rgba(148,163,184,.3);background:rgba(15,23,42,.5);color:var(--agp-tx2,#A9B8CE);cursor:pointer}
+.cq2-vacio{padding:34px;text-align:center;color:var(--agp-dim,#8193AD);border:1px dashed rgba(56,189,248,.25);border-radius:16px}
+#adminMenu .cq2-badge{margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#F59E0B;color:#1F1300;font:800 12px/22px inherit;text-align:center;box-shadow:0 0 12px rgba(245,158,11,.6)}
+`;
+var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+var E = {curso:'todos', filtro:null, q:'', hilos:[], abierto:null, msgs:{}};
+var NOM = function(k){ try{ var C = COURSES[k]; return C ? (C.icon || '') + ' ' + (C.label || k) : k; }catch(e){ return k; } };
+var esc2 = function(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+var dias = function(f){ return Math.floor((Date.now() - new Date(f).getTime()) / 86400000); };
+var fecha = function(f){ try{ return new Date(f).toLocaleDateString('es-DO', {day:'numeric', month:'short'}); }catch(e){ return ''; } };
+var ini = function(n){ n = String(n || '?').trim().split(/\s+/); return ((n[0] || '')[0] || '?').toUpperCase() + ((n[1] || '')[0] || '').toUpperCase(); };
+var pend = function(c){ return c.estado === 'abierta'; };
+var ref = function(c){ return c.tipo === 'reflexion'; };
+var RAP = ['¡Buena pregunta! ', 'Gracias por compartirlo. ', 'Repase la lección del módulo sobre este tema; ahí está el paso a paso. ',
+  'Si la situación sigue en su granja, consulte a su veterinario: él puede examinar a los animales. ', 'Cuéntenos cómo le va al aplicarlo.'];
+
+async function cargar(){
+  if(!window.SB) return [];
+  var r = await SB.from('consultas').select('*').order('updated_at', {ascending:false}).limit(500);
+  if(r.error) throw r.error;
+  return (r.data || []).filter(function(c){ return c.tipo !== 'opinion'; });
+}
+function filtrados(){
+  return E.hilos.filter(function(c){
+    if(E.curso !== 'todos' && (c.curso || 'porcicultura') !== E.curso) return false;
+    if(E.filtro === 'pend' && !pend(c)) return false;
+    if(E.filtro === 'resp' && pend(c)) return false;
+    if(E.filtro === 'pub' && c.visibilidad !== 'publica') return false;
+    if(E.filtro === 'priv' && c.visibilidad !== 'privada') return false;
+    if(E.filtro === 'ref' && !ref(c)) return false;
+    if(E.q){ var t = (c.titulo + ' ' + (c.cuerpo || '') + ' ' + (c.autor || '') + ' módulo ' + (c.modulo || '')).toLowerCase(); if(t.indexOf(E.q.toLowerCase()) < 0) return false; }
+    return true;
+  }).sort(function(a, b){
+    if(pend(a) !== pend(b)) return pend(a) ? -1 : 1;
+    return pend(a) ? (new Date(a.created_at) - new Date(b.created_at)) : (new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at));
+  });
+}
+function itemHTML(c){
+  var p = pend(c), d = dias(c.created_at), cls = p ? (' pend' + (d >= 4 ? ' d4' : d >= 2 ? ' d2' : '')) : '';
+  var abierto = E.abierto === c.id;
+  var h = '<div class="cq2-it' + cls + '" id="cq2-' + c.id + '"><button class="cq2-cab" onclick="cq2Abrir(\'' + c.id + '\')">' +
+    '<span class="cq2-av">' + esc2(ini(c.autor)) + '</span><span><h4>' + esc2(c.titulo) + '</h4>' + (c.cuerpo ? '<p>' + esc2(c.cuerpo) + '</p>' : '') +
+    '<span class="cq2-meta">' + (ref(c) ? '<span class="cq2-b ref">Reflexión</span>' : '') +
+      '<span class="cq2-b ' + (c.visibilidad === 'publica' ? 'pub">Foro' : 'priv">Privada') + '</span>' +
+      '<span class="cq2-b ' + (c.estado === 'cerrada' ? 'cer">Cerrada' : p ? 'esp">Sin responder' : 'ok">Respondida') + '</span>' +
+      '<span>' + esc2(NOM(c.curso || 'porcicultura')) + (c.modulo ? ' · M' + String(c.modulo).padStart(2, '0') : '') + '</span><span>· ' + esc2(c.autor || 'Estudiante') + '</span><span>· ' + fecha(c.created_at) + '</span></span></span>' +
+    (p ? '<span class="cq2-esp">' + (d === 0 ? 'hoy' : 'hace ' + d + (d === 1 ? ' día' : ' días')) + '</span>' : '<span class="cq2-esp" style="color:#6EE7B7">✓</span>') + '</button>';
+  if(abierto) h += detalleHTML(c);
+  return h + '</div>';
+}
+function detalleHTML(c){
+  var m = E.msgs[c.id];
+  var hilo = m ? m.map(function(x){ return '<div class="cq2-msg' + (x.es_instructor ? ' ins' : '') + '"><small>' + (x.es_instructor ? '👨‍🏫 Instructor' : esc2(x.autor || 'Estudiante')) + ' · ' + fecha(x.created_at) + '</small>' + esc2(x.cuerpo) + '</div>'; }).join('') : '<div class="cq2-msg"><small>Cargando la conversación…</small></div>';
+  return '<div class="cq2-det">' + (c.cuerpo ? '<div class="cq2-msg"><small>' + esc2(c.autor || 'Estudiante') + ' · ' + fecha(c.created_at) + '</small>' + esc2(c.cuerpo) + '</div>' : '') + hilo +
+    '<div class="cq2-rap"><span style="font-size:12px;color:var(--agp-dim)">Respuestas rápidas:</span>' + RAP.map(function(t, i){ return '<button onclick="cq2Rap(\'' + c.id + '\',' + i + ')">' + esc2(t.trim().slice(0, 34)) + (t.length > 36 ? '…' : '') + '</button>'; }).join('') + '</div>' +
+    '<textarea id="cq2t-' + c.id + '" placeholder="' + (c.visibilidad === 'publica' ? 'Su respuesta la verán todos los estudiantes del foro.' : 'Su respuesta la verá solo este estudiante.') + '"></textarea>' +
+    '<div class="cq2-acc"><button class="adm-add" onclick="cq2Responder(\'' + c.id + '\')">📨 Enviar respuesta</button>' +
+      '<button class="sec" onclick="cq2Estado(\'' + c.id + '\',\'' + (c.estado === 'cerrada' ? 'abierta' : 'cerrada') + '\')">' + (c.estado === 'cerrada' ? '↩︎ Reabrir' : '✓ Cerrar sin responder') + '</button>' +
+      '<button class="sec" onclick="cq2Vis(\'' + c.id + '\',\'' + (c.visibilidad === 'publica' ? 'privada' : 'publica') + '\')">' + (c.visibilidad === 'publica' ? '🔒 Hacer privada' : '🌎 Pasar al foro') + '</button>' +
+      '<button class="sec" onclick="cqBorrarAdmin(\'' + c.id + '\')">🗑 Eliminar</button></div></div>';
+}
+function pinta(){
+  var b = document.getElementById('adminBody'); if(!b) return;
+  var H = E.hilos, sinR = H.filter(pend), viejas = sinR.filter(function(c){ return dias(c.created_at) >= 2; }).length;
+  var cursos = {}; H.forEach(function(c){ var k = c.curso || 'porcicultura'; cursos[k] = (cursos[k] || 0) + 1; });
+  if(E.filtro === null) E.filtro = sinR.length ? 'pend' : 'todas';
+  var L = filtrados();
+  var chip = function(k, t, n, fn){ return '<button class="cq2-chip' + (fn === k ? ' on' : '') + '" onclick="' + t + '">' + n + '</button>'; };
+  var h = '<div class="cq2"><div class="cq2-kpis">' +
+    '<button class="cq2-k' + (sinR.length ? ' alerta' : '') + '" onclick="cq2F(\'pend\')"><b>' + sinR.length + '</b><span>Sin responder</span></button>' +
+    '<button class="cq2-k' + (viejas ? ' alerta' : '') + '" onclick="cq2F(\'pend\')"><b>' + viejas + '</b><span>Esperan más de 2 días</span></button>' +
+    '<button class="cq2-k" onclick="cq2F(\'todas\')"><b>' + H.length + '</b><span>Consultas en total</span></button>' +
+    '<button class="cq2-k" onclick="cq2F(\'ref\')"><b>' + H.filter(ref).length + '</b><span>Reflexiones</span></button></div>' +
+    '<div class="cq2-bar">' + chip('todos', "cq2C('todos')", 'Todos los cursos <i>' + H.length + '</i>', E.curso) +
+      Object.keys(cursos).map(function(k){ return chip(k, "cq2C('" + k + "')", NOM(k) + ' <i>' + cursos[k] + '</i>', E.curso); }).join('') + '</div>' +
+    '<div class="cq2-bar">' + [['pend', 'Sin responder'], ['resp', 'Respondidas'], ['pub', 'Foro'], ['priv', 'Privadas'], ['ref', 'Reflexiones'], ['todas', 'Todas']].map(function(f){
+      return chip(f[0], "cq2F('" + f[0] + "')", f[1], E.filtro); }).join('') +
+      '<input class="cq2-q" type="search" placeholder="Buscar por texto, estudiante o módulo…" value="' + esc2(E.q) + '" oninput="cq2Q(this.value)"></div>' +
+    '<div class="cq2-l" id="cq2L">' + (L.length ? L.map(itemHTML).join('') : '<div class="cq2-vacio">' + (E.filtro === 'pend' ? '🎉 No hay consultas sin responder.' : 'No hay consultas con este filtro.') + '</div>') + '</div></div>';
+  b.innerHTML = h;
+  insignia();
+}
+function insignia(){
+  var n = E.hilos.filter(pend).length, btn = document.querySelector('#adminMenu [data-t="consultas"]');
+  if(!btn) return;
+  var x = btn.querySelector('.cq2-badge');
+  if(!n){ if(x) x.remove(); return; }
+  if(!x){ x = document.createElement('span'); x.className = 'cq2-badge'; btn.style.display = 'flex'; btn.style.alignItems = 'center'; btn.appendChild(x); }
+  x.textContent = n;
+}
+async function abrirPanel(){
+  var b = document.getElementById('adminBody'); if(!b) return;
+  b.innerHTML = '<div class="cq2-vacio">Cargando consultas…</div>';
+  try{ E.hilos = await cargar(); pinta(); }
+  catch(e){ b.innerHTML = '<div class="cq2-vacio">No se pudieron cargar las consultas: ' + esc2(e.message || e) + '</div>'; }
+}
+window.cq2C = function(k){ E.curso = k; E.abierto = null; pinta(); };
+window.cq2F = function(k){ E.filtro = k; E.abierto = null; pinta(); };
+window.cq2Q = function(v){ E.q = v; var l = document.getElementById('cq2L'); if(l){ var L = filtrados(); l.innerHTML = L.length ? L.map(itemHTML).join('') : '<div class="cq2-vacio">Sin resultados.</div>'; } };
+window.cq2Abrir = async function(id){
+  E.abierto = (E.abierto === id) ? null : id;
+  var c = E.hilos.find(function(x){ return x.id === id; }); if(!c) return;
+  var el = document.getElementById('cq2-' + id); if(el) el.outerHTML = itemHTML(c);
+  if(E.abierto && !E.msgs[id] && window.SB){
+    var r = await SB.from('consulta_respuestas').select('*').eq('consulta_id', id).order('created_at', {ascending:true});
+    E.msgs[id] = (r && r.data) || [];
+    el = document.getElementById('cq2-' + id); if(el && E.abierto === id) el.outerHTML = itemHTML(c);
+  }
+  var t = document.getElementById('cq2t-' + id); if(t) t.focus();
+};
+window.cq2Rap = function(id, i){ var t = document.getElementById('cq2t-' + id); if(t){ t.value = (t.value ? t.value.replace(/\s*$/, ' ') : '') + RAP[i]; t.focus(); } };
+async function uid(){ try{ var r = await SB.auth.getUser(); return r && r.data && r.data.user ? r.data.user.id : null; }catch(e){ return null; } }
+window.cq2Responder = async function(id){
+  var t = document.getElementById('cq2t-' + id), txt = (t && t.value || '').trim();
+  var c = E.hilos.find(function(x){ return x.id === id; });
+  if(txt.length < 2){ if(typeof toast === 'function') toast('Escriba su respuesta', '✍️'); return; }
+  var u = (await uid()) || c.user_id;
+  var r = await SB.from('consulta_respuestas').insert({consulta_id:id, user_id:u, autor:'Instructor', es_instructor:true, cuerpo:txt});
+  if(r.error){ if(typeof toast === 'function') toast('No se pudo enviar: ' + r.error.message, '⛔'); return; }
+  if(c.estado === 'abierta'){ try{ await SB.from('consultas').update({estado:'respondida'}).eq('id', id); }catch(e){} c.estado = 'respondida'; }
+  (E.msgs[id] = E.msgs[id] || []).push({autor:'Instructor', es_instructor:true, cuerpo:txt, created_at:new Date().toISOString()});
+  if(typeof toast === 'function') toast('Respuesta enviada', '✅');
+  pinta(); E.abierto = id; var el = document.getElementById('cq2-' + id); if(el){ el.outerHTML = itemHTML(c); }
+};
+window.cq2Estado = async function(id, e){
+  var r = await SB.from('consultas').update({estado:e}).eq('id', id);
+  if(r && r.error){ if(typeof toast === 'function') toast('No se pudo cambiar', '⛔'); return; }
+  var c = E.hilos.find(function(x){ return x.id === id; }); if(c) c.estado = e;
+  if(typeof toast === 'function') toast(e === 'cerrada' ? 'Consulta cerrada' : 'Consulta reabierta', '🔄'); pinta();
+};
+window.cq2Vis = async function(id, v){
+  var r = await SB.from('consultas').update({visibilidad:v}).eq('id', id);
+  if(r && r.error){ if(typeof toast === 'function') toast('No se pudo cambiar', '⛔'); return; }
+  var c = E.hilos.find(function(x){ return x.id === id; }); if(c) c.visibilidad = v;
+  if(typeof toast === 'function') toast(v === 'publica' ? 'Ahora está en el foro' : 'Ahora es privada', '🔄'); pinta();
+};
+
+if(typeof admTab === 'function'){
+  var _admCq2 = admTab;
+  window.admTab = admTab = function(t){
+    if(t !== 'consultas') return _admCq2.apply(this, arguments);
+    try{ ADM.tab = 'consultas'; }catch(e){}
+    [].forEach.call(document.querySelectorAll('#adminMenu button[data-t]'), function(x){ x.classList.toggle('on', x.dataset.t === 'consultas'); });
+    var ti = document.getElementById('adminTitle'); if(ti) ti.textContent = 'Consultas de estudiantes';
+    if(matchMedia('(max-width:820px)').matches){ var sd = document.getElementById('adminSide'); if(sd) sd.classList.add('hide'); }
+    E.filtro = null; E.abierto = null; abrirPanel();
+  };
+}
+/* si algo repinta el panel estando en Consultas (Actualizar, la nube que llega), se vuelve a pintar este */
+if(typeof renderAdmin === 'function'){
+  var _raCq2 = renderAdmin;
+  window.renderAdmin = renderAdmin = function(){
+    var t = null; try{ t = ADM.tab; }catch(e){}
+    if(t === 'consultas'){ if(E.hilos.length) pinta(); else abrirPanel(); return; }
+    return _raCq2.apply(this, arguments);
+  };
+}
+/* la insignia del menú se calcula al entrar al panel */
+(function(){
+  var n = 0, f = function(){
+    var admin = false; try{ admin = SESSION && SESSION.role === 'ADMIN'; }catch(e){}
+    if(admin && window.SB && document.querySelector('#adminMenu [data-t="consultas"]')){ cargar().then(function(h){ E.hilos = h; insignia(); }, function(){}); return; }
+    if(++n < 30) setTimeout(f, 1500);
+  };
+  setTimeout(f, 3000);
+})();
+})();
+
+
+/* ---------- pv-opiniones.js ---------- */
+/* ============================================================
+   OPINIONES Y TESTIMONIOS (2026-10-31)
+   Estudiante:
+   · al aprobar un módulo de cualquier curso aparece, una sola vez, una
+     tarjeta corta: estrellas (1–5), «¿qué le fue más útil?» y «¿qué
+     mejoraría?». Se puede saltar.
+   · al aprobar el último módulo, además pide su testimonio y si
+     autoriza publicarlo con su nombre.
+   · también puede opinar cuando quiera desde el botón «⭐ Opinar».
+   Instructor: pestaña «⭐ Opiniones» con el promedio por curso y por
+   módulo, lo que más gustó, lo que piden mejorar y los testimonios
+   autorizados listos para copiar.
+   Se guarda en la tabla consultas (tipo 'opinion', privada y cerrada):
+   no hace falta crear tablas y la seguridad ya existe (cada estudiante
+   ve solo lo suyo; el instructor ve todo).
+   ============================================================ */
+(function(){
+var css = `
+#opOv{position:fixed;inset:0;z-index:470;background:rgba(2,6,16,.62);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px}
+.op-c{width:min(520px,100%);max-height:calc(100vh - 32px);overflow:auto;border-radius:22px;padding:24px;color:#E6EEF8;background:radial-gradient(500px 200px at 0% 0%,rgba(56,189,248,.18),transparent 60%),#121D33;border:1px solid rgba(56,189,248,.35);box-shadow:0 30px 80px -30px rgba(14,165,233,.7);animation:pvPop .25s ease-out}
+.op-c h3{margin:0 0 4px;font:800 22px/1.2 var(--display)}.op-c > p{margin:0 0 14px;color:#A9B8CE;font-size:14.5px}
+.op-st{display:flex;gap:6px;margin:4px 0 14px}.op-st button{font-size:34px;line-height:1;background:none;border:0;cursor:pointer;color:#334155;transition:transform .15s}
+.op-st button.on{color:#FBBF24;text-shadow:0 0 14px rgba(251,191,36,.6)}.op-st button:hover{transform:scale(1.15)}
+.op-c label{display:block;font-weight:700;font-size:14px;margin:10px 0 6px}
+.op-c textarea{width:100%;box-sizing:border-box;min-height:70px;padding:11px 13px;border-radius:12px;border:1px solid rgba(56,189,248,.3);background:rgba(2,6,16,.45);color:#E6EEF8;font:15px/1.5 inherit;resize:vertical}
+.op-c .op-ok{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:13.5px;color:#A9B8CE}.op-c .op-ok input{margin-top:3px}
+.op-acc{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.op-acc button{font:700 15px inherit;padding:11px 18px;border-radius:12px;cursor:pointer;border:1px solid rgba(148,163,184,.3);background:none;color:#A9B8CE}
+.op-acc .op-env{border:0;background:linear-gradient(135deg,#0EA5E9,#22D3EE);color:#04202B;box-shadow:0 10px 24px -12px rgba(34,211,238,.9)}
+#opBtn{position:fixed;z-index:60;right:16px;bottom:148px;padding:10px 14px;border-radius:99px;border:1px solid rgba(251,191,36,.5);background:#121D33;color:#FDE68A;font:700 13.5px inherit;cursor:pointer;box-shadow:0 10px 24px -12px rgba(251,191,36,.6)}
+body[data-screen="admin"] #opBtn,body[data-screen="login"] #opBtn{display:none}
+.op2{display:grid;gap:14px}
+.op2-k{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.op2-k div{padding:16px 18px;border-radius:16px;border:1px solid rgba(56,189,248,.26);background:linear-gradient(160deg,rgba(56,189,248,.12),rgba(15,23,42,.5) 60%)}
+.op2-k b{display:block;font:800 30px/1 var(--display);color:#fff}.op2-k b.st{color:#FBBF24}
+.op2-k span{display:block;margin-top:6px;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:#8193AD}
+.op2-caja{padding:18px 20px;border-radius:16px;border:1px solid rgba(56,189,248,.22);background:rgba(15,23,42,.55)}
+.op2-caja h4{margin:0 0 12px;font:700 16px var(--display);color:#E6EEF8}
+.op2-fila{display:grid;grid-template-columns:minmax(120px,220px) 1fr 110px;gap:12px;align-items:center;padding:6px 4px;border-radius:10px;cursor:pointer}
+.op2-fila:hover{background:rgba(56,189,248,.07)}.op2-fila.on{background:rgba(34,211,238,.12)}
+.op2-fila span{font-size:14px;color:#E6EEF8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.op2-fila u{text-decoration:none;height:12px;border-radius:99px;background:rgba(148,163,184,.16);overflow:hidden}
+.op2-fila u i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#F59E0B,#FBBF24);transform-origin:left;animation:agdCrece 1s both}
+.op2-fila b{font-size:13.5px;color:#FDE68A;text-align:right}
+.op2-bar{display:flex;flex-wrap:wrap;gap:8px}
+.op2-l{display:grid;gap:10px}
+.op2-it{padding:14px 16px;border-radius:14px;border:1px solid rgba(148,163,184,.18);background:rgba(2,6,16,.3)}
+.op2-it .m{display:flex;flex-wrap:wrap;gap:8px;font-size:12.5px;color:#8193AD;margin-bottom:6px}.op2-it .m b{color:#FBBF24;letter-spacing:1px}
+.op2-it p{margin:4px 0;font-size:14.5px;line-height:1.5;color:#E6EEF8}.op2-it p em{font-style:normal;font-weight:700;color:#67E8F9}
+.op2-it.tes{border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.07)}
+.op2-it blockquote{margin:6px 0;padding-left:12px;border-left:3px solid #FBBF24;font-size:15.5px;line-height:1.55;color:#FFF7D6}
+`;
+var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+var PREF = {porcicultura:null, nutricion:'nx', reproduccion:'rp', sanidad:'sb', engorde:'eg', lechones:'lc', rentabilidad:'gr', ponedoras:'gp',
+  pollos:'pb', bovinos:'bv', apicultura:'ap', tilapia:'tl', cabras:'cb', ruta:'rt'};
+var esc3 = function(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+var NOM = function(k){ try{ var C = COURSES[k]; return C ? (C.icon || '') + ' ' + (C.label || k) : k; }catch(e){ return k; } };
+function yo(){ try{ var s = (typeof curStudent === 'function') ? curStudent() : null; return s || {}; }catch(e){ return {}; } }
+function nMods(c){ try{ return COURSES[c].n || (COURSES[c].modules() || []).length; }catch(e){ return 0; } }
+function aprobado(c, id){
+  try{ if(c === 'porcicultura') return examPassed(id); return !!COURSES[c].passed(yo().id, id); }catch(e){ return false; }
+}
+function yaOpino(c, id){ try{ return localStorage.getItem('op::' + (yo().id || 'anon') + '::' + c + '::' + id) === '1'; }catch(e){ return false; } }
+function marca(c, id){ try{ localStorage.setItem('op::' + (yo().id || 'anon') + '::' + c + '::' + id, '1'); }catch(e){} }
+
+/* ---------- la tarjeta del estudiante ---------- */
+window.opAbrir = function(c, id, auto){
+  if(document.getElementById('opOv')) return;
+  var tu = (c === 'ruta'), fin = id && id >= nMods(c), est = 0;
+  var o = document.createElement('div'); o.id = 'opOv';
+  o.innerHTML = '<div class="op-c" role="dialog"><h3>' + (fin ? '🎓 ¡Terminó el curso! ¿Qué le pareció?' : '⭐ ' + (tu ? '¿Qué te pareció' : '¿Qué le pareció') + (id ? ' el módulo ' + id : ' el curso') + '?') + '</h3>' +
+    '<p>' + NOM(c) + ' · ' + (tu ? 'Tu opinión nos ayuda a mejorar. Toma menos de un minuto.' : 'Su opinión nos ayuda a mejorar. Toma menos de un minuto.') + '</p>' +
+    '<div class="op-st" role="radiogroup" aria-label="Calificación">' + [1, 2, 3, 4, 5].map(function(n){ return '<button type="button" data-n="' + n + '" aria-label="' + n + ' estrellas">★</button>'; }).join('') + '</div>' +
+    '<label>' + (tu ? '¿Qué te sirvió más?' : '¿Qué le sirvió más?') + '</label><textarea id="opUtil" placeholder="Por ejemplo: la calculadora de costos, el video de la PPA…"></textarea>' +
+    '<label>' + (tu ? '¿Qué mejorarías?' : '¿Qué mejoraría?') + '</label><textarea id="opMej" placeholder="Algo que no quedó claro, que falta o que sobra"></textarea>' +
+    (fin ? '<label>' + (tu ? 'Tu testimonio' : 'Su testimonio') + ' <span style="font-weight:400;color:#8193AD">(opcional)</span></label><textarea id="opTes" placeholder="¿Qué cambió en ' + (tu ? 'tu' : 'su') + ' granja o en ' + (tu ? 'tu' : 'su') + ' forma de trabajar después del curso?"></textarea>' +
+      '<label class="op-ok"><input type="checkbox" id="opPub"> Autorizo a AgroAcademy RD a publicar mi testimonio con mi nombre.</label>' : '') +
+    '<div class="op-acc"><button type="button" class="op-sal">' + (auto ? 'Ahora no' : 'Cancelar') + '</button><button type="button" class="op-env">Enviar opinión</button></div></div>';
+  document.body.appendChild(o);
+  var bts = o.querySelectorAll('.op-st button');
+  [].forEach.call(bts, function(b){ b.onclick = function(){ est = +b.dataset.n; [].forEach.call(bts, function(x){ x.classList.toggle('on', +x.dataset.n <= est); }); }; });
+  o.querySelector('.op-sal').onclick = function(){ if(auto && id) marca(c, id); o.remove(); };
+  o.onclick = function(e){ if(e.target === o){ if(auto && id) marca(c, id); o.remove(); } };
+  o.querySelector('.op-env').onclick = async function(){
+    if(!est){ if(typeof toast === 'function') toast(tu ? 'Elige de 1 a 5 estrellas' : 'Elija de 1 a 5 estrellas', '⭐'); return; }
+    var util = o.querySelector('#opUtil').value.trim(), mej = o.querySelector('#opMej').value.trim();
+    var tes = o.querySelector('#opTes') ? o.querySelector('#opTes').value.trim() : '', pub = !!(o.querySelector('#opPub') && o.querySelector('#opPub').checked);
+    var cuerpo = 'Calificación: ' + est + '/5' + (util ? '\nLo más útil: ' + util : '') + (mej ? '\nMejoraría: ' + mej : '') +
+      (tes ? '\nTestimonio: ' + tes + '\nAutoriza publicar: ' + (pub ? 'sí' : 'no') : '');
+    var ok = false;
+    try{
+      if(window.SB){
+        var u = await SB.auth.getUser(), uid = u && u.data && u.data.user ? u.data.user.id : null;
+        if(uid){
+          var r = await SB.from('consultas').insert({user_id:uid, autor:yo().name || yo().email || 'Estudiante', curso:c, modulo:(id && id <= 12) ? id : null,
+            titulo:'Opinión · ' + '★★★★★'.slice(0, est) + '☆☆☆☆☆'.slice(0, 5 - est) + ' (' + est + '/5)', cuerpo:cuerpo, visibilidad:'privada', estado:'cerrada', tipo:'opinion'});
+          ok = !r.error;
+        }
+      }
+    }catch(e){}
+    if(id) marca(c, id);
+    o.remove();
+    if(typeof toast === 'function') toast(ok ? '¡Gracias! ' + (tu ? 'Tu' : 'Su') + ' opinión llegó al instructor.' : 'Gracias. No se pudo enviar ahora (sin conexión).', ok ? '💛' : '⚠️');
+  };
+};
+function despues(c, id, antes){
+  if(antes || !aprobado(c, id) || yaOpino(c, id)) return;
+  setTimeout(function(){ opAbrir(c, id, true); }, 1800);
+}
+Object.keys(PREF).forEach(function(c){
+  var nom = PREF[c] ? PREF[c] + 'Enviar' : 'submitExam', orig = window[nom];
+  if(typeof orig !== 'function' || orig.__op) return;
+  var f = function(id){ var a = aprobado(c, id), r = orig.apply(this, arguments); try{ despues(c, id, a); }catch(e){} return r; };
+  f.__op = true; f.__int = orig.__int;
+  window[nom] = f;
+  if(nom === 'submitExam'){ try{ submitExam = f; }catch(e){} }
+});
+/* botón «Opinar» mientras el estudiante está dentro de un curso */
+function cursoAbierto(){
+  if(document.querySelector('#main .pv-mod') || (document.querySelector('#main .module.active') && !document.querySelector('[id$="Ov"].open'))) return 'porcicultura';
+  var mapa = {rtOv:'ruta', nxOv:'nutricion', rpOv:'reproduccion', sbOv:'sanidad', egOv:'engorde', lcOv:'lechones', grOv:'rentabilidad', gpOv:'ponedoras', pbOv:'pollos', bvOv:'bovinos', apOv:'apicultura', tlOv:'tilapia', cbOv:'cabras'};
+  for(var k in mapa){ var el = document.getElementById(k); if(el && el.offsetParent !== null && getComputedStyle(el).display !== 'none') return mapa[k]; }
+  return null;
+}
+setInterval(function(){
+  var c = null; try{ c = (SESSION && (SESSION.role === 'STUDENT' || (typeof PREVIEW !== 'undefined' && PREVIEW))) ? cursoAbierto() : null; }catch(e){}
+  var b = document.getElementById('opBtn');
+  if(!c){ if(b) b.remove(); return; }
+  if(!b){ b = document.createElement('button'); b.id = 'opBtn'; b.type = 'button'; b.textContent = '⭐ Opinar'; b.title = 'Dele su opinión sobre este curso'; document.body.appendChild(b); }
+  b.onclick = function(){ opAbrir(c, null, false); };
+}, 1500);
+
+/* ---------- el panel del instructor ---------- */
+var P = {curso:'todos', modulo:null, filtro:'todas', datos:[]};
+function parse(c){
+  var b = String(c.cuerpo || ''), g = function(k){ var m = b.match(new RegExp('^' + k + ': (.*)$', 'm')); return m ? m[1] : ''; };
+  var e = parseInt((b.match(/Calificación: (\d)/) || c.titulo.match(/\((\d)\/5\)/) || [])[1], 10) || 0;
+  return {id:c.id, curso:c.curso || 'porcicultura', modulo:c.modulo, autor:c.autor, fecha:c.created_at, est:e, util:g('Lo más útil'), mej:g('Mejoraría'), tes:g('Testimonio'), pub:/Autoriza publicar: sí/.test(b)};
+}
+function prom(l){ return l.length ? l.reduce(function(a, x){ return a + x.est; }, 0) / l.length : 0; }
+function estrellas(n){ var r = Math.round(n); return '★★★★★'.slice(0, r) + '☆☆☆☆☆'.slice(0, 5 - r); }
+function fila(nombre, l, sel, onclick){
+  var p = prom(l);
+  return '<div class="op2-fila' + (sel ? ' on' : '') + '" onclick="' + onclick + '"><span>' + nombre + '</span><u><i style="width:' + (p / 5 * 100).toFixed(0) + '%"></i></u><b>' + (l.length ? p.toFixed(1) + ' ★ · ' + l.length : '—') + '</b></div>';
+}
+function pintaOp(){
+  var b = document.getElementById('adminBody'); if(!b) return;
+  var D = P.datos, porC = {};
+  D.forEach(function(x){ (porC[x.curso] = porC[x.curso] || []).push(x); });
+  var L = D.filter(function(x){ return (P.curso === 'todos' || x.curso === P.curso) && (P.modulo == null || x.modulo === P.modulo); });
+  var V = L.filter(function(x){ return P.filtro === 'mej' ? x.mej : P.filtro === 'util' ? x.util : P.filtro === 'tes' ? x.tes : P.filtro === 'bajas' ? x.est <= 3 : true; })
+    .sort(function(a, z){ return new Date(z.fecha) - new Date(a.fecha); });
+  var h = '<div class="op2"><div class="op2-k"><div><b class="st">' + (D.length ? prom(D).toFixed(1) + ' ★' : '—') + '</b><span>Calificación promedio</span></div>' +
+    '<div><b>' + D.length + '</b><span>Opiniones recibidas</span></div>' +
+    '<div><b>' + (D.length ? Math.round(D.filter(function(x){ return x.est >= 4; }).length / D.length * 100) : 0) + ' %</b><span>Les gustó (4–5 ★)</span></div>' +
+    '<div><b>' + D.filter(function(x){ return x.tes && x.pub; }).length + '</b><span>Testimonios autorizados</span></div></div>';
+  h += '<div class="op2-caja"><h4>Por curso <span style="font-weight:400;color:#8193AD;font-size:13px">· toque un curso para ver sus módulos</span></h4>' +
+    fila('Todos los cursos', D, P.curso === 'todos', "opP('todos')") +
+    Object.keys(porC).sort(function(a, z){ return prom(porC[a]) - prom(porC[z]); }).map(function(k){ return fila(esc3(NOM(k)), porC[k], P.curso === k, "opP('" + k + "')"); }).join('') + '</div>';
+  if(P.curso !== 'todos'){
+    var porM = {}; (porC[P.curso] || []).forEach(function(x){ var k = x.modulo || 0; (porM[k] = porM[k] || []).push(x); });
+    h += '<div class="op2-caja"><h4>Módulos de ' + esc3(NOM(P.curso)) + '</h4>' + fila('Todo el curso', porC[P.curso] || [], P.modulo == null, 'opM(null)') +
+      Object.keys(porM).sort(function(a, z){ return a - z; }).map(function(k){ return fila(+k ? 'Módulo ' + String(k).padStart(2, '0') : 'Opinión general', porM[k], P.modulo === +k, 'opM(' + (+k || 0) + ')'); }).join('') + '</div>';
+  }
+  h += '<div class="op2-bar">' + [['todas', 'Todas'], ['mej', '🛠 Qué mejorar'], ['util', '💡 Lo más útil'], ['bajas', '⚠️ 3 ★ o menos'], ['tes', '🏆 Testimonios']].map(function(f){
+    return '<button class="cq2-chip' + (P.filtro === f[0] ? ' on' : '') + '" onclick="opF(\'' + f[0] + '\')">' + f[1] + '</button>'; }).join('') + '</div>';
+  h += '<div class="op2-l">' + (V.length ? V.map(function(x){
+    return '<div class="op2-it' + (x.tes ? ' tes' : '') + '"><div class="m"><b>' + estrellas(x.est) + '</b><span>' + esc3(NOM(x.curso)) + (x.modulo ? ' · M' + String(x.modulo).padStart(2, '0') : '') + '</span><span>· ' + esc3(x.autor || 'Estudiante') + '</span><span>· ' + new Date(x.fecha).toLocaleDateString('es-DO') + '</span></div>' +
+      (x.util ? '<p><em>Lo más útil:</em> ' + esc3(x.util) + '</p>' : '') + (x.mej ? '<p><em>Mejoraría:</em> ' + esc3(x.mej) + '</p>' : '') +
+      (x.tes ? '<blockquote>«' + esc3(x.tes) + '»</blockquote><div class="m">' + (x.pub ? '✅ Autorizó publicarlo con su nombre · <button class="cq2-chip" onclick="opCopia(\'' + x.id + '\')">📋 Copiar testimonio</button>' : '🔒 No autorizó publicarlo') + '</div>' : '') +
+      (!x.util && !x.mej && !x.tes ? '<p style="color:#8193AD">Solo dejó la calificación.</p>' : '') + '</div>';
+  }).join('') : '<div class="cq2-vacio">' + (D.length ? 'No hay opiniones con este filtro.' : 'Todavía no hay opiniones. Aparecen cuando los estudiantes aprueban módulos o tocan «⭐ Opinar» dentro de un curso.') + '</div>') + '</div></div>';
+  b.innerHTML = h;
+}
+window.opP = function(k){ P.curso = k; P.modulo = null; pintaOp(); };
+window.opM = function(k){ P.modulo = k === null ? null : (k || null); pintaOp(); };
+window.opF = function(k){ P.filtro = k; pintaOp(); };
+window.opCopia = function(id){
+  var x = P.datos.find(function(d){ return d.id === id; }); if(!x) return;
+  var t = '«' + x.tes + '» — ' + (x.autor || 'Estudiante') + ', ' + String(NOM(x.curso)).trim();
+  try{ navigator.clipboard.writeText(t); if(typeof toast === 'function') toast('Testimonio copiado', '📋'); }catch(e){ prompt('Copie el testimonio:', t); }
+};
+async function abrirOp(){
+  var b = document.getElementById('adminBody'); if(!b) return;
+  b.innerHTML = '<div class="cq2-vacio">Cargando opiniones…</div>';
+  try{
+    var r = window.SB ? await SB.from('consultas').select('*').eq('tipo', 'opinion').order('created_at', {ascending:false}).limit(1000) : {data:[]};
+    if(r.error) throw r.error;
+    P.datos = (r.data || []).map(parse); pintaOp();
+  }catch(e){ b.innerHTML = '<div class="cq2-vacio">No se pudieron cargar: ' + esc3(e.message || e) + '</div>'; }
+}
+if(typeof admTab === 'function'){
+  var _admOp = admTab;
+  window.admTab = admTab = function(t){
+    if(t !== 'opiniones') return _admOp.apply(this, arguments);
+    try{ ADM.tab = 'opiniones'; }catch(e){}
+    [].forEach.call(document.querySelectorAll('#adminMenu button[data-t]'), function(x){ x.classList.toggle('on', x.dataset.t === 'opiniones'); });
+    var ti = document.getElementById('adminTitle'); if(ti) ti.textContent = 'Opiniones y testimonios';
+    if(matchMedia('(max-width:820px)').matches){ var sd = document.getElementById('adminSide'); if(sd) sd.classList.add('hide'); }
+    abrirOp();
+  };
+}
+if(typeof renderAdmin === 'function'){
+  var _raOp = renderAdmin;
+  window.renderAdmin = renderAdmin = function(){ var t = null; try{ t = ADM.tab; }catch(e){} if(t === 'opiniones'){ if(P.datos.length) pintaOp(); else abrirOp(); return; } return _raOp.apply(this, arguments); };
+}
+/* las opiniones no son consultas: no se cuentan ni se listan en Consultas */
+(function(){ /* se aplica a pv-consultas: filtra tipo 'opinion' al cargar */ })();
+/* el botón en el menú, junto a Consultas */
+function boton(){
+  var m = document.getElementById('adminMenu'); if(!m || m.querySelector('[data-t="opiniones"]')) return;
+  var ref = m.querySelector('[data-t="consultas"]') || m.querySelector('[data-t="config"]');
+  var b = document.createElement('button'); b.setAttribute('data-t', 'opiniones'); b.setAttribute('onclick', "admTab('opiniones')");
+  b.className = ref ? ref.className.replace(/\bon\b/, '') : '';
+  b.innerHTML = '<span class="mi">⭐</span> Opiniones';
+  m.insertBefore(b, ref ? ref.nextSibling : null);
+}
+boton(); setInterval(boton, 2000);
+})();
+
+
+/* ---------- pv-futuro.js ---------- */
+/* ============================================================
+   AGROACADEMY · AMBIENTE FUTURISTA (2026-10-31)
+   El acabado del dashboard llevado a toda la plataforma, admin y
+   estudiante: noche azul, paneles de vidrio con borde cian, brillo
+   suave, botones con degradado, barras de avance cian→verde y un
+   pequeño levantamiento al pasar el ratón por lo que se puede tocar.
+   · El modo oscuro deja el negro cálido y pasa al azul noche.
+   · Quien entra por primera vez ve el modo oscuro; quien ya eligió
+     el claro lo conserva (el botón 🌙/☀️ sigue funcionando).
+   · Los paneles se reconocen solos (borde + esquinas redondeadas +
+     fondo) y reciben la clase fx-v; así no hay que nombrar cada
+     tarjeta de cada curso.
+   ============================================================ */
+(function(){
+var css = `
+:root[data-theme="dark"]{--bg:#0B1322;--panel:#121D33;--paper:#121D33;--char:#0B1322;--char-2:#121D33;--char-3:#16233A;
+  --text:#E6EEF8;--text-2:#A9B8CE;--muted:#8193AD;--border:rgba(56,189,248,.18);--line:rgba(56,189,248,.18);--line-2:rgba(56,189,248,.28);--ivory-2:#121D33;
+  --green-wash:rgba(52,211,153,.12);--amber-wash:rgba(245,184,61,.12);--crit-wash:rgba(244,63,94,.12);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -18px rgba(14,165,233,.35);--shadow-lg:0 30px 70px -28px rgba(14,165,233,.45)}
+:root[data-theme="dark"] body{background:radial-gradient(1200px 700px at 100% -10%,rgba(56,189,248,.10),transparent 60%),radial-gradient(1000px 700px at -10% 110%,rgba(109,40,217,.08),transparent 60%),#0B1322;background-attachment:fixed}
+:root[data-theme="dark"] .sidebar{background:linear-gradient(180deg,#0E1A2E,#0B1322)!important;border-right:1px solid rgba(56,189,248,.16)!important}
+/* paneles de vidrio */
+.fx-v{background-image:linear-gradient(160deg,rgba(56,189,248,.10),rgba(56,189,248,0) 55%)!important;border-color:rgba(56,189,248,.26)!important;
+  box-shadow:0 18px 40px -28px rgba(14,165,233,.65),inset 0 1px 0 rgba(255,255,255,.05)!important}
+:root[data-theme="light"] #main .fx-v{background-image:linear-gradient(160deg,rgba(14,165,233,.06),rgba(14,165,233,0) 55%)!important;border-color:rgba(14,165,233,.28)!important;box-shadow:0 14px 30px -24px rgba(14,165,233,.5)!important}
+.fx-t{transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s,border-color .22s!important}
+.fx-t:hover{transform:translateY(-3px);border-color:rgba(34,211,238,.6)!important;box-shadow:0 24px 46px -24px rgba(14,165,233,.85)!important}
+/* botones principales */
+.btn-primary,.adm-add,.nva-btn,.rt-fin-b,.ai-go{background:linear-gradient(135deg,#0EA5E9,#22D3EE)!important;color:#04202B!important;border-color:transparent!important;
+  box-shadow:0 10px 24px -12px rgba(34,211,238,.9)!important;font-weight:800}
+.btn-primary:hover,.adm-add:hover{filter:brightness(1.08)}
+/* lo seleccionado en listas y pestañas: resaltado, no relleno */
+#screenAdmin button.on:not(#adminMenu button){background:rgba(34,211,238,.14)!important;border-color:#22D3EE!important;box-shadow:0 0 0 1px rgba(34,211,238,.5),0 10px 24px -14px rgba(34,211,238,.8)!important;color:inherit!important}
+/* entradas */
+#screenAdmin input:focus,#screenAdmin select:focus,#screenAdmin textarea:focus,#main input:focus,#main textarea:focus,#main select:focus{outline:none!important;border-color:#22D3EE!important;box-shadow:0 0 0 3px rgba(34,211,238,.25)!important}
+/* barras de avance */
+.pbar > i,.pbar > span,.lesson-bar i,#lessonBarFill,.nx-pgb i,.nx-pgb > span,.ag3-sw-b i,.rt-fin-pg i,[class*="-prog"] > i,[class*="progress"] > i{background:linear-gradient(90deg,#0EA5E9,#22D3EE,#34D399)!important;box-shadow:0 0 12px rgba(34,211,238,.6)}
+/* menú lateral del admin: la opción activa brilla */
+#adminMenu button.on,#adminMenu button[data-t].on{background:linear-gradient(90deg,rgba(34,211,238,.22),rgba(34,211,238,0))!important;box-shadow:inset 3px 0 0 #22D3EE!important;color:#E6F7FF!important}
+#adminMenu button:hover{background:rgba(56,189,248,.10)!important}
+/* encabezados del admin */
+.adminp-top{background:linear-gradient(180deg,rgba(56,189,248,.10),rgba(56,189,248,0))!important;border-bottom:1px solid rgba(56,189,248,.16)!important}
+/* chips y etiquetas seleccionadas */
+#screenAdmin .on[class*="chip"],#screenAdmin [class*="chip"].on,#screenAdmin .fchip.on{background:rgba(34,211,238,.18)!important;border-color:#22D3EE!important;color:#E6F7FF!important}
+/* tablas */
+#screenAdmin table thead th{background:linear-gradient(180deg,rgba(56,189,248,.16),rgba(56,189,248,.06))!important;color:#CFEFFF!important}
+#screenAdmin table tbody tr:hover td{background:rgba(56,189,248,.06)!important}
+/* títulos grandes con degradado en el campus */
+.nva-w h1,.welcome h1,.cover h1{background:linear-gradient(180deg,#FFFFFF,#A5E8FF);-webkit-background-clip:text;background-clip:text}
+@media(prefers-reduced-motion:reduce){.fx-t,.fx-t:hover{transition:none!important;transform:none!important}}
+`;
+var st = document.createElement('style'); st.id = 'fxCss'; st.textContent = css;
+var pon = function(){ (document.body || document.documentElement).appendChild(st); };
+pon(); setTimeout(pon, 1500); setTimeout(pon, 4000);   /* al final: gana a las hojas que se agregan al cargar */
+
+/* primera visita: modo oscuro */
+try{ if(!localStorage.getItem('porci_theme') && typeof setTheme === 'function') setTheme('dark'); }catch(e){}
+
+/* reconocer paneles y lo que se puede tocar */
+var NO = '.pv-panel, .pv-banner, .pv-cover, .agv2-foto, .pv-fig, figure, img, video, svg, input, select, textarea, .pv-video, .lesson-nav, .modal-ov, #pvGlPop, #agvTip, .ai-tour, .pv-ico-k, .agtb-s, .agd-it i, label';
+var DONDE = '#screenAdmin, #main, [id$="Ov"], .nva-w, #screenLogin';
+function revisa(raiz){
+  if(!raiz || !raiz.querySelectorAll) return;
+  var els = raiz.querySelectorAll('div, section, button, a, li, article, aside, details');
+  for(var i = 0; i < els.length && i < 2500; i++){
+    var el = els[i];
+    if(el.dataset.fx) continue;
+    if(el.offsetWidth === 0 && el.offsetHeight === 0) continue;   /* oculto: se revisa cuando se vea */
+    el.dataset.fx = '1';
+    if(el.closest(NO) || !el.closest(DONDE)) continue;
+    var cs = getComputedStyle(el);
+    var borde = parseFloat(cs.borderTopWidth) >= 1 && cs.borderTopStyle !== 'none';
+    var radio = parseFloat(cs.borderTopLeftRadius) >= 8;
+    var fondo = cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent';
+    var w = el.offsetWidth, h = el.offsetHeight;
+    if(!(borde && radio && fondo) || w < 120 || h < 44) continue;
+    if(cs.backgroundImage && cs.backgroundImage !== 'none' && !/gradient/.test(cs.backgroundImage)) continue;   /* tiene foto de fondo */
+    el.classList.add('fx-v');
+    var toca = el.tagName === 'BUTTON' || el.tagName === 'A' || cs.cursor === 'pointer' || el.hasAttribute('onclick');
+    if(toca && h < 400) el.classList.add('fx-t');
+  }
+}
+var cola = null;
+new MutationObserver(function(){
+  if(cola) return;
+  cola = setTimeout(function(){ cola = null; try{ revisa(document.body); }catch(e){} }, 160);
+}).observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style', 'hidden']});
+setTimeout(function(){ revisa(document.body); }, 800);
+})();
+
 </script>
+
+
+
+
+
+
+
+
+
 
 
 
