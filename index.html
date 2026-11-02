@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-02c · curso gratis «Elige tu crianza ideal» (8 módulos, orienta a las 8 crianzas); precios en RD$ con tasa editable; pestaña Orientación -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-02d · el estudiante nuevo entra directo a la pregunta 1 de «Elige tu crianza ideal» (rt-entrada.js) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -50137,6 +50137,17 @@ window.rtcVeterano = rtcVeterano;
 '.rtc-prep-i.ok{border-color:#2e9e62}.rtc-prep-i.ok em{color:#2e9e62}',
 '.rtc-prep-i.mid{border-color:#d69a1a}.rtc-prep-i.mid em{color:#d69a1a}',
 
+/* el perfil va arriba, a la vista: la capa ai-nx centra en vertical las
+   páginas cortas y le ponía 170 px de margen encima de la pregunta 1 */
+'#rtOv section.rtc-perfil-s{margin-top:0!important;min-height:0!important}',
+'#rtOv .rtc-bienv + * section.rtc-perfil-s,#rtOv .rtc-bienv ~ .nx-wrap section.rtc-perfil-s{padding-top:12px!important}',
+/* el saludo de la primera entrada (rt-entrada.js) */
+'.rtc-bienv{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:18px auto 0;width:min(1440px,92%);padding:16px 20px;border-radius:18px;border:2px solid #2e9e62;background:color-mix(in srgb,#2e9e62 12%,var(--panel,#fff));animation:rtcEntra .4s ease}',
+'.rtc-bienv-i{font-size:34px}',
+'.rtc-bienv > div{flex:1;min-width:220px}',
+'.rtc-bienv b{display:block;font-family:var(--display);font-size:clamp(18px,1.8vw,24px);color:var(--text)}',
+'.rtc-bienv p{margin:4px 0 0;color:var(--text-2)}',
+
 /* portada: mosaico de las 8 crianzas detrás del texto */
 '.rtc-port{position:relative;overflow:hidden}',
 '.rtc-port-mos{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);z-index:0}',
@@ -50180,7 +50191,122 @@ window.rtcVeterano = rtcVeterano;
   if(document.body) poner(); else addEventListener('DOMContentLoaded', poner);
 })();
 
+
+/* ---------- rt-entrada.js ---------- */
+/* ============================================================
+   ENTRADA DIRECTA AL CURSO GRATIS (2026-11-02)
+   ------------------------------------------------------------
+   POR QUÉ: de 60 registrados, 45 nunca aprobaron el primer módulo,
+   y 12 de los 19 que avanzaron lo hicieron EL MISMO DÍA del
+   registro. Al entrar caían en un campus con 15 cursos y un
+   recorrido de 6 pasos: tenían que decidir antes de empezar.
+
+   QUÉ HACE: si quien entra es un estudiante sin ningún curso de
+   pago, sin avance y sin su perfil terminado, se le abre directo
+   la primera pregunta de «Elige tu crianza ideal», con un saludo
+   y un botón para ir al campus si lo prefiere.
+
+   CUÁNDO NO: instructor o vista previa; quien ya pagó o ya
+   avanzó algún curso; quien ya terminó su perfil; si el curso
+   gratis está oculto. Como máximo 3 veces por cuenta en este
+   equipo, y una sola vez por visita.
+
+   El recorrido guiado no se abre encima la primera vez: sigue a
+   un toque en el campus («Cómo funciona AgroAcademy»).
+   ============================================================ */
+(function(){
+var MAXIMO = 3;
+var visto = false;          /* ya se decidió en esta visita */
+function llave(){ return 'rtc::' + rtYo() + '::entrada'; }
+function veces(){ try{ return +localStorage.getItem(llave()) || 0; }catch(e){ return 0; } }
+function esEstudiante(){
+  return typeof SESSION !== 'undefined' && SESSION && SESSION.id && SESSION.role === 'STUDENT' && !rtEsInstructor();
+}
+function publicado(){
+  var pub = (typeof NXPUB !== 'undefined' && NXPUB.ruta !== undefined) ? NXPUB.ruta : RTPUB;
+  return !!pub;
+}
+/* lo que se puede saber sin esperar a la nube */
+function candidato(){
+  if(!esEstudiante() || !publicado() || veces() >= MAXIMO) return false;
+  try{ rtcCargar(); if(rtcCompleto()) return false; }catch(e){}
+  try{ if(rtProgreso() > 0) return false; }catch(e){}
+  return true;
+}
+/* y lo que necesita los permisos: cualquier curso abierto o empezado lo saca */
+function sinOtrosCursos(){
+  if(typeof aiVisibles !== 'function' || typeof aiEstado !== 'function') return false;
+  return aiVisibles().every(function(id){
+    if(id === 'ruta') return true;
+    var e = aiEstado(id);
+    return !e || (e.st === 'bloqueado' && !(e.hechos > 0));
+  });
+}
+function permisosListos(){
+  /* el permiso del curso base llega de la nube tras el login */
+  try{ if(typeof PCNUBE !== 'undefined' && PCNUBE && !PCNUBE.consultada) return false; }catch(e){}
+  return true;
+}
+function saludo(){
+  var n = '';
+  try{ n = String(SESSION.name || '').trim().split(/\s+/)[0]; }catch(e){}
+  if(n && /@/.test(n)) n = '';
+  var c = document.getElementById('rtMain'); if(!c || c.querySelector('.rtc-bienv')) return;
+  var d = document.createElement('div'); d.className = 'rtc-bienv';
+  d.innerHTML = '<span class="rtc-bienv-i">👋</span><div><b>¡Bienvenido' + (n ? ', ' + rtcE(n) : '') + '! Empecemos por lo más importante</b>' +
+    '<p>Descubre qué crianza te conviene con tu dinero, tu espacio, tu agua y tu tiempo. Son 10 preguntas con un toque: en 3 minutos ves tus 3 mejores crianzas.</p></div>' +
+    '<button class="rtc-btn2" onclick="rtcAlCampus()">Prefiero ver todos los cursos</button>';
+  var hero = c.querySelector('.nx-hero');
+  if(hero && hero.parentNode) hero.parentNode.insertBefore(d, hero.nextSibling); else c.insertBefore(d, c.firstChild);
+  /* en el celular la cabecera ocupa la pantalla: se baja hasta el saludo,
+     para que la primera pregunta quede a la vista sin buscarla */
+  if(innerWidth < 760) setTimeout(function(){ try{ d.scrollIntoView({block:'start', behavior:'smooth'}); }catch(e){} }, 350);
+}
+window.rtcAlCampus = function(){
+  try{ rtCerrar(); }catch(e){}
+  setTimeout(function(){ try{ abrirCursos(); }catch(e){} }, 120);
+};
+function abrir(){
+  try{ localStorage.setItem(llave(), String(veces() + 1)); }catch(e){}
+  /* el recorrido de la primera vez no se pone encima del curso */
+  try{ AITOURAUTO = true; }catch(e){}
+  var t = document.getElementById('aiTourOv'); if(t) t.remove();
+  openRuta();
+  rtIr(1);
+  setTimeout(saludo, 80);
+}
+function decidir(intento){
+  if(!document.getElementById('csOv') || document.getElementById('rtOv')) return;   /* ya se fue a otra parte */
+  if(!candidato()){ soltarTour(); return; }
+  if(!permisosListos() && intento < 4){ setTimeout(function(){ decidir(intento + 1); }, 1500); return; }
+  if(sinOtrosCursos()) abrir(); else soltarTour();
+}
+/* si al final no se abre el curso, el recorrido vuelve a su comportamiento de siempre */
+var frenado = false;
+function soltarTour(){
+  if(!frenado) return;
+  frenado = false;
+  try{ AITOURAUTO = false; if(typeof aiTourAuto === 'function') aiTourAuto(); }catch(e){}
+}
+setInterval(function(){
+  if(visto || !document.getElementById('csOv') || !esEstudiante()) return;
+  visto = true;
+  /* mientras se decide, que el recorrido no salte (sale a los 1.1 s) */
+  if(candidato()){ try{ if(!AITOURAUTO){ AITOURAUTO = true; frenado = true; } }catch(e){} }
+  setTimeout(function(){ decidir(0); }, 900);
+}, 500);
+/* otra cuenta en el mismo equipo: se vuelve a decidir */
+var ultimo = null;
+setInterval(function(){
+  var id = (typeof SESSION !== 'undefined' && SESSION) ? SESSION.id : null;
+  if(id !== ultimo){ ultimo = id; visto = false; }
+}, 1000);
+})();
+
 </script>
+
+
+
 
 
 
