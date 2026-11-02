@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-02a · curso 15 Crianza de guineas en República Dominicana (borrador, US$ 79 de lanzamiento) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-02b · curso 15 Guineas a US$ 89; Visible/Oculto en Cursos publica al instante para todos -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -23602,12 +23602,12 @@ var AGPAGO = {
       'Certificado de Aprovechamiento al aprobar los 8 módulos'
     ]
   },
-  /* precio de lanzamiento fijado por el instructor el 2026-11-02: US$ 79 (luego US$ 89) */
+  /* precio fijado por el instructor el 2026-11-02: US$ 89 (RD$ 5,340) */
   guineas: {
     ico:'🪶', tag:'Curso de avicultura · guineas',
     n:'Crianza de guineas en República Dominicana: de cero a un negocio rentable',
     sub:'Se adquiere por separado. Al confirmarse el pago, el instructor le habilita el acceso y entra con la misma cuenta que ya tiene.',
-    usd:79, pesos:'RD$ 4,740',
+    usd:89, pesos:'RD$ 5,340',
     incluye:[
       '15 módulos y 106 lecciones: de la especie y sus reproductores a las instalaciones, guineítos, alimentación, sanidad, reproducción, incubación, huevos, registros, costos y ventas',
       '14 calculadoras y simuladores, el calendario de incubación y el simulador «Mi primera granja de guineas»',
@@ -85255,7 +85255,7 @@ function gnEsInstructor(){
    El precio NO se fija aquí: se configura desde el panel. Mientras
    no se haya puesto, la tarjeta dice «consultar» en vez de inventar
    una cifra. GNPRECIO.curso === null significa «sin definir». */
-var GNPRECIO = { curso: 79, moneda: 'US$' };
+var GNPRECIO = { curso: 89, moneda: 'US$' };
 (function gnCargarPrecio(){
   try{
     var p = JSON.parse(localStorage.getItem('gn_precio') || 'null');
@@ -92278,6 +92278,7 @@ if(typeof window.gnCalcRun === 'function'){
 })();
 
 </script>
+
 
 
 
@@ -103303,6 +103304,53 @@ window.pvActivo = function(){ return !!document.querySelector('#main .pv-mod'); 
   quita(); setTimeout(quita, 1500); setTimeout(quita, 4000);
 })();
 
+/* ============================================================
+   VISIBLE / OCULTO SE PUBLICA AL INSTANTE (2026-11-02)
+   Antes, el interruptor de «Cursos» solo guardaba en el equipo del
+   instructor; para que lo vieran los estudiantes había que ir a
+   Configuración con Formulación seleccionada y pulsar «Publicar para
+   todos». Ahora el mismo interruptor publica en la nube enseguida
+   (settings.nx_cfg.pub, la misma función de siempre: nxSubirCfg).
+   ============================================================ */
+(function(){
+  if(typeof window.nxPublicar !== 'function') return;
+  var _pub = window.nxPublicar;
+  /* Antes de subir, se relee lo publicado en la nube y solo se cambia el
+     curso que se tocó: así un panel que todavía no terminó de leer la nube
+     no oculta por error los demás cursos. Si no se puede leer, no se sube. */
+  var subir = async function(curso, v){
+    if(typeof nxSubirCfg !== 'function' || !window.SB) return;
+    try{
+      var r = await SB.from('settings').select('nx_cfg').eq('id', 1).maybeSingle();
+      if(r.error) throw r.error;
+      var c = r.data && r.data.nx_cfg; if(typeof c === 'string'){ try{ c = JSON.parse(c); }catch(e){ c = null; } }
+      if(c && c.pub){ Object.keys(c.pub).forEach(function(k){ if(k !== curso) NXPUB[k] = !!c.pub[k]; }); }
+      NXPUB[curso] = !!v;
+      try{ nxGuardarPub(); }catch(e){}
+      await nxSubirCfg();
+    }catch(e){
+      if(typeof toast === 'function') toast('No se pudo publicar para los estudiantes: revise la conexión y vuelva a intentarlo', '⚠️');
+    }
+  };
+  window.nxPublicar = function(curso, v){
+    var r = _pub.apply(this, arguments);
+    setTimeout(function(){ subir(curso, v); }, 150);
+    return r;
+  };
+  try{ nxPublicar = window.nxPublicar; }catch(e){}
+  /* la nota de la pantalla «Cursos» */
+  var nota = function(){
+    var c = document.querySelector('#screenAdmin .uc-cat');
+    if(!c || c.previousElementSibling && c.previousElementSibling.classList.contains('pv-pubnota')) return;
+    var p = document.createElement('p'); p.className = 'adm-note pv-pubnota';
+    p.innerHTML = '☁️ <b>Visible</b> = el curso aparece para <b>todos</b> los estudiantes, al instante. <b>Oculto</b> = no le aparece a nadie. Los alumnos solo entran a un curso de pago si usted les habilita el acceso en Estudiantes.';
+    c.parentNode.insertBefore(p, c);
+  };
+  var cola = null;
+  new MutationObserver(function(){ if(cola) return; cola = setTimeout(function(){ cola = null; try{ nota(); }catch(e){} }, 200); })
+    .observe(document.documentElement, {childList:true, subtree:true});
+})();
+
 
 /* ---------- pv-dash.js ---------- */
 /* ============================================================
@@ -104332,6 +104380,8 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
+
 
 
 
