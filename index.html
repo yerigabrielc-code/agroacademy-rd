@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-02d · el estudiante nuevo entra directo a la pregunta 1 de «Elige tu crianza ideal» (rt-entrada.js) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-03a · bienvenida para clientes (plan de 7 días) y aviso de 48 h en el panel (pv-bienvenida.js) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -106189,6 +106189,228 @@ if(document.body) go(); else addEventListener('DOMContentLoaded', go);
 })();
 
 
+/* ---------- pv-bienvenida.js ---------- */
+/* ============================================================
+   BIENVENIDA PARA CLIENTES Y AVISO DE 48 HORAS (2026-11-03)
+   ------------------------------------------------------------
+   POR QUÉ: de los cursos pagados habilitados, la mitad no tenía
+   ni un módulo aprobado. Un cliente que no arranca no recomienda
+   ni vuelve a comprar.
+
+   1 · ESTUDIANTE: si entra con un curso de pago habilitado y sin
+       empezar, ve «🎉 Tu curso está activado» con un plan de 7 días
+       (los módulos reales del curso) y «Empezar la lección 1».
+       Máximo 3 veces por curso en este equipo, una por visita.
+   2 · INSTRUCTOR: en el panel, el cuadro «⏰ Clientes que no han
+       empezado». La hora cuenta desde que el panel VE el acceso por
+       primera vez (aab_act en este equipo), porque la tabla no
+       guarda cuándo se habilitó. A las 48 h sale en rojo, con el
+       botón de WhatsApp y el mensaje escrito. Se envía a mano.
+
+   Solo lee profiles y el avance. Escribe únicamente sus propias
+   llaves de localStorage (aab::…, aab_act).
+   ============================================================ */
+(function(){
+var MAX = 3, H48 = 48 * 3600 * 1000;
+var esc5 = function(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+var yo = function(){ try{ return (typeof SESSION !== 'undefined' && SESSION) ? SESSION : null; }catch(e){ return null; } };
+function nombreCurso(id){ try{ var C = COURSES[id]; return C ? (C.name || C.label || id) : id; }catch(e){ return id; } }
+function iconoCurso(id){ try{ return (COURSES[id] && COURSES[id].icon) || '📘'; }catch(e){ return '📘'; } }
+function modulos(id){
+  try{
+    var C = COURSES[id], L = typeof C.modules === 'function' ? C.modules() : (C.modules || []);
+    return (L || []).map(function(m, i){ return m.title || m.t || ('Módulo ' + (i + 1)); });
+  }catch(e){ return []; }
+}
+function portada(id){
+  try{ if(typeof AGCAT !== 'undefined' && AGCAT[id] && AGCAT[id].cover) return 'images/' + AGCAT[id].cover + '.jpg'; }catch(e){}
+  return '';
+}
+
+/* ---------- 1 · la bienvenida del estudiante ---------- */
+var vista = false;
+function llave(id){ var s = yo(); return 'aab::' + (s && s.id) + '::' + id; }
+function veces(id){ try{ return +localStorage.getItem(llave(id)) || 0; }catch(e){ return 0; } }
+function pendiente(){
+  var s = yo(); if(!s || s.role !== 'STUDENT') return null;
+  if(typeof aiVisibles !== 'function' || typeof aiEstado !== 'function') return null;
+  var L = aiVisibles().filter(function(id){
+    if(id === 'ruta') return false;
+    var e = aiEstado(id);
+    return e && e.st === 'disponible' && !(e.hechos > 0) && veces(id) < MAX;
+  });
+  return L[0] || null;
+}
+function plan(id){
+  var M = modulos(id), d = [];
+  for(var i = 0; i < 6; i++){
+    d.push(M[i] ? ['Día ' + (i + 1), 'Módulo ' + (i + 1) + ': ' + M[i] + (i === 0 ? ' · y su evaluación' : '')]
+                : ['Día ' + (i + 1), 'Repasa lo aprendido y responde las evaluaciones pendientes']);
+  }
+  d.push(['Día 7', 'Usa las calculadoras del curso con los números de tu granja']);
+  return d;
+}
+function abrir(id){
+  try{ localStorage.setItem(llave(id), String(veces(id) + 1)); }catch(e){}
+  try{ AITOURAUTO = true; }catch(e){}
+  var t = document.getElementById('aiTourOv'); if(t) t.remove();
+  var s = yo(), n = String((s && s.name) || '').trim().split(/\s+/)[0];
+  if(/@/.test(n)) n = '';
+  var M = modulos(id), f = portada(id);
+  var ov = document.createElement('div'); ov.id = 'aabOv';
+  ov.innerHTML = '<div class="aab-card" role="dialog" aria-label="Tu curso está activado">' +
+    (f ? '<div class="aab-foto" style="background-image:url(&quot;' + f + '&quot;)"><span>' + iconoCurso(id) + '</span></div>' : '') +
+    '<div class="aab-c"><span class="aab-k">🎉 Curso activado</span>' +
+      '<h2>¡Listo' + (n ? ', ' + esc5(n) : '') + '! Ya puedes empezar</h2>' +
+      '<p class="aab-curso">' + esc5(nombreCurso(id)) + (M.length ? ' · ' + M.length + ' módulos' : '') + '</p>' +
+      '<b class="aab-pk">Tu plan para la primera semana · unos 30 minutos al día</b>' +
+      '<ol class="aab-plan">' + plan(id).map(function(x){ return '<li><em>' + x[0] + '</em><span>' + esc5(x[1]) + '</span></li>'; }).join('') + '</ol>' +
+      '<div class="aab-a"><button class="aab-go" onclick="aabEmpezar(\'' + id + '\')">Empezar la lección 1 →</button>' +
+      '<button class="aab-luego" onclick="aabLuego()">Más tarde</button></div>' +
+      '<p class="aab-n">Tu avance se guarda solo, en el celular y en la computadora. Si te trabas, escríbenos por WhatsApp.</p>' +
+    '</div></div>';
+  document.body.appendChild(ov);
+}
+window.aabEmpezar = function(id){
+  var o = document.getElementById('aabOv'); if(o) o.remove();
+  try{ agIrAlCurso(id); }catch(e){ try{ agAbrirCurso(id); }catch(x){} }
+};
+window.aabLuego = function(){ var o = document.getElementById('aabOv'); if(o) o.remove(); };
+function permisosListos(){
+  try{ if(typeof PCNUBE !== 'undefined' && PCNUBE && !PCNUBE.consultada) return false; }catch(e){}
+  return true;
+}
+function decidir(intento){
+  if(!document.getElementById('csOv') || document.getElementById('aabOv') || document.getElementById('rtOv')) return;
+  if(!permisosListos() && intento < 4){ setTimeout(function(){ decidir(intento + 1); }, 1500); return; }
+  var id = pendiente(); if(id) abrir(id);
+}
+setInterval(function(){
+  var s = yo();
+  if(vista || !s || s.role !== 'STUDENT' || !document.getElementById('csOv')) return;
+  vista = true;
+  /* los permisos de los cursos llegan de la nube un poco después de entrar */
+  setTimeout(function(){ decidir(0); }, 2200);
+}, 600);
+var ultimo = null;
+setInterval(function(){ var s = yo(), id = s ? s.id : null; if(id !== ultimo){ ultimo = id; vista = false; } }, 1000);
+
+/* ---------- 2 · el aviso del instructor ---------- */
+var CURSOS = ['porcicultura', 'nutricion', 'reproduccion', 'sanidad', 'engorde', 'lechones', 'rentabilidad',
+              'ponedoras', 'pollos', 'bovinos', 'apicultura', 'tilapia', 'cabras', 'guineas'];
+var A = { filas:null, cuando:0, cargando:false };
+function actLee(){ try{ return JSON.parse(localStorage.getItem('aab_act') || '{}') || {}; }catch(e){ return {}; } }
+function actGuarda(m){ try{ localStorage.setItem('aab_act', JSON.stringify(m)); }catch(e){} }
+function empezo(uid, curso){
+  try{
+    var p = (typeof CLOUDPROG !== 'undefined' && CLOUDPROG[uid]) ? CLOUDPROG[uid][curso] : null;
+    if(p && Object.keys(p).some(function(k){ var r = p[k]; return r && (r.passed || r.attempts > 0 || r.best > 0); })) return true;
+  }catch(e){}
+  return false;
+}
+function telefono(uid){
+  try{
+    var s = (typeof STUDENTS !== 'undefined' ? STUDENTS : []).filter(function(x){ return x.id === uid; })[0];
+    var d = s && String(s.phone || '').replace(/\D/g, ''); if(!d) return '';
+    if(d.length === 10) d = '1' + d;
+    return /^1(809|829|849)\d{7}$/.test(d) ? d : '';
+  }catch(e){ return ''; }
+}
+function nombreEst(uid){
+  try{ var s = STUDENTS.filter(function(x){ return x.id === uid; })[0]; return s ? (s.name || s.email || 'Estudiante') : 'Estudiante'; }catch(e){ return 'Estudiante'; }
+}
+async function cargar(){
+  if(A.cargando || !window.SB) return;
+  if(A.filas && Date.now() - A.cuando < 5 * 60 * 1000) return;
+  A.cargando = true;
+  try{
+    var r = await SB.from('profiles').select('id,role,' + CURSOS.map(function(c){ return 'acceso_' + c; }).join(','));
+    if(r.error) throw r.error;
+    var act = actLee(), ahora = Date.now(), filas = [];
+    (r.data || []).forEach(function(p){
+      if(/admin/i.test(p.role || '')) return;
+      CURSOS.forEach(function(c){
+        if(!p['acceso_' + c]) return;
+        var k = p.id + '|' + c;
+        if(!act[k]) act[k] = ahora;          /* primera vez que el panel ve este acceso */
+        if(empezo(p.id, c)) return;
+        filas.push({uid:p.id, curso:c, desde:act[k]});
+      });
+    });
+    actGuarda(act);
+    filas.sort(function(a, b){ return a.desde - b.desde; });
+    A.filas = filas; A.cuando = Date.now();
+  }catch(e){ A.filas = A.filas || []; }
+  A.cargando = false;
+  pintar(true);
+}
+function horas(ms){ var h = Math.floor(ms / 3600000); return h < 48 ? h + ' h' : Math.floor(h / 24) + ' días'; }
+function pintar(forzar){
+  var body = document.getElementById('adminBody'); if(!body || !A.filas) return;
+  var tab = null; try{ tab = ADM.tab; }catch(e){}
+  var donde = (tab === 'dashboard' || tab === 'students' || !tab);
+  var box = document.getElementById('aabAviso');
+  if(!donde){ if(box) box.remove(); return; }
+  if(box && !forzar && box.parentNode === body) return;
+  if(box) box.remove();
+  var tarde = A.filas.filter(function(f){ return Date.now() - f.desde >= H48; });
+  if(!A.filas.length) return;
+  box = document.createElement('div'); box.id = 'aabAviso';
+  box.innerHTML = '<div class="aab-av-h"><b>⏰ Clientes que no han empezado</b><span>' + A.filas.length + ' en total · ' +
+      '<i class="' + (tarde.length ? 'rojo' : '') + '">' + tarde.length + ' con más de 48 horas</i></span></div>' +
+    '<p class="aab-av-n">Tienen un curso pagado habilitado y todavía no han presentado ninguna evaluación. La hora cuenta desde que el panel vio el acceso por primera vez.</p>' +
+    '<div class="aab-av-l">' + A.filas.map(function(f){
+      var t = telefono(f.uid), nom = nombreEst(f.uid), pn = String(nom).trim().split(/\s+/)[0], late = Date.now() - f.desde >= H48;
+      var msg = 'Hola ' + (/@/.test(pn) ? '' : pn + ' ') + '👋 Te hablamos desde AgroAcademy RD. Ya tienes activado tu curso «' + nombreCurso(f.curso) +
+        '». ¿Pudiste entrar? Empieza por la lección 1: te toma unos 30 minutos 👉 https://agroacademy-rd.vercel.app Si algo no te funciona, respóndenos y te ayudamos 🙌';
+      return '<div class="aab-av-f' + (late ? ' tarde' : '') + '"><span class="aab-av-e">' + (late ? '🔴' : '🟡') + '</span>' +
+        '<div><b>' + esc5(nom) + '</b><em>' + iconoCurso(f.curso) + ' ' + esc5(nombreCurso(f.curso)) + ' · habilitado hace ' + horas(Date.now() - f.desde) + '</em></div>' +
+        (t ? '<a class="aab-av-wa" href="https://wa.me/' + t + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">💬 Escribirle</a>'
+           : '<span class="aab-av-sin">Sin WhatsApp válido</span>') + '</div>';
+    }).join('') + '</div>';
+  body.insertBefore(box, body.firstChild);
+}
+setInterval(function(){
+  var s = yo(); if(!s || s.role !== 'ADMIN' || !document.getElementById('adminBody')) return;
+  cargar(); pintar(false);
+}, 1500);
+
+/* ---------- estilos ---------- */
+var st = document.createElement('style');
+st.textContent =
+'#aabOv{position:fixed;inset:0;z-index:2147483000;background:rgba(5,10,20,.72);display:grid;place-items:center;padding:16px;animation:aabIn .25s ease}' +
+'@keyframes aabIn{from{opacity:0}to{opacity:1}}' +
+'.aab-card{width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:22px;background:#0f1a2e;color:#eef3fb;box-shadow:0 30px 80px rgba(0,0,0,.5);border:1px solid rgba(91,212,255,.35)}' +
+'.aab-foto{height:170px;background-size:cover;background-position:center;position:relative}' +
+'.aab-foto span{position:absolute;left:18px;bottom:-24px;width:56px;height:56px;border-radius:16px;background:#0f1a2e;display:grid;place-items:center;font-size:30px;border:1px solid rgba(91,212,255,.35)}' +
+'.aab-c{padding:30px 24px 22px}' +
+'.aab-k{display:inline-block;font:700 12px/1 monospace;letter-spacing:.14em;text-transform:uppercase;color:#7ee0a0;border:1px solid rgba(126,224,160,.5);border-radius:99px;padding:6px 10px}' +
+'.aab-c h2{margin:12px 0 4px;font-size:clamp(22px,4vw,30px);line-height:1.15}' +
+'.aab-curso{margin:0 0 16px;color:#9fb3cf}' +
+'.aab-pk{display:block;margin-bottom:8px;color:#ffd23f}' +
+'.aab-plan{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;gap:6px}' +
+'.aab-plan li{display:grid;grid-template-columns:60px 1fr;gap:10px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05);font-size:15px;line-height:1.35}' +
+'.aab-plan li:first-child{background:rgba(46,224,113,.14);border:1px solid rgba(46,224,113,.45)}' +
+'.aab-plan em{font-style:normal;font-weight:800;color:#5bd4ff}' +
+'.aab-a{display:flex;flex-wrap:wrap;gap:10px;position:sticky;bottom:0;background:#0f1a2e;padding:10px 0 4px;margin:0 -2px}' +
+'.aab-go{flex:1;min-width:220px;min-height:52px;border:0;border-radius:14px;background:linear-gradient(180deg,#2ee071,#17b957);color:#06210f;font-family:inherit;font-weight:800;font-size:18px;cursor:pointer}' +
+'.aab-luego{min-height:52px;padding:0 18px;border-radius:14px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#cfe0f5;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer}' +
+'.aab-n{margin:14px 0 0;font-size:13px;color:#8ea3c0}' +
+'#aabAviso{margin:0 0 18px;padding:16px 18px;border-radius:16px;border:1px solid rgba(255,180,60,.45);background:rgba(255,180,60,.07)}' +
+'.aab-av-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}' +
+'.aab-av-h b{font-size:17px}.aab-av-h span{font-size:13px;opacity:.85}.aab-av-h i{font-style:normal}.aab-av-h i.rojo{color:#ff7b72;font-weight:800}' +
+'.aab-av-n{margin:6px 0 12px;font-size:13px;opacity:.75}' +
+'.aab-av-l{display:flex;flex-direction:column;gap:8px}' +
+'.aab-av-f{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04)}' +
+'.aab-av-f.tarde{border:1px solid rgba(255,123,114,.5)}' +
+'.aab-av-f b{display:block}.aab-av-f em{font-style:normal;font-size:13px;opacity:.8}' +
+'.aab-av-wa{padding:8px 12px;border-radius:10px;background:#25d366;color:#08331a;font-weight:800;text-decoration:none;white-space:nowrap}' +
+'.aab-av-sin{font-size:12px;opacity:.6}' +
+'@media(max-width:560px){.aab-foto{height:96px}.aab-c{padding:26px 16px 14px}.aab-plan{gap:4px}.aab-plan li{padding:7px 10px}.aab-go{min-width:0}.aab-plan li{grid-template-columns:52px 1fr;font-size:14px}.aab-av-f{grid-template-columns:20px minmax(0,1fr)}.aab-av-wa,.aab-av-sin{grid-column:2}}';
+(document.head || document.documentElement).appendChild(st);
+})();
+
+
 /* ---------- pv-futuro.js ---------- */
 /* ============================================================
    AGROACADEMY · AMBIENTE FUTURISTA (2026-10-31)
@@ -106281,6 +106503,8 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
+
 
 
 
