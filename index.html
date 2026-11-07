@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-03a · bienvenida para clientes (plan de 7 días) y aviso de 48 h en el panel (pv-bienvenida.js) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-07a · testimonios moderados (pv-testimonios), experiencia común en los 13 cursos (pv-unifica) y 8 videos de Formulación -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -105736,7 +105736,7 @@ window.opAbrir = function(c, id, auto){
     '<div class="op-st" role="radiogroup" aria-label="Calificación">' + [1, 2, 3, 4, 5].map(function(n){ return '<button type="button" data-n="' + n + '" aria-label="' + n + ' estrellas">★</button>'; }).join('') + '</div>' +
     '<label>' + (tu ? '¿Qué te sirvió más?' : '¿Qué le sirvió más?') + '</label><textarea id="opUtil" placeholder="Por ejemplo: la calculadora de costos, el video de la PPA…"></textarea>' +
     '<label>' + (tu ? '¿Qué mejorarías?' : '¿Qué mejoraría?') + '</label><textarea id="opMej" placeholder="Algo que no quedó claro, que falta o que sobra"></textarea>' +
-    (fin ? '<label>' + (tu ? 'Tu testimonio' : 'Su testimonio') + ' <span style="font-weight:400;color:#8193AD">(opcional)</span></label><textarea id="opTes" placeholder="¿Qué cambió en ' + (tu ? 'tu' : 'su') + ' granja o en ' + (tu ? 'tu' : 'su') + ' forma de trabajar después del curso?"></textarea>' +
+    (fin && !window.tsAbrir ? '<label>' + (tu ? 'Tu testimonio' : 'Su testimonio') + ' <span style="font-weight:400;color:#8193AD">(opcional)</span></label><textarea id="opTes" placeholder="¿Qué cambió en ' + (tu ? 'tu' : 'su') + ' granja o en ' + (tu ? 'tu' : 'su') + ' forma de trabajar después del curso?"></textarea>' +
       '<label class="op-ok"><input type="checkbox" id="opPub"> Autorizo a AgroAcademy RD a publicar mi testimonio con mi nombre.</label>' : '') +
     '<div class="op-acc"><button type="button" class="op-sal">' + (auto ? 'Ahora no' : 'Cancelar') + '</button><button type="button" class="op-env">Enviar opinión</button></div></div>';
   document.body.appendChild(o);
@@ -105789,8 +105789,8 @@ setInterval(function(){
   var c = null; try{ c = (SESSION && (SESSION.role === 'STUDENT' || (typeof PREVIEW !== 'undefined' && PREVIEW))) ? cursoAbierto() : null; }catch(e){}
   var b = document.getElementById('opBtn');
   if(!c){ if(b) b.remove(); return; }
-  if(!b){ b = document.createElement('button'); b.id = 'opBtn'; b.type = 'button'; b.textContent = '⭐ Opinar'; b.title = 'Dele su opinión sobre este curso'; document.body.appendChild(b); }
-  b.onclick = function(){ opAbrir(c, null, false); };
+  if(!b){ b = document.createElement('button'); b.id = 'opBtn'; b.type = 'button'; b.textContent = window.tsPanel ? '⭐ Opiniones' : '⭐ Opinar'; b.title = 'Opiniones de este curso y la suya'; document.body.appendChild(b); }
+  b.onclick = function(){ if(window.tsPanel) tsPanel(c); else opAbrir(c, null, false); };
 }, 1500);
 
 /* ---------- el panel del instructor ---------- */
@@ -105879,6 +105879,429 @@ function boton(){
   m.insertBefore(b, ref ? ref.nextSibling : null);
 }
 boton(); setInterval(boton, 2000);
+})();
+
+
+/* ---------- pv-testimonios.js ---------- */
+/* ============================================================
+   TESTIMONIOS PÚBLICOS (2026-11-07) · todos los cursos, mismo diseño
+   Estudiante: «⭐ Opiniones» dentro de cualquier curso abre el panel del
+     curso: testimonios aprobados + su propia opinión (1-5 estrellas,
+     comentario, nombre visible, autorización) que puede editar.
+     Invitación a opinar después de aprobar 2 módulos y al terminar.
+   Instructor: pestaña «💬 Testimonios»: revisar, aprobar, ocultar, destacar.
+   Público: pantalla de inicio con los aprobados (sin correos ni datos).
+   Base: tabla testimonios (supabase/testimonios.sql). El servidor valida
+   el acceso al curso y que nadie se apruebe solo. No hay testimonios
+   inventados: si no hay aprobados se muestra un estado vacío.
+   ============================================================ */
+(function(){
+var css = `
+.ts-c{width:min(640px,100%)}
+.ts-res{display:flex;gap:14px;align-items:center;margin:2px 0 14px;padding:12px 14px;border-radius:14px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25)}
+.ts-res b{font:800 30px/1 var(--display);color:#FBBF24}.ts-res span{color:#A9B8CE;font-size:13.5px}
+.ts-lista{display:grid;gap:10px;margin:6px 0 4px}
+.ts-it{padding:14px 16px;border-radius:14px;background:rgba(2,6,16,.4);border:1px solid rgba(148,163,184,.18)}
+.ts-it.dest{border-color:rgba(251,191,36,.55);box-shadow:0 0 0 1px rgba(251,191,36,.2) inset}
+.ts-it .st{color:#FBBF24;letter-spacing:2px;font-size:15px}.ts-it p{margin:6px 0 8px;color:#E6EEF8;font-size:15px;line-height:1.55}
+.ts-it .ts-q{font-size:12.5px;color:#8193AD}.ts-it .ts-q b{color:#CBD5E1}
+.ts-vacio{text-align:center;padding:22px 16px;border-radius:16px;border:1px dashed rgba(56,189,248,.35);background:radial-gradient(300px 120px at 50% 0%,rgba(56,189,248,.12),transparent 70%)}
+.ts-vacio .e{font-size:40px}.ts-vacio h4{margin:6px 0 4px;font:800 18px var(--display);color:#E6EEF8}.ts-vacio p{margin:0;color:#A9B8CE;font-size:14px}
+.ts-mio{margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid rgba(56,189,248,.3);background:rgba(14,165,233,.07)}
+.ts-mio h4{margin:0 0 6px;font:700 16px var(--display);color:#E6EEF8}
+.op-c textarea,.op-c input{font-family:inherit}
+.ts-chip{display:inline-block;letter-spacing:normal;padding:3px 10px;border-radius:99px;font:700 12px inherit;margin-left:6px;vertical-align:middle}
+.ts-chip.pendiente{background:rgba(251,191,36,.15);color:#FDE68A}.ts-chip.aprobado{background:rgba(34,197,94,.15);color:#86EFAC}.ts-chip.oculto{background:rgba(148,163,184,.15);color:#CBD5E1}
+.ts-cnt{float:right;font-weight:400;color:#8193AD;font-size:12.5px}
+.op-c input.ts-in{width:100%;box-sizing:border-box;padding:11px 13px;border-radius:12px;border:1px solid rgba(56,189,248,.3);background:rgba(2,6,16,.45);color:#E6EEF8;font:15px inherit}
+.ts-nota{font-size:12.5px;color:#8193AD;margin-top:8px}
+#tsInv{position:fixed;z-index:465;right:16px;bottom:200px;width:min(340px,calc(100vw - 32px));padding:16px;border-radius:18px;background:#121D33;border:1px solid rgba(251,191,36,.45);color:#E6EEF8;box-shadow:0 20px 50px -20px rgba(251,191,36,.6);animation:pvPop .25s ease-out}
+#tsInv b{display:block;font:800 16px var(--display);margin-bottom:4px}#tsInv p{margin:0 0 12px;font-size:14px;color:#A9B8CE}
+#tsInv .a{display:flex;gap:8px;justify-content:flex-end}#tsInv button{font:700 14px inherit;padding:9px 14px;border-radius:11px;cursor:pointer;border:1px solid rgba(148,163,184,.3);background:none;color:#A9B8CE}
+#tsInv button.si{border:0;background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#1F1300}
+#tsPub{width:min(1080px,calc(100vw - 32px));margin:28px auto 36px;justify-self:center}
+#tsPub h3{margin:0 0 4px;text-align:center;font:800 24px var(--display);color:#F1F5F9}#tsPub > p{margin:0 0 18px;text-align:center;color:#A9B8CE}
+#tsPub .ts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+#tsPub .ts-it{background:rgba(15,23,42,.72);backdrop-filter:blur(6px)}
+.ts-adm .acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ts-adm .acc button{font:700 13px inherit;padding:7px 12px;border-radius:10px;cursor:pointer;border:1px solid rgba(148,163,184,.3);background:rgba(15,23,42,.6);color:#E6EEF8}
+.ts-adm .acc button.ap{border-color:rgba(34,197,94,.5);color:#86EFAC}.ts-adm .acc button.oc{color:#CBD5E1}.ts-adm .acc button.de{border-color:rgba(251,191,36,.5);color:#FDE68A}
+.ts-adm .acc button[disabled]{opacity:.4;cursor:not-allowed}
+.ts-adm .priv{font-size:12px;color:#64748B;margin-top:4px}
+.ts-fil{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.ts-fil select,.ts-fil button{font:600 13.5px inherit;padding:8px 12px;border-radius:10px;border:1px solid rgba(56,189,248,.3);background:rgba(2,6,16,.45);color:#E6EEF8;cursor:pointer}
+.ts-fil button.on{background:rgba(34,211,238,.18);border-color:#22D3EE}
+@media (max-width:560px){.op-c{padding:18px}.ts-res b{font-size:24px}#tsInv{bottom:180px}}
+`;
+var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+var CURSOS = ['porcicultura', 'nutricion', 'reproduccion', 'sanidad', 'engorde', 'lechones', 'rentabilidad', 'ponedoras', 'pollos', 'bovinos',
+              'apicultura', 'tilapia', 'cabras', 'guineas', 'ruta'];
+var PREF = {porcicultura:null, nutricion:'nx', reproduccion:'rp', sanidad:'sb', engorde:'eg', lechones:'lc', rentabilidad:'gr', ponedoras:'gp',
+  pollos:'pb', bovinos:'bv', apicultura:'ap', tilapia:'tl', cabras:'cb', guineas:'gn', ruta:'rt'};
+var e3 = function(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+var NOM = function(k){ try{ var C = COURSES[k]; return C ? ((C.icon || '') + ' ' + (C.label || k)).trim() : k; }catch(e){ return k; } };
+var tu = function(c){ return c === 'ruta'; };
+function yo(){ try{ return (typeof curStudent === 'function' ? curStudent() : null) || {}; }catch(e){ return {}; } }
+function estrellas(n){ var r = Math.round(n || 0); return '★★★★★'.slice(0, r) + '☆☆☆☆☆'.slice(0, 5 - r); }
+function fecha(f){ try{ return new Date(f).toLocaleDateString('es-DO', {day:'numeric', month:'short', year:'numeric'}); }catch(e){ return ''; } }
+function avisa(t, i){ if(typeof toast === 'function') toast(t, i || '💬'); }
+async function uid(){ try{ var u = await SB.auth.getUser(); return u && u.data && u.data.user ? u.data.user.id : null; }catch(e){ return null; } }
+function nombreSugerido(){
+  var n = String(yo().name || '').trim();
+  if(!n || n.indexOf('@') >= 0) return '';
+  var p = n.split(/\s+/); return p[0] + (p[1] ? ' ' + p[1].charAt(0).toUpperCase() + '.' : '');
+}
+function nMods(c){ try{ return COURSES[c].n || (COURSES[c].modules() || []).length; }catch(e){ return 0; } }
+function aprobado(c, id){ try{ if(c === 'porcicultura') return examPassed(id); return !!COURSES[c].passed(yo().id, id); }catch(e){ return false; } }
+function aprobados(c){ var n = nMods(c), k = 0; for(var i = 1; i <= n; i++) if(aprobado(c, i)) k++; return k; }
+function itemHTML(x, conCurso){
+  return '<div class="ts-it' + (x.destacado ? ' dest' : '') + '"><div class="st" aria-label="' + x.estrellas + ' de 5 estrellas">' + estrellas(x.estrellas) +
+    (x.destacado ? ' <span class="ts-chip aprobado" style="margin-left:4px">Destacado</span>' : '') + '</div><p>«' + e3(x.comentario) + '»</p>' +
+    '<div class="ts-q"><b>' + e3(x.nombre_visible) + '</b>' + (conCurso ? ' · ' + e3(NOM(x.curso)) : '') + ' · ' + fecha(x.fecha) + '</div></div>';
+}
+async function publicos(c, lim){
+  try{ var r = await SB.rpc('testimonios_publicos', {p_curso:c || null, p_limite:lim || 30}); if(r.error) throw r.error; return r.data || []; }
+  catch(e){ return null; }
+}
+async function mio(c){
+  var u = await uid(); if(!u) return null;
+  try{ var r = await SB.from('testimonios').select('*').eq('user_id', u).eq('curso', c).maybeSingle(); return r.error ? null : r.data; }catch(e){ return null; }
+}
+function cerrar(){ var o = document.getElementById('opOv'); if(o) o.remove(); }
+function ov(html){
+  cerrar();
+  var o = document.createElement('div'); o.id = 'opOv'; o.innerHTML = '<div class="op-c ts-c" role="dialog" aria-modal="true">' + html + '</div>';
+  o.onclick = function(e){ if(e.target === o) o.remove(); };
+  document.body.appendChild(o); return o;
+}
+
+/* ---------- panel del curso (estudiante) ---------- */
+window.tsPanel = async function(c){
+  var o = ov('<h3>⭐ Opiniones · ' + e3(NOM(c)) + '</h3><p>Cargando…</p>');
+  var L = await publicos(c, 30), m = await mio(c), T = tu(c);
+  var prom = L && L.length ? L.reduce(function(a, x){ return a + x.estrellas; }, 0) / L.length : 0;
+  var h = '<h3>⭐ Opiniones · ' + e3(NOM(c)) + '</h3><p>Lo que dicen ' + (T ? 'otros estudiantes' : 'otros productores') + ' que tomaron este curso.</p>';
+  if(L && L.length){
+    h += '<div class="ts-res"><b>' + prom.toFixed(1) + '</b><div><div style="color:#FBBF24;letter-spacing:2px">' + estrellas(prom) + '</div><span>' + L.length + ' testimonio' + (L.length > 1 ? 's' : '') + ' publicado' + (L.length > 1 ? 's' : '') + '</span></div></div>';
+    h += '<div class="ts-lista">' + L.map(function(x){ return itemHTML(x, false); }).join('') + '</div>';
+  } else {
+    var k = aprobados(c);
+    h += '<div class="ts-vacio"><div class="e">🌱</div><h4>Todavía no hay testimonios publicados</h4><p>' +
+      (k ? (T ? 'Ya llevas ' + k + ' módulo' + (k > 1 ? 's' : '') + ' aprobado' + (k > 1 ? 's' : '') + '. Cuéntanos cómo te va: tu opinión puede ser la primera.'
+             : 'Ya lleva ' + k + ' módulo' + (k > 1 ? 's' : '') + ' aprobado' + (k > 1 ? 's' : '') + '. Cuéntenos cómo le va: su opinión puede ser la primera.')
+         : (T ? 'Aprueba tu primer módulo y comparte tu experiencia con los demás.' : 'Apruebe su primer módulo y comparta su experiencia con los demás productores.')) + '</p></div>';
+  }
+  h += '<div class="ts-mio"><h4>' + (T ? 'Tu opinión' : 'Su opinión') + (m ? '<span class="ts-chip ' + m.estado + '">' + ({pendiente:'En revisión', aprobado:'Publicada', oculto:'No publicada'})[m.estado] + '</span>' : '') + '</h4>' +
+    (m ? '<div class="st" style="color:#FBBF24;letter-spacing:2px">' + estrellas(m.estrellas) + '</div><p style="margin:6px 0 0;color:#E6EEF8">«' + e3(m.comentario) + '»</p>'
+       : '<p style="margin:0;color:#A9B8CE">' + (T ? 'Aún no has opinado sobre este curso.' : 'Aún no ha opinado sobre este curso.') + '</p>') + '</div>' +
+    '<div class="op-acc"><button type="button" class="op-sal">Cerrar</button><button type="button" class="op-env">' + (m ? '✏️ Editar ' + (T ? 'mi' : 'mi') + ' opinión' : '⭐ Escribir mi opinión') + '</button></div>';
+  if(L === null) h = h.replace('<p>Lo que dicen', '<p class="ts-nota">Los testimonios públicos se activan cuando el instructor termine la configuración.</p><p>Lo que dicen');
+  o.querySelector('.op-c').innerHTML = h;
+  o.querySelector('.op-sal').onclick = cerrar;
+  o.querySelector('.op-env').onclick = function(){ tsAbrir(c, m); };
+};
+
+/* ---------- formulario (crear o editar) ---------- */
+window.tsAbrir = async function(c, previo, estIni){
+  var m = previo === undefined ? await mio(c) : previo, T = tu(c), est = m ? m.estrellas : (estIni || 0);
+  var o = ov('<h3>' + (m ? '✏️ Editar ' + (T ? 'tu' : 'su') + ' opinión' : '⭐ ' + (T ? '¿Qué te pareció' : '¿Qué le pareció') + ' el curso?') + '</h3>' +
+    '<p>' + e3(NOM(c)) + (m ? ' · al guardar vuelve a revisión antes de publicarse.' : ' · se publica después de que el instructor la revise.') + '</p>' +
+    '<div class="op-st" role="radiogroup" aria-label="Calificación">' + [1, 2, 3, 4, 5].map(function(n){ return '<button type="button" data-n="' + n + '" aria-label="' + n + ' estrellas">★</button>'; }).join('') + '</div>' +
+    '<label for="tsCom">' + (T ? 'Tu comentario' : 'Su comentario') + '<span class="ts-cnt" id="tsCnt">0/1200</span></label><textarea id="tsCom" maxlength="1200" placeholder="¿Qué aprendió? ¿Qué cambió en su granja o en su forma de trabajar?"></textarea>' +
+    '<label for="tsNom">Nombre que se mostrará</label><input class="ts-in" id="tsNom" maxlength="60" placeholder="Ej.: Juan P. · Moca">' +
+    '<label class="op-ok"><input type="checkbox" id="tsPub2"> Autorizo a AgroAcademy RD a publicar esta opinión con el nombre indicado.</label>' +
+    '<div class="ts-nota">Nunca se muestra su correo ni su teléfono. No incluya datos personales en el comentario.</div>' +
+    '<div class="op-acc"><button type="button" class="op-sal">Cancelar</button><button type="button" class="op-env">' + (m ? 'Guardar cambios' : 'Enviar opinión') + '</button></div>');
+  var com = o.querySelector('#tsCom'), nom = o.querySelector('#tsNom'), pub = o.querySelector('#tsPub2'), cnt = o.querySelector('#tsCnt');
+  com.value = m ? m.comentario : ''; nom.value = m ? m.nombre_visible : nombreSugerido(); pub.checked = m ? !!m.autoriza_publicar : true;
+  var upd = function(){ cnt.textContent = com.value.length + '/1200'; }; com.oninput = upd; upd();
+  var bts = o.querySelectorAll('.op-st button');
+  var pinta = function(){ [].forEach.call(bts, function(x){ x.classList.toggle('on', +x.dataset.n <= est); }); };
+  [].forEach.call(bts, function(b){ b.onclick = function(){ est = +b.dataset.n; pinta(); }; }); pinta();
+  o.querySelector('.op-sal').onclick = cerrar;
+  o.querySelector('.op-env').onclick = async function(){
+    var t = com.value.trim(), n = nom.value.trim();
+    if(!est) return avisa(T ? 'Elige de 1 a 5 estrellas' : 'Elija de 1 a 5 estrellas', '⭐');
+    if(t.length < 10) return avisa('Escriba al menos 10 caracteres en el comentario', '✍️');
+    if(n.length < 2 || n.indexOf('@') >= 0) return avisa('Escriba un nombre visible (sin correo)', '🙂');
+    var u = await uid(); if(!u) return avisa('Inicie sesión para opinar', '🔒');
+    var btn = this; btn.disabled = true; btn.textContent = 'Guardando…';
+    var r;
+    try{ r = await SB.from('testimonios').upsert({user_id:u, curso:c, estrellas:est, comentario:t, nombre_visible:n, autoriza_publicar:pub.checked},
+                                                {onConflict:'user_id,curso'}).select().maybeSingle(); }catch(e){ r = {error:e}; }
+    if(r.error){
+      btn.disabled = false; btn.textContent = 'Reintentar';
+      var msg = String(r.error.message || r.error);
+      return avisa(/row-level|policy|permission/i.test(msg) ? 'Solo puede opinar sobre cursos que tiene habilitados.' :
+                   /relation|does not exist|schema cache/i.test(msg) ? 'Las opiniones se activan en cuanto el instructor termine la configuración.' : 'No se pudo guardar: ' + msg, '⚠️');
+    }
+    try{ localStorage.setItem('ts::' + u + '::' + c, 'hecho'); }catch(e){}
+    cerrar(); avisa('¡Gracias! ' + (T ? 'Tu' : 'Su') + ' opinión quedó en revisión.', '💛');
+  };
+};
+
+/* ---------- invitación después de avanzar ---------- */
+async function invitar(c, fin){
+  if(document.getElementById('tsInv') || document.getElementById('opOv')) return;
+  var u = await uid(); if(!u) return;
+  var k = 'ts::' + u + '::' + c, v = null; try{ v = localStorage.getItem(k); }catch(e){}
+  if(v === 'hecho' || (v && !fin && Date.now() - (+v) < 14 * 864e5)) return;
+  if(await mio(c)){ try{ localStorage.setItem(k, 'hecho'); }catch(e){} return; }
+  var T = tu(c), d = document.createElement('div'); d.id = 'tsInv'; d.setAttribute('role', 'dialog');
+  d.innerHTML = '<b>' + (fin ? '🎓 ¡Curso terminado!' : '🌟 ¿' + (T ? 'Te' : 'Le') + ' está sirviendo el curso?') + '</b><p>' +
+    (T ? 'Comparte' : 'Comparta') + ' ' + (T ? 'tu' : 'su') + ' experiencia: ayuda a otros productores a decidir y a nosotros a mejorar.</p>' +
+    '<div class="a"><button type="button" class="no">Ahora no</button><button type="button" class="si">Opinar</button></div>';
+  document.body.appendChild(d);
+  d.querySelector('.no').onclick = function(){ try{ localStorage.setItem(k, String(Date.now())); }catch(e){} d.remove(); };
+  d.querySelector('.si').onclick = function(){ d.remove(); tsAbrir(c); };
+}
+function despues(c, id, antes){
+  if(antes || !aprobado(c, id)) return;
+  var fin = id >= nMods(c), k = aprobados(c);
+  if(!fin && k < 2) return;
+  var t = setInterval(function(){ if(!document.getElementById('opOv')){ clearInterval(t); setTimeout(function(){ invitar(c, fin); }, 900); } }, 1200);
+  setTimeout(function(){ clearInterval(t); }, 180000);
+}
+Object.keys(PREF).forEach(function(c){
+  var nom = PREF[c] ? PREF[c] + 'Enviar' : 'submitExam', orig = window[nom];
+  if(typeof orig !== 'function' || orig.__ts) return;
+  var f = function(id){ var a = aprobado(c, id), r = orig.apply(this, arguments); try{ despues(c, id, a); }catch(e){} return r; };
+  f.__ts = true; f.__op = orig.__op; f.__int = orig.__int;
+  window[nom] = f;
+  if(nom === 'submitExam'){ try{ submitExam = f; }catch(e){} }
+});
+
+/* ---------- público: pantalla de inicio ---------- */
+async function portada(){
+  var s = document.getElementById('screenLogin'); if(!s || document.getElementById('tsPub')) return;
+  var sec = document.createElement('section'); sec.id = 'tsPub'; sec.setAttribute('aria-label', 'Testimonios de estudiantes');
+  s.appendChild(sec);
+  var L = await publicos(null, 9);
+  if(L && L.length){
+    sec.innerHTML = '<h3>Lo que dicen nuestros estudiantes</h3><p>Opiniones reales de productores que tomaron los cursos, revisadas antes de publicarse.</p>' +
+      '<div class="ts-grid">' + L.map(function(x){ return itemHTML(x, true); }).join('') + '</div>';
+  } else {
+    sec.innerHTML = '<div class="ts-vacio"><div class="e">🌱</div><h4>Pronto, las experiencias de nuestros estudiantes</h4>' +
+      '<p>Aquí se publicarán opiniones reales de productores dominicanos que toman los cursos de AgroAcademy RD.</p></div>';
+  }
+}
+portada();
+
+/* ---------- administración ---------- */
+var A = {estado:'pendiente', curso:'todos', datos:[], perfiles:{}};
+async function cargarAdm(){
+  var b = document.getElementById('adminBody'); if(!b) return;
+  b.innerHTML = '<div class="cq2-vacio">Cargando testimonios…</div>';
+  try{
+    var r = await SB.from('testimonios').select('*').order('updated_at', {ascending:false}).limit(2000);
+    if(r.error) throw r.error;
+    A.datos = r.data || [];
+    var ids = A.datos.map(function(x){ return x.user_id; }).filter(function(v, i, a){ return a.indexOf(v) === i; });
+    A.perfiles = {};
+    if(ids.length){ var p = await SB.from('profiles').select('id,full_name,email').in('id', ids); (p.data || []).forEach(function(x){ A.perfiles[x.id] = x; }); }
+    pintaAdm();
+  }catch(e){
+    var msg = String(e.message || e);
+    b.innerHTML = '<div class="cq2-vacio">' + (/relation|does not exist|schema cache/i.test(msg) ? 'Falta ejecutar <b>supabase/testimonios.sql</b> en Supabase → SQL Editor.' : 'No se pudieron cargar: ' + e3(msg)) + '</div>';
+  }
+}
+function pintaAdm(){
+  var b = document.getElementById('adminBody'); if(!b) return;
+  var D = A.datos, cuenta = function(f){ return D.filter(f).length; };
+  var L = D.filter(function(x){ return (A.curso === 'todos' || x.curso === A.curso) &&
+    (A.estado === 'todos' || (A.estado === 'destacado' ? x.destacado : x.estado === A.estado)); });
+  var ap = D.filter(function(x){ return x.estado === 'aprobado'; });
+  var prom = ap.length ? ap.reduce(function(a, x){ return a + x.estrellas; }, 0) / ap.length : 0;
+  var cursos = CURSOS.filter(function(c){ return D.some(function(x){ return x.curso === c; }); });
+  var h = '<div class="op2 ts-adm"><div class="op2-k"><div><b>' + cuenta(function(x){ return x.estado === 'pendiente'; }) + '</b><span>Por revisar</span></div>' +
+    '<div><b>' + ap.length + '</b><span>Publicados</span></div><div><b class="st">' + (ap.length ? prom.toFixed(1) : '—') + '</b><span>Promedio publicados</span></div>' +
+    '<div><b>' + cuenta(function(x){ return x.destacado; }) + '</b><span>Destacados</span></div></div>' +
+    '<div class="ts-fil">' + [['pendiente', 'Por revisar'], ['aprobado', 'Publicados'], ['destacado', 'Destacados'], ['oculto', 'Ocultos'], ['todos', 'Todos']].map(function(f){
+      return '<button type="button" class="' + (A.estado === f[0] ? 'on' : '') + '" onclick="tsAF(\'' + f[0] + '\')">' + f[1] + '</button>'; }).join('') +
+    '<select onchange="tsAC(this.value)"><option value="todos">Todos los cursos</option>' + cursos.map(function(c){
+      return '<option value="' + c + '"' + (A.curso === c ? ' selected' : '') + '>' + e3(NOM(c)) + '</option>'; }).join('') + '</select></div>';
+  h += L.length ? '<div class="ts-lista">' + L.map(function(x){
+    var p = A.perfiles[x.user_id] || {};
+    return '<div class="ts-it' + (x.destacado ? ' dest' : '') + '"><div class="st">' + estrellas(x.estrellas) + '<span class="ts-chip ' + x.estado + '">' +
+      ({pendiente:'Por revisar', aprobado:'Publicado', oculto:'Oculto'})[x.estado] + '</span>' + (x.destacado ? '<span class="ts-chip aprobado">Destacado</span>' : '') +
+      (x.autoriza_publicar ? '' : '<span class="ts-chip oculto">Sin autorización para publicar</span>') + '</div>' +
+      '<p>«' + e3(x.comentario) + '»</p><div class="ts-q"><b>' + e3(x.nombre_visible) + '</b> · ' + e3(NOM(x.curso)) + ' · ' + fecha(x.updated_at) +
+      (x.updated_at && x.created_at && new Date(x.updated_at) - new Date(x.created_at) > 60000 ? ' · editado' : '') + '</div>' +
+      '<div class="priv">Solo para el instructor: ' + e3(p.full_name || '') + (p.email ? ' · ' + e3(p.email) : '') + '</div>' +
+      '<div class="acc"><button type="button" class="ap" ' + (x.autoriza_publicar && x.estado !== 'aprobado' ? '' : 'disabled') + ' title="' + (x.autoriza_publicar ? 'Publicar' : 'El estudiante no autorizó publicarlo') + '" onclick="tsAccion(' + x.id + ',\'aprobado\')">✓ Aprobar</button>' +
+      '<button type="button" class="oc" ' + (x.estado === 'oculto' ? 'disabled' : '') + ' onclick="tsAccion(' + x.id + ',\'oculto\')">🙈 Ocultar</button>' +
+      '<button type="button" class="de" ' + (x.estado === 'aprobado' ? '' : 'disabled') + ' title="Solo los publicados se pueden destacar" onclick="tsDest(' + x.id + ',' + (!x.destacado) + ')">' + (x.destacado ? '☆ Quitar destacado' : '★ Destacar') + '</button></div></div>';
+  }).join('') + '</div>' : '<div class="ts-vacio"><div class="e">💬</div><h4>' + (D.length ? 'No hay testimonios con este filtro' : 'Todavía no hay testimonios') + '</h4><p>' +
+    (D.length ? 'Pruebe con otro estado o curso.' : 'Los estudiantes pueden opinar desde «⭐ Opiniones» dentro de cada curso; también se les invita al aprobar módulos y al terminar.') + '</p></div>';
+  b.innerHTML = h + '</div>';
+}
+window.tsAF = function(k){ A.estado = k; pintaAdm(); };
+window.tsAC = function(k){ A.curso = k; pintaAdm(); };
+async function guardaAdm(id, cambio, txt){
+  try{ var r = await SB.from('testimonios').update(cambio).eq('id', id).select().maybeSingle(); if(r.error) throw r.error;
+    var i = A.datos.findIndex(function(x){ return x.id === id; }); if(i >= 0 && r.data) A.datos[i] = r.data; pintaAdm(); avisa(txt, '✅');
+  }catch(e){ avisa('No se pudo cambiar: ' + (e.message || e), '⚠️'); }
+}
+window.tsAccion = function(id, est){ guardaAdm(id, est === 'aprobado' ? {estado:'aprobado'} : {estado:est, destacado:false}, est === 'aprobado' ? 'Testimonio publicado' : 'Testimonio ocultado'); };
+window.tsDest = function(id, v){ guardaAdm(id, {destacado:!!v}, v ? 'Testimonio destacado' : 'Ya no está destacado'); };
+if(typeof admTab === 'function'){
+  var _admTs = admTab;
+  window.admTab = admTab = function(t){
+    if(t !== 'testimonios') return _admTs.apply(this, arguments);
+    try{ ADM.tab = 'testimonios'; }catch(e){}
+    [].forEach.call(document.querySelectorAll('#adminMenu button[data-t]'), function(x){ x.classList.toggle('on', x.dataset.t === 'testimonios'); });
+    var ti = document.getElementById('adminTitle'); if(ti) ti.textContent = 'Testimonios · moderación';
+    if(matchMedia('(max-width:820px)').matches){ var sd = document.getElementById('adminSide'); if(sd) sd.classList.add('hide'); }
+    cargarAdm();
+  };
+}
+if(typeof renderAdmin === 'function'){
+  var _raTs = renderAdmin;
+  window.renderAdmin = renderAdmin = function(){ var t = null; try{ t = ADM.tab; }catch(e){} if(t === 'testimonios'){ if(A.datos.length) pintaAdm(); else cargarAdm(); return; } return _raTs.apply(this, arguments); };
+}
+function botonAdm(){
+  var m = document.getElementById('adminMenu'); if(!m || m.querySelector('[data-t="testimonios"]')) return;
+  var ref = m.querySelector('[data-t="opiniones"]') || m.querySelector('[data-t="consultas"]');
+  var b = document.createElement('button'); b.setAttribute('data-t', 'testimonios'); b.setAttribute('onclick', "admTab('testimonios')");
+  b.className = ref ? ref.className.replace(/\bon\b/, '') : '';
+  b.innerHTML = '<span class="mi">💬</span> Testimonios';
+  m.insertBefore(b, ref ? ref.nextSibling : null);
+}
+botonAdm(); setInterval(botonAdm, 2000);
+})();
+
+
+/* ---------- pv-unifica.js ---------- */
+/* ============================================================
+   AGROACADEMY · EXPERIENCIA COMÚN EN TODOS LOS CURSOS (2026-11-07)
+   Componente compartido: activa en los 13 cursos complementarios la
+   misma experiencia de Porcicultura v2 (AGV2 de pv-cursos.js), sin
+   tocar su contenido:
+     · entrada con movimiento de cada página,
+     · pistas «👆» en lo que se toca o se escribe,
+     · escala de letra y ancho de lectura iguales,
+     · una foto al lado en las páginas sin apoyo visual, tomada de las
+       fotos DEL MISMO MÓDULO (nunca de otra especie) y sin repetir.
+   Los cursos no usan agMuestra, así que se observa su contenedor.
+   Futuras mejoras: se cambian aquí (o en AGV2) y llegan a todos.
+   ============================================================ */
+(function(){
+if(!window.AGV2 || typeof window.agv2Decora !== 'function') return;
+var CURSOS = {nutricion:'nx', reproduccion:'rp', sanidad:'sb', engorde:'eg', lechones:'lc', rentabilidad:'gr', ponedoras:'gp',
+  pollos:'pb', bovinos:'bv', apicultura:'ap', tilapia:'tl', cabras:'cb', guineas:'gn'};
+var TUTEA = {};
+Object.keys(CURSOS).forEach(function(c){
+  var p = CURSOS[c];
+  if(AGV2[c]) return;
+  AGV2[c] = {ov:p + 'Ov', main:p + 'Main', tu:!!TUTEA[c], sinFoto:true, glosario:function(){ return null; }, temas:{}, videos:[],
+    mod:function(){ try{ return window[p.toUpperCase() + 'CUR'] || eval(p.toUpperCase() + 'CUR'); }catch(e){ return 0; } }};
+});
+
+var css = `
+.agv2 section.nx-b.agv2-lado{margin-top:0!important}
+.agv2 .agv2-foto.agv2-propia{min-height:clamp(240px,46vh,560px)}
+.agv2 .agv2-foto.agv2-propia figcaption{font-size:12.5px}
+`;
+var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+/* foto al lado con las imágenes del propio módulo */
+var VIS = 'img, video, svg, canvas, iframe, table, .exam, .ex-q, .nx-q, .agv2-foto, [class*="-calc"], [class*="simu"], [class*="diag"], [class*="dona"], [class*="graf"], [class*="quiz"], [class*="exam"], form, input, textarea, select';
+var usadas = {};
+function fotoPropia(c, p){
+  var main = document.getElementById(p + 'Main'); if(!main) return;
+  var secs = [].slice.call(main.querySelectorAll('section.nx-b'));
+  var vis = secs.filter(function(s){ return s.style.display !== 'none' && s.offsetParent !== null; });
+  if(vis.length !== 1) return;                          // solo páginas de una sección
+  var s = vis[0];
+  if(s.dataset.agv2f || s.querySelector(VIS)) return;
+  if((s.textContent || '').trim().length < 120) return; // portadillas y cierres cortos: no
+  var mod = AGV2[c].mod(), k = c + '|' + mod, u = usadas[k] = usadas[k] || {};
+  var cand = [];
+  secs.forEach(function(x){
+    if(x === s) return;
+    [].forEach.call(x.querySelectorAll('img'), function(im){
+      var src = im.getAttribute('src') || ''; if(!/\.(jpe?g|png|webp)(\?|$)/i.test(src) || u[src]) return;
+      if((im.naturalWidth && im.naturalWidth < 400) || /logo|icono|icon|qr/i.test(src)) return;
+      var f = im.closest('figure'), fc0 = f && f.querySelector('figcaption');
+      var cap = fc0 ? [].map.call(fc0.childNodes, function(n){ return (n.textContent || '').trim(); }).filter(Boolean).join(' · ') : (im.getAttribute('alt') || '');
+      cand.push([src, cap]);
+    });
+  });
+  if(!cand.length) return;
+  var e = cand[0]; u[e[0]] = 1;
+  s.dataset.agv2f = e[0];
+  var fig = document.createElement('figure'); fig.className = 'agv2-foto agv2-propia';
+  var img = document.createElement('img'); img.src = e[0]; img.alt = ''; img.loading = 'lazy'; img.onerror = function(){ fig.remove(); s.classList.remove('agv2-lado'); };
+  fig.appendChild(img);
+  if(e[1]){ var fc = document.createElement('figcaption'); fc.textContent = e[1].slice(0, 160); fig.appendChild(fc); }
+  s.classList.add('agv2-lado'); s.appendChild(fig);
+}
+
+/* observar cada curso: al cambiar de página o de módulo se decora */
+var obs = {}, pend = {};
+function decora(c, p){
+  clearTimeout(pend[c]);
+  pend[c] = setTimeout(function(){
+    var ov = document.getElementById(p + 'Ov'); if(!ov || ov.offsetParent === null && getComputedStyle(ov).display === 'none') return;
+    if(obs[c]) obs[c].disconnect();
+    try{ agv2Decora(c); }catch(e){}
+    try{ fotoPropia(c, p); }catch(e){}
+    var m = document.getElementById(p + 'Main');
+    if(obs[c] && m) obs[c].observe(m, {childList:true, subtree:true, attributes:true, attributeFilter:['style', 'class']});
+  }, 140);
+}
+function vigila(){
+  Object.keys(CURSOS).forEach(function(c){
+    var p = CURSOS[c], m = document.getElementById(p + 'Main');
+    if(!m || m.__agv2) return;
+    m.__agv2 = true;
+    obs[c] = new MutationObserver(function(){ decora(c, p); });
+    obs[c].observe(m, {childList:true, subtree:true, attributes:true, attributeFilter:['style', 'class']});
+    decora(c, p);
+  });
+}
+vigila(); setInterval(vigila, 1500);
+/* al cambiar de módulo, las fotos ya usadas se reinician para ese módulo */
+Object.keys(CURSOS).forEach(function(c){
+  var nom = CURSOS[c] + 'Ir', f = window[nom];
+  if(typeof f !== 'function' || f.__agv2) return;
+  var g = function(id){ usadas[c + '|' + id] = {}; return f.apply(this, arguments); };
+  g.__agv2 = true; window[nom] = g;
+});
+})();
+
+/* ============================================================
+   VIDEOS CORTOS DE FORMULACIÓN (2026-11-07) · Remotion, mismo formato
+   que Porcicultura y Guineas: narración y subtítulos en español,
+   portada, controles y carga diferida (preload="none").
+   Se insertan después de la sección que explican (por título).
+   ============================================================ */
+(function(){
+if(typeof NXMOD === 'undefined' || !NXMOD) return;
+var NXVID = [
+  [1, 'Por qué la lisina manda', 'nx-lisina', 'Por qué la lisina manda', '0:57'],
+  [2, 'Cómo recibir un lote de maíz', 'nx-maiz', 'Recibir un lote de maíz', '1:00'],
+  [4, 'De la fórmula al lote', 'nx-pesar', 'De la fórmula al lote: cuánto pesar', '1:02'],
+  [5, 'El destete es un golpe', 'nx-destete', 'El destete es un golpe', '0:44'],
+  [6, 'Dónde se va el alimento', 'nx-engorde', 'Dónde se va el alimento', '0:53'],
+  [7, 'El error más común: mezclar de menos', 'nx-mezcla', 'Mezclar bien', '0:58'],
+  [8, 'El número que decide', 'nx-costo', 'El costo del kilo de cerdo', '0:42'],
+  [10, 'Cómo medir la conversión', 'nx-conversion', 'Medir la conversión', '0:52']
+];
+function html(id, t, d){
+  return '<figure class="pv-video nx-vid"><video controls preload="none" playsinline poster="videos/porcicultura/' + id + '.jpg">' +
+    '<source src="videos/porcicultura/' + id + '.mp4" type="video/mp4">' +
+    '<track kind="subtitles" srclang="es" label="Español" src="videos/porcicultura/' + id + '.vtt" default></video>' +
+    '<figcaption>🎬 ' + t + ' · ' + d + ' · animación propia de AgroAcademy RD, con narración y subtítulos. Toque ▶ para verlo; en el celular, use la pantalla completa.</figcaption></figure>';
+}
+NXVID.forEach(function(v){
+  var m = NXMOD[v[0] - 1]; if(!m || !m.sec) return;
+  if(m.sec.some(function(s){ return s.agv2v === v[2]; })) return;
+  var i = m.sec.findIndex(function(s){ return String(s.t || '').indexOf(v[1]) === 0; });
+  m.sec.splice(i >= 0 ? i + 1 : Math.min(2, m.sec.length), 0,
+    {k:'agmix', agv2v:v[2], t:'🎬 Video: ' + v[3], partes:[{k:'html', h:html(v[2], v[3], v[4])}]});
+  if(window.PV && PV.video) PV.video[v[2]] = [v[3], v[4], ''];
+});
 })();
 
 
@@ -106503,6 +106926,12 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
+
+
+
+
+
 
 
 
