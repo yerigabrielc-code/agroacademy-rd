@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10c · videos de Bovinos (8), Tilapia (8), Apicultura (8) y Sanidad (10, enfocados en PPA) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10d · Rentabilidad fusionada en Porcicultura (M9: 3 lecciones de taller, 4 preguntas, planilla por lote) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -103962,14 +103962,17 @@ src:[['Ministerio de Agricultura. RES-MARD-2024-3, arts. 11–13: registros y tr
 /* MÓDULO 9 · Economía y rentabilidad */
 PV.m[9] = {
 lead: 'Una granja puede tener cerdos sanos y gordos y aun así perder dinero. Este módulo le enseña a hacer las cuentas con sus propios datos antes de que el banco o la caja se las hagan a usted.',
-meta: 'Aprenderá a separar inversión, capital de trabajo y costos; a entender la diferencia entre ingreso, utilidad y dinero disponible; a calcular el costo por kilo y por lechón, el punto de equilibrio y tres escenarios. Todos los precios son ejemplos con fecha y se pueden cambiar. Aquí no se prometen ganancias: se aprende a calcularlas.',
+meta: 'Aprenderá a separar inversión, capital de trabajo y costos; a entender la diferencia entre ingreso, utilidad y dinero disponible; a calcular el costo por kilo y por lechón, el punto de equilibrio y tres escenarios; y, en el taller de rentabilidad, los costos ocultos, el margen, el precio que necesita y cuánto dinero mueve cada indicador. Todos los precios son ejemplos con fecha y se pueden cambiar. Aquí no se prometen ganancias: se aprende a calcularlas.',
 pieza: 'Costos, punto de equilibrio y tres escenarios',
 fondo: 'cuaderno',
 obj: ['Distinguir inversión inicial, capital de trabajo, costos fijos y variables.',
   'Explicar la diferencia entre ingreso, utilidad y dinero disponible, y leer un flujo de caja.',
   'Calcular el costo por kilogramo producido y el costo por lechón.',
   'Calcular el punto de equilibrio en precio y en cantidad.',
-  'Construir escenarios favorable, base y desfavorable con sus datos.'],
+  'Construir escenarios favorable, base y desfavorable con sus datos.',
+  'Reconocer los costos ocultos y el dinero que se pierde en el alimento.',
+  'Calcular el beneficio por cerdo, el margen y el precio necesario para un margen deseado.',
+  'Leer los indicadores del lote en pesos y decidir qué corregir primero.'],
 lec: [
 { t:'Inversión, capital de trabajo y costos', min:12, f:'cuaderno',
   para:'Antes de calcular ganancias, hay que poner cada peso en su lugar. Mezclar inversión con gastos es el error más común en las cuentas de una granja.',
@@ -104049,7 +104052,74 @@ lec: [
    p:'Este curso le enseña a hacer números, no reemplaza a un asesor financiero ni garantiza resultados. Los precios de los insumos y del cerdo cambian.'}
   ],
   cierre:[['Precio de venta y alimento son lo que más mueve la utilidad.','Tres escenarios con supuestos visibles y fechados.','Si el escenario desfavorable lo deja sin capital de trabajo, ajuste el plan antes de empezar.'],
-    'la actividad: sus tres escenarios.']}
+    'los costos que no se ven y el alimento que se pierde.']},
+
+/* Lecciones 6 a 8: taller de rentabilidad (contenido del antiguo curso «Gestión y rentabilidad», con el mismo lote de ejemplo de este módulo) */
+{ t:'Taller de rentabilidad: costos ocultos y alimento que se pierde', min:12, f:'comedero',
+  para:'Hay costos que no llegan con factura. No se ven en la caja, pero cada lote los paga, y el que no los cuenta cree que gana más de lo que gana.',
+  s:[
+  {k:'tarjetas', t:'Los costos ocultos', items:[
+   ['👨‍🌾','Mano de obra familiar','Si usted o un familiar trabaja en la granja sin sueldo, ese trabajo vale. Cuente lo que le pagaría a otra persona por hacerlo.'],
+   ['🏚️','Depreciación','Galpones, comederos, bebederos, bombas y vehículos se gastan. Vea la lección 1.'],
+   ['💀','Mortalidad','Un cerdo que muere ya comió, ya ocupó espacio y ya se atendió. Ese gasto lo pagan los que sí se venden.'],
+   ['🌾','Desperdicio de alimento','Comederos mal regulados, sacos rotos, humedad, roedores. Se paga entero y no llega a ningún cerdo.'],
+   ['⏳','Días de más','Cada día que un cerdo pasa en la granja después del peso de venta come, ocupa espacio y convierte peor.'],
+   ['🏦','Costo del dinero','Si usa un préstamo, los intereses. Si usa dinero propio, lo que ese dinero podría estar ganando en otra parte.']]},
+  {k:'idea', t:'Por qué el alimento manda',
+   p:['En el lote de ejemplo, el alimento costó unos <b>RD$ 180,000 de RD$ 414,700</b>: el 43 % de todo el costo, y el rubro más grande después de los lechones. En una granja de ciclo completo, que no compra lechones, pesa todavía más.',
+      'Por eso un cambio pequeño en el alimento mueve mucho el resultado. Bajar 5 % la luz casi no se nota; bajar 5 % el gasto en alimento sí.'],
+   nota:['plata','El kilo de alimento del ejemplo sale a unos RD$ 31 (quintal de 100 libras a RD$ 1,400). Use el precio de su proveedor, con fecha.']},
+  {k:'caso', t:'El dinero que se va en desperdicio', tag:'Mismo lote de ejemplo', p:['El lote gastó unos RD$ 180,000 en alimento. Suponga que el 5 % se cayó del comedero, se mojó o se lo comieron los ratones.'],
+   preg:'¿Cuánto dinero se perdió y cuánto bajaría el costo por kilo si se corrige?',
+   resp:['5 % de RD$ 180,000 = <b>RD$ 9,000</b> pagados sin alimentar a ningún cerdo.','Sin ese desperdicio, el lote costaría unos RD$ 405,700: 405,700 ÷ 2,640 kg = <b>≈ RD$ 153.7 por kilo</b>, en vez de RD$ 157.1.','Son más de RD$ 3 por kilo de diferencia sin cambiar de alimento ni de proveedor.']},
+  {k:'check', t:'Dónde se pierde el alimento: revise esto primero', items:['Comederos regulados: que no caiga alimento al piso.','Sacos en tarimas, lejos de la pared y del piso mojado.','Almacén cerrado a ratones, aves y lluvia; sin sacos rotos.','Alimento con hongos o mal olor: no se da y se anota la pérdida.','Si mezcla en la granja, se pesa cada ingrediente en cada tanda.','La entrega se anota por lote, para comparar lo que se compró con lo que se comió.']},
+  {k:'idea', t:'La conversión es dinero',
+   p:['La conversión alimenticia (kilos de alimento ÷ kilos ganados) une el alimento con el dinero. En la tabla de escenarios de la lección 5, pasar de 2.8 a 3.1 costó unos <b>RD$ 19,300</b> en el lote: alrededor de <b>RD$ 6,400 por cada 0.1</b> de conversión.',
+      'Si la conversión empeora, busque la causa antes de cambiar de alimento: desperdicio, enfermedad, calor, agua, días de más o densidad.']}
+  ],
+  cierre:[['Mano de obra familiar, depreciación, mortalidad, desperdicio, días de más y costo del dinero también son costos.','El alimento es el rubro que más se puede mejorar sin gastar más.','Cada 0.1 de conversión cuenta en pesos.'],
+    'beneficio, margen y el precio que necesita.']},
+
+{ t:'Taller de rentabilidad: margen y el precio que necesito', min:12, f:'camion',
+  para:'Vender caro no sirve si no sé cuánto me costó; vender barato tampoco, si no sé cuánto pierdo. Aquí se aprende a llevar el precio escrito a la negociación.',
+  s:[
+  {k:'idea', t:'La venta no termina en la báscula',
+   p:['Transporte, guías, comisión del intermediario y la merma del viaje salen del precio. Lo que cuenta es el <b>precio neto</b>: lo que llega a su mano, no lo que dice la oferta.',
+      '<b>Beneficio por cerdo</b> = precio neto por cerdo − costo por cerdo vendido. En el lote de ejemplo: 110 kg × RD$ 170 = RD$ 18,700; el costo por cerdo es 414,700 ÷ 24 ≈ RD$ 17,280. Beneficio ≈ <b>RD$ 1,420 por cerdo</b>, unos RD$ 34,100 en el lote.']},
+  {k:'tarjetas', t:'Margen y recargo: la misma ganancia, dos porcentajes', items:[
+   ['📊','Margen (sobre el precio)','Margen % = beneficio ÷ precio × 100. En el ejemplo: 1,420 ÷ 18,700 ≈ <b>7.6 %</b>: de cada RD$ 100 que le pagan, le quedan RD$ 7.60. Es el que se usa para comparar lotes y negocios.'],
+   ['➕','Recargo (sobre el costo)','Recargo % = beneficio ÷ costo × 100. En el ejemplo: 1,420 ÷ 17,280 ≈ <b>8.2 %</b>. Siempre sale más alto, porque divide entre un número más pequeño. Al negociar, aclare cuál está usando.']]},
+  {k:'caso', t:'El precio que necesito', tag:'Mismo lote de ejemplo', p:['Usted quiere que le quede un margen del 15 %. Su costo es de unos RD$ 17,280 por cerdo de 110 kg.'],
+   preg:'¿A cuánto tiene que vender? ¿Sirve sumarle 15 % al costo?',
+   resp:['Precio necesario = costo ÷ (1 − margen deseado) = 17,280 ÷ 0.85 ≈ <b>RD$ 20,330 por cerdo</b>, unos <b>RD$ 185 por kilo</b>.','Si en cambio le suma 15 % al costo: 17,280 × 1.15 ≈ RD$ 19,870, y su margen real queda en 13 %, no en 15 %.','Calcule el precio objetivo con la fórmula del margen y llévelo escrito a la negociación.']},
+  {k:'tabla', t:'Cuánto cambia la ganancia cuando cambia el precio', intro:'Mismo costo, ≈ RD$ 17,280 por cerdo. Datos ilustrativos.',
+   head:['Precio por cerdo (110 kg)','Beneficio por cerdo','Margen','En 24 cerdos'],
+   rows:[['RD$ 16,830 (RD$ 153/kg, −10 %)','− RD$ 450','− 2.7 %','− RD$ 10,800'],['RD$ 18,700 (RD$ 170/kg)','RD$ 1,420','7.6 %','RD$ 34,100'],['RD$ 20,570 (RD$ 187/kg, +10 %)','RD$ 3,290','16.0 %','RD$ 79,000']],
+   nota:['plata','Con un margen tan delgado, una baja del 10 % en el precio convierte la ganancia en pérdida. Un margen pequeño es frágil: por eso se cuida el costo y se busca comprador seguro.']}
+  ],
+  cierre:[['Beneficio por cerdo = precio neto − costo por cerdo vendido.','Margen sobre el precio; recargo sobre el costo.','Precio necesario = costo ÷ (1 − margen deseado).'],
+    'cuánto dinero mueve cada indicador del corral.']},
+
+{ t:'Taller de rentabilidad: indicadores y decisiones', min:13, f:'bascula',
+  para:'Lo que pasa en el corral aparece después en la cuenta del banco. Cada lote es una unidad de negocio: se mide, se compara con el anterior y se decide qué corregir.',
+  s:[
+  {k:'tabla', t:'Los indicadores y su efecto en el dinero', intro:'Con el lote de ejemplo del módulo. Los días en engorde son un supuesto.',
+   head:['Indicador','Fórmula','Ejemplo','Qué le pasa al dinero'],
+   rows:[['Mortalidad','muertos ÷ iniciados × 100','1 ÷ 25 = 4 %','Cada muerto reparte su costo entre los que se venden'],['Conversión alimenticia','kg de alimento ÷ kg ganados','2.8','Cada 0.1 de más cuesta alimento sin carne'],['Ganancia diaria de peso','kg ganados ÷ días','(110 − 25) ÷ 120 días ≈ 708 g/día','Menos ganancia = más días, más alimento y más costo fijo'],['Peso de venta','kg vendidos ÷ cerdos vendidos','110 kg','Cambia el ingreso y la conversión'],['Costo por kg vendido','costo total ÷ kg vendidos','≈ RD$ 157.1','Es el piso del precio'],['Margen','beneficio ÷ ingreso × 100','7.6 % a RD$ 170/kg','Cuánto le queda de cada RD$ 100']]},
+  {k:'idea', t:'Lo que cuesta un cerdo muerto',
+   p:['El cerdo que murió en el lote de ejemplo ya había costado el lechón (RD$ 6,000) y la mitad de su alimento (≈ RD$ 3,700): unos <b>RD$ 9,700</b>, sin contar atención ni mano de obra. Ese dinero no se recupera: lo pagan los 24 que se vendieron, unos RD$ 400 más de costo cada uno.',
+      'Anote la fecha y la causa de cada muerte. Si se repiten, llame al veterinario: la prevención casi siempre cuesta menos que el cerdo perdido.']},
+  {k:'caso', t:'¿Qué lote fue más rentable?', tag:'Ejemplo ilustrativo', p:['Dos lotes de 50 cerdos, vendidos al mismo precio, RD$ 150 por kg en pie. El lote A tuvo 3 muertos y vendió 47 cerdos de 100 kg; costó RD$ 640,000. El lote B tuvo 1 muerto y vendió 49 cerdos de 95 kg; costó RD$ 610,000.'],
+   datos:[['','Lote A','Lote B'],['Kilos vendidos','47 × 100 = 4,700','49 × 95 = 4,655'],['Ingreso (× RD$ 150)','RD$ 705,000','RD$ 698,250'],['Resultado','RD$ 65,000','RD$ 88,250'],['Costo por kg','RD$ 136.17','RD$ 131.04'],['Mortalidad','6 %','2 %']],
+   preg:'¿Cuál fue mejor, si el A vendió cerdos más pesados?',
+   resp:['El <b>lote B</b>: ganó RD$ 23,250 más, con RD$ 5.13 menos de costo por kilo.','El A vendió más kilos por cerdo, pero perdió más animales y gastó más. Mismo precio no es mismo resultado.']},
+  {k:'tabla', t:'Tablero de decisiones', intro:'Lo que ve en sus números y lo primero que conviene revisar.',
+   head:['Si ve esto…','Revise primero…','Decisión posible'],
+   rows:[['El costo por kg subió','Precio del alimento, conversión y mortalidad','Corregir desperdicio y sanidad antes de cambiar de alimento'],['El margen es menor que el de lotes anteriores','Precio neto de venta y costos del lote','Negociar precio o gastos de venta; recortar costos variables'],['No llega al punto de equilibrio','Costos fijos y margen por cerdo','Producir más con lo mismo, o bajar los fijos'],['La caja queda en negativo','Fechas de cobro y de pago','Negociar plazos, anticipo o crédito antes de que falte'],['Un lote fue mucho peor que otro','Mortalidad, conversión y ganancia diaria','Buscar la causa y repetir el manejo del lote bueno']]},
+  {k:'pasos', t:'El ciclo de gestión', items:[['Registrar, cada día','Ventas, gastos, kilos, muertes y alimento.'],['Calcular, cada lote','Costo por cerdo y por kilo, margen e indicadores.'],['Comparar, cada lote','Con sus lotes anteriores y con su meta.'],['Decidir, cada lote','Una o dos acciones concretas, con responsable.'],['Volver a medir','En el siguiente lote: ¿mejoró el número? Si no, por qué.']]}
+  ],
+  cierre:[['Cada indicador del corral tiene un precio en la cuenta del lote.','Compare lotes por resultado y costo por kilo, no solo por peso.','Registrar, calcular, comparar, decidir y volver a medir.'],
+    'la actividad: sus tres escenarios. La planilla «Gestión y rentabilidad por lote» le hace estos cálculos.']}
 ],
 act:{ t:'Construya tres escenarios para su proyecto',
   p:'Use la calculadora de escenarios o la plantilla «Calculadora de costos y rentabilidad». Escriba sus supuestos con fecha y fuente. No hay respuesta correcta: lo importante es que los números sean suyos y estén explicados.',
@@ -104068,7 +104138,11 @@ quiz:[
  ['¿Qué debe acompañar a cada precio que usa en sus cálculos?',[['Nada',0],['La fecha y la fuente, porque cambian',1],['Una foto',0],['El nombre del vecino',0]],'Los precios son supuestos que se actualizan.'],
  ['En el escenario desfavorable su proyecto pierde dinero y se queda sin capital de trabajo. ¿Qué hace?',[['Lo ignora: el base es bueno',0],['Ajusta el plan antes de empezar: reserva, escala, comprador con precio mínimo, eficiencia',1],['Empieza igual con más cerdos',0],['Abandona sin revisar',0]],'Los escenarios sirven para prepararse.'],
  ['El costo por lechón destetado se calcula…',[['Solo con el alimento de los lechones',0],['Con todos los costos de cerdas y maternidad del período ÷ lechones destetados',1],['Con el precio de venta',0],['Con el peso al nacer',0]],'Incluye el alimento de las cerdas todo el año.'],
- ['Si la conversión empeora de 2.8 a 3.1 en el lote de ejemplo, ¿qué ocurre con la utilidad?',[['Sube',0],['Baja, porque se gasta más alimento por kilo',1],['No cambia',0],['Depende del color',0]],'Más alimento para el mismo peso es más costo.']
+ ['Si la conversión empeora de 2.8 a 3.1 en el lote de ejemplo, ¿qué ocurre con la utilidad?',[['Sube',0],['Baja, porque se gasta más alimento por kilo',1],['No cambia',0],['Depende del color',0]],'Más alimento para el mismo peso es más costo.'],
+ ['El lote gastó RD$ 180,000 en alimento y se desperdició el 5 %. ¿Cuánto dinero se perdió?',[['RD$ 900',0],['RD$ 9,000',1],['RD$ 18,000',0],['Nada, porque ya estaba pagado',0]],'5 % de 180,000 = RD$ 9,000 pagados sin alimentar a ningún cerdo.'],
+ ['Un cerdo cuesta RD$ 17,280 y se vende en RD$ 18,700. ¿Cuál es su margen?',[['≈ 7.6 %',1],['≈ 8.2 %',0],['≈ 15 %',0],['≈ 1.4 %',0]],'Margen = 1,420 ÷ 18,700 × 100 ≈ 7.6 %. El 8.2 % es el recargo, que se calcula sobre el costo.'],
+ ['Su costo es RD$ 17,280 por cerdo y quiere un margen del 15 %. ¿A cuánto debe vender?',[['17,280 × 1.15 ≈ RD$ 19,870',0],['17,280 ÷ 0.85 ≈ RD$ 20,330',1],['17,280 + 15 ≈ RD$ 17,295',0],['17,280 × 0.85 ≈ RD$ 14,690',0]],'Precio necesario = costo ÷ (1 − margen). Sumar 15 % al costo deja solo 13 % de margen.'],
+ ['Lote A: 47 cerdos de 100 kg, costó RD$ 640,000. Lote B: 49 de 95 kg, costó RD$ 610,000. Ambos a RD$ 150/kg. ¿Cuál fue más rentable?',[['El A, porque vendió cerdos más pesados',0],['El B: RD$ 88,250 contra RD$ 65,000',1],['Iguales, por el mismo precio',0],['No se puede saber',0]],'B: 698,250 − 610,000 = 88,250. A: 705,000 − 640,000 = 65,000.']
 ],
 src:[['Iowa State University Extension: estimated livestock returns y presupuestos de producción porcina','https://www.extension.iastate.edu/agdm/','Estructura de costos, depreciación'],
  ['FAO. Análisis económico de pequeñas explotaciones pecuarias','https://www.fao.org',''],
@@ -104427,7 +104501,8 @@ var R = {
   san:['registro-sanitario.xlsx','Registro sanitario','Tratamientos con tiempo de retiro, mortalidad y visitas','🩺'],
   lis:['listas-revision-diarias.xlsx','Listas de revisión diarias','Por etapa, más el calendario semanal','✅'],
   cv:['control-compras-ventas.xlsx','Control de compras y ventas','Caja, ventas y cuentas por cobrar','🧾'],
-  cos:['calculadora-costos-rentabilidad.xlsx','Calculadora de costos y rentabilidad','Costo por kg, equilibrio, escenarios y costo por lechón','💰']
+  cos:['calculadora-costos-rentabilidad.xlsx','Calculadora de costos y rentabilidad','Costo por kg, equilibrio, escenarios y costo por lechón','💰'],
+  gr:['gestion-rentabilidad-lotes.xlsx','Gestión y rentabilidad por lote','Taller de rentabilidad: costos, margen, precio necesario, indicadores y comparación de lotes','📈']
 };
 PVREC[1] = [R.plan];
 PVREC[2] = [R.pres, R.plan];
@@ -104437,10 +104512,10 @@ PVREC[5] = [R.ali];
 PVREC[6] = [R.bio, R.san];
 PVREC[7] = [R.lis];
 PVREC[8] = [R.cv, R.san, R.cam, R.ali];
-PVREC[9] = [R.cos, R.pres];
+PVREC[9] = [R.cos, R.gr, R.pres];
 PVREC[10] = [R.cv, R.cos];
 PVREC[11] = [R.ali, R.cv, R.lis];
-PVREC[12] = [R.plan, R.pres, R.cal, R.cam, R.ali, R.bio, R.san, R.lis, R.cv, R.cos];
+PVREC[12] = [R.plan, R.pres, R.cal, R.cam, R.ali, R.bio, R.san, R.lis, R.cv, R.cos, R.gr];
 })();
 
 
@@ -107046,6 +107121,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
