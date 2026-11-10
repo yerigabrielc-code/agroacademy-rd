@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10d · Rentabilidad fusionada en Porcicultura (M9: 3 lecciones de taller, 4 preguntas, planilla por lote) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10e · Rentabilidad fusionada en Porcicultura (M9: taller de 3 lecciones con 3 videos, 4 preguntas, planilla por lote) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -102708,7 +102708,10 @@ Object.assign(PV.video, {
   inventario: ['¿Cuadra su inventario?', '0:31', ''],
   canal: ['¿En pie o en canal?', '0:43', 'Precios de ejemplo.'],
   digital: ['Su sistema digital mínimo', '0:42', ''],
-  plan90: ['Su plan de 90 días', '0:38', '']
+  plan90: ['Su plan de 90 días', '0:38', ''],
+  'pv-ocultos': ['Los costos que no se ven', '0:50', 'Números del lote de ejemplo del módulo.'],
+  'pv-margen': ['Margen y el precio que necesito', '1:04', 'Números del lote de ejemplo del módulo.'],
+  'pv-indicadores': ['Indicadores y decisiones', '0:58', 'Datos ilustrativos.']
 });
 
 
@@ -104439,7 +104442,7 @@ src:[['Las fuentes de cada módulo del curso','',''],['Ministerio de Agricultura
 /* ---------- pv-videos2.js ---------- */
 /* PORCICULTURA V2 · microvideos agregados a los módulos (una pantalla de video al inicio de la lección indicada) */
 (function(){
-  var V = [[1, 2, 'modelos'], [2, 1, 'terreno'], [3, 5, 'parto'], [4, 2, 'calostro'], [7, 3, 'rutina'], [8, 3, 'inventario'], [10, 2, 'canal'], [11, 2, 'digital'], [12, 3, 'plan90']];
+  var V = [[1, 2, 'modelos'], [2, 1, 'terreno'], [3, 5, 'parto'], [4, 2, 'calostro'], [7, 3, 'rutina'], [8, 3, 'inventario'], [10, 2, 'canal'], [11, 2, 'digital'], [12, 3, 'plan90'], [9, 6, 'pv-ocultos'], [9, 7, 'pv-margen'], [9, 8, 'pv-indicadores']];
   V.forEach(function(x){
     var l = PV.m[x[0]] && PV.m[x[0]].lec[x[1] - 1]; if(!l || !PV.video[x[2]]) return;
     if(l.s.some(function(s){ return s.v === x[2]; })) return;
@@ -107121,6 +107124,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
