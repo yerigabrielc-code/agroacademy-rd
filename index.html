@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10b · videos de Engorde (9), Reproducción (9) y Lechones (8); Ponedoras completo (8) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10c · videos de Bovinos (8), Tilapia (8), Apicultura (8) y Sanidad (10, enfocados en PPA) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -106354,7 +106354,46 @@ var VIDEOS = {
     [5, 'Antes de cualquier procedimiento', 'lc-practicas', 'Antes de cualquier procedimiento', '0:42'],
     [6, 'El momento de la muerte', 'lc-perdidas', 'Prevenir las pérdidas', '0:49'],
     [7, 'Un destete con menos estrés', 'lc-destete', 'Llegar bien al destete', '0:50'],
-    [8, 'Ejemplo práctico', 'lc-medir', 'La mortalidad predestete', '0:48']]
+    [8, 'Ejemplo práctico', 'lc-medir', 'La mortalidad predestete', '0:48']],
+  BVMOD: [
+    [1, 'De dónde sale el dinero', 'bv-negocio', 'Conozca su ganado y su negocio', '0:58'],
+    [2, 'Pastoreo controlado', 'bv-pasto', 'Pasto y rotación de potreros', '0:59'],
+    [3, '¿Cuánto come', 'bv-alimento', 'Cuánto come un animal', '0:54'],
+    [4, 'Animal en buen estado', 'bv-bienestar', 'Agua y bienestar', '1:03'],
+    [5, 'Porcentaje de preñez', 'bv-prenez', 'Preñez e intervalo entre partos', '1:00'],
+    [6, 'Ante un animal enfermo', 'bv-sanidad', 'Sanidad y bioseguridad', '0:48'],
+    [7, 'Ingreso, beneficio', 'bv-numeros', 'Los números de la finca', '0:57'],
+    [8, 'La metodología', 'bv-rentable', 'Una ganadería rentable', '0:44']],
+  TLMOD: [
+    [1, 'Errores frecuentes', 'tl-negocio', 'El negocio de la tilapia', '0:56'],
+    [2, 'Preparar un estanque', 'tl-diseno', 'Diseñe su unidad', '0:58'],
+    [3, 'Recepción, transporte', 'tl-alevines', 'Recibir los alevines', '0:57'],
+    [4, 'Cómo medir y registrar', 'tl-agua', 'La calidad del agua', '0:51'],
+    [5, 'El muestreo de peso', 'tl-alimento', 'Biomasa y conversión', '0:56'],
+    [6, 'La bioseguridad de todos', 'tl-sanidad', 'Bioseguridad del cultivo', '0:54'],
+    [7, 'Preparar el sistema y cosechar', 'tl-cosecha', 'Cosecha y cadena de frío', '0:57'],
+    [8, 'Costo por kilo', 'tl-costos', 'El costo por kilo', '1:03']],
+  APMOD: [
+    [1, 'La polinización', 'ap-colonia', 'La colonia es una empresa', '0:59'],
+    [2, 'Cómo organizar', 'ap-apiario', 'Dónde poner el apiario', '0:58'],
+    [3, 'La inversión', 'ap-equipo', 'La colmena y el equipo', '0:49'],
+    [4, 'Qué buscar', 'ap-revisar', 'Cómo revisar una colmena', '0:54'],
+    [5, 'La enjambrazón', 'ap-reina', 'La reina y la enjambrazón', '0:48'],
+    [6, 'Picaduras', 'ap-sanidad', 'Sanidad del apiario', '0:54'],
+    [7, 'Calidad de la miel', 'ap-cosecha', 'Cosechar una miel de calidad', '0:49'],
+    [8, 'Canales de venta', 'ap-negocio', 'El costo de un kilo de miel', '0:50']],
+  /* Sanidad: los 10 videos miran cada módulo desde la Peste Porcina Africana */
+  SBMOD: [
+    [1, 'Lo que se anota', 'sb-prevenir', 'Prevenir sale más barato', '0:51'],
+    [2, 'Ante una sospecha', 'sb-ppa', 'Qué es la PPA', '0:58'],
+    [3, 'Las tres que más', 'sb-vias', 'Por dónde entra la PPA', '0:55'],
+    [4, 'Procedimiento de entrada', 'sb-porton', 'La línea del portón', '0:52'],
+    [5, 'El animal que se ve mal', 'sb-interna', 'Que no se mueva por dentro', '0:55'],
+    [6, 'Los seis errores', 'sb-limpiar', 'Limpiar y desinfectar', '1:00'],
+    [7, 'Cómo se hace, día por día', 'sb-cuarentena', 'La cuarentena', '0:44'],
+    [8, 'Lo que sí le toca', 'sb-cadaveres', 'Cadáveres y plagas', '0:48'],
+    [9, 'Un plan que se cumple', 'sb-plan', 'El plan de mi granja', '0:45'],
+    [10, 'Qué debe disparar', 'sb-protocolo', 'Protocolo ante sospecha de PPA', '1:03']]
 };
 function html(id, t, d, tu){
   return '<figure class="pv-video nx-vid"><video controls preload="none" playsinline poster="videos/porcicultura/' + id + '.jpg">' +
@@ -107007,6 +107046,8 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
+
 
 
 
