@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-07a · testimonios moderados (pv-testimonios), experiencia común en los 13 cursos (pv-unifica) y 8 videos de Formulación -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10a · videos de Pollos (9), Cabras (8), Ponedoras (6) y Guineas (7 nuevos, 15 en total) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -106271,36 +106271,117 @@ Object.keys(CURSOS).forEach(function(c){
 })();
 
 /* ============================================================
-   VIDEOS CORTOS DE FORMULACIÓN (2026-11-07) · Remotion, mismo formato
-   que Porcicultura y Guineas: narración y subtítulos en español,
-   portada, controles y carga diferida (preload="none").
-   Se insertan después de la sección que explican (por título).
+   VIDEOS CORTOS DE LOS CURSOS (Remotion, mismo formato que Porcicultura
+   y Guineas): narración y subtítulos en español, portada, controles y
+   carga diferida (preload="none"). Cada video se inserta después de la
+   sección que explica (búsqueda por título) en los datos del curso.
+   Agregar un curso: una entrada en VIDEOS con su variable de módulos.
+   [módulo, inicio del título de la sección, id, título, duración, tutea]
    ============================================================ */
 (function(){
-if(typeof NXMOD === 'undefined' || !NXMOD) return;
-var NXVID = [
-  [1, 'Por qué la lisina manda', 'nx-lisina', 'Por qué la lisina manda', '0:57'],
-  [2, 'Cómo recibir un lote de maíz', 'nx-maiz', 'Recibir un lote de maíz', '1:00'],
-  [4, 'De la fórmula al lote', 'nx-pesar', 'De la fórmula al lote: cuánto pesar', '1:02'],
-  [5, 'El destete es un golpe', 'nx-destete', 'El destete es un golpe', '0:44'],
-  [6, 'Dónde se va el alimento', 'nx-engorde', 'Dónde se va el alimento', '0:53'],
-  [7, 'El error más común: mezclar de menos', 'nx-mezcla', 'Mezclar bien', '0:58'],
-  [8, 'El número que decide', 'nx-costo', 'El costo del kilo de cerdo', '0:42'],
-  [10, 'Cómo medir la conversión', 'nx-conversion', 'Medir la conversión', '0:52']
-];
-function html(id, t, d){
+var VIDEOS = {
+  NXMOD: [
+    [1, 'Por qué la lisina manda', 'nx-lisina', 'Por qué la lisina manda', '0:57'],
+    [2, 'Cómo recibir un lote de maíz', 'nx-maiz', 'Recibir un lote de maíz', '1:00'],
+    [4, 'De la fórmula al lote', 'nx-pesar', 'De la fórmula al lote: cuánto pesar', '1:02'],
+    [5, 'El destete es un golpe', 'nx-destete', 'El destete es un golpe', '0:44'],
+    [6, 'Dónde se va el alimento', 'nx-engorde', 'Dónde se va el alimento', '0:53'],
+    [7, 'El error más común: mezclar de menos', 'nx-mezcla', 'Mezclar bien', '0:58'],
+    [8, 'El número que decide', 'nx-costo', 'El costo del kilo de cerdo', '0:42'],
+    [10, 'Cómo medir la conversión', 'nx-conversion', 'Medir la conversión', '0:52']],
+  PBMOD: [
+    [2, 'Limpieza y desinfección', 'pb-galpon', 'Prepara el galpón', '0:52', true],
+    [3, 'La recepción, paso a paso', 'pb-recepcion', 'Recibir los pollitos', '1:01', true],
+    [4, 'Conversión alimenticia', 'pb-conversion', 'La conversión alimenticia', '0:49', true],
+    [5, 'Cómo pesar bien', 'pb-pesar', 'Pesar el lote', '0:56', true],
+    [6, 'La puerta es la primera barrera', 'pb-bioseguridad', 'Bioseguridad en el galpón', '0:48', true],
+    [7, 'Costo por kilogramo', 'pb-costo', '¿Cuánto me cuesta un pollo?', '0:39', true],
+    [10, 'Galpón abierto de clima cálido', 'pb-calor', 'Un galpón para el calor', '0:50', true],
+    [11, 'Punto de equilibrio', 'pb-equilibrio', 'Punto de equilibrio', '0:42', true],
+    [12, 'La salida del lote', 'pb-salida', 'La salida del lote', '0:52', true]],
+  CBMOD: [
+    [1, 'Dos especies', 'cb-especies', 'Cabras y ovejas no son iguales', '0:53'],
+    [2, 'Cercas y divisiones', 'cb-instalaciones', 'Cercas, potreros y corrales', '0:55'],
+    [3, 'Qué revisar de pies a cabeza', 'cb-compra', 'Comprar animales sanos', '1:01'],
+    [4, 'El agua', 'cb-alimento', 'Alimento y agua para la sequía', '0:56'],
+    [5, 'Preparar el parto', 'cb-parto', 'El parto y las primeras horas', '1:07'],
+    [6, 'Parásitos', 'cb-sanidad', 'Parásitos y señales de alarma', '0:52'],
+    [7, 'El costo de un animal', 'cb-venta', 'El costo antes de vender', '0:50'],
+    [8, 'Margen operativo', 'cb-costos', 'Margen y punto de equilibrio', '0:53']],
+  GPMOD: [
+    [1, 'Producción diaria y mensual', 'gp-postura', 'El porcentaje de postura', '0:54'],
+    [2, 'Cuántas gallinas necesito', 'gp-cuantas', 'Cuántas gallinas necesita', '0:41'],
+    [3, 'Costo de alimento por gallina', 'gp-alimento', 'Alimento y agua', '0:53'],
+    [4, 'Rutina diaria', 'gp-rutina', 'La rutina diaria', '0:47'],
+    [5, 'Del nido al cartón', 'gp-huevo', 'Del nido al cartón', '0:57'],
+    [6, 'La entrada es la primera', 'gp-bioseguridad', 'La entrada, primera barrera', '0:34'],
+    [7, 'Costo por huevo', 'gp-costo', 'El costo de un huevo', '0:46'],
+    [8, 'El tablero del productor', 'gp-tablero', 'El tablero del productor', '0:36']],
+  /* Guineas: [módulo, número de lección, id, título]; usa su propia pieza «gnvideo», como sus 8 videos anteriores */
+  GNMOD: [
+    [1, 3, 'gn-especie', 'Guinea y gallina no son lo mismo'],
+    [7, 5, 'gn-reproductores', 'Huevos fértiles para incubar'],
+    [9, 3, 'gn-engorde', 'Pesar y decidir cuándo vender'],
+    [11, 3, 'gn-retorno', 'Que vuelvan al dormidero'],
+    [12, 1, 'gn-registros', 'Por qué registrar'],
+    [14, 5, 'gn-precio', 'Precio y validar la demanda'],
+    [15, 4, 'gn-proyecto', 'Su primer año']],
+  EGMOD: [
+    [2, 'La preparación, en orden', 'eg-preparar', 'Preparar el corral', '1:01'],
+    [3, 'El día que llega el camión', 'eg-llegada', 'El día que llega el camión', '0:55'],
+    [4, 'Dónde se pierde el alimento', 'eg-alimento', 'Dónde se pierde el alimento', '0:46'],
+    [5, 'Cómo se mide el agua', 'eg-agua', 'Medir el agua de verdad', '0:57'],
+    [6, 'Un ejemplo, con números', 'eg-ganancia', 'La ganancia diaria de peso', '0:54'],
+    [7, 'El ejemplo, paso a paso', 'eg-conversion', 'La conversión alimenticia', '0:57'],
+    [8, 'La rutina de observación', 'eg-observar', 'Observar el lote', '0:39'],
+    [9, 'Los ocho componentes', 'eg-costo', 'El costo real del engorde', '0:47'],
+    [10, 'Cuándo vender', 'eg-vender', 'Cuándo vender', '0:46']],
+  RPMOD: [
+    [2, 'La ficha de cubrición', 'rp-ficha', 'La ficha de cubrición', '0:47'],
+    [3, 'La rutina: revisar', 'rp-celo', 'Detectar el celo', '1:00'],
+    [4, 'El árbol de decisión', 'rp-servir', 'Cuándo servir', '0:56'],
+    [5, 'Rutina de recepción', 'rp-semen', 'Cuidar la dosis de semen', '0:49'],
+    [6, 'Los cuatro enemigos', 'rp-gestacion', 'La camada se decide antes', '0:51'],
+    [7, 'Los métodos, comparados', 'rp-diagnostico', 'El diagnóstico de gestación', '0:47'],
+    [8, 'Árbol 3', 'rp-falla', 'Cuando algo falla', '0:48'],
+    [9, 'Cómo medirlo sin equivocarse', 'rp-destete', 'Del destete al celo', '0:53'],
+    [10, 'Dónde está el dinero', 'rp-dinero', 'Dónde está el dinero', '0:55']],
+  LCMOD: [
+    [1, 'Los primeros 30 minutos', 'lc-nacer', 'Los primeros 30 minutos', '0:54'],
+    [2, 'Cómo darles oportunidad', 'lc-calostro', 'El calostro, la primera defensa', '0:54'],
+    [3, 'Lo que roba calor', 'lc-calor', 'Temperatura y ambiente', '0:51'],
+    [4, 'Adopciones: cómo y cómo no', 'lc-camada', 'Igualar camadas', '0:47'],
+    [5, 'Antes de cualquier procedimiento', 'lc-practicas', 'Antes de cualquier procedimiento', '0:42'],
+    [6, 'El momento de la muerte', 'lc-perdidas', 'Prevenir las pérdidas', '0:49'],
+    [7, 'Un destete con menos estrés', 'lc-destete', 'Llegar bien al destete', '0:50'],
+    [8, 'Ejemplo práctico', 'lc-medir', 'La mortalidad predestete', '0:48']]
+};
+function html(id, t, d, tu){
   return '<figure class="pv-video nx-vid"><video controls preload="none" playsinline poster="videos/porcicultura/' + id + '.jpg">' +
     '<source src="videos/porcicultura/' + id + '.mp4" type="video/mp4">' +
     '<track kind="subtitles" srclang="es" label="Español" src="videos/porcicultura/' + id + '.vtt" default></video>' +
-    '<figcaption>🎬 ' + t + ' · ' + d + ' · animación propia de AgroAcademy RD, con narración y subtítulos. Toque ▶ para verlo; en el celular, use la pantalla completa.</figcaption></figure>';
+    '<figcaption>🎬 ' + t + ' · ' + d + ' · animación propia de AgroAcademy RD, con narración y subtítulos. ' +
+    (tu ? 'Toca ▶ para verlo; en el celular, usa la pantalla completa.' : 'Toque ▶ para verlo; en el celular, use la pantalla completa.') + '</figcaption></figure>';
 }
-NXVID.forEach(function(v){
-  var m = NXMOD[v[0] - 1]; if(!m || !m.sec) return;
-  if(m.sec.some(function(s){ return s.agv2v === v[2]; })) return;
-  var i = m.sec.findIndex(function(s){ return String(s.t || '').indexOf(v[1]) === 0; });
-  m.sec.splice(i >= 0 ? i + 1 : Math.min(2, m.sec.length), 0,
-    {k:'agmix', agv2v:v[2], t:'🎬 Video: ' + v[3], partes:[{k:'html', h:html(v[2], v[3], v[4])}]});
-  if(window.PV && PV.video) PV.video[v[2]] = [v[3], v[4], ''];
+function datos(n){ try{ return eval('typeof ' + n + ' !== "undefined" ? ' + n + ' : null'); }catch(e){ return null; } }
+/* videos cuyo archivo todavía no está publicado: no se muestran hasta que lo esté */
+var PENDIENTES = ['gp-costo','gp-tablero','eg-preparar','eg-llegada','eg-alimento','eg-agua','eg-ganancia','eg-conversion','eg-observar','eg-costo','eg-vender','rp-ficha','rp-celo','rp-servir','rp-semen','rp-gestacion','rp-diagnostico','rp-falla','rp-destete','rp-dinero','lc-nacer','lc-calostro','lc-calor','lc-camada','lc-practicas','lc-perdidas','lc-destete','lc-medir'];
+Object.keys(VIDEOS).forEach(function(n){
+  var M = datos(n); if(!M || !M.length) return;
+  VIDEOS[n].forEach(function(v){
+    if(PENDIENTES.indexOf(v[2]) >= 0) return;
+    var m = M.find(function(x){ return (x.n || x.id) === v[0]; }) || M[v[0] - 1]; if(!m || !m.sec) return;
+    if(m.sec.some(function(s){ return s.agv2v === v[2] || s.id === v[2]; })) return;
+    if(n === 'GNMOD'){
+      var j = m.sec.findIndex(function(s){ return s.k === 'gnlec' && s.i === v[1]; });
+      if(j >= 0) m.sec.splice(j + 1, 0, {k:'gnvideo', id:v[2], t:v[3], agv2v:v[2]});
+      return;
+    }
+    var i = m.sec.findIndex(function(s){ return String(s.t || '').indexOf(v[1]) === 0; });
+    m.sec.splice(i >= 0 ? i + 1 : Math.min(2, m.sec.length), 0,
+      {k:'agmix', agv2v:v[2], t:'🎬 Video: ' + v[3], partes:[{k:'html', h:html(v[2], v[3], v[4], v[5])}]});
+    if(window.PV && PV.video) PV.video[v[2]] = [v[3], v[4], ''];
+  });
 });
 })();
 
@@ -106926,6 +107007,10 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
+
+
+
 
 
 
