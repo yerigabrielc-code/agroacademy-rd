@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10e · Rentabilidad fusionada en Porcicultura (M9: taller de 3 lecciones con 3 videos, 4 preguntas, planilla por lote) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10f · Dashboard: explorar estudiantes con filtros y categorías tocables (pv-dashfiltro) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -105195,6 +105195,379 @@ function engancha(){
 })();
 
 
+/* ---------- pv-dashfiltro.js ---------- */
+/* ============================================================
+   DASHBOARD · EXPLORAR ESTUDIANTES (2026-11-10)
+   Un buscador con filtros en el tablero del instructor, y cada
+   categoría del tablero se puede tocar para ver QUIÉNES están en ella:
+   · las cifras de arriba (activos, accesos, módulos, certificados);
+   · el aviso «tienen curso abierto y no han empezado»;
+   · cada tramo de las barras por curso y la tabla «Ver como tabla»;
+   · la dona «Matrículas por etapa» y el «Avance global» por curso;
+   · cada escalón del embudo y cada mes de «Altas por mes».
+   SOLO LEE: usa las mismas fuentes del tablero (STUDENTS, COURSES,
+   C.enrolled, C.count). No guarda, no cambia ni borra nada de nadie.
+   La lista se puede copiar (correos) o descargar en CSV para el
+   instructor; no se envía a ningún servicio.
+   Se engancha por encima de pv-dash.js (envuelve agTbPantalla).
+   ============================================================ */
+(function(){
+var F = { curso:'', etapa:'', estado:'', mes:'', q:'', orden:'reciente' };
+var MAX = 60, verTodos = false;
+
+var ETAPAS = [
+  ['', 'Todas las etapas'],
+  ['conacceso', 'Con curso abierto'],
+  ['sinacceso', 'Sin ningún curso abierto'],
+  ['sinemp', 'Sin empezar'],
+  ['empezaron', 'Empezaron (aprobaron algún módulo)'],
+  ['enprog', 'En progreso'],
+  ['mitad', 'Pasaron de la mitad'],
+  ['term', 'Terminaron un curso'],
+  ['cert', 'Ganaron certificado']
+];
+var NOMETAPA = {}; ETAPAS.forEach(function(e){ NOMETAPA[e[0]] = e[1]; });
+var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function norm(t){ return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+function mesLargo(m){ return (MESES[+String(m).slice(5, 7) - 1] || '') + ' de ' + String(m).slice(0, 4); }
+function llegada(s){ try{ return agTbLlegada(s); }catch(e){ return String((s && (s.created || s.enrolled)) || ''); } }
+function alumnos(){ try{ return agTbAlumnos(); }catch(e){ return []; } }
+function cursos(){
+  var r; try{ r = agTbResumen(); }catch(e){ return []; }
+  return (r && r.porCurso) || [];
+}
+
+/* lo que el tablero sabe de una persona, curso por curso */
+function ficha(s){
+  var out = { s:s, cursos:[], hechos:0, mejor:0, completo:false, cert:false };
+  cursos().forEach(function(c){
+    var C = agTbCurso(c.id); if(!C) return;
+    var t = false; try{ t = !!C.enrolled(s); }catch(e){}
+    if(!t) return;
+    var h = 0, n = C.n || 0; try{ h = C.count(s.id) || 0; }catch(e){}
+    var et = (n > 0 && h >= n) ? 'term' : (h > 0 ? 'enprog' : 'sinemp');
+    out.cursos.push({ id:c.id, label:c.label, icon:c.icon, h:h, n:n, et:et, daCert:c.daCert });
+    out.hechos += h;
+    if(n > 0 && h / n > out.mejor) out.mejor = h / n;
+    if(et === 'term'){ out.completo = true; if(c.daCert) out.cert = true; }
+  });
+  return out;
+}
+
+/* ¿está esta persona en la etapa pedida? Con curso elegido, se mira solo ese curso */
+function enEtapa(f, et, k){
+  if(!et) return true;
+  if(k){
+    var c = null; f.cursos.forEach(function(x){ if(x.id === k) c = x; });
+    if(et === 'sinacceso') return !c;
+    if(!c) return false;
+    if(et === 'conacceso') return true;
+    if(et === 'sinemp') return c.et === 'sinemp';
+    if(et === 'enprog') return c.et === 'enprog';
+    if(et === 'empezaron') return c.h > 0;
+    if(et === 'mitad') return c.n > 0 && c.h / c.n >= 0.5;
+    if(et === 'term') return c.et === 'term';
+    if(et === 'cert') return c.et === 'term' && c.daCert;
+    return true;
+  }
+  var ab = f.cursos.length;
+  if(et === 'sinacceso') return ab === 0;
+  if(et === 'conacceso') return ab > 0;
+  if(et === 'sinemp') return ab > 0 && f.hechos === 0;
+  if(et === 'enprog') return f.cursos.some(function(x){ return x.et === 'enprog'; });
+  if(et === 'empezaron') return f.hechos > 0;
+  if(et === 'mitad') return f.mejor >= 0.5;
+  if(et === 'term') return f.completo;
+  if(et === 'cert') return f.cert;
+  return true;
+}
+
+function filtra(){
+  var hoy = Date.now(), q = norm(F.q).trim();
+  var L = alumnos().map(ficha).filter(function(f){
+    var s = f.s;
+    if(F.curso && F.etapa === '' && !f.cursos.some(function(x){ return x.id === F.curso; })) return false;
+    if(!enEtapa(f, F.etapa, F.curso)) return false;
+    if(F.estado && (s.status || 'activo') !== F.estado) return false;
+    if(F.mes){
+      var d = llegada(s);
+      if(F.mes === 'ult7' || F.mes === 'ult30'){
+        var t = Date.parse(String(d).slice(0, 10));
+        if(!isFinite(t) || hoy - t > (F.mes === 'ult7' ? 7 : 30) * 864e5) return false;
+      } else if(String(d).slice(0, 7) !== F.mes) return false;
+    }
+    if(q && norm([s.name, s.email, s.phone].join(' ')).indexOf(q) < 0) return false;
+    return true;
+  });
+  var av = function(f){ var h = 0, n = 0; f.cursos.forEach(function(c){ h += c.h; n += c.n; }); return n ? h / n : -1; };
+  L.sort(function(a, b){
+    if(F.orden === 'nombre') return norm(a.s.name).localeCompare(norm(b.s.name));
+    if(F.orden === 'avance') return av(b) - av(a);
+    var x = llegada(a.s), y = llegada(b.s); return x < y ? 1 : (x > y ? -1 : 0);
+  });
+  return L;
+}
+
+/* ---------- la caja del buscador ---------- */
+function opciones(lista, val){
+  return lista.map(function(o){ return '<option value="' + esc(o[0]) + '"' + (o[0] === val ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('');
+}
+function cajaHTML(){
+  var cs = [['', 'Todos los cursos']].concat(cursos().map(function(c){ return [c.id, c.icon + ' ' + c.label + (c.pub ? '' : ' (oculto)')]; }));
+  var est = {}; alumnos().forEach(function(s){ est[s.status || 'activo'] = 1; });
+  var es = [['', 'Todos los estados']].concat(Object.keys(est).sort().map(function(k){ return [k, k.charAt(0).toUpperCase() + k.slice(1)]; }));
+  var ms = {}; alumnos().forEach(function(s){ var m = String(llegada(s)).slice(0, 7); if(/^\d{4}-\d{2}$/.test(m)) ms[m] = 1; });
+  var mm = [['', 'Cualquier fecha'], ['ult7', 'Últimos 7 días'], ['ult30', 'Últimos 30 días']].concat(Object.keys(ms).sort().reverse().map(function(m){ return [m, mesLargo(m)]; }));
+  return '<section class="agf" id="agfCaja">' +
+    '<div class="agf-cab"><div><h3>🔎 Explorar estudiantes</h3>' +
+      '<p>Filtre por curso, etapa, estado o fecha de registro. También puede tocar cualquier cifra, barra, escalón o mes del tablero para ver quiénes están ahí.</p></div></div>' +
+    '<div class="agf-fil">' +
+      '<label><span>Buscar</span><input type="search" id="agfQ" placeholder="Nombre, correo o teléfono" value="' + esc(F.q) + '"></label>' +
+      '<label><span>Curso</span><select id="agfCurso">' + opciones(cs, F.curso) + '</select></label>' +
+      '<label><span>Etapa</span><select id="agfEtapa">' + opciones(ETAPAS, F.etapa) + '</select></label>' +
+      '<label><span>Estado</span><select id="agfEstado">' + opciones(es, F.estado) + '</select></label>' +
+      '<label><span>Registro</span><select id="agfMes">' + opciones(mm, F.mes) + '</select></label>' +
+      '<label><span>Ordenar</span><select id="agfOrden">' + opciones([['reciente', 'Más recientes'], ['nombre', 'Nombre (A–Z)'], ['avance', 'Más avance']], F.orden) + '</select></label>' +
+    '</div>' +
+    '<div id="agfRes"></div>' +
+  '</section>';
+}
+
+function chips(){
+  var c = [], cs = {}; cursos().forEach(function(x){ cs[x.id] = x; });
+  if(F.curso && cs[F.curso]) c.push(['curso', cs[F.curso].icon + ' ' + cs[F.curso].label]);
+  if(F.etapa) c.push(['etapa', NOMETAPA[F.etapa]]);
+  if(F.estado) c.push(['estado', 'Estado: ' + F.estado]);
+  if(F.mes) c.push(['mes', F.mes === 'ult7' ? 'Últimos 7 días' : F.mes === 'ult30' ? 'Últimos 30 días' : 'Registro: ' + mesLargo(F.mes)]);
+  if(F.q) c.push(['q', '«' + F.q + '»']);
+  return c;
+}
+
+function pinta(){
+  var box = document.getElementById('agfRes'); if(!box) return;
+  var L = filtra(), tot = alumnos().length, ch = chips();
+  var h = '<div class="agf-barra"><b>' + L.length + '</b><span>' + (L.length === 1 ? 'estudiante' : 'estudiantes') + ' de ' + tot + '</span>' +
+    ch.map(function(c){ return '<button type="button" class="agf-chip" data-quita="' + c[0] + '">' + esc(c[1]) + ' <i aria-hidden="true">×</i></button>'; }).join('') +
+    (ch.length ? '<button type="button" class="agf-lnk" data-agf="limpiar">Limpiar filtros</button>' : '') +
+    '<span class="agf-acc">' + (L.length ? '<button type="button" class="agf-btn" data-agf="correos">📋 Copiar correos</button><button type="button" class="agf-btn" data-agf="csv">⬇️ Descargar CSV</button>' : '') + '</span></div>';
+  if(F.curso && F.etapa === 'sinacceso') h += '<p class="agf-nota">Personas registradas que no tienen abierto este curso.</p>';
+  else if(!F.curso && /enprog|term|cert|mitad/.test(F.etapa)) h += '<p class="agf-nota">Sin curso elegido, se cuenta a cada persona una vez aunque esté en esa etapa en varios cursos.</p>';
+  if(!L.length){ box.innerHTML = h + '<div class="agf-vacio">Nadie cumple estos filtros.</div>'; return; }
+  var vis = verTodos ? L : L.slice(0, MAX);
+  h += '<div class="agf-lista">' + vis.map(function(f){
+    var s = f.s, est = s.status || 'activo', d = String(llegada(s)).slice(0, 10);
+    var cur = f.cursos.length ? f.cursos.map(function(c){
+      var p = c.n ? Math.round(c.h / c.n * 100) : 0;
+      return '<span class="agf-cur ' + c.et + '" title="' + esc(c.label + ': ' + c.h + ' de ' + c.n + ' módulos') + '"><i aria-hidden="true">' + c.icon + '</i>' + esc(c.label) +
+        '<em>' + c.h + '/' + c.n + '</em><u><b style="width:' + Math.max(p, c.h ? 6 : 0) + '%"></b></u></span>';
+    }).join('') : '<span class="agf-cur nada">Sin cursos abiertos</span>';
+    return '<button type="button" class="agf-al" data-uid="' + esc(s.id) + '">' +
+      '<span class="agf-av">' + esc((typeof agTbIni === 'function') ? agTbIni(s.name) : '👤') + '</span>' +
+      '<span class="agf-dt"><b>' + esc(s.name || s.email || 'Sin nombre') + (est !== 'activo' ? ' <em class="agf-est">' + esc(est) + '</em>' : '') + '</b>' +
+        '<span class="agf-co">' + esc([s.email, s.phone].filter(Boolean).join(' · ') || 'sin contacto') + ' · ' + (d || 'sin fecha') + '</span>' +
+        '<span class="agf-curs">' + cur + '</span></span>' +
+      '<span class="agf-ir">Ficha →</span></button>';
+  }).join('') + '</div>';
+  if(L.length > vis.length) h += '<button type="button" class="agf-mas" data-agf="todos">Ver los ' + L.length + '</button>';
+  box.innerHTML = h;
+}
+
+/* ---------- exportar (solo para el instructor, en su equipo) ---------- */
+function csv(){
+  var L = filtra();
+  var c = function(t){ t = String(t == null ? '' : t); return /[",;\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  var filas = [['Nombre', 'Correo', 'Teléfono', 'Registro', 'Estado', 'Cursos (módulos aprobados / total)']].concat(L.map(function(f){
+    return [f.s.name, f.s.email, f.s.phone, String(llegada(f.s)).slice(0, 10), f.s.status || 'activo',
+      f.cursos.map(function(x){ return x.label + ' ' + x.h + '/' + x.n; }).join('; ')];
+  }));
+  var b = new Blob(['﻿' + filas.map(function(r){ return r.map(c).join(','); }).join('\r\n')], { type:'text/csv;charset=utf-8' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(b);
+  a.download = 'estudiantes-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function correos(){
+  var t = filtra().map(function(f){ return f.s.email; }).filter(Boolean).join(', ');
+  var ok = function(){ try{ toast('Correos copiados: ' + t.split(', ').length, '📋'); }catch(e){} };
+  try{ navigator.clipboard.writeText(t).then(ok, function(){ prompt('Copie los correos:', t); }); }catch(e){ prompt('Copie los correos:', t); }
+}
+
+/* ---------- aplicar un filtro desde el tablero ---------- */
+function aplica(nuevo){
+  F = { curso:'', etapa:'', estado:'', mes:'', q:'', orden:F.orden };
+  for(var k in nuevo) F[k] = nuevo[k];
+  verTodos = false;
+  ['Q', 'Curso', 'Etapa', 'Estado', 'Mes', 'Orden'].forEach(function(n){
+    var el = document.getElementById('agf' + n); if(!el) return;
+    var v = F[n === 'Q' ? 'q' : n.toLowerCase()];
+    el.value = v;
+    if(el.tagName === 'SELECT' && el.value !== v){   /* un valor que el menú no tenía (p. ej. un mes) */
+      var o = document.createElement('option'); o.value = v; o.textContent = v; el.appendChild(o); el.value = v;
+    }
+  });
+  pinta();
+  var caja = document.getElementById('agfCaja');
+  if(caja){ caja.classList.remove('agf-luz'); void caja.offsetWidth; caja.classList.add('agf-luz'); caja.scrollIntoView({ behavior:'smooth', block:'start' }); }
+}
+
+/* marca un elemento del tablero como «tocable» */
+function toca(el, filtro, tip){
+  if(!el || el.dataset.agfOk) return;
+  el.dataset.agfOk = '1';
+  el.classList.add('agf-tocable');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('role', 'button');
+  if(tip && !el.getAttribute('data-tip')) el.setAttribute('title', tip);
+  var ir = function(e){ e.preventDefault(); e.stopPropagation(); aplica(filtro); };
+  el.addEventListener('click', ir);
+  el.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' ') ir(e); });
+}
+
+function enlaza(){
+  var root = document.querySelector('#adminBody .agtb'); if(!root || !document.getElementById('agfCaja')) return;
+  var cs = cursos();
+  /* las cifras */
+  var cif = root.querySelectorAll('.agtb-cifras > .agtb-c');
+  toca(cif[0], { estado:'activo' }, 'Ver estudiantes activos');
+  toca(cif[2], { etapa:'conacceso' }, 'Ver quién tiene algún curso abierto');
+  toca(cif[3], { etapa:'empezaron' }, 'Ver quién ya aprobó algún módulo');
+  toca(cif[4], { etapa:'cert' }, 'Ver quién ganó certificado');
+  /* el aviso de los que no han empezado */
+  root.querySelectorAll('.agtb-hoy-i').forEach(function(b){
+    if(/no ha(n)? empezado/.test(b.textContent)){ b.removeAttribute('onclick'); toca(b, { etapa:'sinemp' }); }
+  });
+  /* barras por curso: el nombre (todos los del curso) y cada tramo */
+  root.querySelectorAll('.agtb-rs > .agtb-r').forEach(function(r, i){
+    var c = cs[i]; if(!c) return;
+    toca(r.querySelector('.agtb-r-n'), { curso:c.id }, 'Ver estudiantes de ' + c.label);
+    toca(r.querySelector('.agtb-r-t'), { curso:c.id }, 'Ver estudiantes de ' + c.label);
+    toca(r.querySelector('.agtb-s.e1'), { curso:c.id, etapa:'sinemp' });
+    toca(r.querySelector('.agtb-s.e2'), { curso:c.id, etapa:'enprog' });
+    toca(r.querySelector('.agtb-s.e3'), { curso:c.id, etapa:'term' });
+  });
+  /* la tabla «Ver como tabla» */
+  root.querySelectorAll('.agtb-tabla tbody tr').forEach(function(tr, i){
+    var c = cs[i]; if(!c) return; var td = tr.children;
+    toca(td[0], { curso:c.id }); toca(td[1], { curso:c.id, etapa:'conacceso' }); toca(td[2], { curso:c.id, etapa:'sinemp' });
+    toca(td[3], { curso:c.id, etapa:'enprog' }); toca(td[4], { curso:c.id, etapa:'term' });
+  });
+  /* la dona y el avance global */
+  var it = root.querySelectorAll('.agd-it');
+  toca(it[0], { etapa:'sinemp' }, 'Ver quién no ha empezado'); toca(it[1], { etapa:'enprog' }, 'Ver quién va en progreso'); toca(it[2], { etapa:'term' }, 'Ver quién terminó un curso');
+  root.querySelectorAll('.agd-top > div').forEach(function(d){
+    var t = d.textContent; var c = null;
+    cs.forEach(function(x){ if(!c && t.indexOf(x.label) >= 0) c = x; });
+    if(c) toca(d, { curso:c.id }, 'Ver estudiantes de ' + c.label);
+  });
+  /* el embudo y las altas por mes */
+  var pas = ['', 'conacceso', 'empezaron', 'mitad', 'term'];
+  root.querySelectorAll('.aggr-paso').forEach(function(p, i){ if(i < pas.length) toca(p, { etapa:pas[i] }, 'Ver estudiantes de este escalón'); });
+  var meses = []; try{ meses = agGrafAltas(); }catch(e){}
+  root.querySelectorAll('.aggr-mes').forEach(function(m, i){ if(meses[i] && meses[i].n) toca(m, { mes:meses[i].mes }); });
+  pinta();
+}
+
+/* eventos del buscador (delegados: el tablero se repinta entero al volver) */
+document.addEventListener('input', function(e){
+  var t = e.target; if(!t || !t.id || t.id.indexOf('agf') !== 0) return;
+  if(t.id === 'agfQ'){ F.q = t.value; verTodos = false; pinta(); }
+});
+document.addEventListener('change', function(e){
+  var t = e.target; if(!t || !t.id) return;
+  var m = { agfCurso:'curso', agfEtapa:'etapa', agfEstado:'estado', agfMes:'mes', agfOrden:'orden' }[t.id];
+  if(!m) return; F[m] = t.value; verTodos = false; pinta();
+});
+document.addEventListener('click', function(e){
+  var t = e.target && e.target.closest ? e.target.closest('#agfRes [data-quita], #agfRes [data-agf], #agfRes .agf-al') : null;
+  if(!t) return;
+  if(t.dataset.quita){
+    var k = t.dataset.quita; F[k] = ''; var el = document.getElementById('agf' + (k === 'q' ? 'Q' : k.charAt(0).toUpperCase() + k.slice(1))); if(el) el.value = ''; pinta(); return;
+  }
+  var a = t.dataset.agf;
+  if(a === 'limpiar'){ aplica({}); return; }
+  if(a === 'todos'){ verTodos = true; pinta(); return; }
+  if(a === 'csv'){ csv(); return; }
+  if(a === 'correos'){ correos(); return; }
+  if(t.dataset.uid){ try{ agTbAbrirFicha(t.dataset.uid); }catch(x){} }
+});
+
+/* ---------- engancharse por encima del diseño del tablero ---------- */
+function engancha(){
+  if(typeof window.agTbPantalla !== 'function' || !window.agTbPantalla.__agd) return false;
+  if(window.agTbPantalla.__agf) return true;
+  var orig = window.agTbPantalla;
+  var nuevo = function(){
+    var h = orig.apply(this, arguments);
+    try{
+      if(alumnos().length && h.indexOf('agtb-cifras') > 0){
+        var marca = h.indexOf('<div class="agd-sum">') > 0 ? '<div class="agd-sum">' : '<section class="agtb-g">';
+        if(h.indexOf(marca) > 0) h = h.replace(marca, cajaHTML() + marca);
+        setTimeout(enlaza, 60); setTimeout(enlaza, 450); setTimeout(enlaza, 1200);
+      }
+    }catch(e){}
+    return h;
+  };
+  nuevo.__agd = true; nuevo.__graf = true; nuevo.__agf = true;
+  window.agTbPantalla = nuevo;
+  return true;
+}
+[0, 300, 800, 1600, 3200, 6500, 11000].forEach(function(t){ setTimeout(engancha, t); });
+
+/* ---------- estilos ---------- */
+var css = `
+.agf{margin-top:14px;padding:20px 22px;border-radius:18px;background:radial-gradient(700px 260px at 100% 0%,rgba(52,211,153,.12),transparent 60%),var(--agp-deep,#0F172A);border:1px solid rgba(56,189,248,.28);scroll-margin-top:16px}
+.agf.agf-luz{animation:agfLuz 1.4s ease}
+@keyframes agfLuz{0%{box-shadow:0 0 0 0 rgba(34,211,238,.0)}25%{box-shadow:0 0 0 4px rgba(34,211,238,.55)}100%{box-shadow:0 0 0 0 rgba(34,211,238,0)}}
+.agf h3{margin:0 0 4px;font-family:var(--display);font-size:18px;color:var(--agp-tx,#F1F5F9)}
+.agf-cab p{margin:0 0 14px;font-size:14px;line-height:1.45;color:var(--agp-dim,#94A3B8)}
+.agf-fil{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(5,minmax(0,1fr));gap:10px}
+@media(max-width:1100px){.agf-fil{grid-template-columns:repeat(3,minmax(0,1fr))}.agf-fil label:first-child{grid-column:1 / -1}}
+@media(max-width:620px){.agf{padding:16px 14px}.agf-fil{grid-template-columns:1fr 1fr}}
+.agf-fil label{display:grid;gap:5px;min-width:0}
+.agf-fil label span{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--agp-dim,#94A3B8)}
+.agf-fil input,.agf-fil select{width:100%;min-width:0;box-sizing:border-box;padding:10px 12px;border-radius:11px;font-size:15px;color:var(--agp-tx,#F1F5F9);background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.3)}
+.agf-fil input:focus,.agf-fil select:focus{outline:2px solid #22D3EE;outline-offset:1px}
+.agf-fil select option{color:#0F172A;background:#fff}
+.agf-barra{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0 10px}
+.agf-barra > b{font-family:var(--display);font-size:24px;color:var(--agp-tx,#F1F5F9)}
+.agf-barra > span:not(.agf-acc){font-size:14px;color:var(--agp-dim,#94A3B8);margin-right:4px}
+.agf-chip{display:inline-flex;gap:6px;align-items:center;padding:5px 10px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;color:#04202B;background:#22D3EE;border:0}
+.agf-chip i{font-style:normal;font-size:15px;opacity:.7}
+.agf-lnk{background:none;border:0;color:#67E8F9;font-size:13.5px;text-decoration:underline;cursor:pointer}
+.agf-acc{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.agf-btn{padding:7px 12px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--agp-tx,#F1F5F9);background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.35)}
+.agf-btn:hover{background:rgba(56,189,248,.22)}
+.agf-nota{margin:0 0 10px;font-size:13px;color:var(--agp-dim,#94A3B8)}
+.agf-vacio{padding:22px;text-align:center;border-radius:14px;border:1px dashed rgba(148,163,184,.3);color:var(--agp-dim,#94A3B8);font-size:15px}
+.agf-lista{display:grid;gap:8px}
+.agf-al{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;padding:12px 14px;border-radius:14px;cursor:pointer;color:inherit;font:inherit;background:rgba(15,23,42,.45);border:1px solid rgba(148,163,184,.16);transition:border-color .2s,transform .2s}
+.agf-al:hover,.agf-al:focus-visible{border-color:rgba(34,211,238,.6);transform:translateY(-1px)}
+.agf-av{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:15px;color:#04202B;background:linear-gradient(135deg,#22D3EE,#34D399)}
+.agf-dt{display:grid;gap:4px;min-width:0}
+.agf-dt > b{font-size:15.5px;color:var(--agp-tx,#F1F5F9)}
+.agf-est{font-style:normal;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:99px;background:rgba(248,113,113,.18);color:#FCA5A5;margin-left:6px;text-transform:capitalize}
+.agf-co{font-size:13px;color:var(--agp-dim,#94A3B8);overflow-wrap:anywhere}
+.agf-curs{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.agf-cur{display:inline-grid;grid-template-columns:auto auto auto;align-items:center;gap:5px;padding:4px 9px 6px;border-radius:9px;font-size:12.5px;color:var(--agp-tx2,#CBD5E1);background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.18);position:relative}
+.agf-cur i{font-style:normal}.agf-cur em{font-style:normal;font-weight:700;color:var(--agp-tx,#F1F5F9)}
+.agf-cur u{grid-column:1 / -1;display:block;height:3px;border-radius:9px;background:rgba(148,163,184,.2);overflow:hidden}
+.agf-cur u b{display:block;height:100%;background:#22D3EE}
+.agf-cur.term{border-color:rgba(52,211,153,.5)}.agf-cur.term u b{background:#34D399}
+.agf-cur.sinemp u b{background:#64748B}
+.agf-cur.nada{grid-template-columns:auto;color:var(--agp-dim,#94A3B8)}
+.agf-ir{font-size:13px;font-weight:700;color:#67E8F9;white-space:nowrap}
+@media(max-width:620px){.agf-al{grid-template-columns:36px minmax(0,1fr)}.agf-av{width:36px;height:36px}.agf-ir{display:none}.agf-acc{margin-left:0;width:100%}}
+.agf-mas{margin-top:10px;width:100%;padding:11px;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;color:#67E8F9;background:rgba(56,189,248,.08);border:1px dashed rgba(56,189,248,.4)}
+#adminBody .agf-tocable{cursor:pointer}
+#adminBody .agtb-c.agf-tocable:focus-visible,#adminBody .agd-it.agf-tocable:hover,#adminBody .aggr-paso.agf-tocable:hover,#adminBody .agd-top > div.agf-tocable:hover,#adminBody .agtb-r-n.agf-tocable:hover,#adminBody .agtb-tabla td.agf-tocable:hover{outline:2px solid rgba(34,211,238,.6);outline-offset:3px;border-radius:10px}
+#adminBody .agtb-s.agf-tocable:hover{filter:brightness(1.25)}
+#adminBody .aggr-mes.agf-tocable:hover .aggr-mes-b i{filter:brightness(1.3)}
+`;
+var st = document.createElement('style'); st.id = 'agfCss'; st.textContent = css; document.head.appendChild(st);
+})();
+
+
 /* ---------- pv-cursos.js ---------- */
 /* ============================================================
    AGROACADEMY · EXPERIENCIA V2 PARA LOS DEMÁS CURSOS (2026-10-31)
@@ -107124,6 +107497,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
