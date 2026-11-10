@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10a · videos de Pollos (9), Cabras (8), Ponedoras (6) y Guineas (7 nuevos, 15 en total) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10b · videos de Engorde (9), Reproducción (9) y Lechones (8); Ponedoras completo (8) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -106365,7 +106365,7 @@ function html(id, t, d, tu){
 }
 function datos(n){ try{ return eval('typeof ' + n + ' !== "undefined" ? ' + n + ' : null'); }catch(e){ return null; } }
 /* videos cuyo archivo todavía no está publicado: no se muestran hasta que lo esté */
-var PENDIENTES = ['gp-costo','gp-tablero','eg-preparar','eg-llegada','eg-alimento','eg-agua','eg-ganancia','eg-conversion','eg-observar','eg-costo','eg-vender','rp-ficha','rp-celo','rp-servir','rp-semen','rp-gestacion','rp-diagnostico','rp-falla','rp-destete','rp-dinero','lc-nacer','lc-calostro','lc-calor','lc-camada','lc-practicas','lc-perdidas','lc-destete','lc-medir'];
+var PENDIENTES = [];
 Object.keys(VIDEOS).forEach(function(n){
   var M = datos(n); if(!M || !M.length) return;
   VIDEOS[n].forEach(function(v){
@@ -107007,6 +107007,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
