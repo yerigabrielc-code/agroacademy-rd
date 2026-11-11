@@ -107014,7 +107014,7 @@ boton(); setInterval(boton, 2000);
 var AATASA = window.AATASA = 60;
 try{ var t0 = +localStorage.getItem('aa_tasa'); if(t0 > 0) AATASA = window.AATASA = t0; }catch(e){}
 
-function rd(usd){ return Math.round(+usd * window.AATASA / 100) * 100; }
+function rd(usd){ return Math.round(+usd * window.AATASA / 10) * 10; }
 function mil(n){ return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 window.aaRD = rd;
 window.aaRDTexto = function(usd){ return 'RD$ ' + mil(rd(usd)); };
@@ -107099,7 +107099,7 @@ window.aaPintaPesos = pinta;
 /* ---------- 3 · la casilla de la tasa, en el panel ---------- */
 function cajaTasa(){
   var d = document.createElement('div'); d.className = 'aa-tasa';
-  d.innerHTML = '<b>💱 Tasa del dólar</b><span>Todos los precios que ven los estudiantes se muestran en pesos con esta tasa, redondeados a la centena. Los precios se siguen escribiendo en dólares.</span>' +
+  d.innerHTML = '<b>💱 Tasa del dólar</b><span>Todos los precios que ven los estudiantes se muestran en pesos con esta tasa exacta (redondeados a la decena). Los precios se siguen escribiendo en dólares.</span>' +
     '<div class="aa-tasa-f"><label>RD$ por cada US$ 1 <input type="number" min="1" step="0.01" id="aaTasa" value="' + window.AATASA + '" oninput="aaTasaVista()"></label>' +
     '<button class="adm-add" onclick="aaGuardarTasa()">Guardar tasa</button></div><em id="aaTasaEj"></em>';
   return d;
@@ -107123,7 +107123,7 @@ function casilla(){
 window.aaTasaVista = function(){
   var i = document.getElementById('aaTasa'), e = document.getElementById('aaTasaEj'); if(!i || !e) return;
   var t = +i.value || 0;
-  e.textContent = t > 0 ? 'Ejemplo: US$ 89 → RD$ ' + mil(Math.round(89 * t / 100) * 100) + ' · US$ 80 → RD$ ' + mil(Math.round(80 * t / 100) * 100) : 'Escriba la tasa';
+  e.textContent = t > 0 ? 'Ejemplo: US$ 89 → RD$ ' + mil(Math.round(89 * t / 10) * 10) + ' · US$ 80 → RD$ ' + mil(Math.round(80 * t / 10) * 10) : 'Escriba la tasa';
 };
 window.aaGuardarTasa = async function(){
   var i = document.getElementById('aaTasa'); var t = i ? +i.value : 0;
