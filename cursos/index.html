@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cursos AgroAcademy RD · precios e inscripción</title>
+<meta name="description" content="Cursos online de porcicultura, pollos, gallinas, ganado, cabras, tilapia, abejas y guineas para productores dominicanos. Empieza gratis. Pago único, certificado y acceso de por vida.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://agroacademy-rd.vercel.app/cursos/">
+<meta property="og:title" content="Cursos AgroAcademy RD · precios e inscripción">
+<meta property="og:description" content="14 cursos agropecuarios online, uno gratis. Pago único, certificado y acceso de por vida. Escríbenos por WhatsApp.">
+<meta property="og:image" content="https://agroacademy-rd.vercel.app/cursos/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="theme-color" content="#06201C">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- meta-pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','2397057834158314');fbq('track','PageView');
+(function(){
+  var hot=/pay\.hotmart\.com/i, wa=/(wa\.me|api\.whatsapp\.com|whatsapp:)/i;
+  function pago(url,nombre){try{fbq('track','InitiateCheckout',{content_name:(nombre||'').slice(0,80),currency:'USD',content_ids:[String(url).split('?')[0].split('/').pop()]})}catch(e){}}
+  document.addEventListener('click',function(ev){
+    var a=ev.target&&ev.target.closest&&ev.target.closest('a[href]');if(!a)return;
+    if(hot.test(a.href))pago(a.href,a.getAttribute('data-curso')||a.textContent.replace(/\s+/g,' ').trim());
+    else if(wa.test(a.href)){try{fbq('track','Contact')}catch(e){}}
+  },true);
+  var abrir=window.open;window.open=function(u){if(u&&hot.test(u))pago(u,document.title);return abrir.apply(window,arguments)};
+  if(window.fetch){var f0=window.fetch;window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url)||'';var p=f0.apply(this,arguments);
+    if(/\/auth\/v1\/signup/.test(u))p.then(function(r){if(r&&r.ok){try{fbq('track','CompleteRegistration')}catch(e){}}}).catch(function(){});return p}}
+})();
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2397057834158314&ev=PageView&noscript=1" alt=""></noscript>
+<!-- /meta-pixel -->
+<style>
+:root{--bg:#04140F;--bg2:#0A231C;--tx:#ECFDF5;--tx2:#B6E4CF;--dim:#86B6A1;--lima:#A3E635;--esm:#34D399;--borde:rgba(110,231,183,.22)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,rgba(16,185,129,.22),transparent 60%),radial-gradient(900px 500px at 100% 10%,rgba(14,116,144,.25),transparent 60%),var(--bg);
+  color:var(--tx);font:16.5px/1.55 'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.w{width:min(1180px,100%);margin:0 auto;padding:0 16px}
+header{padding:28px 0 8px}
+.logo{display:flex;gap:12px;align-items:center;text-decoration:none}
+.logo img{width:52px;height:52px;border-radius:14px;box-shadow:0 8px 24px -8px rgba(52,211,153,.6)}
+.logo b{font:900 22px/1 'Archivo',sans-serif;letter-spacing:-.01em}.logo b i{font-style:normal;color:#60A5FA}
+.hero{padding:30px 0 10px}
+.hero h1{margin:0 0 12px;font:900 clamp(32px,5.4vw,58px)/1.02 'Archivo',sans-serif;letter-spacing:-.02em;max-width:900px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--lima),var(--esm));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0 0 22px;font-size:clamp(17px,2vw,19px);color:var(--tx2);max-width:720px}
+.hero-b{display:flex;flex-wrap:wrap;gap:12px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:12px 20px;border-radius:14px;font:800 17px/1.1 'Archivo',sans-serif;text-decoration:none;text-align:center;transition:transform .18s,box-shadow .18s,background .18s}
+.b:hover{transform:translateY(-2px)}
+.b-wa{color:#052E16;background:linear-gradient(135deg,#4ADE80,#22C55E);box-shadow:0 14px 30px -12px rgba(34,197,94,.8)}
+.b-gr{color:#052E16;background:linear-gradient(135deg,var(--lima),var(--esm) 60%,#2DD4BF);box-shadow:0 14px 30px -12px rgba(163,230,53,.7)}
+.b-gh{color:var(--tx);background:rgba(255,255,255,.05);border:1px solid var(--borde);font-size:15px;min-height:46px}
+.b-gh:hover{background:rgba(255,255,255,.1)}
+.sellos{display:flex;flex-wrap:wrap;gap:8px 18px;margin:22px 0 0;padding:0;list-style:none;color:var(--tx2);font-size:15px}
+.sellos li::before{content:"✓ ";color:var(--lima);font-weight:800}
+.gratis{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:center;margin:34px 0 10px;padding:22px;border-radius:26px;
+  background:linear-gradient(135deg,rgba(163,230,53,.14),rgba(16,185,129,.08) 50%,rgba(14,116,144,.12));border:1px solid rgba(163,230,53,.4)}
+.gratis img{width:100%;height:auto;border-radius:18px;display:block;box-shadow:0 24px 50px -24px rgba(0,0,0,.7)}
+.gratis .et{display:inline-block;margin:0 0 10px;padding:5px 12px;border-radius:99px;font:800 13px/1 'Archivo',sans-serif;letter-spacing:.08em;color:#052E16;background:var(--lima)}
+.gratis h2{margin:0 0 10px;font:900 clamp(26px,3.4vw,38px)/1.08 'Archivo',sans-serif}
+.gratis p{margin:0 0 18px;color:var(--tx2)}
+@media(max-width:760px){.gratis{grid-template-columns:1fr;padding:16px}}
+.fil{position:sticky;top:0;z-index:5;margin:30px -16px 6px;padding:12px 16px;background:rgba(4,20,15,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--borde)}
+.fil-in{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.fil h2{margin:0 0 8px;font:900 22px/1.1 'Archivo',sans-serif}
+.fil button{flex:none;min-height:42px;padding:8px 16px;border-radius:99px;font:700 15px/1 'IBM Plex Sans',sans-serif;cursor:pointer;color:var(--tx2);background:rgba(255,255,255,.04);border:1px solid var(--borde)}
+.fil button.on{color:#052E16;background:var(--lima);border-color:var(--lima)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;margin:18px 0 10px}
+.c{display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--borde);
+  box-shadow:0 26px 50px -30px rgba(0,0,0,.8);animation:sube .6s calc(var(--i) * 40ms) cubic-bezier(.2,.8,.2,1) both}
+.c:hover{border-color:color-mix(in srgb,var(--ac) 70%,transparent)}
+.c[hidden]{display:none}
+.c-img{position:relative;display:block;padding:0;border:0;background:#000;cursor:zoom-in}
+.c-img img{display:block;width:100%;height:auto;aspect-ratio:4/5}
+.c-zoom{position:absolute;right:10px;bottom:10px;padding:6px 10px;border-radius:10px;font-size:13px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s}
+.c-img:hover .c-zoom,.c-img:focus-visible .c-zoom{opacity:1}
+.c-t{display:flex;flex-direction:column;gap:10px;padding:18px 18px 20px;flex:1}
+.c-sec{margin:0;font:700 13px/1.2 'IBM Plex Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--ac)}
+.c h3{margin:0;font:800 20px/1.2 'Archivo',sans-serif}
+.c ul{margin:0;padding:0;list-style:none;display:grid;gap:4px;color:var(--tx2);font-size:15.5px}
+.c li::before{content:"✓ ";color:var(--ac);font-weight:800}
+.c-meta{margin:0;font-size:14px;color:var(--dim)}
+.c-pr{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:2px 10px;margin-top:auto;padding-top:6px}
+.c-pr b{font:900 34px/1 'Archivo',sans-serif}.c-pr span{color:var(--tx2);font-weight:600}
+.c-pr em{grid-column:1/-1;font-style:normal;font-size:13.5px;color:var(--dim)}
+.c-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pasos{margin:46px 0 10px}
+.pasos h2{margin:0 0 16px;font:900 clamp(24px,3vw,32px)/1.1 'Archivo',sans-serif}
+.pasos ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0;padding:0;list-style:none;counter-reset:p}
+@media(max-width:760px){.pasos ol{grid-template-columns:1fr}}
+.pasos li{counter-increment:p;padding:18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--borde);color:var(--tx2)}
+.pasos li::before{content:counter(p);display:grid;place-items:center;width:38px;height:38px;margin-bottom:10px;border-radius:12px;font:900 18px 'Archivo';color:#052E16;background:var(--lima)}
+.pasos li b{display:block;color:var(--tx);font-size:17px;margin-bottom:4px}
+footer{margin:46px 0 0;padding:26px 0 calc(90px + env(safe-area-inset-bottom));border-top:1px solid var(--borde);color:var(--dim);font-size:14.5px}
+footer p{margin:0 0 6px}
+.flota{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;width:min(460px,calc(100% - 24px))}
+@media(min-width:900px){.flota{display:none}footer{padding-bottom:30px}}
+.flota .b{width:100%;box-shadow:0 18px 40px -12px rgba(0,0,0,.7),0 14px 30px -12px rgba(34,197,94,.8)}
+#lb{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:16px;background:rgba(0,0,0,.88)}
+#lb.on{display:grid}#lb img{max-width:min(560px,100%);max-height:84vh;width:auto;height:auto;border-radius:14px}
+#lb .lb-b{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+#lb button{position:absolute;top:12px;right:12px;width:46px;height:46px;border-radius:50%;border:0;font-size:26px;cursor:pointer;color:#fff;background:rgba(255,255,255,.14)}
+@keyframes sube{from{opacity:0;transform:translateY(16px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="w">
+<header><a class="logo" href="https://agroacademy-rd.vercel.app/"><img src="logo.png" alt="" width="52" height="52"><b>Agro<i>Academy</i> RD</b></a></header>
+
+<section class="hero">
+  <h1>Aprende a producir y a <em>ganar con tu crianza</em></h1>
+  <p>Cursos online para productores dominicanos: cerdos, pollos, gallinas, ganado, cabras, tilapia, abejas y guineas. Estudias desde el celular, con calculadoras en RD$ y certificado.</p>
+  <div class="hero-b">
+    <a class="b b-gr" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🎁 Empieza gratis</a>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Vi%20los%20cursos%20de%20AgroAcademy%20RD%20y%20quiero%20informaci%C3%B3n." target="_blank" rel="noopener">💬 Escríbenos por WhatsApp</a>
+  </div>
+  <ul class="sellos"><li>Pago único</li><li>Acceso de por vida</li><li>Certificado</li><li>Garantía de 7 días</li><li>100 % online</li></ul>
+</section>
+
+<section class="gratis" aria-labelledby="tg">
+  <img src="artes/gratis.webp" alt="Curso gratis: ¿Qué crianza te conviene? 10 preguntas y en 3 minutos ves tus 3 mejores crianzas" width="720" height="900">
+  <div>
+    <span class="et">CURSO GRATIS</span>
+    <h2 id="tg">¿Qué crianza te conviene?</h2>
+    <p>Responde 10 preguntas con un toque y en 3 minutos ves tus 3 mejores crianzas, según tu dinero, tu espacio, tu agua y tu tiempo. Incluye tu curso recomendado y un plan de 30 días.</p>
+    <div class="hero-b">
+      <a class="b b-gr" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">▶ Entra gratis</a>
+      <a class="b b-gh" href="artes/gratis.jpg" download="AgroAcademy-curso-gratis.jpg">⬇ Descargar arte</a>
+    </div>
+  </div>
+</section>
+
+<div class="fil">
+  <h2>Cursos para tu negocio</h2>
+  <div class="fil-in" role="group" aria-label="Filtrar cursos">
+    <button type="button" class="on" data-f="">Todos (13)</button>
+    <button type="button" data-f="cerdos">🐖 Cerdos</button>
+    <button type="button" data-f="aves">🐔 Aves</button>
+    <button type="button" data-f="ganado">🐄 Ganado</button>
+    <button type="button" data-f="otros">🐟 Tilapia y 🐝 abejas</button>
+  </div>
+</div>
+
+<div class="grid" id="grid">
+<article class="c" data-g="cerdos" style="--ac:#F28C38;--i:0">
+  <button class="c-img" type="button" onclick="ver('porcicultura')" aria-label="Ver el arte de Porcicultura: de la idea a una granja rentable en grande">
+    <img src="artes/porcicultura.webp" alt="Arte del curso Porcicultura: de la idea a una granja rentable: Monta tu granja de cerdos con un plan, US$ 75" width="720" height="900" loading="eager" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐖 Porcicultura</p>
+    <h3>Porcicultura: de la idea a una granja rentable</h3>
+    <ul><li>Diseño de corrales y planificación</li><li>Calculadora de rentabilidad en RD$</li><li>Plan de tu granja listo para ejecutar</li></ul>
+    <p class="c-meta">📚 12 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 75</b><span>RD$ 4,500 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABPorcicultura%3A%20de%20la%20idea%20a%20una%20granja%20rentable%C2%BB%20(US%24%2075).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/porcicultura.jpg" download="AgroAcademy-porcicultura.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="cerdos" style="--ac:#F0B94A;--i:1">
+  <button class="c-img" type="button" onclick="ver('nutricion')" aria-label="Ver el arte de Formulación y fabricación de alimentos balanceados en grande">
+    <img src="artes/nutricion.webp" alt="Arte del curso Formulación y fabricación de alimentos balanceados: Baja el costo del saco, US$ 58" width="720" height="900" loading="eager" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🌽 Porcicultura · nutrición</p>
+    <h3>Formulación y fabricación de alimentos balanceados</h3>
+    <ul><li>12 fórmulas de referencia verificadas</li><li>Simulador de formulación</li><li>Tu costo real por kilo de alimento</li></ul>
+    <p class="c-meta">📚 10 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 58</b><span>RD$ 3,500 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABFormulaci%C3%B3n%20y%20fabricaci%C3%B3n%20de%20alimentos%20balanceados%C2%BB%20(US%24%2058).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/nutricion.jpg" download="AgroAcademy-nutricion.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="cerdos" style="--ac:#C084FC;--i:2">
+  <button class="c-img" type="button" onclick="ver('reproduccion')" aria-label="Ver el arte de Reproducción porcina: celo, inseminación y marranas en grande">
+    <img src="artes/reproduccion.webp" alt="Arte del curso Reproducción porcina: celo, inseminación y marranas: Más lechones por marrana, US$ 41" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐷 Porcicultura · reproducción</p>
+    <h3>Reproducción porcina: celo, inseminación y marranas</h3>
+    <ul><li>Detección de celo sin adivinar</li><li>Inseminación paso a paso</li><li>11 calculadoras reproductivas</li></ul>
+    <p class="c-meta">📚 10 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 41</b><span>RD$ 2,500 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABReproducci%C3%B3n%20porcina%3A%20celo%2C%20inseminaci%C3%B3n%20y%20marranas%C2%BB%20(US%24%2041).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/reproduccion.jpg" download="AgroAcademy-reproduccion.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="cerdos" style="--ac:#38BDF8;--i:3">
+  <button class="c-img" type="button" onclick="ver('sanidad')" aria-label="Ver el arte de Sanidad y bioseguridad porcina · Peste Porcina Africana en grande">
+    <img src="artes/sanidad.webp" alt="Arte del curso Sanidad y bioseguridad porcina · Peste Porcina Africana: Blinda tu granja contra la PPA, US$ 45" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🛡️ Porcicultura · sanidad</p>
+    <h3>Sanidad y bioseguridad porcina · Peste Porcina Africana</h3>
+    <ul><li>Plan de bioseguridad de tu granja</li><li>Protocolo ante sospecha de PPA</li><li>6 planillas de control</li></ul>
+    <p class="c-meta">📚 10 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 45</b><span>RD$ 2,700 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABSanidad%20y%20bioseguridad%20porcina%20%C2%B7%20Peste%20Porcina%20Africana%C2%BB%20(US%24%2045).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/sanidad.jpg" download="AgroAcademy-sanidad.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="cerdos" style="--ac:#FB923C;--i:4">
+  <button class="c-img" type="button" onclick="ver('engorde')" aria-label="Ver el arte de Engorde porcino: del destete al peso de mercado en grande">
+    <img src="artes/engorde.webp" alt="Arte del curso Engorde porcino: del destete al peso de mercado: Cerdos al peso en menos días, US$ 60" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐖 Porcicultura · engorde</p>
+    <h3>Engorde porcino: del destete al peso de mercado</h3>
+    <ul><li>Control de conversión y peso</li><li>Costo real por kilo del lote</li><li>Plan de venta para cada lote</li></ul>
+    <p class="c-meta">📚 10 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 60</b><span>RD$ 3,600 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABEngorde%20porcino%3A%20del%20destete%20al%20peso%20de%20mercado%C2%BB%20(US%24%2060).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/engorde.jpg" download="AgroAcademy-engorde.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="cerdos" style="--ac:#F472B6;--i:5">
+  <button class="c-img" type="button" onclick="ver('lechones')" aria-label="Ver el arte de Manejo de lechones: del nacimiento al destete en grande">
+    <img src="artes/lechones.webp" alt="Arte del curso Manejo de lechones: del nacimiento al destete: Que no se te muera ni uno, US$ 45" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🍼 Porcicultura · maternidad</p>
+    <h3>Manejo de lechones: del nacimiento al destete</h3>
+    <ul><li>Calostro, calor y camada bajo control</li><li>Rutina diaria de maternidad</li><li>Más lechones vivos al destete</li></ul>
+    <p class="c-meta">📚 9 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 45</b><span>RD$ 2,700 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABManejo%20de%20lechones%3A%20del%20nacimiento%20al%20destete%C2%BB%20(US%24%2045).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/lechones.jpg" download="AgroAcademy-lechones.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="aves" style="--ac:#F87171;--i:6">
+  <button class="c-img" type="button" onclick="ver('ponedoras')" aria-label="Ver el arte de Gallinas ponedoras: producción de huevos rentable en grande">
+    <img src="artes/ponedoras.webp" alt="Arte del curso Gallinas ponedoras: producción de huevos rentable: Más huevos cada día, US$ 85" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🥚 Avicultura · huevos</p>
+    <h3>Gallinas ponedoras: producción de huevos rentable</h3>
+    <ul><li>Diagnóstico de huevos perdidos</li><li>Rutina diaria del galpón</li><li>Plan de 12 puntos para subir la postura</li></ul>
+    <p class="c-meta">📚 8 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 85</b><span>RD$ 5,100 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABGallinas%20ponedoras%3A%20producci%C3%B3n%20de%20huevos%20rentable%C2%BB%20(US%24%2085).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/ponedoras.jpg" download="AgroAcademy-ponedoras.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="aves" style="--ac:#FBBF24;--i:7">
+  <button class="c-img" type="button" onclick="ver('pollos')" aria-label="Ver el arte de Pollos de engorde: manejo y producción rentable en grande">
+    <img src="artes/pollos.webp" alt="Arte del curso Pollos de engorde: manejo y producción rentable: Lotes parejos, más libras, US$ 80" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐔 Avicultura · pollos</p>
+    <h3>Pollos de engorde: manejo y producción rentable</h3>
+    <ul><li>Galpón, agua y alimentación</li><li>Presupuesto y flujo de caja del lote</li><li>Calculadoras y escenarios</li></ul>
+    <p class="c-meta">📚 12 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 80</b><span>RD$ 4,800 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABPollos%20de%20engorde%3A%20manejo%20y%20producci%C3%B3n%20rentable%C2%BB%20(US%24%2080).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/pollos.jpg" download="AgroAcademy-pollos.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="ganado" style="--ac:#A3E635;--i:8">
+  <button class="c-img" type="button" onclick="ver('bovinos')" aria-label="Ver el arte de Ganadería bovina: manejo, alimentación y rentabilidad en grande">
+    <img src="artes/bovinos.webp" alt="Arte del curso Ganadería bovina: manejo, alimentación y rentabilidad: Tu hato puede producir más, US$ 99" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐄 Ganadería bovina</p>
+    <h3>Ganadería bovina: manejo, alimentación y rentabilidad</h3>
+    <ul><li>Pasto y alimentación en el trópico</li><li>Calendario reproductivo del hato</li><li>Rentabilidad de tu finca</li></ul>
+    <p class="c-meta">📚 8 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 99</b><span>RD$ 5,940 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABGanader%C3%ADa%20bovina%3A%20manejo%2C%20alimentaci%C3%B3n%20y%20rentabilidad%C2%BB%20(US%24%2099).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/bovinos.jpg" download="AgroAcademy-bovinos.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="otros" style="--ac:#FBBF24;--i:9">
+  <button class="c-img" type="button" onclick="ver('apicultura')" aria-label="Ver el arte de Apicultura: producción de miel y manejo de colmenas en grande">
+    <img src="artes/apicultura.webp" alt="Arte del curso Apicultura: producción de miel y manejo de colmenas: Convierte tus colmenas en negocio, US$ 89" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐝 Apicultura</p>
+    <h3>Apicultura: producción de miel y manejo de colmenas</h3>
+    <ul><li>Instalación y revisión de colmenas</li><li>Cosecha y venta de la miel</li><li>Rentabilidad de tu apiario</li></ul>
+    <p class="c-meta">📚 8 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 89</b><span>RD$ 5,340 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABApicultura%3A%20producci%C3%B3n%20de%20miel%20y%20manejo%20de%20colmenas%C2%BB%20(US%24%2089).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/apicultura.jpg" download="AgroAcademy-apicultura.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="otros" style="--ac:#2DD4BF;--i:10">
+  <button class="c-img" type="button" onclick="ver('tilapia')" aria-label="Ver el arte de Producción de tilapia: crianza, manejo y rentabilidad en grande">
+    <img src="artes/tilapia.webp" alt="Arte del curso Producción de tilapia: crianza, manejo y rentabilidad: Tilapia que sí deja dinero, US$ 84" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐟 Acuicultura · tilapia</p>
+    <h3>Producción de tilapia: crianza, manejo y rentabilidad</h3>
+    <ul><li>Agua, alevines y alimento</li><li>Calculadoras de producción y ración</li><li>Punto de equilibrio de tu estanque</li></ul>
+    <p class="c-meta">📚 8 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 84</b><span>RD$ 5,040 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABProducci%C3%B3n%20de%20tilapia%3A%20crianza%2C%20manejo%20y%20rentabilidad%C2%BB%20(US%24%2084).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/tilapia.jpg" download="AgroAcademy-tilapia.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="ganado" style="--ac:#5FBF6E;--i:11">
+  <button class="c-img" type="button" onclick="ver('cabras')" aria-label="Ver el arte de Crianza de cabras y ovejas: del inicio a la rentabilidad en grande">
+    <img src="artes/cabras.webp" alt="Arte del curso Crianza de cabras y ovejas: del inicio a la rentabilidad: Chivos que dejan ganancia, US$ 79" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🐐 Ganadería · cabras y ovejas</p>
+    <h3>Crianza de cabras y ovejas: del inicio a la rentabilidad</h3>
+    <ul><li>Razas, corral y alimentación</li><li>Reproducción y sanidad del rebaño</li><li>Venta y rentabilidad</li></ul>
+    <p class="c-meta">📚 8 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 79</b><span>RD$ 4,740 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABCrianza%20de%20cabras%20y%20ovejas%3A%20del%20inicio%20a%20la%20rentabilidad%C2%BB%20(US%24%2079).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/cabras.jpg" download="AgroAcademy-cabras.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+<article class="c" data-g="aves" style="--ac:#60A5FA;--i:12">
+  <button class="c-img" type="button" onclick="ver('guineas')" aria-label="Ver el arte de Crianza de guineas en RD: de cero a un negocio rentable en grande">
+    <img src="artes/guineas.webp" alt="Arte del curso Crianza de guineas en RD: de cero a un negocio rentable: Guineas que se venden solas, US$ 89" width="720" height="900" loading="lazy" decoding="async">
+    <span class="c-zoom">🔍 Ver en grande</span>
+  </button>
+  <div class="c-t">
+    <p class="c-sec">🪶 Avicultura · guineas</p>
+    <h3>Crianza de guineas en RD: de cero a un negocio rentable</h3>
+    <ul><li>Instalaciones, incubación y guineítos</li><li>14 calculadoras y simuladores</li><li>Tu plan de negocio en PDF</li></ul>
+    <p class="c-meta">📚 15 módulos · 🎓 Certificado · 📱 100 % online</p>
+    <div class="c-pr"><b>US$ 89</b><span>RD$ 5,340 aprox.</span><em>Pago único · acceso de por vida</em></div>
+    <a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Quiero%20inscribirme%20en%20el%20curso%20%C2%ABCrianza%20de%20guineas%20en%20RD%3A%20de%20cero%20a%20un%20negocio%20rentable%C2%BB%20(US%24%2089).%20%C2%BFC%C3%B3mo%20hago%20el%20pago%3F" target="_blank" rel="noopener">💬 Lo quiero · WhatsApp</a>
+    <div class="c-2">
+      <a class="b b-gh" href="https://agroacademy-rd.vercel.app/" target="_blank" rel="noopener">🌐 Plataforma</a>
+      <a class="b b-gh" href="artes/guineas.jpg" download="AgroAcademy-guineas.jpg">⬇ Descargar</a>
+    </div>
+  </div>
+</article>
+</div>
+
+<section class="pasos">
+  <h2>Cómo inscribirte</h2>
+  <ol>
+    <li><b>Escríbenos por WhatsApp</b>Dinos qué curso quieres y te enviamos los datos de pago.</li>
+    <li><b>Paga por transferencia o con tarjeta</b>Nos envías el comprobante y el correo con el que te registraste.</li>
+    <li><b>Te habilitamos el curso</b>Entras con tu cuenta en la plataforma y empiezas el módulo 1 desde tu celular.</li>
+  </ol>
+</section>
+
+<footer>
+  <p><b>AgroAcademy RD</b> · Formación agropecuaria · República Dominicana</p>
+  <p>Precios en dólares; el monto en pesos es aproximado. WhatsApp: <a href="https://wa.me/18295913373">829-591-3373</a> · Plataforma: <a href="https://agroacademy-rd.vercel.app/">agroacademy-rd.vercel.app</a></p>
+</footer>
+</div>
+
+<div class="flota"><a class="b b-wa" href="https://wa.me/18295913373?text=Hola%20%F0%9F%91%8B%20Vi%20los%20cursos%20de%20AgroAcademy%20RD%20y%20quiero%20inscribirme." target="_blank" rel="noopener">💬 Inscríbete por WhatsApp</a></div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Arte del curso" onclick="if(event.target===this)cerrar()">
+  <button type="button" onclick="cerrar()" aria-label="Cerrar">×</button>
+  <div><img id="lbImg" alt=""><div class="lb-b"><a class="b b-gh" id="lbDes" download>⬇ Descargar</a><a class="b b-wa" id="lbWa" target="_blank" rel="noopener">💬 Lo quiero</a></div></div>
+</div>
+
+<script>
+var CURSOS = [{"id":"porcicultura","nombre":"Porcicultura: de la idea a una granja rentable","usd":75},{"id":"nutricion","nombre":"Formulación y fabricación de alimentos balanceados","usd":58},{"id":"reproduccion","nombre":"Reproducción porcina: celo, inseminación y marranas","usd":41},{"id":"sanidad","nombre":"Sanidad y bioseguridad porcina · Peste Porcina Africana","usd":45},{"id":"engorde","nombre":"Engorde porcino: del destete al peso de mercado","usd":60},{"id":"lechones","nombre":"Manejo de lechones: del nacimiento al destete","usd":45},{"id":"ponedoras","nombre":"Gallinas ponedoras: producción de huevos rentable","usd":85},{"id":"pollos","nombre":"Pollos de engorde: manejo y producción rentable","usd":80},{"id":"bovinos","nombre":"Ganadería bovina: manejo, alimentación y rentabilidad","usd":99},{"id":"apicultura","nombre":"Apicultura: producción de miel y manejo de colmenas","usd":89},{"id":"tilapia","nombre":"Producción de tilapia: crianza, manejo y rentabilidad","usd":84},{"id":"cabras","nombre":"Crianza de cabras y ovejas: del inicio a la rentabilidad","usd":79},{"id":"guineas","nombre":"Crianza de guineas en RD: de cero a un negocio rentable","usd":89}];
+document.querySelectorAll('.fil button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.fil button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    var f = b.dataset.f;
+    document.querySelectorAll('#grid .c').forEach(function(c){ c.hidden = !!f && c.dataset.g !== f; });
+  });
+});
+function ver(id){
+  var c = CURSOS.filter(function(x){ return x.id === id; })[0]; if(!c) return;
+  document.getElementById('lbImg').src = 'artes/' + id + '.jpg';
+  document.getElementById('lbImg').alt = 'Arte del curso ' + c.nombre;
+  var d = document.getElementById('lbDes'); d.href = 'artes/' + id + '.jpg'; d.setAttribute('download', 'AgroAcademy-' + id + '.jpg');
+  document.getElementById('lbWa').href = 'https://wa.me/18295913373?text=' + encodeURIComponent('Hola 👋 Quiero inscribirme en el curso «' + c.nombre + '» (US$ ' + c.usd + '). ¿Cómo hago el pago?');
+  document.getElementById('lb').classList.add('on');
+}
+function cerrar(){ document.getElementById('lb').classList.remove('on'); }
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') cerrar(); });
+</script>
+</body>
+</html>
