@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10f · Dashboard: explorar estudiantes con filtros y categorías tocables (pv-dashfiltro) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10h · rediseño premium F2–F6: siguiente clase, identidad por curso (WebP), carrusel móvil, logro al aprobar, meta semanal e insignias, barra inferior -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -107405,6 +107405,476 @@ st.textContent =
 })();
 
 
+/* ---------- pv-identidad.js ---------- */
+/* ============================================================
+   IDENTIDAD POR CURSO (rediseño premium, fase 3 · 2026-11-10)
+   UN SOLO LUGAR para la foto y la paleta de cada curso. Para cambiar
+   la portada de un curso basta con cambiar su línea aquí (y subir la
+   foto a images/): la toman la tarjeta del catálogo, el bloque «Su
+   siguiente clase» y cualquier pieza nueva.
+     foto  → portada grande (WebP 1400 px) · tarjeta → WebP 800×500
+     c     → [color principal, color de acento] de la paleta temática
+   Las fotos .jpg originales siguen en images/ (respaldo si el WebP falla).
+   No se guarda en la nube a propósito: nxSubirCfg reescribe todo
+   settings.nx_cfg y borraría cualquier clave nueva.
+   ============================================================ */
+(function(){
+var V = window.AGCURSOVIS = window.AGCURSOVIS || {
+  ruta:         {foto:['pb-portada', 'bv-portada', 'tl-portada', 'nutri-portada'], c:['#10B981', '#A3E635']},
+  porcicultura: {foto:'nutri-portada',          c:['#166534', '#B7791F']},
+  nutricion:    {foto:'nutri-m02-maiz-grano',   c:['#EA580C', '#A8A29E']},
+  reproduccion: {foto:'rp-b-lactancia',         c:['#9D174D', '#16A34A']},
+  sanidad:      {foto:'sb-portada',             c:['#0284C7', '#22C55E']},
+  engorde:      {foto:'grhd-nave',              c:['#15803D', '#CA8A04']},
+  lechones:     {foto:'grhd-mamando',           c:['#DB2777', '#F59E0B']},
+  rentabilidad: {foto:'nutri-s08-costo-numeros', c:['#0F766E', '#EAB308']},
+  ponedoras:    {foto:'gp-portada',             c:['#CA8A04', '#FDE68A']},
+  pollos:       {foto:'pb-portada',             c:['#B45309', '#F59E0B']},
+  bovinos:      {foto:'bv-portada',             c:['#15803D', '#0369A1']},
+  apicultura:   {foto:'ap-portada',             c:['#D97706', '#292524']},
+  tilapia:      {foto:'tl-portada',             c:['#0369A1', '#14B8A6']},
+  cabras:       {foto:'cb-portada',             c:['#C2410C', '#65A30D']},
+  guineas:      {foto:'gn-portada',             c:['#475569', '#16A34A']}
+};
+/* lo que usa «Su siguiente clase» (pv-inicio.js) */
+window.AGFOTOCURSO = {};
+Object.keys(V).forEach(function(k){
+  var f = V[k].foto;
+  AGFOTOCURSO[k] = Array.isArray(f) ? f.map(function(x){ return x + '-800.webp'; }) : f + '.webp';
+});
+window.agColorCurso = function(id){ return (V[id] && V[id].c) || ['#10B981', '#A3E635']; };
+
+/* viste las tarjetas del catálogo: foto liviana + colores del curso */
+function viste(){
+  document.querySelectorAll('#csOv article.nva-card[data-curso]').forEach(function(a){
+    if(a.dataset.pvid) return;
+    var id = a.dataset.curso, v = V[id]; if(!v) return;
+    a.dataset.pvid = '1';
+    a.style.setProperty('--cc1', v.c[0]); a.style.setProperty('--cc2', v.c[1]);
+    var img = a.querySelector('.nva-card-cov img'), f = Array.isArray(v.foto) ? v.foto[0] : v.foto;
+    if(img && f){
+      var orig = img.getAttribute('src');
+      img.onerror = function(){ img.onerror = null; img.src = orig; };
+      img.src = 'images/' + f + '-800.webp';
+      img.setAttribute('decoding', 'async');
+    }
+  });
+  var h = document.getElementById('pvhHero');
+  if(h && !h.dataset.pvid){
+    var b = h.querySelector('#pvhCta'), m = b && /pvhIr\('([a-z]+)'/.exec(b.getAttribute('onclick') || '');
+    if(m && V[m[1]]){ h.dataset.pvid = '1'; h.style.setProperty('--cc1', V[m[1]].c[0]); h.style.setProperty('--cc2', V[m[1]].c[1]); }
+  }
+}
+setInterval(function(){ try{ if(document.getElementById('csOv')) viste(); }catch(e){} }, 500);
+
+var css = `
+#csOv article.nva-card[data-pvid]{position:relative;border-top:0!important}
+#csOv article.nva-card[data-pvid]::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;z-index:3;border-radius:inherit;border-bottom-left-radius:0;border-bottom-right-radius:0;background:linear-gradient(90deg,var(--cc1),var(--cc2))}
+#csOv article.nva-card[data-pvid] .nva-card-ico{background:linear-gradient(135deg,var(--cc1),var(--cc2))!important;color:#fff;box-shadow:0 8px 20px -6px var(--cc1)}
+#csOv article.nva-card[data-pvid] .nva-card-cat{background:color-mix(in srgb,var(--cc1) 80%,#000)!important;color:#fff!important;border-color:transparent!important}
+#csOv article.nva-card[data-pvid] .nva-card-velo{background:linear-gradient(180deg,transparent 35%,color-mix(in srgb,var(--cc1) 55%,transparent) 100%)!important}
+#csOv article.nva-card[data-pvid]:hover{box-shadow:0 26px 50px -24px var(--cc1)!important}
+#csOv article.nva-card[data-pvid] .nva-card-cov img{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+#csOv article.nva-card[data-pvid]:hover .nva-card-cov img{transform:scale(1.05)}
+#pvhHero[data-pvid] .pvh-velo{background:linear-gradient(180deg,rgba(4,30,26,.2) 0%,rgba(4,30,26,.7) 45%,rgba(3,20,24,.96) 100%),radial-gradient(600px 300px at 0% 100%,color-mix(in srgb,var(--cc1) 55%,transparent),transparent 70%)}
+#pvhHero[data-pvid]{border-color:color-mix(in srgb,var(--cc1) 60%,#34D399)}
+/* celular: el catálogo pasa a carrusel horizontal (antes medía ~8 000 px de alto) */
+@media(max-width:700px){
+  #csOv .nva-sec-cat .nva-rej{display:flex!important;grid-template-columns:none!important;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 14px;margin:0 -4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  #csOv .nva-sec-cat .nva-rej > .nva-card{flex:0 0 84%;scroll-snap-align:start;min-width:0}
+  #csOv .nva-sec-cat .nva-h2-w::after{content:"Deslice para ver más →";display:block;width:100%;font-size:13px;color:#A7F3D0;margin-top:4px}
+}
+`;
+var st = document.createElement('style'); st.id = 'pvIdCss'; st.textContent = css; document.head.appendChild(st);
+})();
+
+
+/* ---------- pv-inicio.js ---------- */
+/* ============================================================
+   CAMPUS · «SU SIGUIENTE CLASE» (rediseño premium, fase 2 · 2026-11-10)
+   Objetivo: que quien entra empiece (o retome) su lección en un toque.
+   · Un bloque arriba de todo con la foto del curso, el módulo que le
+     toca, su avance real y UN botón grande: CONTINUAR ESTUDIANDO /
+     COMIENZA TU CURSO GRATIS. Lleva directo al módulo pendiente.
+   · Motivos para volver con datos reales: cuánto le falta, otros
+     cursos a medias. Nada inventado.
+   · Reutiliza aiSiguiente() (Curso-Inicio) para decidir el curso y
+     las funciones XXIr(n) de cada curso para abrir el módulo; si algo
+     falla, cae en agIrAlCurso (lo de siempre).
+   · No borra nada: oculta por CSS lo que repetía el encabezado
+     (párrafo, nivel y anillo) y el botón duplicado de «Comience aquí»;
+     el menú «Mi cuenta», la lista de inicio y el catálogo siguen.
+   · Fotos: AGFOTOCURSO (una por curso, la misma del catálogo).
+   ============================================================ */
+(function(){
+/* fotos de portada por curso: un solo sitio para cambiarlas */
+window.AGFOTOCURSO = window.AGFOTOCURSO || {
+  porcicultura:'nutri-portada', nutricion:'nutri-m02-maiz-grano', reproduccion:'rp-b-lactancia', sanidad:'sb-portada',
+  engorde:'m7-corral-engorde', lechones:'lc-portada', rentabilidad:'nutri-s08-costo-numeros', ponedoras:'gp-portada',
+  pollos:'pb-portada', bovinos:'bv-portada', apicultura:'ap-portada', tilapia:'tl-portada', cabras:'cb-portada', guineas:'gn-portada',
+  ruta:['pb-portada', 'bv-portada', 'tl-portada', 'nutri-portada']
+};
+var PREF = {ruta:'rt', nutricion:'nx', reproduccion:'rp', sanidad:'sb', engorde:'eg', lechones:'lc', rentabilidad:'gr', ponedoras:'gp',
+  pollos:'pb', bovinos:'bv', apicultura:'ap', tilapia:'tl', cabras:'cb', guineas:'gn'};
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function uid(){ try{ return aiUid(); }catch(e){} try{ return SESSION.id; }catch(e){ return ''; } }
+function nombre(){
+  try{ var s = (STUDENTS || []).filter(function(x){ return x.id === uid(); })[0]; return String((s && s.name) || '').trim().split(/\s+/)[0]; }catch(e){ return ''; }
+}
+function foto(id){ var f = AGFOTOCURSO[id]; return f ? (Array.isArray(f) ? f : [f]).map(function(x){ return 'images/' + (/\.(webp|jpe?g|png|avif)$/.test(x) ? x : x + '.jpg'); }) : []; }
+
+/* el primer módulo sin aprobar (los cursos van en orden) */
+function sigModulo(id){
+  try{
+    var C = COURSES[id], u = uid(), L = C.modules() || [];
+    for(var i = 0; i < L.length; i++) if(!C.passed(u, L[i].n)) return {n:L[i].n, num:L[i].num || L[i].n, t:L[i].title || '', i:i + 1, de:L.length};
+  }catch(e){}
+  return null;
+}
+function minutos(id){
+  try{ var h = AIHORAS[id], n = COURSES[id].n; if(h && n){ var m = Math.ceil(h * 60 / n / 5) * 5; return Math.max(5, Math.min(m, 90)); } }catch(e){}
+  return 0;
+}
+function daCert(id){ try{ return agTbDaCert(id); }catch(e){ return false; } }
+
+/* abrir el curso y, ya dentro, el módulo que toca */
+window.pvhIr = function(id, n){
+  try{ agIrAlCurso(id); }catch(e){ return; }
+  if(!n) return;
+  var f = id === 'porcicultura' ? 'goto' : (PREF[id] ? PREF[id] + 'Ir' : '');
+  var t = 0;
+  (function intenta(){
+    var abierto = id === 'porcicultura' ? !document.getElementById('csOv') : !!document.querySelector('[id$="Ov"]:not(#csOv)');
+    if(abierto && typeof window[f] === 'function'){ setTimeout(function(){ try{ window[f](n); }catch(e){} }, 250); return; }
+    if(t++ < 30) setTimeout(intenta, 120);
+  })();
+};
+
+function datos(){
+  var s = null; try{ s = aiSiguiente(); }catch(e){}
+  if(!s || !s.e) return {modo:'explorar'};
+  var id = s.e.id, C = COURSES[id] || {}, m = sigModulo(id);
+  var otros = [];
+  try{
+    aiVisibles().forEach(function(k){
+      if(k === id) return; var e = aiEstado(k);
+      if(e && e.st === 'iniciado') otros.push(e);
+    });
+  }catch(e){}
+  return {modo:s.e.hechos > 0 ? 'continuar' : 'empezar', id:id, gratis:id === (window.AIGRATIS || 'ruta'), nombre:C.name || C.label || id,
+    icon:C.icon || '📘', hechos:s.e.hechos, total:s.e.total, pct:s.e.pct, m:m, min:minutos(id), otros:otros.slice(0, 2)};
+}
+
+function html(){
+  var d = datos(), nom = nombre();
+  if(d.modo === 'explorar'){
+    return '<section class="pvh pvh-fin" id="pvhHero"><div class="pvh-in"><p class="pvh-chip">🎉 ¡Va al día' + (nom ? ', ' + esc(nom) : '') + '!</p>' +
+      '<h2 class="pvh-t">Ya terminó todo lo que tiene abierto</h2><p class="pvh-p">Elija su próximo curso en el catálogo: cada uno suma una crianza más a su negocio.</p>' +
+      '<button type="button" class="pvh-cta" onclick="pvhCatalogo()"><span>▶ VER CURSOS PARA SEGUIR</span></button></div></section>';
+  }
+  var fs = foto(d.id);
+  var fondo = fs.length > 1
+    ? '<div class="pvh-mos">' + fs.map(function(f){ return '<i style="background-image:url(\'' + f + '\')"></i>'; }).join('') + '</div>'
+    : (fs.length ? '<div class="pvh-foto" style="background-image:url(\'' + fs[0] + '\')"></div>' : '');
+  var rot = d.modo === 'continuar' ? 'CONTINUAR ESTUDIANDO' : (d.gratis ? 'COMIENZA TU CURSO GRATIS' : 'EMPEZAR MI CURSO');
+  var titulo = d.m
+    ? (d.modo === 'continuar' ? 'Le toca el módulo ' + d.m.i + ' de ' + d.m.de : 'Su primer módulo le espera') + '<em>' + esc(d.m.t) + '</em>'
+    : 'Su curso le espera';
+  var falta = d.total - d.hechos;
+  var motivo = d.modo === 'continuar'
+    ? (falta > 0 ? '🎯 Le ' + (falta === 1 ? 'falta 1 módulo' : 'faltan ' + falta + ' módulos') + ' para terminar' + (daCert(d.id) ? ' y recibir su certificado 🎓' : ' el curso') : '')
+    : (d.gratis ? '🎁 Es gratis y ya está abierto para usted' : '🔓 Ya está abierto para usted');
+  var barra = !d.hechos ? (d.total ? '<p class="pvh-mod">📘 ' + d.total + ' módulos cortos · empiece por el primero</p>' : '') : d.total ? '<div class="pvh-av"><div class="pvh-bar" role="progressbar" aria-valuenow="' + d.pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + Math.max(d.pct, d.hechos ? 4 : 0) + '%"></i></div>' +
+    '<span><b>' + d.hechos + ' de ' + d.total + '</b> módulos · ' + d.pct + ' %</span></div>' : '';
+  var otros = d.otros.length ? '<div class="pvh-otros"><span>También tiene a medias:</span>' + d.otros.map(function(e){
+    var C = COURSES[e.id] || {}; var m = sigModulo(e.id);
+    return '<button type="button" onclick="pvhIr(\'' + e.id + '\',' + (m ? m.n : 0) + ')">' + (C.icon || '📘') + ' ' + esc(C.label || e.id) + ' <b>' + e.hechos + '/' + e.total + '</b> →</button>';
+  }).join('') + '</div>' : '';
+  return '<section class="pvh" id="pvhHero">' + fondo + '<div class="pvh-velo"></div><div class="pvh-in">' +
+    '<p class="pvh-chip">' + d.icon + ' ' + esc(d.nombre) + (d.gratis ? ' <b>GRATIS</b>' : '') + '</p>' +
+    '<h2 class="pvh-t">' + titulo + '</h2>' + barra +
+    '<button type="button" class="pvh-cta" id="pvhCta" onclick="pvhIr(\'' + d.id + '\',' + (d.m ? d.m.n : 0) + ')"><span>▶ ' + rot + '</span>' +
+      '<small>' + (d.min ? '⏱ Unos ' + d.min + ' minutos · ' : '') + 'su avance queda guardado al aprobar cada módulo</small></button>' +
+    (motivo ? '<p class="pvh-mot">' + motivo + '</p>' : '') + otros +
+  '</div></section>';
+}
+
+window.pvhCatalogo = function(){
+  var c = document.querySelector('#csOv .ag3-premium, #csOv [id*="atalogo"], #csOv .nva-sec:nth-of-type(3)');
+  if(c) c.scrollIntoView({behavior:'smooth', block:'start'});
+};
+
+function monta(){
+  var ov = document.getElementById('csOv'); if(!ov) return;
+  var cuerpo = ov.querySelector('.nva-cuerpo'); if(!cuerpo) return;
+  var w = ov.querySelector('.cs-w'); if(w) w.classList.add('pvh-on');
+  var h = html(), viejo = document.getElementById('pvhHero');
+  if(viejo){ if(viejo.dataset.h === h) return; viejo.remove(); }
+  cuerpo.insertAdjacentHTML('afterbegin', h);
+  var nuevo = document.getElementById('pvhHero'); if(nuevo) nuevo.dataset.h = h;
+  /* el botón flotante: mismo destino, y se esconde mientras el grande se ve
+     (Curso-Inicio lo repinta: por eso se usa una clase en #csOv y un clic delegado) */
+  var cta = document.getElementById('pvhCta');
+  if(cta){
+    try{
+      if(window.__pvhIO) window.__pvhIO.disconnect();
+      window.__pvhIO = new IntersectionObserver(function(en){ ov.classList.toggle('pvh-vis', en[0].isIntersecting); }, {threshold:0.15});
+      window.__pvhIO.observe(cta);
+    }catch(e){}
+  }
+}
+document.addEventListener('click', function(e){
+  var fl = e.target && e.target.closest ? e.target.closest('#aiFlota') : null;
+  var c = document.getElementById('pvhCta');
+  if(fl && c){ e.preventDefault(); e.stopImmediatePropagation(); c.click(); }
+}, true);
+
+/* engancharse al campus como hace Curso-Inicio (envolver agCampus) y vigilar repintados */
+if(typeof window.agCampus === 'function' && !window.agCampus.__pvh){
+  var _agCampusPvh = window.agCampus;
+  window.agCampus = function(){ var r = _agCampusPvh.apply(this, arguments); try{ setTimeout(monta, 30); }catch(e){} return r; };
+  window.agCampus.__pvh = true;
+}
+setInterval(function(){ try{ var ov = document.getElementById('csOv'); if(ov && ov.querySelector('.nva-cuerpo') && !document.getElementById('pvhHero')) monta(); }catch(e){} }, 600);
+
+var css = `
+#csOv .pvh-on .nva-lede,#csOv .pvh-on .nva-perfil,#csOv .pvh-on .nva-hero-med,#csOv .pvh-on #aiComience .ai-cta{display:none!important}
+#csOv .pvh-on #aiComience .ai-eyebrow,#csOv .pvh-on #aiComience .ai-h2{display:none}
+#csOv .pvh-on .nva-h1{font-size:clamp(26px,4.2vw,44px)}
+.pvh{position:relative;overflow:hidden;border-radius:24px;margin:0 0 22px;min-height:340px;display:flex;align-items:flex-end;isolation:isolate;
+  border:1px solid rgba(52,211,153,.35);box-shadow:0 30px 70px -30px rgba(16,185,129,.55),inset 0 1px 0 rgba(255,255,255,.08);animation:pvhSube .7s cubic-bezier(.2,.8,.2,1) both}
+.pvh-foto,.pvh-mos{position:absolute;inset:0;z-index:-2}
+.pvh-foto{background:center 45%/cover no-repeat;transform:scale(1.04);animation:pvhZoom 18s ease-in-out infinite alternate}
+.pvh-mos{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.pvh-mos i{background:center/cover no-repeat}
+.pvh-velo{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(4,30,26,.25) 0%,rgba(4,30,26,.72) 45%,rgba(3,20,24,.96) 100%),radial-gradient(600px 300px at 0% 100%,rgba(16,185,129,.35),transparent 70%)}
+.pvh-fin{min-height:0;background:linear-gradient(135deg,#064E3B,#0F766E 60%,#0E7490)}
+.pvh-in{position:relative;width:100%;padding:28px 30px 26px;display:grid;gap:12px;justify-items:start}
+.pvh-chip{margin:0;display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border-radius:99px;font-size:14px;font-weight:700;color:#ECFDF5;background:rgba(6,78,59,.65);border:1px solid rgba(110,231,183,.45);backdrop-filter:blur(6px)}
+.pvh-chip b{font-size:11.5px;letter-spacing:.08em;padding:2px 7px;border-radius:99px;color:#052e16;background:#A3E635}
+.pvh-t{margin:0;font-family:var(--display,inherit);font-size:clamp(24px,3.4vw,36px);line-height:1.12;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.45)}
+.pvh-t em{display:block;font-style:normal;font-size:.62em;font-weight:600;color:#A7F3D0;margin-top:6px}
+.pvh-p{margin:0;color:#D1FAE5;font-size:16.5px;line-height:1.5;max-width:560px}
+.pvh-av{display:grid;gap:6px;width:min(520px,100%)}
+.pvh-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}
+.pvh-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#10B981,#A3E635);box-shadow:0 0 14px rgba(163,230,53,.7);transform-origin:left;animation:pvhCrece 1.2s .35s cubic-bezier(.2,.8,.2,1) both}
+.pvh-av span{font-size:14.5px;color:#D1FAE5}.pvh-av b{color:#fff}
+.pvh-cta{margin-top:6px;width:min(560px,100%);min-height:76px;display:grid;gap:4px;justify-items:center;align-content:center;padding:14px 22px;border:0;border-radius:18px;cursor:pointer;
+  color:#052E16;background:linear-gradient(135deg,#A3E635 0%,#34D399 55%,#2DD4BF 100%);box-shadow:0 18px 40px -12px rgba(163,230,53,.65),inset 0 -3px 0 rgba(0,0,0,.12);
+  transition:transform .2s,box-shadow .2s;animation:pvhLate 2.6s 1.2s ease-in-out infinite}
+.pvh-cta span{font-family:var(--display,inherit);font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:.04em}
+.pvh-cta small{font-size:13.5px;font-weight:600;opacity:.8}
+.pvh-cta:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 24px 50px -12px rgba(163,230,53,.85)}
+.pvh-cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.pvh-mot{margin:2px 0 0;font-size:15.5px;font-weight:600;color:#ECFDF5}
+.pvh-otros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:2px}
+.pvh-otros span{font-size:13.5px;color:#A7F3D0}
+.pvh-otros button{padding:8px 12px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25)}
+.pvh-otros button:hover{background:rgba(255,255,255,.18)}
+#csOv.pvh-vis #aiFlota{opacity:0!important;pointer-events:none!important;transform:translateY(20px)}
+#csOv .pvh-on .nva-hero{padding-bottom:18px!important;min-height:0!important}#csOv .pvh-on .nva-hero-in{min-height:0!important;padding-top:clamp(18px,4vw,40px)!important;padding-bottom:0!important}
+#aiFlota{transition:opacity .25s,transform .25s}
+@media(max-width:640px){.pvh{min-height:0;border-radius:20px;margin-left:-4px;margin-right:-4px}.pvh-in{padding:88px 18px 20px;gap:10px}.pvh-cta{width:100%;min-height:72px}#csOv .pvh-on .nva-hero-in{padding-top:8px!important}}
+@media(max-width:640px) and (max-height:720px){.pvh-in{padding-top:56px}.pvh-t{font-size:22px}#csOv .pvh-on .nva-eyebrow{display:none}}
+.pvh-mod{margin:0;font-size:15px;font-weight:600;color:#D1FAE5}
+@keyframes pvhSube{from{opacity:0;transform:translateY(18px)}}
+@keyframes pvhCrece{from{transform:scaleX(0)}}
+@keyframes pvhZoom{to{transform:scale(1.12)}}
+@keyframes pvhLate{0%,100%{box-shadow:0 18px 40px -12px rgba(163,230,53,.65),0 0 0 0 rgba(163,230,53,.0)}50%{box-shadow:0 18px 40px -12px rgba(163,230,53,.65),0 0 0 8px rgba(163,230,53,.18)}}
+@media(prefers-reduced-motion:reduce){.pvh,.pvh-foto,.pvh-bar i,.pvh-cta{animation:none!important}}
+`;
+var st = document.createElement('style'); st.id = 'pvhCss'; st.textContent = css; document.head.appendChild(st);
+})();
+
+
+/* ---------- pv-motiva.js ---------- */
+/* ============================================================
+   MOTIVACIÓN Y NAVEGACIÓN (rediseño premium, fases 4 y 5 · 2026-11-10)
+   1 · «¡Módulo aprobado!»: cuando el avance de un curso abierto sube,
+       una tarjeta abajo felicita, dice cuánto lleva y ofrece el módulo
+       siguiente (o el certificado si terminó). No tapa el resultado
+       del examen: aparece después y se cierra con un toque.
+   2 · «Su semana»: meta semanal (módulos aprobados de lunes a domingo,
+       elegible 1–5, por defecto 2) e insignias SOLO de logros reales,
+       más la próxima insignia y cuánto le falta. Todo sale de C.rec().
+   3 · Celular: barra inferior Inicio · Mis cursos · ▶ Continuar ·
+       Explorar · Perfil dentro del campus (reemplaza a la flotante).
+   Solo lee el avance; lo único que guarda es la meta elegida, en
+   localStorage (pv_meta::<uid>).
+   ============================================================ */
+(function(){
+var OVCURSO = {rtOv:'ruta', nxOv:'nutricion', rpOv:'reproduccion', sbOv:'sanidad', egOv:'engorde', lcOv:'lechones', grOv:'rentabilidad',
+  gpOv:'ponedoras', pbOv:'pollos', bvOv:'bovinos', apOv:'apicultura', tlOv:'tilapia', cbOv:'cabras', gnOv:'guineas'};
+var PREF = {ruta:'rt', nutricion:'nx', reproduccion:'rp', sanidad:'sb', engorde:'eg', lechones:'lc', rentabilidad:'gr', ponedoras:'gp',
+  pollos:'pb', bovinos:'bv', apicultura:'ap', tilapia:'tl', cabras:'cb', guineas:'gn'};
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function uid(){ try{ return SESSION && SESSION.role === 'STUDENT' ? SESSION.id : ''; }catch(e){ return ''; } }
+function cuenta(id){ try{ return COURSES[id].count(uid()) || 0; }catch(e){ return 0; } }
+function sig(id){
+  try{ var C = COURSES[id], L = C.modules() || []; for(var i = 0; i < L.length; i++) if(!C.passed(uid(), L[i].n)) return {n:L[i].n, i:i + 1, t:L[i].title || ''}; }catch(e){}
+  return null;
+}
+function reduce(){ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+
+/* ---------- 1 · ¡Módulo aprobado! ---------- */
+var base = {};
+function cursoAbierto(){
+  for(var k in OVCURSO){ if(document.getElementById(k)) return OVCURSO[k]; }
+  if(!document.getElementById('csOv') && document.body.getAttribute('data-screen') === 'curso' && typeof LS !== 'undefined' && LS && LS.id) return 'porcicultura';
+  return null;
+}
+function vigila(){
+  var u = uid(); if(!u) return;
+  var id = cursoAbierto(); if(!id) return;
+  var n = cuenta(id), k = u + '|' + id;
+  if(base[k] == null){ base[k] = n; return; }
+  if(n > base[k]){ base[k] = n; setTimeout(function(){ celebra(id, n); }, 1400); }
+  else if(n < base[k]) base[k] = n;
+}
+setInterval(function(){ try{ vigila(); }catch(e){} }, 1500);
+
+window.pvmIrSiguiente = function(id, n){
+  cierra();
+  var f = id === 'porcicultura' ? 'goto' : PREF[id] + 'Ir';
+  try{ if(typeof window[f] === 'function') window[f](n); }catch(e){}
+};
+function cierra(){ var d = document.getElementById('pvmLogro'); if(d){ d.classList.add('fuera'); setTimeout(function(){ d.remove(); }, 300); } }
+window.pvmCierra = cierra;
+function celebra(id, n){
+  var C = COURSES[id] || {}, tot = C.n || 0, pct = tot ? Math.round(n / tot * 100) : 0, s = sig(id);
+  var fin = tot && n >= tot;
+  var col = (typeof agColorCurso === 'function') ? agColorCurso(id) : ['#10B981', '#A3E635'];
+  var viejo = document.getElementById('pvmLogro'); if(viejo) viejo.remove();
+  var d = document.createElement('div'); d.id = 'pvmLogro'; d.setAttribute('role', 'status');
+  d.style.setProperty('--cc1', col[0]); d.style.setProperty('--cc2', col[1]);
+  var chispas = reduce() ? '' : '<span class="pvm-chis" aria-hidden="true">' + Array.apply(null, Array(14)).map(function(_, i){ return '<i style="--i:' + i + '"></i>'; }).join('') + '</span>';
+  d.innerHTML = chispas + '<button type="button" class="pvm-x" onclick="pvmCierra()" aria-label="Cerrar">×</button>' +
+    '<p class="pvm-k">' + (fin ? '🎓 ¡Terminó el curso!' : '✅ ¡Módulo aprobado!') + '</p>' +
+    '<p class="pvm-c">' + (C.icon || '📘') + ' ' + esc(C.label || C.name || id) + ' · <b>' + n + ' de ' + tot + '</b> módulos</p>' +
+    '<div class="pvm-bar"><i style="width:' + pct + '%"></i></div>' +
+    (fin ? '<p class="pvm-s">Su certificado se genera solo: lo encuentra en el campus, en «Certificados».</p>' +
+          '<div class="pvm-b"><button type="button" class="pvm-cta" onclick="pvmCierra()">¡Listo! 🎉</button></div>'
+        : (s ? '<p class="pvm-s">Sigue: <b>Módulo ' + s.i + '</b> · ' + esc(s.t) + '</p>' +
+               '<div class="pvm-b"><button type="button" class="pvm-cta" onclick="pvmIrSiguiente(\'' + id + '\',' + s.n + ')">Continuar al módulo ' + s.i + ' →</button>' +
+               '<button type="button" class="pvm-gh" onclick="pvmCierra()">Más tarde</button></div>' : ''));
+  document.body.appendChild(d);
+  setTimeout(cierra, 30000);
+}
+
+/* ---------- 2 · Su semana: meta e insignias ---------- */
+function lunes(){ var d = new Date(); d.setHours(0, 0, 0, 0); var w = (d.getDay() + 6) % 7; d.setDate(d.getDate() - w); return +d; }
+function datos(){
+  var u = uid(), sem = 0, total = 0, completos = 0, desde = lunes();
+  var lista = []; try{ lista = aiVisibles(); }catch(e){ lista = Object.keys(COURSES || {}); }
+  lista.forEach(function(k){
+    var C = COURSES[k]; if(!C) return;
+    var e = null; try{ e = aiEstado(k); }catch(x){}
+    if(!e || e.st === 'bloqueado') return;
+    total += e.hechos || 0; if(e.st === 'completo') completos++;
+    try{ (C.modules() || []).forEach(function(m){ var r = C.rec(u, m.n); if(r && r.passed && r.date){ var t = +new Date(r.date) || +r.date || 0; if(t >= desde) sem++; } }); }catch(x){}
+  });
+  return {sem:sem, total:total, completos:completos};
+}
+function meta(){ var m = 2; try{ m = +localStorage.getItem('pv_meta::' + uid()) || 2; }catch(e){} return Math.max(1, Math.min(5, m)); }
+window.pvmMeta = function(v){ try{ localStorage.setItem('pv_meta::' + uid(), String(v)); }catch(e){} var s = document.getElementById('pvmSemana'); if(s) s.remove(); monta(); };
+var INSIG = [
+  ['🌱', 'Primer módulo', function(d){ return d.total >= 1; }, function(d){ return 1 - d.total; }],
+  ['📚', '5 módulos aprobados', function(d){ return d.total >= 5; }, function(d){ return 5 - d.total; }],
+  ['🏅', '10 módulos aprobados', function(d){ return d.total >= 10; }, function(d){ return 10 - d.total; }],
+  ['🎓', 'Primer curso terminado', function(d){ return d.completos >= 1; }, null],
+  ['🔥', 'Meta de la semana cumplida', function(d){ return d.sem >= meta(); }, function(d){ return meta() - d.sem; }]
+];
+function semanaHTML(){
+  var d = datos(), m = meta(), p = Math.min(100, Math.round(d.sem / m * 100));
+  var ganadas = INSIG.filter(function(x){ return x[2](d); });
+  var prox = INSIG.filter(function(x){ return !x[2](d) && x[3]; })[0];
+  return '<section class="pvm-sem" id="pvmSemana">' +
+    '<div class="pvm-sem-a"><p class="pvm-sem-k">🎯 Su meta de esta semana</p>' +
+      '<p class="pvm-sem-n"><b>' + d.sem + '</b> de ' + m + ' ' + (m === 1 ? 'módulo' : 'módulos') + (d.sem >= m ? ' · ¡cumplida! 🔥' : '') + '</p>' +
+      '<div class="pvm-bar"><i style="width:' + Math.max(p, d.sem ? 6 : 0) + '%"></i></div>' +
+      '<p class="pvm-sem-cambia">Meta: ' + [1, 2, 3, 5].map(function(v){ return '<button type="button" onclick="pvmMeta(' + v + ')" class="' + (v === m ? 'on' : '') + '">' + v + '</button>'; }).join('') + ' módulos por semana</p></div>' +
+    '<div class="pvm-sem-b"><p class="pvm-sem-k">🏆 Mis logros</p>' +
+      (ganadas.length ? '<div class="pvm-ins">' + ganadas.map(function(x){ return '<span title="' + esc(x[1]) + '"><i>' + x[0] + '</i>' + esc(x[1]) + '</span>'; }).join('') + '</div>'
+        : '<p class="pvm-sem-v">Aún no tiene insignias. La primera llega al aprobar su primer módulo.</p>') +
+      (prox ? '<p class="pvm-sem-v">Próxima: ' + prox[0] + ' <b>' + esc(prox[1]) + '</b> · le ' + (prox[3](d) === 1 ? 'falta 1 módulo' : 'faltan ' + prox[3](d) + ' módulos') + '</p>' : '') +
+    '</div></section>';
+}
+
+/* ---------- 3 · barra inferior del celular ---------- */
+window.pvmNav = function(a){
+  var ov = document.getElementById('csOv'); if(!ov) return;
+  var ir = function(el){ if(el) el.scrollIntoView({behavior:reduce() ? 'auto' : 'smooth', block:'start'}); };
+  if(a === 'inicio'){ var w = ov.querySelector('.cs-w') || ov; (w.scrollTo ? w : ov).scrollTo({top:0, behavior:'smooth'}); ov.scrollTo && ov.scrollTo({top:0, behavior:'smooth'}); return; }
+  if(a === 'mis'){ ir([].filter.call(ov.querySelectorAll('.nva-sec'), function(s){ var h = s.querySelector('h2'); return h && /Mis cursos/.test(h.textContent); })[0]); return; }
+  if(a === 'explorar'){ ir(ov.querySelector('.nva-sec-cat')); return; }
+  if(a === 'perfil'){ var b = ov.querySelector('.agq-b'); if(b){ ir(b); setTimeout(function(){ b.click(); }, 350); } return; }
+  if(a === 'seguir'){ var c = document.getElementById('pvhCta'); if(c) c.click(); }
+};
+function navHTML(){
+  return '<nav class="pvm-nav" id="pvmNav" aria-label="Navegación del campus">' +
+    '<button type="button" onclick="pvmNav(\'inicio\')"><i>🏠</i>Inicio</button>' +
+    '<button type="button" onclick="pvmNav(\'mis\')"><i>📚</i>Mis cursos</button>' +
+    '<button type="button" class="pvm-nav-c" onclick="pvmNav(\'seguir\')"><i>▶</i>Continuar</button>' +
+    '<button type="button" onclick="pvmNav(\'explorar\')"><i>🧭</i>Explorar</button>' +
+    '<button type="button" onclick="pvmNav(\'perfil\')"><i>👤</i>Perfil</button></nav>';
+}
+
+function monta(){
+  var ov = document.getElementById('csOv'); if(!ov || !uid()) return;
+  var h = document.getElementById('pvhHero');
+  if(h && !document.getElementById('pvmSemana')) h.insertAdjacentHTML('afterend', semanaHTML());
+  if(!document.getElementById('pvmNav')) ov.insertAdjacentHTML('beforeend', navHTML());
+}
+setInterval(function(){ try{ monta(); }catch(e){} }, 700);
+
+var css = `
+#pvmLogro{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100000;width:min(440px,calc(100vw - 24px));padding:20px 20px 18px;border-radius:22px;overflow:hidden;
+  color:#ECFDF5;background:linear-gradient(160deg,color-mix(in srgb,var(--cc1) 45%,#062A24),#04201C 70%);border:1px solid color-mix(in srgb,var(--cc2) 60%,transparent);
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05) inset;animation:pvmEntra .5s cubic-bezier(.2,.9,.25,1.2) both;font-family:inherit}
+#pvmLogro.fuera{animation:pvmSale .3s ease both}
+.pvm-x{position:absolute;right:10px;top:8px;width:34px;height:34px;border:0;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;color:#ECFDF5;background:rgba(255,255,255,.08)}
+.pvm-k{margin:0 0 4px;font-size:22px;font-weight:900;font-family:var(--display,inherit)}
+.pvm-c,.pvm-s{margin:0 0 10px;font-size:15.5px;line-height:1.45;color:#D1FAE5}.pvm-c b,.pvm-s b{color:#fff}
+.pvm-bar{height:9px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden;margin-bottom:12px}
+.pvm-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#10B981,#A3E635);transform-origin:left;animation:pvmCrece 1s .2s cubic-bezier(.2,.8,.2,1) both}
+.pvm-b{display:flex;gap:10px;flex-wrap:wrap}
+.pvm-cta{flex:1 1 220px;min-height:54px;border:0;border-radius:14px;font-size:17px;font-weight:900;cursor:pointer;color:#052E16;background:linear-gradient(135deg,#A3E635,#34D399 60%,#2DD4BF)}
+.pvm-gh{min-height:54px;padding:0 16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;color:#ECFDF5;background:transparent;border:1px solid rgba(255,255,255,.3)}
+.pvm-chis{position:absolute;inset:0;pointer-events:none}
+.pvm-chis i{position:absolute;left:calc(6% + var(--i) * 6.5%);top:-10px;width:7px;height:12px;border-radius:2px;background:hsl(calc(70 + var(--i) * 13),85%,60%);animation:pvmCae 1.6s calc(var(--i) * .05s) ease-in both;opacity:.9}
+@keyframes pvmEntra{from{opacity:0;transform:translate(-50%,40px) scale(.96)}}
+@keyframes pvmSale{to{opacity:0;transform:translate(-50%,30px)}}
+@keyframes pvmCrece{from{transform:scaleX(0)}}
+@keyframes pvmCae{to{transform:translateY(220px) rotate(260deg);opacity:0}}
+.pvm-sem{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;margin:0 0 22px;padding:18px 20px;border-radius:20px;background:linear-gradient(160deg,rgba(16,185,129,.12),rgba(15,23,42,.6));border:1px solid rgba(52,211,153,.28)}
+@media(max-width:760px){.pvm-sem{grid-template-columns:1fr;padding:16px}}
+.pvm-sem-k{margin:0 0 6px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6EE7B7}
+.pvm-sem-n{margin:0 0 8px;font-size:16px;color:#D1FAE5}.pvm-sem-n b{font-size:26px;color:#fff;font-family:var(--display,inherit)}
+.pvm-sem-cambia{margin:0;font-size:13.5px;color:#A7F3D0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pvm-sem-cambia button{min-width:34px;height:34px;border-radius:10px;font-weight:800;cursor:pointer;color:#ECFDF5;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2)}
+.pvm-sem-cambia button.on{color:#052E16;background:#A3E635;border-color:#A3E635}
+.pvm-ins{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.pvm-ins span{display:inline-flex;gap:6px;align-items:center;padding:6px 11px;border-radius:99px;font-size:13.5px;font-weight:700;color:#ECFDF5;background:rgba(163,230,53,.14);border:1px solid rgba(163,230,53,.4)}
+.pvm-ins i{font-style:normal;font-size:16px}
+.pvm-sem-v{margin:0;font-size:14.5px;color:#D1FAE5;line-height:1.45}.pvm-sem-v b{color:#fff}
+.pvm-nav{display:none}
+@media(max-width:700px){
+  .pvm-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    background:rgba(5,22,26,.94);backdrop-filter:blur(12px);border-top:1px solid rgba(52,211,153,.3)}
+  .pvm-nav button{display:grid;justify-items:center;gap:2px;padding:6px 0;border:0;background:none;color:#A7F3D0;font-size:11.5px;font-weight:700;cursor:pointer;min-height:52px}
+  .pvm-nav button i{font-style:normal;font-size:20px;line-height:1}
+  .pvm-nav .pvm-nav-c{margin-top:-18px;border-radius:18px;color:#052E16;background:linear-gradient(135deg,#A3E635,#34D399);box-shadow:0 10px 24px -8px rgba(163,230,53,.8)}
+  #csOv .cs-w{padding-bottom:90px}
+  #csOv #aiFlota{display:none!important}
+  #pvmLogro{bottom:84px}
+}
+@media(prefers-reduced-motion:reduce){#pvmLogro,.pvm-bar i,.pvm-chis i{animation:none!important}}
+`;
+var st = document.createElement('style'); st.id = 'pvmCss'; st.textContent = css; document.head.appendChild(st);
+})();
+
+
 /* ---------- pv-futuro.js ---------- */
 /* ============================================================
    AGROACADEMY · AMBIENTE FUTURISTA (2026-10-31)
@@ -107497,6 +107967,12 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
+
+
+
+
+
 
 
 
