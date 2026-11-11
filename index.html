@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10h · rediseño premium F2–F6: siguiente clase, identidad por curso (WebP), carrusel móvil, logro al aprobar, meta semanal e insignias, barra inferior -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-10i · corrige «Clientes que no han empezado» (lee el avance con COURSES.count y espera a la nube) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -107295,7 +107295,13 @@ var CURSOS = ['porcicultura', 'nutricion', 'reproduccion', 'sanidad', 'engorde',
 var A = { filas:null, cuando:0, cargando:false };
 function actLee(){ try{ return JSON.parse(localStorage.getItem('aab_act') || '{}') || {}; }catch(e){ return {}; } }
 function actGuarda(m){ try{ localStorage.setItem('aab_act', JSON.stringify(m)); }catch(e){} }
+/* «empezó» = tiene algún módulo aprobado o alguna evaluación presentada. Se mira con la
+   misma fuente que el Dashboard (COURSES[curso].count) y, además, los intentos en CLOUDPROG.
+   Antes solo miraba CLOUDPROG y la lista se armaba ANTES de que el panel bajara el avance
+   de la nube: salían como «sin empezar» personas que ya habían terminado (2026-11-10). */
+function avanceListo(){ try{ return typeof CLOUDPROG !== 'undefined' && Object.keys(CLOUDPROG).length > 0; }catch(e){ return false; } }
 function empezo(uid, curso){
+  try{ if((COURSES[curso].count(uid) || 0) > 0) return true; }catch(e){}
   try{
     var p = (typeof CLOUDPROG !== 'undefined' && CLOUDPROG[uid]) ? CLOUDPROG[uid][curso] : null;
     if(p && Object.keys(p).some(function(k){ var r = p[k]; return r && (r.passed || r.attempts > 0 || r.best > 0); })) return true;
@@ -107327,8 +107333,7 @@ async function cargar(){
         if(!p['acceso_' + c]) return;
         var k = p.id + '|' + c;
         if(!act[k]) act[k] = ahora;          /* primera vez que el panel ve este acceso */
-        if(empezo(p.id, c)) return;
-        filas.push({uid:p.id, curso:c, desde:act[k]});
+        filas.push({uid:p.id, curso:c, desde:act[k]});   /* quién empezó se decide al pintar */
       });
     });
     actGuarda(act);
@@ -107345,15 +107350,19 @@ function pintar(forzar){
   var donde = (tab === 'dashboard' || tab === 'students' || !tab);
   var box = document.getElementById('aabAviso');
   if(!donde){ if(box) box.remove(); return; }
-  if(box && !forzar && box.parentNode === body) return;
+  /* sin el avance de la nube no se puede saber quién empezó: mejor no decir nada que acusar en falso */
+  if(!avanceListo()){ if(box) box.remove(); return; }
+  var filas = A.filas.filter(function(f){ return !empezo(f.uid, f.curso); });
+  var firma = filas.map(function(f){ return f.uid + f.curso; }).join(',');
+  if(box && !forzar && box.parentNode === body && box.dataset.firma === firma) return;
   if(box) box.remove();
-  var tarde = A.filas.filter(function(f){ return Date.now() - f.desde >= H48; });
-  if(!A.filas.length) return;
-  box = document.createElement('div'); box.id = 'aabAviso';
-  box.innerHTML = '<div class="aab-av-h"><b>⏰ Clientes que no han empezado</b><span>' + A.filas.length + ' en total · ' +
+  var tarde = filas.filter(function(f){ return Date.now() - f.desde >= H48; });
+  if(!filas.length) return;
+  box = document.createElement('div'); box.id = 'aabAviso'; box.dataset.firma = firma;
+  box.innerHTML = '<div class="aab-av-h"><b>⏰ Clientes que no han empezado</b><span>' + filas.length + ' en total · ' +
       '<i class="' + (tarde.length ? 'rojo' : '') + '">' + tarde.length + ' con más de 48 horas</i></span></div>' +
     '<p class="aab-av-n">Tienen un curso pagado habilitado y todavía no han presentado ninguna evaluación. La hora cuenta desde que el panel vio el acceso por primera vez.</p>' +
-    '<div class="aab-av-l">' + A.filas.map(function(f){
+    '<div class="aab-av-l">' + filas.map(function(f){
       var t = telefono(f.uid), nom = nombreEst(f.uid), pn = String(nom).trim().split(/\s+/)[0], late = Date.now() - f.desde >= H48;
       var msg = 'Hola ' + (/@/.test(pn) ? '' : pn + ' ') + '👋 Te hablamos desde AgroAcademy RD. Ya tienes activado tu curso «' + nombreCurso(f.curso) +
         '». ¿Pudiste entrar? Empieza por la lección 1: te toma unos 30 minutos 👉 https://agroacademy-rd.vercel.app Si algo no te funciona, respóndenos y te ayudamos 🙌';
@@ -107967,6 +107976,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
