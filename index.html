@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-10i · corrige «Clientes que no han empezado» (lee el avance con COURSES.count y espera a la nube) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-13a · Formulación V2: 20 módulos (Fundamentos + rutas Cerdos, Pollos y Ponedoras), simulador, 23 fórmulas, 8 Excel y 163 fotos; videos fv-* pendientes de render -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -105568,6 +105568,1627 @@ var st = document.createElement('style'); st.id = 'agfCss'; st.textContent = css
 })();
 
 
+/* ---------- fv-datos.js ---------- */
+/* FORMULACIÓN V2 · datos de AVES generados por generar-fv-datos.mjs (2026-11-12) — NO EDITAR A MANO.
+   Matriz: Hy-Line Brown Commercial Management Guide (nov. 2018), Feed Ingredient Tables 1–2 (Feedstuffs 2018–2019).
+   Requerimientos: Ross Broiler Nutrition Specifications 2022 (Tabla 2) y Hy-Line Brown 2018. Precios: ilustrativos. */
+var FVING_AVES = {"maiz":{"n":"Maíz amarillo","em":3373,"pc":7.5,"gr":3.5,"fc":1.9,"ca":0.01,"pa":0.12,"na":0.02,"cl":0.04,"sLys":0.19,"sMet":0.16,"sCys":0.15,"sThr":0.24,"sTrp":0.06,"lino":1.9,"precio":23},"soya":{"n":"Harina de soya 44 % (solvente)","em":2240,"pc":44,"gr":0.5,"fc":7,"ca":0.25,"pa":0.2,"na":0.04,"cl":0.02,"sLys":2.43,"sMet":0.58,"sCys":0.55,"sThr":1.44,"sTrp":0.53,"lino":0.3,"precio":38},"sorgo":{"n":"Sorgo en grano","em":3310,"pc":11,"gr":2.8,"fc":2,"ca":0.04,"pa":0.1,"na":0.03,"cl":0.09,"sLys":0.21,"sMet":0.09,"sCys":0.17,"sThr":0.22,"sTrp":0.08,"lino":1.3,"precio":21},"afrecho":{"n":"Afrecho de trigo","em":1300,"pc":14.8,"gr":4,"fc":10,"ca":0.14,"pa":0.38,"na":0.06,"cl":0.14,"sLys":0.43,"sMet":0.15,"sCys":0.22,"sThr":0.35,"sTrp":0.24,"lino":2.1,"precio":17},"pulidura":{"n":"Pulidura (afrecho) de arroz","em":2040,"pc":13.5,"gr":5.9,"fc":13,"ca":0.1,"pa":0.24,"na":0.1,"cl":0.07,"sLys":0.38,"sMet":0.13,"sCys":0.07,"sThr":0.28,"sTrp":0.08,"lino":5.2,"precio":15},"aceite":{"n":"Aceite vegetal","em":8800,"pc":0,"gr":99,"fc":0,"ca":0,"pa":0,"na":0,"cl":0,"sLys":0,"sMet":0,"sCys":0,"sThr":0,"sTrp":0,"lino":40,"precio":95},"fosfato":{"n":"Fosfato dicálcico (18.5 % P)","em":0,"pc":0,"gr":0,"fc":0,"ca":22,"pa":18.5,"na":0.08,"cl":0,"sLys":0,"sMet":0,"sCys":0,"sThr":0,"sTrp":0,"lino":0,"precio":62},"carbonato":{"n":"Carbonato de calcio (38 % Ca)","em":0,"pc":0,"gr":0,"fc":0,"ca":38,"pa":0,"na":0.06,"cl":0,"sLys":0,"sMet":0,"sCys":0,"sThr":0,"sTrp":0,"lino":0,"precio":8},"bicarbonato":{"n":"Bicarbonato de sodio","em":0,"pc":0,"gr":0,"fc":0,"ca":0,"pa":0,"na":27.38,"cl":0,"sLys":0,"sMet":0,"sCys":0,"sThr":0,"sTrp":0,"lino":0,"precio":45},"sal":{"n":"Sal común","em":0,"pc":0,"gr":0,"fc":0,"ca":0,"pa":0,"na":39.34,"cl":60.66,"sLys":0,"sMet":0,"sCys":0,"sThr":0,"sTrp":0,"lino":0,"precio":12},"lisina":{"n":"L-Lisina HCl (78.8 %)","em":4120,"pc":93.4,"gr":0,"fc":0,"ca":0,"pa":0,"na":0,"cl":0,"sLys":78.8,"sMet":0,"sCys":0,"sThr":0,"sTrp":0,"lino":0,"precio":150},"metionina":{"n":"DL-Metionina (99 %)","em":5020,"pc":58.1,"gr":0,"fc":0,"ca":0,"pa":0,"na":0,"cl":0,"sLys":0,"sMet":99,"sCys":0,"sThr":0,"sTrp":0,"lino":0,"precio":330},"treonina":{"n":"L-Treonina (98.5 %)","em":3570,"pc":72.4,"gr":0,"fc":0,"ca":0,"pa":0,"na":0,"cl":0,"sLys":0,"sMet":0,"sCys":0,"sThr":98.5,"sTrp":0,"lino":0,"precio":190},"premix":{"n":"Premezcla vit-min (de la especie y etapa)","em":0,"pc":0,"gr":0,"fc":0,"ca":0,"pa":0,"na":0,"cl":0,"sLys":0,"sMet":0,"sCys":0,"sThr":0,"sTrp":0,"lino":0,"precio":220}};
+var FVFORM_AVES = [{"id":"p-inicio","esp":"pollos","n":"Pollo · Inicio","edad":"días 0–10 (en migaja)","fuente":"Ross 2022, Tabla 2, Starter","obj":{"em":2975,"sLys":1.32,"sMC":1,"sThr":0.88,"sTrp":0.21,"ca":0.95,"pa":0.5,"na":0.2,"pcRef":23},"formula":{"maiz":50.43,"soya":41.53,"aceite":3.44,"carbonato":1.1,"fosfato":1.93,"sal":0.31,"bicarbonato":0.19,"lisina":0.27,"metionina":0.38,"treonina":0.17,"premix":0.25}},{"id":"p-crec","esp":"pollos","n":"Pollo · Crecimiento","edad":"días 11–24","fuente":"Ross 2022, Tabla 2, Grower","obj":{"em":3050,"sLys":1.18,"sMC":0.92,"sThr":0.79,"sTrp":0.19,"ca":0.75,"pa":0.42,"na":0.2,"pcRef":21.5},"formula":{"maiz":45.94,"sorgo":15,"soya":32.32,"aceite":2.68,"carbonato":0.84,"fosfato":1.54,"sal":0.26,"bicarbonato":0.26,"lisina":0.35,"metionina":0.38,"treonina":0.18,"premix":0.25}},{"id":"p-term1","esp":"pollos","n":"Pollo · Terminación 1","edad":"días 25–39","fuente":"Ross 2022, Tabla 2, Finisher 1","obj":{"em":3100,"sLys":1.08,"sMC":0.86,"sThr":0.72,"sTrp":0.17,"ca":0.65,"pa":0.36,"na":0.2,"pcRef":19.5},"formula":{"maiz":45.87,"sorgo":20,"soya":27.97,"aceite":2.54,"carbonato":0.77,"fosfato":1.24,"sal":0.27,"bicarbonato":0.23,"lisina":0.34,"metionina":0.35,"treonina":0.17,"premix":0.25}},{"id":"p-term2","esp":"pollos","n":"Pollo · Terminación 2","edad":"día 40 a la venta","fuente":"Ross 2022, Tabla 2, Finisher 2","obj":{"em":3125,"sLys":1.02,"sMC":0.82,"sThr":0.68,"sTrp":0.16,"ca":0.6,"pa":0.34,"na":0.2,"pcRef":18},"formula":{"maiz":49.25,"sorgo":20,"soya":25.02,"aceite":2.27,"carbonato":0.72,"fosfato":1.14,"sal":0.3,"bicarbonato":0.2,"lisina":0.35,"metionina":0.34,"treonina":0.16,"premix":0.25}},{"id":"g-inicio1","esp":"ponedoras","n":"Ponedora · Inicio 1","edad":"hasta 190 g de peso","fuente":"Hy-Line Brown 2018, Starter 1 (EM 2867–3043)","obj":{"em":2955,"sLys":1.01,"sMC":0.77,"sThr":0.65,"sTrp":0.18,"ca":1.05,"pa":0.45,"na":0.18,"pcRef":20},"formula":{"maiz":69.27,"soya":26.06,"carbonato":1.59,"fosfato":1.7,"sal":0.24,"bicarbonato":0.21,"lisina":0.31,"metionina":0.26,"treonina":0.11,"premix":0.25}},{"id":"g-inicio2","esp":"ponedoras","n":"Ponedora · Inicio 2","edad":"hasta 460 g","fuente":"Hy-Line Brown 2018, Starter 2 (EM 2867–3043)","obj":{"em":2955,"sLys":0.92,"sMC":0.72,"sThr":0.6,"sTrp":0.17,"ca":1,"pa":0.44,"na":0.17,"pcRef":18.25},"formula":{"maiz":60.3,"sorgo":10,"soya":23.42,"pulidura":1.87,"carbonato":1.49,"fosfato":1.66,"sal":0.2,"bicarbonato":0.22,"lisina":0.26,"metionina":0.24,"treonina":0.09,"premix":0.25}},{"id":"g-crec","esp":"ponedoras","n":"Ponedora · Crecimiento","edad":"hasta 1 080 g","fuente":"Hy-Line Brown 2018, Grower (EM 2800–3021)","obj":{"em":2910,"sLys":0.82,"sMC":0.66,"sThr":0.55,"sTrp":0.17,"ca":0.95,"pa":0.43,"na":0.17,"pcRef":17.5},"formula":{"maiz":53.31,"sorgo":13.87,"soya":23.16,"pulidura":5.68,"carbonato":1.39,"fosfato":1.58,"sal":0.23,"bicarbonato":0.17,"lisina":0.13,"metionina":0.19,"treonina":0.04,"premix":0.25}},{"id":"g-desa","esp":"ponedoras","n":"Ponedora · Desarrollo","edad":"hasta 1 300 g","fuente":"Hy-Line Brown 2018, Developer (EM 2734–3021)","obj":{"em":2878,"sLys":0.6,"sMC":0.5,"sThr":0.41,"sTrp":0.13,"ca":0.9,"pa":0.38,"na":0.17,"pcRef":15},"formula":{"maiz":57.09,"sorgo":15,"soya":11,"afrecho":9.49,"pulidura":3.67,"carbonato":1.5,"fosfato":1.24,"sal":0.2,"bicarbonato":0.22,"lisina":0.18,"metionina":0.12,"treonina":0.04,"premix":0.25}},{"id":"g-pre","esp":"ponedoras","n":"Ponedora · Prepostura","edad":"desde 15 semanas hasta el primer huevo (1 440 g)","fuente":"Hy-Line Brown 2018, Pre-Lay (EM 2778–2999)","obj":{"em":2889,"sLys":0.72,"sMC":0.62,"sThr":0.5,"sTrp":0.16,"ca":2.5,"pa":0.42,"na":0.18,"pcRef":16.5},"formula":{"maiz":68.91,"soya":23.15,"carbonato":5.5,"fosfato":1.57,"sal":0.28,"bicarbonato":0.16,"lisina":0.03,"metionina":0.15,"premix":0.25}},{"id":"g-pico","esp":"ponedoras","n":"Ponedora · Postura pico","edad":"primer huevo hasta 2 % bajo el pico · consumo 108 g/día","fuente":"Hy-Line Brown 2018, Peaking, columna 108 g/día; Ca 3.8–4.0 g/día y P disp. 438 mg/día ÷ 108 g; EM 315–330 kcal/día ÷ 108 g","obj":{"em":2986,"sLys":0.76,"sMC":0.69,"sThr":0.53,"sTrp":0.16,"ca":3.61,"pa":0.41,"na":0.17,"pcRef":15.74},"formula":{"maiz":51.79,"sorgo":10,"soya":22.9,"aceite":4.24,"carbonato":8.41,"fosfato":1.58,"sal":0.24,"bicarbonato":0.17,"lisina":0.11,"metionina":0.25,"treonina":0.06,"premix":0.25}},{"id":"g-post3","esp":"ponedoras","n":"Ponedora · Postura 88–85 %","edad":"semanas 49–62 aprox. · consumo 110 g/día","fuente":"Hy-Line Brown 2018, Layer 3, columna 110 g/día; Ca 4.4 g/día y P disp. 355 mg/día ÷ 110 g; EM 305–320 kcal/día ÷ 110 g","obj":{"em":2841,"sLys":0.71,"sMC":0.65,"sThr":0.5,"sTrp":0.15,"ca":4,"pa":0.32,"na":0.16,"pcRef":14.55},"formula":{"maiz":50.79,"sorgo":15,"soya":20.71,"aceite":1.68,"carbonato":9.73,"fosfato":1.1,"sal":0.23,"bicarbonato":0.14,"lisina":0.1,"metionina":0.22,"treonina":0.05,"premix":0.25}}];
+
+
+/* ---------- fv-mod-pollos.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · RUTA POLLOS DE ENGORDE (módulos 11–15) · 2026-11-12
+   Datos técnicos: Aviagen, Ross Broiler Nutrition Specifications 2022
+   (Tabla 2: peso vivo objetivo 2.0–3.5 kg) y fórmulas verificadas
+   (formulas-aves.json → fv-datos.js). Nada de dosis de medicamentos.
+   Se agregan a NXMOD en orden (posición n-1) y a NXQUIZ.
+   ============================================================ */
+(function(){
+if(typeof NXMOD === 'undefined' || typeof FVFORM_AVES === 'undefined') return;
+var LB = 2.20462;
+function n(x, d){ return (isFinite(x) ? x : 0).toLocaleString('es-DO', {minimumFractionDigits:d == null ? 2 : d, maximumFractionDigits:d == null ? 2 : d}); }
+
+/* --- piezas de lección (comunes a las rutas nuevas) --- */
+window.FVL = window.FVL || {
+  obj: function(t){ return {k:'agmix', t:'🎯 Lo que va a poder hacer', partes:[{k:'html', h:'<div class="fvl fvl-obj"><p>' + t + '</p></div>'}]}; },
+  rd: function(t, h){ return {k:'agmix', t:'🇩🇴 ' + t, partes:[{k:'html', h:'<div class="fvl fvl-rd">' + h + '</div>'}]}; },
+  error: function(t, mal, bien){ return {k:'agmix', t:'❌ Error frecuente: ' + t, partes:[{k:'html', h:'<div class="fvl fvl-err"><p><b>Lo que pasa:</b> ' + mal + '</p><p><b>Cómo evitarlo:</b> ' + bien + '</p></div>'}]}; },
+  ejer: function(t, enun, resp){ return {k:'agmix', t:'✍️ Ejercicio: ' + t, partes:[{k:'html', h:'<div class="fvl fvl-ej"><p>' + enun + '</p><details><summary>Ver la respuesta y cómo se calcula</summary><div>' + resp + '</div></details></div>'}]}; },
+  formula: function(id, intro){
+    var f = FVFORM_AVES.filter(function(x){ return x.id === id; })[0]; if(!f) return {k:'prosa', t:'Fórmula', p:['(no se encontró la fórmula)']};
+    var I = FVING_AVES, filas = '', em = 0, lys = 0, ca = 0, pa = 0, costo = 0;
+    Object.keys(f.formula).forEach(function(k){
+      var p = f.formula[k], i = I[k]; em += p / 100 * i.em; lys += p / 100 * i.sLys; ca += p / 100 * i.ca; pa += p / 100 * i.pa; costo += p / 100 * i.precio;
+      filas += '<tr><td>' + i.n + '</td><td>' + n(p) + '</td><td>' + n(p) + '</td><td>' + n(p * LB) + '</td></tr>';
+    });
+    var o = f.obj;
+    return {k:'agmix', t:'🧾 Fórmula educativa: ' + f.n, partes:[{k:'html', h:
+      '<div class="fvl fvl-f"><p>' + (intro || '') + '</p>' +
+      '<div class="nx-tw"><table class="nx-t"><thead><tr><th>Ingrediente</th><th>%</th><th>kg en 100 kg</th><th>lb en 100 kg</th></tr></thead><tbody>' + filas +
+      '<tr><td><b>Total</b></td><td><b>100.00</b></td><td><b>100.00</b></td><td><b>' + n(100 * LB) + '</b></td></tr></tbody></table></div>' +
+      '<p class="fvl-chico"><b>Aporte estimado</b> (valores de tabla): EM ' + n(em, 0) + ' kcal/kg (meta ' + n(o.em, 0) + ') · lisina digestible ' + n(lys) + ' % (meta ' + n(o.sLys) + ') · calcio ' + n(ca) + ' % (meta ' + n(o.ca) + ') · fósforo disponible ' + n(pa) + ' % (meta ' + n(o.pa) + '). ' +
+      'Costo ilustrativo: RD$ ' + n(costo) + ' por kg con los precios de práctica del simulador.</p>' +
+      '<p class="fvl-chico"><b>Límites:</b> el ingrediente real varía; esta fórmula es para aprender a leer y escalar, no para fabricar a escala sin análisis de sus materias primas. La premezcla (0.25 % aquí) debe ser <b>de pollo de engorde para esta etapa</b>, a la dosis que indique su fabricante.</p></div>'}]};
+  }
+};
+var L = FVL;
+var AC = '#B45309';
+
+var M = [
+{n:11, num:'11', ac:AC, t:'Cómo come el pollo de engorde', sub:'Las cuatro fases de Ross 2022 y cómo leer una especificación',
+ obj:['Leer una tabla de especificaciones nutricionales de pollo de engorde y explicar cada número.','Distinguir energía metabolizable, lisina digestible, calcio y fósforo disponible.','Explicar por qué el alimento cambia por edad y por qué la tabla cambia según el peso al que usted vende.'],
+ sec:[
+  L.obj('Al terminar este módulo usted podrá tomar la hoja de especificaciones de su línea genética, ubicar la fase en que está su lote y decir qué pide el pollo en energía, aminoácidos, calcio y fósforo.'),
+  {k:'prosa', t:'Un animal que no espera', p:['El pollo de engorde moderno crece tan rápido que <b>cada día con un alimento equivocado se nota en el peso final</b>. Por eso no se le da «un alimento de pollo»: se le da un programa de alimentos que cambia con la edad.',
+   'Ese programa lo publica cada empresa genética para sus aves. En este curso usamos el de <b>Ross 2022</b>, porque es público y verificable. Si su pollito es de otra línea (por ejemplo Cobb), los números son parecidos pero no iguales: <b>use siempre la hoja de su línea genética</b>.']},
+  {k:'concepts', t:'Las palabras de la tabla', items:[
+   ['Energía metabolizable (EM)','La energía que el pollo de verdad aprovecha, en kilocalorías por kilo de alimento. En aves se usa su propio valor de energía: <b>no se puede copiar la energía de una tabla de cerdos</b>.'],
+   ['Lisina digestible','El aminoácido que más limita el crecimiento del músculo. «Digestible» significa la parte que el intestino absorbe, no todo lo que trae el ingrediente.'],
+   ['Metionina + cistina','Aminoácidos con azufre: plumas y músculo. En dietas de maíz y soya casi siempre hace falta agregar DL-Metionina.'],
+   ['Calcio y fósforo disponible','Huesos fuertes y patas sanas. «Disponible» es el fósforo que el ave puede usar; el del grano lo aprovecha poco.'],
+   ['Sodio y cloro','Regulan el agua del cuerpo y el consumo. Se dan con sal y, si hace falta más sodio sin más cloro, con bicarbonato de sodio.']]},
+  {k:'tabla', t:'Programa Ross 2022 para pollos vendidos de 2.0 a 3.5 kg', cap:'Valores por kilo de alimento; los días son la referencia de la tabla.',
+   head:['Fase','Días','EM (kcal/kg)','Lisina dig. %','Met+Cis dig. %','Calcio %','P disponible %'],
+   rows:[['Inicio','0 – 10','2 975','1.32','1.00','0.95','0.50'],['Crecimiento','11 – 24','3 050','1.18','0.92','0.75','0.42'],['Terminación 1','25 – 39','3 100','1.08','0.86','0.65','0.36'],['Terminación 2','40 a la venta','3 125','1.02','0.82','0.60','0.34']]},
+  {k:'alerta', tipo:'info', ico:'🏷️', t:'¿Y el «preinicio» del saco?', p:'Muchas fábricas venden un «preinicio» o «iniciador» para los primeros días. En la tabla de Ross eso corresponde a la fase de <b>Inicio (días 0–10)</b>, normalmente en migaja. No es una fase extra: es un nombre comercial. Lea la etiqueta: debe decir para qué especie, qué edad y qué niveles garantiza.'},
+  {k:'prosa', t:'Lo que la tabla no dice: el clima de su galpón', p:['Las especificaciones se hicieron para que el pollo coma lo esperado. <b>Con calor, el pollo come menos</b>, y con menos alimento recibe menos aminoácidos aunque la fórmula esté bien hecha.',
+   'En República Dominicana la primera defensa no es «subirle la proteína»: es <b>agua fresca y limpia sin interrupción</b>, buena ventilación, y no obligarlo a comer en las horas de más calor. Si su lote come mucho menos de lo esperado, eso se conversa con su técnico o nutricionista antes de cambiar la fórmula.']},
+  L.rd('En una granja de Moca', '<p>Don Ramón compra pollitos Ross y cría hasta unas 5 libras (2.3 kg). ¿Qué tabla le toca? La de <b>2.0 a 3.5 kg</b>, con cuatro fases. Si vendiera pollos pequeños (menos de 2 kg) usaría la Tabla 1 de la misma guía, que tiene solo tres fases.</p>'),
+  L.error('dar «alimento de pollo» parejo todo el ciclo', 'Un solo alimento para todo el lote queda corto al principio (pollitos con poco aminoácido y hueso débil) y caro al final (proteína que el pollo grande ya no necesita).', 'Use el programa por fases de su línea genética y cambie el alimento en la edad que indica, o según el peso si su técnico así lo recomienda.'),
+  L.ejer('leer la tabla', 'Su lote tiene 18 días. ¿En qué fase está y cuánta lisina digestible y calcio debe traer el alimento según Ross 2022?', '<p>Está en <b>Crecimiento (días 11–24)</b>: lisina digestible <b>1.18 %</b> y calcio <b>0.75 %</b>. Se lee en la fila de la fase, no en la de la edad más cercana.</p>'),
+  {k:'fuentes', items:['Aviagen. Ross Broiler Nutrition Specifications 2022 (Tablas 1 y 2 y notas sobre energía, aminoácidos digestibles, calcio y fósforo disponible).']}
+ ]},
+{n:12, num:'12', ac:AC, t:'Inicio: los primeros 10 días', sub:'La dieta más concentrada del ciclo y por qué se da en migaja',
+ obj:['Explicar por qué la dieta de inicio es la más alta en aminoácidos, calcio y fósforo.','Leer y escalar la fórmula educativa de inicio para 100 kg.','Elegir la premezcla correcta y evitar los errores de los primeros días.'],
+ sec:[
+  L.obj('Al terminar podrá explicar qué pide el pollito en sus primeros 10 días, preparar en papel una tanda de 100 kg de alimento de inicio y revisar que la premezcla sea la correcta.'),
+  {k:'prosa', t:'Por qué el inicio es diferente', p:['En los primeros días el pollito está formando su intestino, sus huesos y su sistema de defensa. Por eso la tabla le pide lo más alto del ciclo: <b>1.32 % de lisina digestible, 0.95 % de calcio y 0.50 % de fósforo disponible</b>.',
+   'Ese alimento se da normalmente en <b>migaja</b>: el pico del pollito no maneja bien el grano grande ni la harina muy fina, y la migaja reduce el desperdicio.']},
+  L.formula('p-inicio', 'Esta fórmula se calculó con el mismo método de los cerdos y se verificó contra Ross 2022 (Inicio). Fíjese en la soya: es la parte más alta del ciclo, porque de ahí sale casi toda la lisina.'),
+  {k:'pasos', t:'Cómo preparar 100 kg en la granja (en papel primero)', items:[['Escoja la fórmula y la etapa','Inicio, para pollitos de 0 a 10 días.'],['Pase los porcentajes a kilos','En 100 kg, el porcentaje es igual a los kilos: 41.53 % de soya son 41.53 kg (91.6 lb).'],['Pese primero lo pequeño','Premezcla, aminoácidos, sal y bicarbonato se pesan en una balanza de cocina o de precisión y se premezclan con unos kilos de maíz molido.'],['Mezcle por tiempo','Siga el tiempo que indica su mezcladora; una mezcla corta deja zonas sin premezcla.'],['Anote el lote','Fecha, fórmula, quién mezcló y de dónde vino cada ingrediente.']]},
+  {k:'alerta', tipo:'crit', ico:'💊', t:'La premezcla tiene especie y etapa', p:'Una premezcla de cerdo o de ponedora <b>no sirve</b> para el pollito: cambian las vitaminas, los minerales y, a veces, los aditivos. Use la de <b>pollo de engorde, inicio</b>, a la dosis de su etiqueta. Si trae algún medicamento o anticoccidial, respete el tiempo de retiro que indica el fabricante.'},
+  L.error('ahorrar en el inicio', 'Se da al pollito alimento de crecimiento o de terminación «porque es más barato». El pollito come poco en esos días, así que el ahorro es mínimo, pero el atraso en hueso e intestino se arrastra todo el ciclo.', 'El alimento de inicio es una parte pequeña del alimento total del lote: no es ahí donde se ahorra.'),
+  L.ejer('escalar la fórmula', 'Usted quiere preparar 2 quintales (200 lb) de alimento de inicio. ¿Cuántos kilos son y cuánta soya lleva?', '<p>200 lb ÷ 2.2046 = <b>90.7 kg</b>. Soya: 41.53 % × 90.7 kg = <b>37.67 kg</b> (unas 83 lb). Todo ingrediente se calcula igual: porcentaje × kilos de la tanda ÷ 100.</p>'),
+  {k:'fuentes', items:['Aviagen. Ross Broiler Nutrition Specifications 2022, Tabla 2 (Starter, días 0–10).','Fórmula educativa: cálculo propio verificado (formulador-aves.mjs) con la composición de la guía Hy-Line Brown 2018.']}
+ ]},
+{n:13, num:'13', ac:AC, t:'Crecimiento: días 11 a 24', sub:'Cambiar de alimento sin sustos y usar otros granos',
+ obj:['Explicar qué baja y qué sube en la dieta de crecimiento y por qué.','Usar el sorgo o la pulidura de arroz dentro de límites seguros.','Hacer el cambio de alimento sin perder consumo.'],
+ sec:[
+  L.obj('Al terminar podrá explicar el cambio de inicio a crecimiento, decidir si le conviene incluir sorgo y vigilar el consumo en los días del cambio.'),
+  {k:'prosa', t:'Menos aminoácidos, más energía', p:['A partir del día 11 el pollo ya no necesita la concentración del inicio. Ross 2022 baja la lisina digestible a <b>1.18 %</b>, el calcio a <b>0.75 %</b> y el fósforo disponible a <b>0.42 %</b>, y sube la energía a <b>3 050 kcal/kg</b>.',
+   'Eso hace la dieta más barata por kilo, y ahora el pollo come mucho más cada día: es la fase donde empieza a pesar de verdad el costo del alimento.']},
+  L.formula('p-crec', 'En esta fórmula aparece <b>sorgo</b>: comparte el papel del maíz como fuente de energía. El aceite sube un poco para alcanzar la energía de la fase.'),
+  {k:'tabla', t:'Granos y subproductos para pollos: qué aportan', cap:'Valores típicos por kilo. Su materia prima puede variar.',
+   head:['Ingrediente','EM aves (kcal/kg)','Proteína %','Fibra %','Para tener en cuenta'],
+   rows:[['Maíz amarillo','3 373','7.5','1.9','La base de energía'],['Sorgo','3 310','11.0','2.0','Parecido al maíz en energía; no da color amarillo'],['Pulidura de arroz','2 040','13.5','13.0','Mucha fibra y grasa que se pone rancia con el calor: poca y fresca'],['Afrecho de trigo','1 300','14.8','10.0','Muy poca energía para pollos: casi no se usa'],['Harina de soya 44 %','2 240','44.0','7.0','La fuente principal de proteína']]},
+  {k:'alerta', tipo:'warn', ico:'🔁', t:'El día del cambio', p:'Ross cambia el alimento por días. Si al cambiar ve que el lote come menos, revise primero lo básico: <b>agua, temperatura y que el comedero no se quedó vacío</b>. Algunos productores mezclan los dos alimentos uno o dos días; no es obligatorio, pero puede ayudar a no tener rechazo.'},
+  L.error('meter afrecho para abaratar', 'Se agrega afrecho de trigo o mucha pulidura al alimento de pollo para bajar el costo. Para un ave, esos ingredientes traen poca energía y mucha fibra: el pollo come más y gana menos.', 'En pollos, el ahorro se busca en el precio del maíz y la soya, en no desperdiciar y en la conversión, no llenando de fibra.'),
+  L.ejer('comparar energía', 'Si cambia 10 kg de maíz por 10 kg de afrecho de trigo en 100 kg de alimento, ¿cuánta energía pierde la tanda por kilo?', '<p>Cada kilo de maíz aporta 3 373 kcal y el afrecho 1 300: diferencia 2 073 kcal. Con 10 kg: 2 073 × 10 ÷ 100 = <b>207 kcal menos por kilo de alimento</b>. Pasar de 3 050 a unas 2 843 kcal/kg deja la dieta muy por debajo de la fase.</p>'),
+  {k:'fuentes', items:['Aviagen. Ross Broiler Nutrition Specifications 2022, Tabla 2 (Grower, días 11–24).','Hy-Line International. Brown Commercial Layers Management Guide (2018), Feed Ingredient Tables 1 y 2.']}
+ ]},
+{n:14, num:'14', ac:AC, t:'Terminación y retiro', sub:'Del día 25 a la venta: la fase que más alimento consume',
+ obj:['Explicar las dos fases de terminación de Ross 2022.','Leer las fórmulas de terminación y entender qué cambia.','Planificar el alimento de retiro antes de la venta.'],
+ sec:[
+  L.obj('Al terminar podrá diferenciar Terminación 1 y 2, explicar por qué su energía es la más alta del ciclo y planificar el alimento de retiro.'),
+  {k:'prosa', t:'La fase más cara del lote', p:['Desde el día 25 hasta la venta el pollo come la mayor parte del alimento de todo su ciclo. Por eso <b>un error aquí cuesta más dinero que en cualquier otra fase</b>.',
+   'Ross 2022 divide esta etapa en dos: <b>Terminación 1 (días 25–39)</b> con lisina digestible 1.08 % y energía 3 100 kcal/kg, y <b>Terminación 2 (día 40 a la venta)</b> con 1.02 % y 3 125 kcal/kg. Si usted vende antes del día 40, solo usa Terminación 1.']},
+  L.formula('p-term1', 'Compare esta fórmula con la de inicio: menos soya, más grano, menos calcio y fósforo. El pollo grande necesita energía para engordar más que aminoácidos para formar tejido nuevo.'),
+  L.formula('p-term2', 'La última fórmula del ciclo baja un poco más la soya y sube la energía.'),
+  {k:'alerta', tipo:'crit', ico:'⏱️', t:'Alimento de retiro', p:'La guía de Ross indica dar un <b>alimento de retiro</b> antes de la venta para cumplir los tiempos de retiro de cualquier medicamento o aditivo, según las normas locales. Ese alimento puede tener la misma formulación que el de terminación, pero <b>sin el producto que exige retiro</b>. Los días los fija la etiqueta del producto, no este curso.'},
+  L.error('cambiar al alimento barato al final', 'Al final del lote se baja la calidad del alimento «porque ya va a salir». El pollo grande come mucho: si la energía o los aminoácidos caen, pierde días de ganancia y la conversión empeora justo cuando más alimento consume.', 'Mantenga la fórmula de la fase hasta la venta y planifique el retiro con tiempo.'),
+  L.ejer('¿cuál fase usa?', 'Usted vende sus pollos a los 37 días. ¿Qué fases de Ross 2022 usa y cuál no?', '<p>Usa <b>Inicio, Crecimiento y Terminación 1</b> (que llega hasta el día 39). <b>No llega</b> a Terminación 2, que empieza el día 40. Si su lote necesita retiro, el alimento de retiro reemplaza a Terminación 1 en los últimos días.</p>'),
+  {k:'fuentes', items:['Aviagen. Ross Broiler Nutrition Specifications 2022, Tabla 2 (Finisher 1 y 2) y nota sobre el alimento de retiro (withdrawal feed).']}
+ ]},
+{n:15, num:'15', ac:AC, t:'Conversión, costos y su plan de alimentación', sub:'Cuánto alimento cuesta cada libra de pollo',
+ obj:['Calcular la conversión alimenticia y el costo de alimento por kilo y por libra de pollo.','Comparar comprar el alimento o fabricarlo con sus propios números.','Armar el plan de alimentación y el presupuesto de su próximo lote.'],
+ sec:[
+  L.obj('Al terminar podrá medir la conversión de su lote, saber cuánto le costó en alimento cada libra de pollo y presentar un plan de alimentación con presupuesto.'),
+  {k:'concepts', t:'Los números que deciden si el lote dejó dinero', items:[
+   ['Conversión alimenticia','Kilos de alimento consumido ÷ kilos de pollo vivo vendidos. Mientras más bajo, mejor. Se calcula con el alimento que <b>de verdad</b> salió del almacén, incluido el desperdicio.'],
+   ['Costo de alimento por kilo de pollo','Conversión × costo promedio del kilo de alimento. Es el número para comparar lotes, fórmulas y proveedores.'],
+   ['Mortalidad','Un pollo que muere ya se comió su alimento: ese costo lo pagan los vivos. Por eso la conversión real se calcula sobre lo vendido.']]},
+  L.rd('El lote de 1 000 pollos de doña Carmen (ejemplo ilustrativo)', '<p>Datos de ejemplo, no de mercado: salieron del almacén 4 000 kg de alimento y vendió 2 300 kg de pollo vivo.</p><p>Conversión = 4 000 ÷ 2 300 = <b>1.74</b>. Si el alimento le costó en promedio RD$ 32 por kg, el alimento de cada kilo de pollo costó 1.74 × 32 = <b>RD$ 55.65</b> (RD$ 25.24 por libra).</p><p>Cambie los números por los suyos: la fórmula es la misma.</p>'),
+  {k:'pasos', t:'Su registro mínimo por lote', items:[['Al recibir el pollito','Fecha, cantidad, línea genética y peso de una muestra.'],['Cada entrega de alimento','Fecha, fase, kilos o quintales, precio y proveedor (o número de tanda si lo fabrica).'],['Cada semana','Muertes, peso de una muestra y alimento que queda en el almacén.'],['A la venta','Pollos y kilos vendidos, precio y alimento sobrante.'],['Al cerrar','Conversión, costo de alimento por kilo de pollo y una nota de qué mejorar.']]},
+  {k:'alerta', tipo:'info', ico:'⚖️', t:'¿Comprar o fabricar?', p:'Use el <b>simulador del módulo 4</b>: elija «Pollos de engorde», cargue la fase y llene el comparador con el precio del alimento que usted compra, su transporte, su mano de obra, el costo mensual del equipo y sus pérdidas. Fabricar solo conviene si además puede comprar buena materia prima, guardarla seca y mezclar con precisión.'},
+  L.error('calcular la conversión con el alimento «que debió comer»', 'Se divide el alimento según la tabla entre el peso vendido, y sale una conversión bonita que no es la real.', 'Use el alimento que salió del almacén: lo que se desperdicia, se moja o se comen los ratones también lo pagó usted.'),
+  L.ejer('proyecto: plan de alimentación de su lote', 'Con sus datos: número de pollos, edad de venta y precio de cada alimento. Escriba (1) las fases que usará y en qué días cambia, (2) cuánto alimento espera gastar por fase según el registro de su lote anterior y (3) el presupuesto total y por pollo.', '<p>Una respuesta correcta tiene: las fases de su línea genética con sus días; los kilos esperados por fase <b>sacados de su propio registro</b> (no inventados); el precio de cada alimento con su fecha y su proveedor; el total en RD$ y el costo por pollo. Si es su primer lote, use la guía de rendimiento de su línea genética y márquelo como «estimado».</p>'),
+  {k:'fuentes', items:['Aviagen. Ross Broiler Nutrition Specifications 2022.','Ejemplo de doña Carmen: números ilustrativos para practicar la fórmula, no datos de mercado.']}
+ ]}
+];
+
+/* las preguntas: [enunciado, [[opción, correcta]], explicación] */
+var Q = {
+ 11:[['Para pollos vendidos a unas 5 libras (2.3 kg), ¿qué tabla de Ross 2022 corresponde?',[['La de menos de 2.0 kg',false],['La de 2.0 a 3.5 kg',true],['La de ponedoras',false]],'El peso al que vende decide la tabla: 2.3 kg cae en la Tabla 2 (2.0–3.5 kg), con cuatro fases.'],
+     ['¿Qué significa «lisina digestible»?',[['Toda la lisina del ingrediente',false],['La parte de la lisina que el intestino absorbe',true],['La lisina que se agrega en polvo',false]],'Se formula con la parte aprovechable; la lisina total incluye una parte que no se absorbe.'],
+     ['¿Se puede usar la energía de una tabla de cerdos para formular pollos?',[['Sí, es la misma',false],['No: las aves tienen su propio valor de energía metabolizable',true],['Solo para el maíz',false]],'Cada especie aprovecha distinto la energía; la matriz debe ser de aves.'],
+     ['Su lote tiene 18 días. Según Ross 2022 (Tabla 2), ¿qué lisina digestible pide?',[['1.32 %',false],['1.18 %',true],['1.02 %',false]],'Día 18 = fase de Crecimiento (11–24 días): 1.18 %.'],
+     ['Con mucho calor el lote come menos. ¿Qué se revisa primero?',[['Subir la proteína de inmediato',false],['Agua fresca, ventilación y horas de alimentación',true],['Cambiar a alimento de ponedora',false]],'Con calor baja el consumo; lo primero es el ambiente y el agua. Cambiar la fórmula se decide con el técnico.']],
+ 12:[['¿Por qué la dieta de inicio es la más concentrada del ciclo?',[['Porque el pollito come mucho',false],['Porque está formando intestino, huesos y defensas',true],['Porque es más barata',false]],'En los primeros días se forma el cuerpo: por eso pide la mayor lisina, calcio y fósforo.'],
+     ['¿Cuántos kilos son 2 quintales (200 libras)?',[['100 kg',false],['90.7 kg',true],['200 kg',false]],'200 ÷ 2.2046 = 90.7 kg.'],
+     ['En 100 kg de una fórmula con 41.53 % de soya, ¿cuánta soya se pesa?',[['4.153 kg',false],['41.53 kg',true],['415.3 kg',false]],'En 100 kg, el porcentaje es igual a los kilos.'],
+     ['¿Qué premezcla se usa en el alimento de inicio de pollos?',[['Cualquiera que tenga vitaminas',false],['La de pollo de engorde para inicio, a la dosis de su etiqueta',true],['La de cerdos, que trae más minerales',false]],'La premezcla es de especie y etapa; la dosis la fija el fabricante.'],
+     ['¿Por qué no conviene «ahorrar» dando alimento de terminación al pollito?',[['Porque el pollito no lo come',false],['Porque el ahorro es mínimo y el atraso en hueso e intestino se arrastra todo el ciclo',true],['Porque es ilegal',false]],'El inicio es poco alimento del total; el daño de una mala arrancada no se recupera.']],
+ 13:[['Al pasar de inicio a crecimiento, ¿qué pasa con la energía en Ross 2022?',[['Baja',false],['Sube a 3 050 kcal/kg',true],['Queda igual',false]],'La lisina baja y la energía sube: el pollo empieza a engordar.'],
+     ['¿Por qué el afrecho de trigo casi no se usa en pollos?',[['Porque es caro',false],['Porque trae poca energía para aves y mucha fibra',true],['Porque no tiene proteína',false]],'1 300 kcal/kg de EM en aves contra 3 373 del maíz: diluye la dieta.'],
+     ['¿Cuál es el riesgo de usar mucha pulidura de arroz en clima caliente?',[['Que se ponga rancia por su grasa',true],['Que tenga demasiado calcio',false],['Ninguno',false]],'Su grasa se oxida con el calor: se usa poca y fresca.'],
+     ['Si cambia 10 kg de maíz por 10 kg de afrecho en 100 kg, la energía…',[['Sube unas 200 kcal/kg',false],['Baja unas 207 kcal/kg',true],['No cambia',false]],'(3 373 − 1 300) × 10 ÷ 100 = 207 kcal menos por kilo.'],
+     ['El lote come menos el día del cambio de alimento. ¿Qué revisa primero?',[['Agua, temperatura y que el comedero no esté vacío',true],['Le agrega más sal',false],['Vuelve al alimento de inicio para siempre',false]],'Lo básico primero; mezclar los dos alimentos un par de días puede ayudar, no es obligatorio.']],
+ 14:[['¿Desde qué día empieza Terminación 2 en Ross 2022 (Tabla 2)?',[['Día 25',false],['Día 40',true],['Día 11',false]],'Terminación 1 va del 25 al 39; Terminación 2 desde el 40 hasta la venta.'],
+     ['Usted vende a los 37 días. ¿Usa Terminación 2?',[['Sí',false],['No: solo llega a Terminación 1',true],['Depende del color del pollo',false]],'Terminación 2 empieza el día 40.'],
+     ['¿Qué es el alimento de retiro?',[['Un alimento sin el producto que exige tiempo de retiro antes de la venta',true],['Un alimento con más medicamento',false],['El alimento de inicio',false]],'Sirve para cumplir los tiempos de retiro; los días los fija la etiqueta del producto.'],
+     ['¿Por qué un error en terminación cuesta más que en inicio?',[['Porque el pollo grande come la mayor parte del alimento del ciclo',true],['Porque el alimento de terminación es más caro',false],['No cuesta más',false]],'Es la fase de mayor consumo.'],
+     ['De inicio a terminación, la soya de la fórmula…',[['Sube',false],['Baja',true],['Queda igual',false]],'El pollo grande necesita menos aminoácidos por kilo y más energía.']],
+ 15:[['¿Cómo se calcula la conversión alimenticia?',[['Kilos de pollo ÷ kilos de alimento',false],['Kilos de alimento consumido ÷ kilos de pollo vivo vendido',true],['Pollos vivos ÷ pollos muertos',false]],'Alimento sobre carne vendida: mientras más bajo, mejor.'],
+     ['4 000 kg de alimento y 2 300 kg de pollo vendido dan una conversión de…',[['1.74',true],['0.57',false],['2.30',false]],'4 000 ÷ 2 300 = 1.74.'],
+     ['Con conversión 1.74 y alimento a RD$ 32/kg, el alimento de cada kilo de pollo cuesta…',[['RD$ 18.39',false],['RD$ 55.65',true],['RD$ 32.00',false]],'1.74 × 32 = 55.65 (ejemplo ilustrativo).'],
+     ['¿Con qué alimento se calcula la conversión real?',[['El que indica la tabla',false],['El que salió del almacén, incluido el desperdicio',true],['Solo el de terminación',false]],'Lo desperdiciado también se pagó.'],
+     ['¿Cuándo conviene fabricar el alimento?',[['Siempre, porque es más barato',false],['Cuando sus números lo muestran y además puede comprar buena materia prima, guardarla bien y mezclar con precisión',true],['Nunca',false]],'El comparador da el costo; la calidad de fabricación decide si el ahorro es real.']]
+};
+
+M.forEach(function(m){
+  if(NXMOD[m.n - 1] && NXMOD[m.n - 1].n === m.n) return;           /* ya está */
+  if(NXMOD.length !== m.n - 1) return;                             /* solo en orden */
+  NXMOD.push(m);
+});
+if(typeof NXQUIZ !== 'undefined') Object.keys(Q).forEach(function(k){ if(!NXQUIZ[k]) NXQUIZ[k] = Q[k]; });
+
+var css = `
+.fvl{font-size:17px;line-height:1.6}
+.fvl p{margin:0 0 10px}
+.fvl-obj{padding:14px 16px;border-radius:14px;background:rgba(15,118,110,.08);border-left:5px solid #0F766E}
+.fvl-rd{padding:14px 16px;border-radius:14px;background:rgba(2,132,199,.07);border-left:5px solid #0284C7}
+.fvl-err{padding:14px 16px;border-radius:14px;background:rgba(185,28,28,.06);border-left:5px solid #B91C1C}
+.fvl-ej{padding:14px 16px;border-radius:14px;background:rgba(180,83,9,.07);border-left:5px solid #B45309}
+.fvl-ej details{margin-top:6px}.fvl-ej summary{cursor:pointer;font-weight:800;min-height:40px;display:flex;align-items:center}
+.fvl-ej details > div{margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(127,127,127,.08)}
+.fvl-chico{font-size:14.5px;opacity:.88}
+`;
+var st = document.createElement('style'); st.id = 'fvlCss'; st.textContent = css; document.head.appendChild(st);
+})();
+
+
+/* ---------- fv-mod-ponedoras.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · RUTA PONEDORAS (módulos 16–20) · 2026-11-12
+   Datos técnicos: Hy-Line Brown Commercial Management Guide (nov. 2018):
+   concentraciones de cría (cambio por PESO corporal), prepostura,
+   consumo diario en producción, calcio y fósforo por edad, partícula de
+   calcio y ajuste de energía por temperatura. Fórmulas verificadas en
+   formulas-aves.json (fv-datos.js). Usa las piezas FVL de fv-mod-pollos.js.
+   ============================================================ */
+(function(){
+if(typeof NXMOD === 'undefined' || typeof FVL === 'undefined') return;
+var L = FVL, AC = '#7C3AED';
+var M = [
+{n:16, num:'16', ac:AC, t:'La pollita: inicio por peso', sub:'Por qué en ponedoras el alimento se cambia según lo que pesa el ave',
+ obj:['Explicar por qué la cría de ponedoras se programa por peso corporal y no solo por semanas.','Leer las metas de Inicio 1 e Inicio 2 de la guía de su línea genética.','Pesar una muestra del lote y decidir el cambio de alimento.'],
+ sec:[
+  L.obj('Al terminar podrá pesar una muestra de pollitas, compararla con la meta de su línea genética y decidir si toca cambiar de alimento.'),
+  {k:'prosa', t:'La gallina se hace en la cría', p:['Una ponedora pone durante muchos meses con el cuerpo que formó de pollita. Si llega pequeña o dispareja a la postura, <b>ningún alimento de postura lo arregla después</b>.',
+   'Por eso la guía de Hy-Line Brown no dice «cambie en la semana tal»: dice <b>cambie cuando el lote llegue a cierto peso</b>. La semana es una referencia; el peso es la decisión.']},
+  {k:'tabla', t:'Cría Hy-Line Brown: cuándo cambiar y qué pide cada alimento', cap:'Lisina = digestible (SID). Cambie de alimento al llegar al peso indicado.',
+   head:['Alimento','Cambiar al pesar','EM (kcal/kg)','Lisina dig. %','Calcio %','P disponible %'],
+   rows:[['Inicio 1','190 g','2 867 – 3 043','1.01','1.05','0.45'],['Inicio 2','460 g','2 867 – 3 043','0.92','1.00','0.44'],['Crecimiento','1 080 g','2 800 – 3 021','0.82','0.95','0.43'],['Desarrollo','1 300 g','2 734 – 3 021','0.60','0.90','0.38'],['Prepostura','1 440 g','2 778 – 2 999','0.72','2.50','0.42']]},
+  L.formula('g-inicio1', 'Fórmula educativa verificada contra Inicio 1 de Hy-Line Brown. Note que el calcio es parecido al del pollo de engorde: la pollita todavía no pone, solo forma hueso.'),
+  {k:'pasos', t:'Cómo pesar una muestra que sirva', items:[['Escoja aves de varios puntos del galpón','No solo las que se dejan agarrar en la puerta.'],['Pese el mismo día de la semana y a la misma hora','Así compara semana con semana.'],['Anote cada peso, no solo el promedio','Con los pesos sueltos ve si el lote está parejo.'],['Compare con la meta de SU línea genética','La tabla de Hy-Line Brown sirve si su pollita es Hy-Line Brown.'],['Decida el cambio','Si el lote no llega al peso, se queda en el alimento actual y se revisa con el técnico.']]},
+  L.formula('g-inicio2', 'Inicio 2: baja un poco la lisina y el calcio. La fórmula sigue siendo de maíz y soya.'),
+  L.error('cambiar de alimento por el calendario', 'Se pasa al alimento siguiente porque «ya tienen tantas semanas», aunque el lote está liviano. La pollita recibe una dieta menos concentrada antes de tiempo y se queda pequeña.', 'Pese una muestra cada semana y cambie cuando el lote llegue al peso de su guía.'),
+  L.ejer('decidir con la balanza', 'Su lote de Hy-Line Brown pesa en promedio 420 g. Ya está comiendo Inicio 2. ¿Cambia a Crecimiento?', '<p><b>Todavía no.</b> Según la guía, el cambio de Inicio 2 a Crecimiento es al llegar a <b>460 g</b>. Con 420 g sigue en Inicio 2 y vuelve a pesar la próxima semana.</p>'),
+  {k:'fuentes', items:['Hy-Line International. Hy-Line Brown Commercial Layers Management Guide (nov. 2018): Recommended Nutrient Concentration, rearing period.']}
+ ]},
+{n:17, num:'17', ac:AC, t:'Crecimiento y desarrollo', sub:'Formar el cuerpo sin engordar de más',
+ obj:['Explicar qué cambia en los alimentos de crecimiento y desarrollo.','Usar ingredientes de más fibra en esta etapa con criterio.','Reconocer el riesgo del exceso de peso después de las 12 semanas.'],
+ sec:[
+  L.obj('Al terminar podrá explicar por qué el alimento de desarrollo es el más «liviano» de la cría y vigilar que la pollita no engorde de más.'),
+  {k:'prosa', t:'Menos concentración, más tracto digestivo', p:['En crecimiento y desarrollo la pollita forma el esqueleto y el aparato digestivo que va a usar toda la postura. La guía baja la lisina digestible a <b>0.82 %</b> en crecimiento y a <b>0.60 %</b> en desarrollo.',
+   'Es la etapa donde ingredientes con más fibra, como el <b>afrecho de trigo</b> o la <b>pulidura de arroz</b>, tienen lugar: ayudan a que el ave aprenda a comer volumen. Pero la guía advierte: <b>evite que gane peso de más después de las 12 semanas</b>.']},
+  L.formula('g-crec', 'Aparece la pulidura de arroz: en esta etapa se puede usar algo más que en pollos de engorde. Si la usa, que sea fresca: su grasa se pone rancia con el calor.'),
+  L.formula('g-desa', 'El alimento de desarrollo es el de menos lisina de toda la cría y el que más afrecho admite en esta fórmula.'),
+  L.rd('Afrecho y pulidura en la zona arrocera', '<p>En el Cibao y en la línea noroeste hay pulidura de arroz cerca de las granjas. Puede abaratar la cría, pero tiene dos riesgos en nuestro clima: <b>se pone rancia rápido</b> por su grasa y <b>se puede contaminar con hongos</b> si se guarda húmeda. Compre poca, compruebe que huela a fresco y guárdela seca y bajo techo.</p>'),
+  L.error('dar alimento de postura «para adelantar»', 'Se da alimento de postura a pollitas para que «pongan antes». Ese alimento trae mucho calcio para un ave que todavía no pone, lo que puede dañar sus riñones, y no adelanta la madurez del cuerpo.', 'Siga la secuencia de su guía; el calcio alto solo entra con la prepostura y la postura.'),
+  L.ejer('comparar dos alimentos', 'Según la guía Hy-Line Brown, ¿cuánta lisina digestible tiene el alimento de desarrollo comparado con el de crecimiento?', '<p>Desarrollo <b>0.60 %</b> contra crecimiento <b>0.82 %</b>: unos 0.22 puntos menos. Es el alimento menos concentrado de la cría.</p>'),
+  {k:'fuentes', items:['Hy-Line International. Hy-Line Brown Commercial Layers Management Guide (2018): Grower y Developer, y la nota «avoid excessive body weight gain after 12 weeks».','Composición de la pulidura y del afrecho: Feed Ingredient Table 1 de la misma guía.']}
+ ]},
+{n:18, num:'18', ac:AC, t:'Prepostura y el calcio', sub:'El puente entre la pollita y la gallina',
+ obj:['Explicar cuándo empieza y cuándo termina la prepostura.','Explicar por qué el calcio sube y en qué tamaño de partícula se da.','Leer la fórmula de prepostura y su nivel de calcio.'],
+ sec:[
+  L.obj('Al terminar podrá decidir cuándo dar el alimento de prepostura, cuándo quitarlo y cómo debe venir el calcio.'),
+  {k:'prosa', t:'Una reserva de calcio antes del primer huevo', p:['La gallina forma la cáscara sobre todo de noche, y en los primeros huevos necesita calcio de reserva en sus huesos. La prepostura sube el calcio a <b>2.50 %</b> para formar esa reserva.',
+   'La guía pone dos límites claros: <b>no darla antes de las 15 semanas</b> y <b>no seguir dándola después del primer huevo</b>, porque no trae el calcio suficiente para producir.']},
+  L.formula('g-pre', 'Mire el carbonato de calcio: pasa de cerca de 1.5 % en la cría a más de 5 % aquí.'),
+  {k:'concepts', t:'Calcio fino y calcio grueso', items:[
+   ['Calcio fino (0–2 mm)','Carbonato molido: se disuelve rápido. Es el que lleva la mezcla en la cría.'],
+   ['Calcio grueso (2–4 mm)','Piedra o concha en partícula grande: se queda más tiempo en la molleja y sigue soltando calcio de noche, cuando se forma la cáscara.'],
+   ['En la prepostura','La guía permite empezar a meter calcio grueso, hasta la mitad del calcio total.']]},
+  L.error('mantener la prepostura cuando ya ponen', 'Se sigue dando prepostura semanas después del primer huevo «para gastar el saco». Las gallinas que ya ponen no reciben el calcio de postura y empiezan a salir huevos de cáscara fina.', 'Tenga listo el alimento de postura y cambie apenas aparezcan los primeros huevos.'),
+  L.ejer('las dos fechas', 'Un lote cumple 14 semanas y usted ya compró prepostura. ¿Se la da? ¿Y si ya aparecieron huevos en la semana 18?', '<p>A las 14 semanas <b>no</b>: la guía dice no antes de las 15. Con huevos en la semana 18 <b>se quita</b> la prepostura y se pasa a postura: después del primer huevo no alcanza el calcio.</p>'),
+  {k:'fuentes', items:['Hy-Line International. Hy-Line Brown Commercial Layers Management Guide (2018): Pre-Lay (notas 2 y 6) y Calcium Particle Size.']}
+ ]},
+{n:19, num:'19', ac:AC, t:'Postura: consumo, calcio y cáscara', sub:'La fórmula depende de cuánto come su gallina',
+ obj:['Explicar por qué en postura la guía da nutrientes por gallina al día.','Convertir un requerimiento diario en porcentaje de la dieta según el consumo real.','Ajustar calcio, fósforo y partícula según la edad del lote y el calor.'],
+ sec:[
+  L.obj('Al terminar podrá medir cuánto come su lote, escoger la columna correcta de la guía y explicar por qué el calcio sube y el fósforo baja con la edad.'),
+  {k:'prosa', t:'Gramos por gallina al día', p:['En postura la guía de Hy-Line no da un porcentaje fijo: da lo que la gallina necesita <b>cada día</b>. Por ejemplo, en el pico pide alrededor de 820 mg de lisina digestible y 3.8–4.0 g de calcio por gallina al día.',
+   'El porcentaje sale de dividir ese requerimiento entre lo que la gallina <b>de verdad come</b>. Si come 108 g, el calcio de 3.9 g/día es 3.9 ÷ 108 × 100 = <b>3.61 %</b>. Si come 98 g, el mismo calcio es casi 4 %. <b>Por eso hay que medir el consumo.</b>']},
+  {k:'tabla', t:'Calcio y fósforo por edad (Hy-Line Brown, por gallina al día)', cap:'La guía recomienda pasar a los niveles de la fase siguiente si la producción se mantiene alta más tiempo.',
+   head:['Edad','Calcio (g/día)','P disponible (mg/día)','Calcio fino : grueso'],
+   rows:[['Primer huevo al pico','3.80','438','50 : 50'],['Pico a 37 semanas','4.00','419','50 : 50'],['38 a 48 semanas','4.20','384','40 : 60'],['49 a 62 semanas','4.40','355','30 : 70'],['63 a 76 semanas','4.60','331','30 : 70'],['77 semanas o más','4.70','311','30 : 70']]},
+  L.formula('g-pico', 'Postura en el pico, calculada para un consumo de <b>108 g por gallina al día</b> (una de las columnas de la guía). Si su lote come otra cantidad, la fórmula es otra.'),
+  L.formula('g-post3', 'Postura con producción de 88 a 85 %, para un consumo de <b>110 g al día</b> y el calcio de las semanas 49–62: más calcio y menos fósforo que en el pico.'),
+  {k:'alerta', tipo:'warn', ico:'🌡️', t:'El calor y la energía', p:'La guía da una regla: por cada <b>0.5 °C</b> por encima de 22 °C, la gallina necesita unas <b>2 kcal menos</b> por día (y 2 más por cada 0.5 °C por debajo). En nuestro clima casi siempre estamos por encima: la gallina come menos, y si come menos recibe menos aminoácidos y calcio. Mida el consumo en los meses de calor y ajuste con su técnico.'},
+  L.rd('Huevos de cáscara fina en agosto', '<p>Una granja de Moca ve más huevos rotos en verano. Antes de culpar al alimento, el productor mide el consumo y encuentra que las gallinas bajaron de 110 a unos 100 g al día. Con el mismo alimento, el calcio diario que reciben bajó. La solución que conversa con su técnico: <b>ajustar la concentración al consumo real</b>, dar el calcio grueso que corresponde a la edad, y mejorar la ventilación y el agua fresca.</p>'),
+  L.error('subir el calcio a ojo', 'Se le echa más carbonato al alimento «porque salen huevos finos». Calcio de más baja el consumo y no arregla un problema de partícula, de agua o de calor.', 'Calcule el calcio por gallina al día con el consumo real y la tabla por edad, y use la proporción de partícula gruesa que indica la guía.'),
+  L.ejer('del requerimiento al porcentaje', 'Su lote tiene 52 semanas y come 110 g por gallina al día. Según la tabla, ¿qué porcentaje de calcio debe traer el alimento?', '<p>A las 52 semanas el requerimiento es <b>4.40 g</b> de calcio al día. 4.40 ÷ 110 × 100 = <b>4.00 %</b> de calcio en el alimento, con la proporción fino : grueso de 30 : 70.</p>'),
+  {k:'fuentes', items:['Hy-Line International. Hy-Line Brown Commercial Layers Management Guide (2018): Recommended Daily Nutrient Intake (production), Dietary Nutrient Concentrations According to Phase and Feed Intake, Calcium and Phosphorus, nota 4 (temperatura).']}
+ ]},
+{n:20, num:'20', ac:AC, t:'Costo por docena y su plan de alimentación', sub:'El número que decide si la granja de huevos deja dinero',
+ obj:['Calcular el alimento y el costo de alimento por docena de huevos.','Llevar el control diario de consumo y producción.','Armar el plan de alimentación y el presupuesto de su lote de ponedoras.'],
+ sec:[
+  L.obj('Al terminar podrá calcular cuánto alimento y cuánto dinero en alimento le cuesta cada docena, y presentar el plan de alimentación de su lote desde la cría hasta la postura.'),
+  {k:'concepts', t:'Los indicadores de una granja de huevos', items:[
+   ['Consumo por gallina al día','Alimento entregado en el día ÷ gallinas vivas. Es el dato con el que se ajusta la fórmula de postura.'],
+   ['Alimento por docena','Kilos de alimento consumidos ÷ docenas producidas en el mismo período.'],
+   ['Costo de alimento por docena','Alimento por docena × costo del kilo de alimento. Se compara con el precio al que usted vende la docena.']]},
+  L.rd('Las 2 000 gallinas de don Luis (ejemplo ilustrativo)', '<p>Datos de ejemplo, no de mercado: en una semana sus gallinas consumieron 1 540 kg de alimento y produjeron 1 050 docenas.</p><p>Alimento por docena = 1 540 ÷ 1 050 = <b>1.47 kg</b> (3.2 lb). Con el alimento a RD$ 30 por kg, el alimento de cada docena costó 1.47 × 30 = <b>RD$ 44</b>. Cambie los números por los suyos.</p>'),
+  {k:'pasos', t:'El control diario que necesita', items:[['Gallinas vivas','Cuente las muertes del día.'],['Alimento entregado','En kilos o quintales, siempre del mismo saco o tanda anotada.'],['Huevos','Total y rotos o sucios.'],['Agua y temperatura','Si se puede, la temperatura máxima del día.'],['Cada semana','Consumo por gallina, porcentaje de postura, alimento por docena y una nota.']]},
+  {k:'alerta', tipo:'info', ico:'⚖️', t:'¿Comprar o fabricar el alimento de postura?', p:'En el <b>simulador del módulo 4</b> elija «Ponedoras», cargue la postura y compare con el precio del alimento que compra. Recuerde que en postura casi un 10 % de la fórmula es calcio: <b>la calidad y el tamaño del carbonato</b> cuentan tanto como el precio del maíz.'},
+  L.error('mirar solo el precio del saco', 'Se cambia a un alimento más barato y se celebra el ahorro por saco, pero baja la postura o suben los huevos rotos. El costo por docena termina siendo mayor.', 'Compare alimentos por <b>costo de alimento por docena</b> y por porcentaje de postura, no solo por precio del saco.'),
+  L.ejer('proyecto: plan de su lote', 'Para su lote (o uno de ejemplo de 1 000 pollitas): (1) la secuencia de alimentos de la cría con el peso de cambio de su línea genética, (2) cuándo entra la prepostura y cuándo sale, (3) la columna de consumo que usará en postura, y (4) el presupuesto de alimento por mes con precios y fechas de su suplidor.', '<p>Una respuesta correcta: Inicio 1 → Inicio 2 → Crecimiento → Desarrollo por <b>peso</b>; prepostura desde las 15 semanas y hasta el primer huevo; consumo de postura <b>medido</b> en su lote; y un presupuesto con precios fechados. Si usa números de la guía en vez de los suyos, márquelos como «estimado».</p>'),
+  {k:'fuentes', items:['Hy-Line International. Hy-Line Brown Commercial Layers Management Guide (2018).','Ejemplo de don Luis: números ilustrativos para practicar el cálculo.']}
+ ]}
+];
+var Q = {
+ 16:[['En la cría de ponedoras, ¿cuándo se cambia de alimento según Hy-Line?',[['Siempre en la misma semana',false],['Cuando el lote llega al peso indicado',true],['Cuando se acaba el saco',false]],'La guía programa la cría por peso corporal; la semana es solo referencia.'],
+     ['Según Hy-Line Brown 2018, ¿a qué peso se pasa de Inicio 2 a Crecimiento?',[['190 g',false],['460 g',true],['1 080 g',false]],'Inicio 1 hasta 190 g, Inicio 2 hasta 460 g.'],
+     ['Su lote pesa 420 g y come Inicio 2. ¿Cambia ya a Crecimiento?',[['Sí',false],['No, todavía no llega a 460 g',true],['Sí, si tiene 6 semanas',false]],'Se decide por peso: con 420 g se queda en Inicio 2.'],
+     ['¿Por qué se anotan los pesos sueltos y no solo el promedio?',[['Para ver si el lote está parejo',true],['Porque el promedio no sirve',false],['Para gastar menos',false]],'Con los pesos sueltos se ve la uniformidad del lote.'],
+     ['¿Sirve la tabla de Hy-Line Brown para otra línea genética?',[['Sí, todas son iguales',false],['Use la guía de su propia línea genética',true],['Solo en la postura',false]],'Cada línea tiene sus metas de peso y nutrientes.']],
+ 17:[['¿Qué lisina digestible tiene el alimento de desarrollo de Hy-Line Brown?',[['0.60 %',true],['0.82 %',false],['1.01 %',false]],'Es el alimento menos concentrado de la cría.'],
+     ['¿Qué advierte la guía para después de las 12 semanas?',[['Que la pollita no engorde de más',true],['Que coma más calcio',false],['Que ayune',false]],'Hay que evitar el exceso de peso en esa etapa.'],
+     ['¿Cuál es un riesgo de la pulidura de arroz en clima caliente?',[['Que se ponga rancia o se contamine con hongos',true],['Que tenga demasiada proteína',false],['Ninguno',false]],'Su grasa se oxida y, si está húmeda, se enmohece.'],
+     ['¿Por qué no se da alimento de postura a pollitas?',[['Trae mucho calcio para un ave que no pone y puede dañar sus riñones',true],['Porque es muy caro',false],['Porque tiene poca energía',false]],'El calcio alto solo entra con la prepostura y la postura.'],
+     ['En crecimiento y desarrollo, los ingredientes de más fibra…',[['Están prohibidos',false],['Tienen lugar con criterio: ayudan a que el ave coma volumen',true],['Sustituyen a la soya',false]],'Es la etapa donde el afrecho o la pulidura se pueden usar con medida.']],
+ 18:[['¿Cuándo se puede empezar la prepostura según la guía?',[['Desde las 10 semanas',false],['No antes de las 15 semanas',true],['Después del primer huevo',false]],'La guía dice no antes de las 15 semanas.'],
+     ['¿Hasta cuándo se da la prepostura?',[['Hasta el primer huevo',true],['Hasta el pico de postura',false],['Toda la vida',false]],'Después del primer huevo no trae calcio suficiente para producir.'],
+     ['¿Qué nivel de calcio tiene la prepostura de Hy-Line Brown?',[['0.90 %',false],['2.50 %',true],['4.00 %',false]],'Sube a 2.50 % para formar la reserva de los huesos.'],
+     ['¿Para qué sirve el calcio en partícula gruesa?',[['Se queda en la molleja y sigue soltando calcio de noche',true],['Para que el ave coma más rápido',false],['No sirve',false]],'La cáscara se forma de noche; la partícula gruesa da calcio en esas horas.'],
+     ['Si siguen dando prepostura semanas después del primer huevo…',[['Salen huevos de cáscara fina',true],['Ponen más',false],['No pasa nada',false]],'No cubre el calcio de producción.']],
+ 19:[['En postura, ¿cómo da la guía los nutrientes?',[['En porcentaje fijo',false],['Por gallina al día',true],['Por saco',false]],'El porcentaje sale de dividir lo diario entre el consumo real.'],
+     ['Si la gallina necesita 3.9 g de calcio al día y come 108 g, el alimento debe traer…',[['3.61 %',true],['0.36 %',false],['39 %',false]],'3.9 ÷ 108 × 100 = 3.61 %.'],
+     ['A las 52 semanas, comiendo 110 g/día, ¿qué calcio debe tener el alimento?',[['3.61 %',false],['4.00 %',true],['2.50 %',false]],'4.40 g ÷ 110 × 100 = 4.00 %.'],
+     ['Con la edad, el fósforo disponible por gallina al día…',[['Sube',false],['Baja',true],['Queda igual',false]],'Pasa de 438 mg al inicio a 311 mg desde las 77 semanas.'],
+     ['Con calor por encima de 22 °C, ¿qué pasa con la energía que necesita la gallina?',[['Necesita unas 2 kcal menos por día por cada 0.5 °C',true],['Necesita el doble',false],['No cambia',false]],'Es la regla de la guía; además come menos, y hay que vigilar el consumo.']],
+ 20:[['¿Cómo se calcula el alimento por docena?',[['Docenas ÷ kilos',false],['Kilos de alimento ÷ docenas producidas',true],['Gallinas ÷ huevos',false]],'Kilos de alimento del período sobre las docenas del mismo período.'],
+     ['1 540 kg de alimento y 1 050 docenas dan…',[['1.47 kg por docena',true],['0.68 kg por docena',false],['15.4 kg por docena',false]],'1 540 ÷ 1 050 = 1.47.'],
+     ['Con 1.47 kg por docena y alimento a RD$ 30/kg, el alimento por docena cuesta…',[['RD$ 44',true],['RD$ 20',false],['RD$ 30',false]],'1.47 × 30 = 44.1 (ejemplo ilustrativo).'],
+     ['¿Cuál es la mejor forma de comparar dos alimentos de postura?',[['Por el precio del saco',false],['Por costo de alimento por docena y porcentaje de postura',true],['Por el color del saco',false]],'Un saco barato puede salir caro por docena.'],
+     ['En el plan de la cría, los cambios de alimento se programan por…',[['Peso del lote',true],['Precio del alimento',false],['Mes del año',false]],'En ponedoras la cría se programa por peso corporal.']]
+};
+M.forEach(function(m){
+  if(NXMOD[m.n - 1] && NXMOD[m.n - 1].n === m.n) return;
+  if(NXMOD.length !== m.n - 1) return;
+  NXMOD.push(m);
+});
+if(typeof NXQUIZ !== 'undefined') Object.keys(Q).forEach(function(k){ if(!NXQUIZ[k]) NXQUIZ[k] = Q[k]; });
+})();
+
+
+/* ---------- fv-fundamentos.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · FUNDAMENTOS PARA LAS TRES ESPECIES (2026-11-12)
+   Agrega a los módulos 1, 2, 7, 8 y 9 (sin quitar nada de lo que tienen):
+   objetivo, comparación cerdo/ave, lectura de etiquetas, materias primas
+   de RD, almacenamiento y micotoxinas, error frecuente, ejercicio, y sube
+   cada evaluación de 3 a 5 preguntas con explicación.
+   Números: solo de las matrices verificadas (NXING cerdos, FVING_AVES aves).
+   ============================================================ */
+(function(){
+if(typeof NXMOD === 'undefined' || typeof FVL === 'undefined' || typeof NXING === 'undefined' || typeof FVING_AVES === 'undefined') return;
+var L = FVL;
+function n(x, d){ return (isFinite(x) ? x : 0).toLocaleString('es-DO', {minimumFractionDigits:d || 0, maximumFractionDigits:d || 0}); }
+var C = NXING, A = FVING_AVES;
+var matprim = {k:'tabla', t:'Las materias primas de RD vistas por un cerdo y por un ave',
+  cap:'Energía metabolizable por kilo, base tal como se ofrece. La soya de la tabla de cerdos es de 47.5 % y la de aves de 44 %: pregunte cuál le venden.',
+  head:['Ingrediente','EM cerdo','EM ave','Proteína %','Lo que hay que saber'],
+  rows:[
+   ['Maíz', n(C.maiz.em), n(A.maiz.em), n(A.maiz.pc, 1), 'La energía de casi toda la dieta. Humedad y hongos: lo primero que se revisa.'],
+   ['Harina de soya', n(C.soya.em) + ' (47.5 %)', n(A.soya.em) + ' (44 %)', '44 – 47.5', 'La proteína. Que no esté cruda: la soya sin procesar tiene factores que dañan la digestión.'],
+   ['Afrecho de trigo', n(C.afrecho.em), n(A.afrecho.em), n(A.afrecho.pc, 1), 'El cerdo lo aprovecha mucho más que el ave. En pollos casi no se usa.'],
+   ['Pulidura de arroz', '—', n(A.pulidura.em), n(A.pulidura.pc, 1), 'Barata en zonas arroceras; su grasa se pone rancia con el calor. Poca y fresca.'],
+   ['Sorgo', '—', n(A.sorgo.em), n(A.sorgo.pc, 1), 'Puede reemplazar parte del maíz en aves.'],
+   ['Aceite vegetal', n(C.aceite.em), n(A.aceite.em), '0', 'Sube la energía y baja el polvo de la mezcla.'],
+   ['Melaza', 'pida análisis', 'pida análisis', '—', 'Mejora el sabor y pega el polvo. Su composición varía mucho: úsela en poca cantidad y con el análisis del suplidor.']]};
+var especies = {k:'tabla', t:'Lo mismo, pero distinto: cerdo, pollo y ponedora',
+  cap:'Por qué no se puede usar la fórmula de una especie en otra.',
+  head:['Tema','Cerdo','Pollo de engorde','Ponedora'],
+  rows:[
+   ['Energía','EM de cerdo','EM de aves (otra tabla)','EM de aves; se ajusta al consumo y al calor'],
+   ['Fósforo','Digestible (STTD)','Disponible','Disponible; baja con la edad'],
+   ['Calcio','Bajo (0.5–0.9 %)','Bajo (0.6–0.95 %)','Alto en postura (3.5–4 %), en partícula gruesa'],
+   ['Cuándo cambia el alimento','Por peso o etapa','Por días (Ross: 0–10, 11–24, 25–39, 40+)','Cría por peso; postura por consumo y edad'],
+   ['Premezcla','De cerdo y de la etapa','De pollo de engorde y de la etapa','De ponedora (cría o postura)']]};
+var etiqueta = {k:'pasos', t:'Cómo leer la etiqueta de un alimento o una premezcla', items:[
+  ['Especie y etapa','Debe decir para qué animal y qué edad. Si no lo dice, no lo compre.'],
+  ['Niveles garantizados','Proteína mínima, grasa mínima, fibra máxima, humedad máxima y, a veces, calcio y fósforo. «Mínimo» y «máximo» son límites, no el valor exacto.'],
+  ['Ingredientes','La lista de lo que trae. Compare dos marcas por lo que garantizan, no por el color del saco.'],
+  ['Modo de uso y dosis','En una premezcla, cuántos kilos por cada tonelada o por cada 100 kg. <b>Esa dosis manda</b>; el curso solo reserva un espacio en la fórmula.'],
+  ['Fecha y lote','Fecha de fabricación o de vencimiento y número de lote. Las vitaminas se pierden con el tiempo y el calor.'],
+  ['Registro y fabricante','Nombre y dirección del fabricante y, cuando aplique, su número de registro. Si tiene dudas, pregúntele al suplidor.']]};
+var almacen = {k:'pasos', t:'Almacenamiento en nuestro clima: lo que evita pérdidas y hongos', items:[
+  ['Seco y ventilado','El calor y la humedad del Caribe hacen que crezcan hongos en el grano y en el alimento. Techo sin goteras y aire que circule.'],
+  ['Nunca en el piso ni pegado a la pared','Sacos sobre paletas, con espacio para revisar y para que no suba la humedad.'],
+  ['Lo primero que entra, lo primero que sale','Use primero lo más viejo. Anote la fecha de llegada en cada lote.'],
+  ['Sin ratones ni pájaros','Comen, ensucian y contaminan. Cierre las entradas y revise cada semana.'],
+  ['Revise el grano al recibirlo','Olor a moho, grano manchado o caliente al tacto: se rechaza o se consulta antes de usarlo.']]};
+var micotox = {k:'alerta', tipo:'crit', ico:'🍄', t:'Micotoxinas: el veneno que no se ve', p:'Algunos hongos del maíz y de otros granos producen <b>micotoxinas</b>, como las aflatoxinas. Pueden estar en un grano que se ve bien. En los animales bajan el consumo y el crecimiento, debilitan las defensas y, en ponedoras, afectan la postura. La prevención es comprar grano seco y limpio, guardarlo bien y, si hay sospecha, <b>mandar una muestra a analizar</b>. Los productos que «secuestran» toxinas se usan con asesoría técnica, no como excusa para comprar grano malo.'};
+var agua = {k:'alerta', tipo:'info', ico:'💧', t:'El agua es el primer nutriente', p:'Sin agua limpia y fresca el animal no come, y la mejor fórmula no sirve. Revise que los bebederos funcionen todos los días, limpie los tanques y, si su agua es de pozo, hágale un análisis: el exceso de sal o de minerales cambia lo que el animal toma.'};
+var mezcla = {k:'pasos', t:'Demostración en papel: una mezcla de 100 kg bien hecha', items:[
+  ['Revise la fórmula y la etapa','Que sea de la especie y la edad correctas.'],
+  ['Pese cada ingrediente','Lo grande en báscula de plataforma; lo pequeño (premezcla, aminoácidos, sal) en balanza de precisión.'],
+  ['Haga una premezcla previa','Los ingredientes pequeños se mezclan primero con unos kilos de maíz molido. Así se reparten parejo.'],
+  ['Cargue en orden','Primero la mitad del grano, luego la soya, la premezcla previa y el resto del grano; el aceite o la melaza al final, poco a poco.'],
+  ['Mezcle el tiempo indicado','El que dice el fabricante de la mezcladora. Menos tiempo deja zonas sin vitaminas.'],
+  ['Anote y guarde','Fecha, fórmula, lote de cada ingrediente y quién mezcló. Guarde el alimento como se guarda el grano.']]};
+
+var EXTRA = {
+ 1:[L.obj('Al terminar podrá explicar qué es formular, nombrar los nutrientes que decide una fórmula y por qué cada especie y etapa necesita la suya.'), especies,
+    L.error('creer que si suma 100 % está balanceada', 'Se juntan ingredientes hasta llegar a 100 % y se da por buena la fórmula.', 'Sumar 100 % es solo el primer paso: la fórmula está balanceada cuando cumple las metas de energía, aminoácidos y minerales de la especie y la etapa. Compruébelo en el simulador.'),
+    L.ejer('¿sirve para otra especie?', 'Un vecino le ofrece su fórmula de cerdos de engorde para sus pollos. ¿Por qué no sirve tal cual?', '<p>Porque cambian la tabla de energía (la de aves es otra), el sistema de fósforo, el calcio y los aminoácidos que pide cada fase, y la premezcla. Hay que formular con la tabla de la especie y la etapa.</p>')],
+ 2:[L.obj('Al terminar podrá reconocer las materias primas que se consiguen en RD, comparar lo que aportan a un cerdo y a un ave, y leer la etiqueta de un alimento o una premezcla.'), matprim, etiqueta,
+    L.error('comprar la premezcla «que haya»', 'Se compra la premezcla más barata o la que tenía el colmado, sin mirar especie ni etapa.', 'La premezcla debe ser de la especie y la etapa, y se usa a la dosis de su etiqueta.'),
+    L.ejer('leer una etiqueta', 'Una etiqueta dice: «Proteína cruda mín. 18 %, fibra cruda máx. 5 %, humedad máx. 13 %». ¿El alimento trae exactamente 18 % de proteína?', '<p>No necesariamente: <b>mínimo 18 %</b> significa que trae 18 % o más. La fibra y la humedad son límites de máximo. Para comparar dos alimentos, compare sus garantías completas y para qué etapa son.</p>')],
+ 7:[L.obj('Al terminar podrá preparar una mezcla de 100 kg en el orden correcto, guardar las materias primas sin hongos y reconocer los errores de fabricación más caros.'), mezcla, almacen, micotox, agua,
+    L.error('echar la premezcla de último encima de todo', 'La premezcla se tira arriba al final y se mezcla poco tiempo. Unos animales comen de más y otros se quedan sin vitaminas.', 'Haga la premezcla previa con un poco de maíz, cárguela en el medio y mezcle el tiempo completo.'),
+    L.ejer('detectar el error', 'Un productor guarda los sacos de maíz en el piso, contra la pared del almacén, y usa primero lo que acaba de llegar. ¿Qué tres cosas corrige?', '<p>(1) Sacos sobre paletas, (2) separados de la pared y (3) usar primero lo más viejo. Además: revisar el grano al recibirlo y proteger el almacén de ratones.</p>')],
+ 8:[L.obj('Al terminar podrá calcular el costo por kilo, por libra y por quintal de cualquier fórmula, y comparar el alimento comprado con el fabricado con sus propios números.'),
+    {k:'alerta', tipo:'info', ico:'🧪', t:'Practique en el simulador', p:'El simulador del <b>módulo 4</b> calcula el costo de las fórmulas de cerdos, pollos y ponedoras con los precios que usted escriba, por kilo, libra y quintal, y compara comprar contra fabricar. Los precios que trae son ilustrativos: <b>escriba los de su suplidor y la fecha</b>.'},
+    L.error('comparar alimentos solo por el precio del saco', 'Se elige el saco más barato sin mirar cuánto alimento hace falta para producir.', 'Compare por costo de alimento por kilo de cerdo o de pollo, o por docena de huevos.'),
+    L.ejer('costo por quintal', 'Una fórmula cuesta RD$ 31.50 por kilo. ¿Cuánto cuesta el quintal (100 lb)?', '<p>Un quintal son 45.36 kg. 31.50 × 45.36 = <b>RD$ 1 428.84</b> por quintal, solo en ingredientes. A eso súmele transporte, mano de obra, equipo y pérdidas para compararlo con el alimento comprado.</p>')],
+ 9:[L.obj('Al terminar podrá cambiar un ingrediente por otro sin salirse de las metas de la etapa, y decidir si el ahorro vale la pena.'),
+    L.error('sustituir kilo por kilo', 'Se cambia 10 kg de maíz por 10 kg de afrecho «porque es más barato», sin revisar lo que se pierde.', 'Cada sustitución se revisa en energía, aminoácidos y minerales; en aves el afrecho baja mucho la energía. Pruébelo en el simulador antes de fabricar.'),
+    L.ejer('¿conviene el sorgo?', 'En el simulador cargue «Pollo · Crecimiento». ¿Qué ingrediente comparte el papel del maíz y qué pasa con el costo si el sorgo sube de precio?', '<p>El <b>sorgo</b>. Si su precio sube por encima del maíz, conviene bajarlo y subir el maíz, revisando que la energía siga en la meta de la fase.</p>')]
+};
+var QEXTRA = {
+ 1:[['¿Cuándo está balanceada una fórmula?',[['Cuando suma 100 %',false],['Cuando cumple las metas de energía, aminoácidos y minerales de la especie y etapa',true],['Cuando es barata',false]],'Sumar 100 % es necesario pero no suficiente.'],
+    ['¿Sirve la fórmula de cerdos de engorde para pollos?',[['Sí',false],['No: cambian la energía, el fósforo, el calcio, los aminoácidos y la premezcla',true],['Solo en verano',false]],'Cada especie se formula con su propia tabla.']],
+ 2:[['«Proteína mínima 18 %» en una etiqueta significa…',[['Exactamente 18 %',false],['18 % o más',true],['Menos de 18 %',false]],'Es una garantía de mínimo.'],
+    ['¿Qué dosis de premezcla se usa?',[['La que diga el curso',false],['La que indica la etiqueta del fabricante',true],['Un kilo por saco siempre',false]],'La dosis la fija el fabricante para su producto.']],
+ 7:[['¿Para qué se hace una premezcla previa con un poco de maíz?',[['Para que los ingredientes pequeños se repartan parejo',true],['Para gastar menos maíz',false],['Para que pese más',false]],'Lo poco se reparte mejor si primero se diluye.'],
+    ['¿Qué hace un grano con aflatoxinas?',[['Nada si se ve bien',false],['Puede bajar el consumo, el crecimiento y las defensas aunque se vea bien',true],['Mejora la postura',false]],'Las micotoxinas no siempre se ven; ante sospecha, se analiza.']],
+ 8:[['Una fórmula cuesta RD$ 31.50 por kilo. ¿Cuánto cuesta el quintal en ingredientes?',[['RD$ 3 150',false],['RD$ 1 428.84',true],['RD$ 69.44',false]],'Un quintal son 45.36 kg: 31.50 × 45.36.'],
+    ['¿Con qué número se comparan mejor dos alimentos?',[['Precio del saco',false],['Costo de alimento por kilo producido o por docena',true],['El color del saco',false]],'Lo que importa es cuánto cuesta producir.']],
+ 9:[['Al cambiar 10 kg de maíz por 10 kg de afrecho en una dieta de aves…',[['Sube la energía',false],['Baja bastante la energía',true],['No cambia nada',false]],'El afrecho tiene mucha menos energía para aves.'],
+    ['Antes de fabricar una fórmula con un ingrediente nuevo…',[['Se prueba en el simulador contra las metas de la etapa',true],['Se fabrica de una vez',false],['Se pregunta al vecino',false]],'Cada sustitución se revisa en energía, aminoácidos y minerales.']]
+};
+Object.keys(EXTRA).forEach(function(k){
+  var m = NXMOD[k - 1]; if(!m || m.n !== +k || m.fvFund) return;
+  m.fvFund = true;
+  var i = m.sec.findIndex(function(s){ return s.k === 'fuentes'; });
+  var obj = EXTRA[k][0], resto = EXTRA[k].slice(1);
+  m.sec.unshift(obj);                                    /* el objetivo, primero */
+  i = m.sec.findIndex(function(s){ return s.k === 'fuentes'; });
+  Array.prototype.splice.apply(m.sec, [i >= 0 ? i : m.sec.length, 0].concat(resto));
+});
+if(typeof NXQUIZ !== 'undefined') Object.keys(QEXTRA).forEach(function(k){
+  var q = NXQUIZ[k]; if(!q || q.fv) return;
+  QEXTRA[k].forEach(function(x){ q.push(x); }); q.fv = true;
+});
+})();
+
+
+/* ---------- fv-cerdos.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · RUTA CERDOS (módulos 3, 4, 5, 6 y 10) · 2026-11-12
+   Agrega, sin quitar nada: objetivo, cuándo cambia cada dieta y cómo
+   hacer la transición (tabla construida desde NXFORM, las 12 etapas
+   verificadas NRC 2012 del curso), reemplazos, gestación y lactancia,
+   error frecuente, ejercicio y 2 preguntas más por evaluación.
+   ============================================================ */
+(function(){
+if(typeof NXMOD === 'undefined' || typeof FVL === 'undefined' || typeof NXFORM === 'undefined') return;
+var L = FVL;
+function n(x, d){ return (isFinite(x) ? x : 0).toLocaleString('es-DO', {minimumFractionDigits:d || 0, maximumFractionDigits:d || 0}); }
+var cambios = {k:'tabla', t:'Cuándo cambia cada dieta del cerdo', cap:'Metas del curso por etapa: lisina SID y energía metabolizable. Los pesos son la referencia para cambiar; dependen de la genética, del alimento y del manejo. Pese una muestra antes de cambiar.',
+  head:['Etapa','Peso o estado','Lisina SID %','EM (kcal/kg)'],
+  rows:NXFORM.map(function(f){ return [f.nombre, f.peso, n(f.obj.sLys, 2), n(f.obj.em)]; })};
+var transicion = {k:'pasos', t:'Cómo hacer el cambio de alimento sin perder consumo', items:[
+  ['Decida por peso, no por fecha','Pese una muestra del corral: el cambio se hace cuando el grupo llega al rango de la etapa siguiente.'],
+  ['Tenga el alimento nuevo antes de que se acabe el viejo','Un día sin alimento, o con el que «había», hace más daño que el cambio.'],
+  ['Mezcle unos días si su técnico lo recomienda','En lechones recién destetados se suele mezclar el alimento viejo con el nuevo durante algunos días para que no lo rechacen. En cerdos grandes el cambio puede ser directo.'],
+  ['Vigile el consumo y las heces','Si el grupo deja de comer o aparecen diarreas, revise agua, temperatura y la mezcla antes de culpar a la fórmula.'],
+  ['Anote la fecha del cambio','Así sabrá después cuánto alimento de cada etapa consumió el lote.']]};
+var reprod = {k:'concepts', t:'Reemplazos, gestación y lactancia: tres dietas distintas', items:[
+  ['Cerda de reemplazo','Se forma el cuerpo que va a sostener muchos partos: no se engorda como cerdo de mercado. Su dieta tiene su propia meta en la Biblioteca (módulo 4).'],
+  ['Cerda gestante','Necesita mantener una condición corporal adecuada, ni flaca ni gorda. La dieta es menos concentrada y la cantidad se ajusta a la condición de cada cerda, con su técnico.'],
+  ['Cerda lactante','Produce leche para toda la camada: necesita más aminoácidos y energía. Se le da a voluntad y con agua abundante; si come poco en lactancia, pierde condición y se atrasa el próximo servicio.']]};
+var EXTRA = {
+ 3:[L.obj('Al terminar podrá ubicar a cada cerdo en su etapa, leer lo que pide en lisina y energía, y decidir cuándo cambiar de alimento.'), cambios, transicion,
+    L.error('cambiar por la fecha y no por el peso', 'Se pasa al alimento de la etapa siguiente porque «ya tienen tantas semanas», aunque el grupo está liviano o disparejo.', 'Pese una muestra y cambie cuando el grupo llegue al rango de peso. Si está disparejo, separe por tamaño.'),
+    L.ejer('ubicar la etapa', 'Un corral pesa en promedio 48 kg. ¿En qué etapa está y qué lisina SID debe traer el alimento según el curso?', '<p>48 kg está en <b>Crecimiento I (25–50 kg)</b>: lisina SID de la etapa según la tabla de arriba. Cerca de los 50 kg toca preparar el cambio a Crecimiento II.</p>')],
+ 4:[L.obj('Al terminar podrá leer cualquiera de las 12 fórmulas del curso, escalarla al tamaño de su mezcladora en kg y en libras, y practicarla en el simulador.'), reprod,
+    L.error('usar la fórmula de engorde para las cerdas', 'Se le da a la cerda gestante o lactante el mismo alimento de los cerdos de engorde.', 'La cerda tiene sus propias etapas: reemplazo, gestación y lactancia. Use la fórmula y la premezcla de cada una.'),
+    L.ejer('escalar a libras', 'Una fórmula lleva 24 % de harina de soya. ¿Cuántas libras de soya van en una tanda de 500 kg?', '<p>24 % de 500 kg = <b>120 kg</b>. En libras: 120 × 2.2046 = <b>264.6 lb</b>.</p>')],
+ 5:[L.obj('Al terminar podrá explicar por qué el lechón destetado necesita otros ingredientes y decidir cuándo conviene comprar el preiniciador hecho.'),
+    L.error('formular el preiniciador como si fuera de engorde', 'Se hace en la granja un «preiniciador» de maíz y soya con más proteína, y los lechones se llenan de diarrea.', 'En las primeras dietas el lechón necesita ingredientes que pueda digerir (lácteos, fuentes especiales de proteína). Si no puede conseguirlos ni procesarlos, compre el preiniciador comercial.'),
+    L.ejer('¿comprar o fabricar?', 'Usted desteta pocos lechones al mes y no consigue suero de leche ni harina de pescado de calidad. ¿Fabrica el preiniciador?', '<p>Lo razonable es <b>comprarlo hecho</b>: son kilos pocos, muy delicados, y sin esos ingredientes la mezcla de granja no alcanza la meta. Fabrique desde las etapas de crecimiento en adelante.</p>')],
+ 6:[L.obj('Al terminar podrá explicar qué cambia de crecimiento a finalización y por qué es la etapa donde más dinero se juega en alimento.'),
+    L.error('mantener el alimento de crecimiento hasta la venta', 'Se sigue con el alimento de crecimiento porque «engordan bien», pagando aminoácidos que el cerdo grande ya no necesita.', 'Pase a las dietas de engorde y finalización a su peso: bajan la lisina y el costo por kilo.'),
+    L.ejer('el costo de no cambiar', 'Si un alimento de crecimiento cuesta RD$ 2 más por kilo que el de engorde y un cerdo come 150 kg en la etapa de engorde, ¿cuánto se pierde por cerdo sin cambiar? (números ilustrativos)', '<p>150 kg × RD$ 2 = <b>RD$ 300 por cerdo</b>, solo en el precio del alimento. Con 50 cerdos son RD$ 15 000.</p>')],
+ 10:[L.obj('Al terminar podrá medir la conversión de su lote, calcular el costo de alimento por kilo de cerdo y presentar su plan de alimentación con presupuesto.'),
+    L.error('calcular la conversión con el alimento de la tabla', 'Se usa el consumo «esperado» y sale una conversión mejor que la real.', 'Use el alimento que salió del almacén, incluido el desperdicio, sobre los kilos de cerdo vendidos.'),
+    L.ejer('costo de alimento por kilo de cerdo', 'Su lote tuvo conversión 2.9 y el alimento le costó en promedio RD$ 30 por kilo (ilustrativo). ¿Cuánto cuesta el alimento de cada kilo de cerdo?', '<p>2.9 × 30 = <b>RD$ 87 por kilo de cerdo</b> (RD$ 39.5 por libra). Compárelo con el precio al que vende.</p>')]
+};
+var QEXTRA = {
+ 3:[['¿Con qué se decide el cambio de alimento en cerdos de crecimiento?',[['Con la fecha',false],['Con el peso de una muestra del grupo',true],['Con el color del cerdo',false]],'El peso de referencia decide; la fecha es orientativa.'],
+    ['Un corral de 48 kg está en…',[['Crecimiento I (25–50 kg)',true],['Engorde II',false],['Preiniciador',false]],'48 kg cae en Crecimiento I.']],
+ 4:[['24 % de soya en una tanda de 500 kg son…',[['120 kg (264.6 lb)',true],['24 kg',false],['240 kg',false]],'500 × 24 ÷ 100 = 120 kg; × 2.2046 = 264.6 lb.'],
+    ['¿Se puede usar el alimento de engorde para la cerda lactante?',[['Sí',false],['No: la cerda tiene sus propias dietas',true],['Solo en verano',false]],'Reemplazo, gestación y lactancia tienen metas propias.']],
+ 5:[['Si no consigue lácteos ni fuentes especiales de proteína para el preiniciador…',[['Lo fabrica igual con más soya',false],['Conviene comprarlo hecho',true],['No le da alimento',false]],'El lechón recién destetado no digiere bien una dieta de granja de maíz y soya.'],
+    ['Al cambiar el alimento del lechón destetado se recomienda…',[['Cambiarlo de golpe siempre',false],['Mezclar unos días el viejo con el nuevo, si el técnico lo indica',true],['Dejarlo sin comer un día',false]],'Ayuda a que no rechace el alimento nuevo.']],
+ 6:[['Mantener el alimento de crecimiento hasta la venta…',[['Ahorra dinero',false],['Hace pagar aminoácidos que el cerdo grande ya no necesita',true],['Es lo que recomienda NRC',false]],'Las dietas de engorde y finalización bajan la lisina y el costo.'],
+    ['150 kg de alimento con RD$ 2 de diferencia por kilo son…',[['RD$ 75',false],['RD$ 300',true],['RD$ 3 000',false]],'150 × 2 = 300 por cerdo (ilustrativo).']],
+ 10:[['Conversión 2.9 y alimento a RD$ 30/kg dan un costo de alimento por kilo de cerdo de…',[['RD$ 87',true],['RD$ 10.3',false],['RD$ 32.9',false]],'2.9 × 30 = 87 (ilustrativo).'],
+    ['La conversión real se calcula con…',[['El alimento esperado',false],['El alimento que salió del almacén',true],['El alimento de la etiqueta',false]],'Incluye desperdicio y pérdidas.']]
+};
+Object.keys(EXTRA).forEach(function(k){
+  var m = NXMOD[k - 1]; if(!m || m.n !== +k || m.fvCer) return;
+  m.fvCer = true;
+  m.sec.unshift(EXTRA[k][0]);
+  var i = m.sec.findIndex(function(s){ return s.k === 'fuentes'; });
+  Array.prototype.splice.apply(m.sec, [i >= 0 ? i : m.sec.length, 0].concat(EXTRA[k].slice(1)));
+});
+if(typeof NXQUIZ !== 'undefined') Object.keys(QEXTRA).forEach(function(k){
+  var q = NXQUIZ[k]; if(!q || q.fv) return;
+  QEXTRA[k].forEach(function(x){ q.push(x); }); q.fv = true;
+});
+})();
+
+
+/* ---------- fv-herramientas.js ---------- */
+/* FORMULACIÓN V2 · herramientas descargables (8 Excel de Curso-Nutricion-Porcina/herramientas-v2.cjs, verificadas). 2026-11-12 */
+(function(){
+if(typeof NXMOD === 'undefined') return;
+var H = [
+  ['1-registro-compras-materias-primas.xlsx', '🧾', 'Registro de compra y precios de materias primas', 'Precio por kg y por quintal de cada compra.'],
+  ['2-inventario-y-fabricacion-por-lote.xlsx', '📦', 'Inventario y fabricación por lote', 'Saldo de cada ingrediente y registro de cada tanda.'],
+  ['3-calculadora-de-costos-de-formulas.xlsx', '🧮', 'Calculadora de costos', 'Las 23 fórmulas del curso con sus precios: costo por kg, libra y quintal.'],
+  ['4-registro-conversion-cerdos-y-pollos.xlsx', '🐖', 'Conversión alimenticia (cerdos y pollos)', 'Mortalidad, conversión y costo de alimento por kilo producido.'],
+  ['5-control-alimento-por-docena-ponedoras.xlsx', '🥚', 'Alimento por docena (ponedoras)', 'Consumo por gallina, % de postura y costo por docena.'],
+  ['6-lista-almacenamiento-y-calidad.xlsx', '✅', 'Lista de almacenamiento y calidad', '17 puntos para revisar el almacén y la mezcla.'],
+  ['7-guias-de-alimentacion-por-especie-y-etapa.xlsx', '📘', 'Guías de alimentación por especie y etapa', 'Metas de cerdos, pollos y ponedoras por etapa.'],
+  ['8-plan-de-alimentacion-y-presupuesto.xlsx', '🗓️', 'Plan de alimentación y presupuesto', 'El ejercicio final: fases, kilos, precios y total.']];
+function caja(cuales, intro){
+  return {k:'agmix', fv:'herr', t:'📥 Herramientas para su granja', partes:[{k:'html', h:'<p>' + intro + '</p><div class="fvh">' + cuales.map(function(i){ var h = H[i];
+    return '<a class="fvh-i" href="materiales/nutricion/' + h[0] + '" download><span>' + h[1] + '</span><b>' + h[2] + '</b><em>' + h[3] + '</em><i>⬇ Descargar Excel</i></a>'; }).join('') + '</div>' +
+    '<p class="fvl-chico">Archivos de Excel editables: escriba en las celdas amarillas y lo demás se calcula solo. Los precios que traen son ilustrativos.</p>'}]};
+}
+var DONDE = {8:[[0, 1, 2, 3, 4, 5, 6, 7], 'Todas las herramientas del curso. Empiece por la de compras y la calculadora de costos.'],
+  10:[[2, 3, 6, 7], 'Para su plan de cerdos: calculadora, conversión, guía y plan.'],
+  15:[[2, 3, 6, 7], 'Para su plan de pollos: calculadora, conversión, guía y plan.'],
+  20:[[2, 4, 6, 7], 'Para su plan de ponedoras: calculadora, control por docena, guía y plan.']};
+Object.keys(DONDE).forEach(function(k){
+  var m = NXMOD[k - 1]; if(!m || m.n !== +k || m.sec.some(function(s){ return s.fv === 'herr'; })) return;
+  var i = m.sec.findIndex(function(s){ return s.k === 'fuentes'; });
+  m.sec.splice(i >= 0 ? i : m.sec.length, 0, caja(DONDE[k][0], DONDE[k][1]));
+});
+var st = document.createElement('style'); st.textContent =
+  '.fvh{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:10px 0}' +
+  '.fvh-i{display:grid;gap:4px;padding:14px;border-radius:14px;text-decoration:none;color:inherit;background:rgba(15,118,110,.07);border:1px solid rgba(15,118,110,.3);transition:transform .15s}' +
+  '.fvh-i:hover{transform:translateY(-2px);border-color:#0F766E}.fvh-i span{font-size:26px}.fvh-i b{font-size:16px}.fvh-i em{font-style:normal;font-size:14px;opacity:.85}.fvh-i i{font-style:normal;font-weight:800;color:#0F766E;margin-top:4px}';
+document.head.appendChild(st);
+})();
+
+
+/* ---------- fv-fotos.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · FOTOS POR MÓDULO (2026-11-12)
+   · Portada (NXFOTO), pie (NXPIE) y fondos que rotan (NXFONDOS) de
+     los módulos 11–20, con fotos de la especie y la etapa de cada uno.
+   · En los módulos 1–10 cambia los fondos que se repetían entre módulos.
+   · Ninguna foto se repite entre módulos. Registro completo en
+     Curso-Nutricion-Porcina/FOTOS-REGISTRO.md.
+   · Fotos pb-* y gp-*: bancos de los cursos de Pollos y Ponedoras
+     (Pexels, licencia Pexels). fv-wm-*: Wikimedia Commons (créditos en
+     las fuentes del módulo donde se usan). Ninguna se presenta como
+     dominicana si no lo es.
+   ============================================================ */
+(function(){
+if(typeof NXFOTO === 'undefined' || typeof NXFONDOS === 'undefined') return;
+var P = {
+  11:['pb-portada', 'Galpón de pollos de engorde con líneas de comederos y bebederos.', ['pb-m5', 'pb-p-12246335', 'pb-f-04']],
+  12:['pb-f-02', 'Pollitos en la criadora con comederos de bandeja: así se ofrece el alimento de inicio.', ['pb-f-03', 'pb-p-29011236', 'pb-m3']],
+  13:['pb-m4', 'Pollitos alrededor de un comedero de tolva: la etapa en que el consumo empieza a subir.', ['pb-p-12211043', 'pb-f-01', 'pb-p-16667124']],
+  14:['pb-p-32840081', 'Pollos en terminación: la fase que más alimento consume.', ['pb-f-05', 'pb-p-7781984', 'pb-m8']],
+  15:['pb-p-7735708', 'Anotar lo que entra y lo que sale: sin registro no hay conversión.', ['pb-p-7054415', 'pb-p-8292795']],
+  16:['gp-p-14960420', 'Pollitas comiendo en bandeja: la cría se programa por peso.', ['gp-p-14944651', 'gp-p-10060073', 'gp-p-37150878']],
+  17:['gp-m3', 'Aves en crecimiento: se forma el cuerpo que sostendrá la postura.', ['gp-p-8794417', 'gp-p-11891477', 'gp-p-840111']],
+  18:['gp-p-15645686', 'Gallina en el comedero: antes del primer huevo llega la prepostura.', ['gp-p-32653692', 'gp-m4', 'gp-p-18474429']],
+  19:['gp-portada', 'Galpón de postura en jaulas. La fórmula depende de cuánto come la gallina.', ['fv-wm-galpon-ponedoras', 'gp-m6', 'gp-p-17993118', 'gp-f-05']],
+  20:['gp-m1', 'Huevos en bandeja: el costo de alimento se mide por docena.', ['gp-p-27869985', 'gp-p-29181504', 'gp-p-37458856', 'gp-p-5900226']]
+};
+Object.keys(P).forEach(function(k){
+  NXFOTO[k] = 'images/' + P[k][0] + '.jpg';
+  if(typeof NXPIE !== 'undefined') NXPIE[k] = P[k][1];
+  NXFONDOS[k] = [P[k][0]].concat(P[k][2]);
+});
+/* fondos repetidos entre módulos 1–10 → fotos nuevas */
+var CAMBIO = {
+  4:['nutri-b-textura-grano', 'pv3-36021104'],
+  5:['nutri-b-lechones-paja', 'grhd-lechones-nave'],
+  6:['nutri-m03-cerdos-crecimiento', 'eg-u-comedero-lineal'],
+  8:['nutri-b-grano-secando', 'pv3-13830911'],
+  9:['nutri-b-textura-grano', 'pv3-30204262'],
+  10:['nutri-b-cerdos-comedero', 'eg-m8-lote']
+};
+Object.keys(CAMBIO).forEach(function(k){
+  var L = NXFONDOS[k]; if(!L) return;
+  var i = L.indexOf(CAMBIO[k][0]); if(i >= 0) L[i] = CAMBIO[k][1];
+});
+if(NXFONDOS[10]){ var j = NXFONDOS[10].indexOf('nutri-s01-numeros'); if(j >= 0) NXFONDOS[10][j] = 'gp-p-5717760'; }
+/* (2026-11-13) fv-wm-molino-martillos ya no se usa: su licencia exige crédito y el curso va sin fuentes */
+/* fondos que chocaban con fotos de contenido de otro módulo */
+[[4, 'nutri-s04-soya', 'eg-n-comedero-auto'], [9, 'nutri-s09-sorgo', 'eg-u-tolva-piso']].forEach(function(x){
+  var L = NXFONDOS[x[0]]; if(!L) return; var i = L.indexOf(x[1]); if(i >= 0) L[i] = x[2];
+});
+
+/* fotos decorativas al lado del texto (capas ai-*): si la foto ya es de otro
+   módulo, se cambia por una de reserva de la misma especie que no se usa en
+   ningún otro sitio del curso. Las fotos de contenido no se tocan. */
+var RESERVA = {
+  cerdos:['grhd-corrales', 'eg-l-lote-comedero', 'm5-comedero', 'eg-n-naves-silos', 'grhd-paja', 'grhd-maternidad'],
+  pollos:['pb-p-37734454', 'pb-p-14964432'],
+  ponedoras:['gp-p-15645665', 'gp-p-6472465', 'gp-p-18474435']
+};
+function dueño(){
+  var d = {};
+  Object.keys(NXFOTO).forEach(function(k){ var f = String(NXFOTO[k]).split('/').pop().replace(/\.jpg$/, ''); if(!d[f]) d[f] = +k; });
+  Object.keys(NXFONDOS).forEach(function(k){ (NXFONDOS[k] || []).forEach(function(f){ if(!d[f]) d[f] = +k; }); });
+  try{ (NXVIS || []).forEach(function(v){ if(v.f && !d[v.f]) d[v.f] = v.m; (v.l || []).forEach(function(x){ if(x.f && !d[x.f]) d[x.f] = v.m; }); }); }catch(e){}
+  return d;
+}
+function limpia(){
+  var main = document.getElementById('nxMain'); if(!main || typeof NXCUR === 'undefined' || !NXCUR) return;
+  var D = dueño(), m = NXCUR, esp = m >= 16 ? 'ponedoras' : (m >= 11 ? 'pollos' : 'cerdos');
+  var usadas = {}; main.querySelectorAll('img').forEach(function(i){ usadas[i.src.split('/').pop().replace(/\.jpg$/, '')] = 1; });
+  var libres = RESERVA[esp].filter(function(f){ return !D[f] && !usadas[f]; });
+  main.querySelectorAll('[class*="ai-"] img').forEach(function(img){
+    if(img.dataset.fvOk || img.closest('.nx-hero')) return;
+    img.dataset.fvOk = '1';
+    var f = img.src.split('/').pop().replace(/\.jpg$/, '');
+    if(D[f] && D[f] !== m && libres.length){ var nuevo = libres.shift(); img.src = 'images/' + nuevo + '.jpg'; img.alt = ''; }
+  });
+}
+new MutationObserver(function(){ try{ limpia(); }catch(e){} }).observe(document.documentElement, {childList:true, subtree:true});
+
+/* la capa de homologación (HVFOTOS, ai-hv) arma su propia portada y fotos de página por tema
+   con un banco de cerdos: repetía portadas y dejaba sin foto a 11–20. Se le da a cada módulo
+   la portada y las fotos de la lista revisada de arriba (sin repetir entre módulos). */
+var PIE = {
+  'nutri-s01-numeros':'Las cuentas: sin números no hay fórmula.', 'nutri-b-textura-grano':'El grano molido: la textura cambia la digestión.',
+  'nutri-s02-recibo-maiz':'Recibir el maíz: aquí empieza la calidad.', 'nutri-b-grano-secando':'Grano secando: la humedad decide si se guarda.',
+  'nutri-s03-cerdo-retrato':'Cada etapa pide una dieta distinta.', 'nutri-b-lechones-paja':'Lechones: la etapa más delicada.',
+  'eg-n-comedero-auto':'Comedero automático: alimento parejo y sin desperdicio.', 'pv3-36021104':'Maíz en grano: la base de energía de casi todas las fórmulas.',
+  'nutri-s05-lechones-granjero':'El lechón destetado necesita ingredientes que pueda digerir.', 'grhd-lechones-nave':'Lechones en la nave de precebo.',
+  'nutri-b-cerdos-comedero':'En engorde se va la mayor parte del alimento.', 'eg-u-comedero-lineal':'Comedero lineal en engorde.',
+  'nutri-s07-silos':'Silos: guardar bien es parte de fabricar.', 'nutri-b-granjero-molino':'Molienda en la granja.',
+  'nutri-s08-costo-numeros':'El costo por kilo manda.', 'pv3-13830911':'Sacos estibados: el inventario también es dinero.',
+  'eg-u-tolva-piso':'Cerdos en la tolva: cada cambio de fórmula se nota aquí.', 'pv3-30204262':'Maíz partido: cambiar un ingrediente cambia el costo y lo que aporta.',
+  'eg-m8-lote':'El lote se mide: peso, alimento y muertes.', 'gp-p-5717760':'Los registros se convierten en decisiones.',
+  'fv-wm-galpon-ponedoras':'Galpón de ponedoras.'
+};
+/* ---------- más fotos por módulo (2026-11-12, noche) ----------
+   Cada módulo rotaba solo 3–5 fotos en 8–24 láminas. Se amplía su banco con fotos revisadas una por una:
+   · fv-p-<id>: Pexels (licencia Pexels), elegidas en hojas de contacto; fotógrafo y enlace en
+     Curso-Nutricion-Porcina/fotos-v2/CREDITOS-PEXELS.json y en FOTOS-REGISTRO.md.
+   · pv-*, pv3-*, eg-*, m2-*, m3-*, m4-*, m5-*, m7-*, grhd-*, lc-*, rp-*: fotos ya licenciadas del proyecto (cerdos por etapa).
+   Ninguna se repite entre módulos de este curso. Los pies describen lo que se ve; ninguna se presenta como dominicana. */
+var MAS = {
+  1:[['fv-p-40169907', 'Granos y semillas mezclados: mezclar no es lo mismo que formular.'], ['fv-p-27207630', 'Una ración se mide; no se calcula a ojo.'],
+     ['pv-comedero', 'Cerdos en el comedero: lo que comen debe cubrir lo que necesitan.'], ['fv-p-2255459', 'Gallinas ponedoras: su alimento no se formula como el del pollo ni como el del cerdo.']],
+  2:[['pv-maiz', 'Maíz en la mano: mire, huela y toque antes de recibir.'], ['fv-p-273838', 'Soya en grano. Al alimento llega como harina, ya procesada.'], ['fv-p-36893984', 'Cultivo de soya.'],
+     ['fv-p-37014729', 'Melaza: pida su análisis antes de formular con ella.'], ['fv-p-9622985', 'Corte de caña: de la caña sale la melaza.'], ['fv-p-39382207', 'Caña cortada, lista para el ingenio.'],
+     ['fv-p-40308406', 'Mazorcas secándose: el grano se guarda seco.'], ['fv-p-27420254', 'Descarga de grano en plena cosecha.'], ['pv3-33501330', 'Grano en saco abierto: revise olor, color y humedad.']],
+  3:[['rp-b-lechon', 'El lechón: la etapa de mayor exigencia por kilo de alimento.'], ['pv-destete', 'Cerdos recién destetados.'], ['m7-corral-engorde', 'Cerdos en crecimiento.'],
+     ['pv-engorde', 'Cerdos de engorde: comen más, pero piden menos concentración.'], ['m3-cerda-gestacion', 'Cerda gestante.'], ['lc-cerda-mamando', 'Cerda lactante con su camada.'], ['m3-verraco', 'Verraco.']],
+  4:[['pv-bascula', 'Báscula de reloj: cada ingrediente se pesa.'], ['fv-p-32777400', 'La lectura de la báscula es parte de la fórmula.'], ['eg-m4-comedero-tubo', 'Comedero de tubo con alimento en harina.'], ['pv3-7782871', 'Alimento en harina dentro de un tanque.']],
+  5:[['pv-lechones', 'Lechones mamando: la leche es su primer alimento.'], ['m4-alimento-solido-paridera', 'Lechones probando alimento sólido en la paridera.'], ['m7-corral-destete', 'Corral de destete.'],
+     ['grhd-paja', 'Lechones destetados sobre cama de paja.'], ['grhd-lechon', 'Lechón destetado.']],
+  6:[['eg-u-tolva', 'Cerdos de engorde junto a la tolva.'], ['eg-l-lote-comedero', 'El lote en el comedero.'], ['m5-comedero', 'Cerdos en un comedero de tolva.'], ['grhd-corrales', 'Nave de engorde.']],
+  7:[['fv-p-20339270', 'Carga de grano a un molino pequeño.'], ['fv-p-5964491', 'Lo que va en gramos se pesa en balanza de precisión.'], ['fv-p-12833512', 'Manejo de sacos en el almacén de una finca.'],
+     ['fv-p-30580656', 'Muestras molidas: la textura debe quedar pareja.'], ['fv-p-6877551', 'Desgranadora y maíz secándose al sol.'], ['fv-p-8549214', 'Sacos estibados en un almacén.'],
+     ['fv-p-6867424', 'Sinfín cargando grano.'], ['pv3-13870874', 'Estibar los sacos bajo techo.'], ['fv-p-18510516', 'Termómetro en la pared: el calor y la humedad dañan lo que se guarda.']],
+  8:[['fv-p-11629496', 'Camión cargado de sacos: el transporte también es costo.'], ['fv-p-6532528', 'Anotar cada compra con su precio y su fecha.'], ['fv-p-40958790', 'Granos en sacos en un almacén.'],
+     ['pv3-4820682', 'Compra de sacos en un almacén.'], ['fv-p-2714630', 'Silos junto a un maizal.']],
+  9:[['fv-p-2257290', 'Grano al camión en la cosecha: el precio cambia con la temporada.'], ['fv-p-13580927', 'Silos de una finca.'], ['fv-p-6237967', 'Hacer la cuenta antes de cambiar un ingrediente.'],
+     ['pv3-6120446', 'Almacén de materias primas.'], ['pv3-12338945', 'Granos de soya.']],
+  10:[['eg-m6-bascula', 'Báscula colgante: sin peso no hay conversión.'], ['fv-p-37860169', 'El registro del lote: peso, alimento y muertes.'], ['eg-m9-silos', 'Granja con silos de alimento.'],
+      ['m2-bebedero-automatico', 'El agua también cuenta: sin agua baja el consumo.'], ['eg-n-naves-silos', 'Naves de engorde con sus silos.']],
+  11:[['fv-p-12995534', 'Pollos de engorde con comederos y bebederos colgantes.'], ['fv-p-17765441', 'Galpón de pollos de engorde.'], ['fv-p-12995533', 'Pollitos bajo las criadoras.'], ['fv-p-25308582', 'Ventiladores: con calor el ave come menos.']],
+  12:[['fv-p-17064389', 'Pollitos alrededor del comedero.'], ['fv-p-4530413', 'Pollitos en la criadora, con luz y calor.'], ['fv-p-5079068', 'Pollitos bajo la luz de calor.']],
+  13:[['fv-p-12995535', 'Pollos en crecimiento con comederos de tolva.'], ['fv-p-11350102', 'Pollos comiendo en la línea de comederos.']],
+  14:[['fv-p-26625882', 'Pollos cerca del peso de venta: la fase que más alimento gasta.']],
+  15:[['fv-p-204511', 'El cuaderno del lote.'], ['fv-p-20515761', 'Crianza pequeña: también aquí se anota lo que se gasta en alimento.'], ['fv-p-20515749', 'Aves de una crianza familiar.']],
+  16:[['fv-p-38294749', 'Pollitas a las pocas semanas.'], ['fv-p-38869632', 'Pollita en crecimiento.'], ['fv-p-38902326', 'Pollita joven.'], ['fv-p-34237694', 'La balanza decide: la pollita cambia de alimento por peso.']],
+  17:[['fv-p-38920933', 'Polla en desarrollo.'], ['fv-p-33099155', 'Trigo: de su molienda sale el afrecho que admite el alimento de desarrollo.']],
+  18:[['fv-p-38319841', 'Concha triturada: calcio de partícula gruesa.'], ['fv-p-15645629', 'Gallina en el nido.'], ['fv-p-16733506', 'Gallina joven al inicio de la postura.']],
+  19:[['fv-p-38465854', 'Gallinas ponedoras.'], ['fv-p-34185946', 'Ponedoras en sus perchas.'], ['fv-p-15219495', 'Con calor, el agua fresca sostiene el consumo.'], ['fv-p-18474437', 'Gallina roja en postura.'],
+      ['fv-p-40207198', 'La cáscara sale del calcio del alimento.']],
+  20:[['fv-p-33653802', 'Huevos: lo que se vende por docena.'], ['fv-p-38341850', 'El alimento de cada docena es el número que manda.'], ['fv-p-4184073', 'Huevos del día.'], ['fv-p-15266688', 'Huevos marrones.'],
+      ['fv-p-34433157', 'Lote de ponedoras.'], ['fv-p-16733513', 'Gallinas en el bebedero.']]
+};
+/* pb-m5 muestra reproductoras adultas, no pollos de engorde: fuera del módulo 11 */
+if(NXFONDOS[11]){ var q5 = NXFONDOS[11].indexOf('pb-m5'); if(q5 >= 0) NXFONDOS[11].splice(q5, 1); }
+Object.keys(MAS).forEach(function(k){
+  var L = NXFONDOS[k]; if(!L) return;
+  MAS[k].forEach(function(x){ if(L.indexOf(x[0]) < 0) L.push(x[0]); PIE[x[0]] = x[1]; });
+});
+
+/* ---------- galerías: cada especie en sus etapas y el proceso en fotos ---------- */
+function galeria(titulo, intro, fotos, nota){
+  return {k:'agmix', fv:'gal', t:titulo, partes:[{k:'html', h:(intro ? '<p>' + intro + '</p>' : '') + '<div class="fvgal">' + fotos.map(function(f){
+    return '<figure><img src="images/' + f[0] + '.jpg" alt="' + f[2].replace(/"/g, '') + '" loading="lazy"><figcaption><b>' + f[1] + '</b>' + f[2] + '</figcaption></figure>'; }).join('') + '</div>' +
+    (nota ? '<p class="fvl-chico">' + nota + '</p>' : '')}]};
+}
+var NOTA_FOTOS = 'Fotos de referencia: muestran la etapa o la tarea; no son de una granja dominicana en particular.';
+var GAL = [
+  [3, /cu[aá]ndo cambia/i, galeria('📷 El cerdo en cada etapa', 'Cada foto es una dieta distinta de la Biblioteca del módulo 4.', [
+    ['rp-b-lechon', 'Lechón', 'Preiniciador e iniciador: lo más concentrado y digestible.'], ['pv-destete', 'Destete', 'El cambio más delicado de toda su vida.'],
+    ['m7-corral-engorde', 'Crecimiento', 'Sube el consumo; baja la concentración.'], ['pv-engorde', 'Engorde y finalización', 'La fase donde se gasta más alimento.'],
+    ['m3-cerda-gestacion', 'Gestación', 'Más fibra, menos energía: que no engorde de más.'], ['lc-cerda-mamando', 'Lactancia', 'La dieta más exigente de la cerda: produce leche para la camada.']], NOTA_FOTOS)],
+  [7, /Demostraci[oó]n en papel/i, galeria('📷 Las estaciones del proceso, en fotos', 'Seis momentos en los que se gana o se pierde la calidad del alimento.', [
+    ['fv-p-6867424', '1 · Recepción', 'El grano se revisa al llegar, antes de descargar.'], ['fv-p-8549214', '2 · Almacenamiento', 'Sacos estibados y bajo techo.'],
+    ['fv-p-12833512', '3 · Pesaje de lo grande', 'Maíz y soya, por saco o en báscula.'], ['fv-p-5964491', '4 · Pesaje de lo pequeño', 'Aminoácidos, sal y premezcla, en gramos.'],
+    ['fv-p-20339270', '5 · Molienda', 'El grano entra al molino antes de mezclar.'], ['fv-p-30580656', '6 · Control de textura', 'Molido parejo: ni polvo ni grano entero.']], NOTA_FOTOS)],
+  [11, /Programa Ross/i, galeria('📷 El pollo en cada fase', '', [
+    ['fv-p-12995533', 'Inicio', 'Calor, luz y alimento en migaja al alcance.'], ['fv-p-12995534', 'Crecimiento', 'Comederos y bebederos a la altura del ave.'],
+    ['fv-p-17765441', 'Terminación', 'El galpón lleno: la fase que más alimento consume.']], NOTA_FOTOS)],
+  [16, /C[oó]mo pesar una muestra/i, galeria('📷 De pollita a polla', '', [
+    ['fv-p-38294749', 'Primeras semanas', 'Inicio 1 e Inicio 2: se forma el esqueleto.'], ['fv-p-38869632', 'Crecimiento', 'El cambio de alimento lo decide el peso del lote.'],
+    ['fv-p-38902326', 'Hacia el desarrollo', 'Alimento menos concentrado: que no engorde de más.']], NOTA_FOTOS)]
+];
+GAL.forEach(function(g){
+  var m = NXMOD[g[0] - 1]; if(!m || m.n !== g[0] || m.sec.some(function(s){ return s.fv === 'gal'; })) return;
+  var i = m.sec.findIndex(function(s){ return g[1].test(String(s.t || '')); });
+  if(i < 0) i = m.sec.findIndex(function(s){ return s.k === 'fuentes'; }) - 1;
+  m.sec.splice(i >= 0 ? i + 1 : m.sec.length, 0, g[2]);
+});
+var stg = document.createElement('style'); stg.textContent =
+  '.fvgal{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}' +
+  '.fvgal figure{margin:0;border-radius:16px;overflow:hidden;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.22);display:flex;flex-direction:column}' +
+  '.fvgal img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}' +
+  '.fvgal figcaption{padding:10px 12px 12px;font-size:14.5px;line-height:1.4}.fvgal figcaption b{display:block;font-size:15.5px;margin:0 0 2px}' +
+  '@media(max-width:600px){.fvgal{grid-template-columns:1fr 1fr;gap:8px}.fvgal figcaption{padding:8px 9px 10px;font-size:13.5px}.fvgal figcaption b{font-size:14.5px}}';
+document.head.appendChild(stg);
+
+function planHV(){
+  if(typeof HVFOTOS === 'undefined' || !HVFOTOS) return false;
+  var plan = {};
+  for(var k = 1; k <= 20; k++){
+    var hero = NXFOTO[k] ? String(NXFOTO[k]).split('/').pop().replace(/[.]jpg$/, '') : null;
+    if(!hero) continue;
+    var pool = (NXFONDOS[k] || []).filter(function(f){ return f !== hero; }).map(function(f){ return [f, PIE[f] || '']; });
+    plan[k] = {hero:hero, pool:pool};
+  }
+  if(HVFOTOS.nutricion && HVFOTOS.nutricion.__fv) return true;
+  plan.__fv = true;
+  HVFOTOS.nutricion = plan;
+  return true;
+}
+[0, 400, 1200, 2500, 5000, 9000].forEach(function(t){ setTimeout(function(){ try{ planHV(); }catch(e){} }, t); });
+setInterval(function(){ try{ if(typeof HVFOTOS !== 'undefined' && HVFOTOS && (!HVFOTOS.nutricion || !HVFOTOS.nutricion.__fv)) planHV(); }catch(e){} }, 1500);
+
+
+
+/* créditos de Wikimedia Commons (CC BY-SA pide nombrar autor y licencia) */
+var CRED = {
+  4:'Foto de fondo «Animal Feed Pellet Machine»: RICHI Machinery, Wikimedia Commons, CC BY-SA 4.0.',
+  7:'Foto de fondo «Hammer mill» (molino de martillos): HammerMillMan777, Wikimedia Commons, CC BY-SA 4.0.',
+  8:'Foto de fondo «Grain Silo at Castle Farm» (Reino Unido): Geographer, geograph.org.uk vía Wikimedia Commons, CC BY-SA 2.0.',
+  9:'Foto de fondo «Rice bran» (pulidura de arroz): Palagiri, Wikimedia Commons, CC BY-SA 3.0.',
+  19:'Foto de fondo «Sarrosa Farm» (galpón de ponedoras): Catherine Sarrosa, Wikimedia Commons, CC0.'
+};
+function credita(){
+  if(typeof NXMOD === 'undefined') return false;
+  Object.keys(CRED).forEach(function(k){
+    var m = NXMOD[k - 1]; if(!m) return;
+    var f = m.sec.filter(function(s){ return s.k === 'fuentes'; })[0];
+    if(!f){ f = {k:'fuentes', items:[]}; m.sec.push(f); }
+    if(f.items.indexOf(CRED[k]) < 0) f.items.push(CRED[k]);
+  });
+  return true;
+}
+/* (2026-11-13) los créditos ya no se escriben en el curso: no quedan fotos que los exijan */
+})();
+
+
+/* ---------- fv-videos.js ---------- */
+/* FORMULACIÓN V2 · videos propios (Remotion, Reel-Remotion-GranjaRentable; guiones en
+   scripts/guiones-formulacion-v2-aves.mjs y src/micro/guiones.json). 2026-11-12
+   - Cada módulo lleva al menos un video propio de menos de 3 minutos, con narración y subtítulos.
+   - En este curso ya no se muestra el video de YouTube que se pegaba desde el panel (pedido del 2026-11-12).
+   - LISTOS y DUR los escribe Curso-PorciV2/scripts/fv-videos-listos.cjs después de renderizar:
+     un video que no tenga su .mp4, .jpg y .vtt en deploy/videos/porcicultura NO se muestra. */
+(function(){
+if(typeof NXMOD === 'undefined') return;
+var DUR = {};
+var LISTOS = [];
+/* módulo: [[id, título, patrón del título de la sección detrás de la cual va (opcional)]] */
+var V = {
+  1: [['fv-especies', 'Cerdo, pollo y ponedora: tres dietas distintas']],
+  2: [['fv-etiqueta', 'Leer una etiqueta y usar bien la premezcla', /etiqueta/i]],
+  3: [['fv-cambio', 'Cambiar de alimento entre etapas', /cu[aá]ndo cambia/i]],
+  4: [['fv-mezcla100', 'Preparar una mezcla de 100 kg']],
+  7: [['fv-pesaje', 'Pesar y mezclar bien'], ['fv-errores', 'Errores de almacenamiento y mezcla', /almacen/i]],
+  8: [['fv-costo', 'Costo por kilo y por quintal']],
+  9: [['fv-comprar', '¿Comprar el alimento o fabricarlo?']],
+  11: [['fv-pollo-fases', 'Leer la tabla del pollo: las cuatro fases']],
+  12: [['fv-pollo-inicio', 'La fórmula de inicio del pollo, paso a paso']],
+  13: [['fv-pollo-crec', 'Crecimiento del pollo: sorgo sí, afrecho no']],
+  14: [['fv-pollo-term', 'Terminación y alimento de retiro']],
+  15: [['fv-pollo-conversion', 'Conversión y costo por libra de pollo']],
+  16: [['fv-pollita-peso', 'La pollita cambia de alimento por peso']],
+  17: [['fv-pollita-desarrollo', 'Crecimiento y desarrollo de la pollita']],
+  18: [['fv-gallina-prepostura', 'Prepostura: cuándo entra y cuándo sale']],
+  19: [['fv-gallina-calcio', 'El calcio de la ponedora: del consumo al porcentaje']],
+  20: [['fv-gallina-docena', 'Alimento y costo por docena de huevos']]
+};
+function html(id, t){
+  var b = 'videos/porcicultura/' + id;
+  return '<figure class="pv-video nx-vid fv-vid"><video controls preload="none" playsinline poster="' + b + '.jpg">' +
+    '<source src="' + b + '.mp4" type="video/mp4">' +
+    '<track kind="subtitles" srclang="es" label="Español" src="' + b + '.vtt" default></video>' +
+    '<figcaption>🎬 ' + t + (DUR[id] ? ' · ' + DUR[id] : '') + ' · demostración propia de AgroAcademy RD, con narración y subtítulos. ' +
+    'Trae un ejemplo resuelto y un ejercicio: pause el video cuando se lo pida. Toque ▶ para verlo; en el celular, use la pantalla completa.</figcaption></figure>';
+}
+Object.keys(V).forEach(function(k){
+  var m = NXMOD[k - 1]; if(!m || m.n !== +k || !m.sec) return;
+  var ult = -1;
+  V[k].forEach(function(v){
+    if(LISTOS.indexOf(v[0]) < 0) return;
+    if(m.sec.some(function(s){ return s.agv2v === v[0]; })) return;
+    var i = v[2] ? m.sec.findIndex(function(s){ return v[2].test(String(s.t || '')); }) : -1;
+    if(i < 0) i = ult >= 0 ? ult : m.sec.findIndex(function(s){ return String(s.t || '').indexOf('🎯') === 0; });
+    i = i >= 0 ? i + 1 : Math.min(1, m.sec.length);
+    m.sec.splice(i, 0, {k:'agmix', fv:'video', agv2v:v[0], t:'🎬 Video: ' + v[1], partes:[{k:'html', h:html(v[0], v[1])}]});
+    ult = i;
+    if(window.PV && PV.video) PV.video[v[0]] = [v[1], DUR[v[0]] || '', ''];
+  });
+});
+window.FVVIDEOS = {mod:V, listos:LISTOS, dur:DUR};
+/* YouTube fuera de Formulación: la tarjeta «Ver el video del módulo» (enlace pegado en el panel) no se muestra en este curso */
+var st = document.createElement('style');
+st.textContent = '#nxMain a.uc-video{display:none!important}.fv-vid video{width:100%;height:auto;display:block;border-radius:14px;background:#000}';
+document.head.appendChild(st);
+})();
+
+
+/* ---------- fv-graficos.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · GRÁFICOS (2026-11-12)
+   Gráficos de barras hechos con HTML y CSS (se leen bien en celular y en
+   los dos temas). TODOS los números salen, al cargar o al pintar, de los
+   datos ya verificados del curso: NXFORM/NXING (cerdos) y
+   FVFORM_AVES/FVING_AVES (aves). Aquí no se escribe ninguna cifra de
+   fórmula a mano, así lo dibujado es lo verificado.
+   Los gráficos de costo usan los precios de práctica vigentes (los mismos
+   del simulador) y lo dicen.
+   Únicas cifras fijas: los pesos de cambio de Hy-Line Brown 2018 (los
+   mismos de la tabla del módulo 16) y los 3.9 g de calcio del módulo 19.
+   ============================================================ */
+(function(){
+if(typeof NXMOD === 'undefined' || typeof NXFORM === 'undefined' || typeof FVFORM_AVES === 'undefined') return;
+var CERDO = '#BE185D', POLLO = '#C2410C', GALLINA = '#7C3AED', VERDE = '#0F766E';
+function n(x, d){ x = isFinite(x) ? x : 0; return x.toLocaleString('es-DO', {minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d}); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function C(id){ return NXFORM.filter(function(f){ return f.id === id; })[0]; }
+function A(id){ return FVFORM_AVES.filter(function(f){ return f.id === id; })[0]; }
+function aves(esp){ return FVFORM_AVES.filter(function(f){ return f.esp === esp; }); }
+function corto(f){ return String(f.n || f.nombre).replace(/^(Pollo|Ponedora) · /, ''); }
+
+/* ---------- piezas ---------- */
+function barras(filas, max){
+  max = max || Math.max.apply(null, filas.map(function(f){ return f.v; })) || 1;
+  return '<div class="fvg-b">' + filas.map(function(f){
+    return '<div class="fvg-r"><span class="fvg-l">' + esc(f.l) + '</span><span class="fvg-bar"><i style="width:' + Math.max(1.5, Math.min(100, f.v / max * 100)).toFixed(1) + '%;background:' + (f.c || VERDE) + '"></i></span><b>' + esc(f.txt) + '</b></div>';
+  }).join('') + '</div>';
+}
+var GRUPOS = [
+  ['Maíz', '#EAB308', ['maiz']], ['Sorgo', '#D97706', ['sorgo']], ['Harina de soya', '#16A34A', ['soya']],
+  ['Afrecho y pulidura', '#92400E', ['afrecho', 'pulidura']], ['Suero y harina de pescado', '#0EA5E9', ['suero', 'pescado']],
+  ['Aceite', '#F97316', ['aceite']], ['Calcio, fósforo y sal', '#64748B', ['carbonato', 'fosfato', 'sal', 'bicarbonato']],
+  ['Aminoácidos y premezcla', '#DB2777', ['lisina', 'metionina', 'treonina', 'premix']]];
+function grupos(valores){            /* valores: {ingrediente: número} → [[nombre, color, suma]] */
+  var usados = {};
+  var r = GRUPOS.map(function(g){ var s = 0; g[2].forEach(function(k){ if(valores[k]){ s += +valores[k]; usados[k] = 1; } }); return [g[0], g[1], s]; });
+  var otros = 0; Object.keys(valores).forEach(function(k){ if(!usados[k]) otros += +valores[k] || 0; });
+  if(otros > 0.0001) r.push(['Otros', '#94A3B8', otros]);
+  return r;
+}
+function pila(filas){                 /* filas: [{l, valores, txt}] → barras al 100 % con leyenda común */
+  var vistos = {}, orden = [];
+  var cuerpo = filas.map(function(f){
+    var g = grupos(f.valores), tot = g.reduce(function(a, x){ return a + x[2]; }, 0) || 1;
+    return '<div class="fvg-r fvg-rp"><span class="fvg-l">' + esc(f.l) + '</span><span class="fvg-p">' + g.filter(function(x){ return x[2] > 0; }).map(function(x){
+      if(!vistos[x[0]]){ vistos[x[0]] = x[1]; orden.push(x[0]); }
+      return '<i style="width:' + (x[2] / tot * 100).toFixed(2) + '%;background:' + x[1] + '" title="' + esc(x[0]) + ' ' + n(x[2] / tot * 100, 1) + ' %"></i>'; }).join('') + '</span><b>' + esc(f.txt || '') + '</b></div>';
+  }).join('');
+  var ley = GRUPOS.map(function(g){ return g[0]; }).concat(['Otros']).filter(function(k){ return vistos[k]; });
+  return '<div class="fvg-b">' + cuerpo + '</div><div class="fvg-ley">' + ley.map(function(k){ return '<span><i style="background:' + vistos[k] + '"></i>' + esc(k) + '</span>'; }).join('') + '</div>';
+}
+function figura(sub, cuerpo, nota){ return '<figure class="fvg fv-graf">' + (sub ? '<h4>' + sub + '</h4>' : '') + cuerpo + (nota ? '<figcaption>' + nota + '</figcaption>' : '') + '</figure>'; }
+function costoDe(formula, ing){      /* RD$ por kg con los precios vigentes; devuelve también el aporte de cada ingrediente */
+  var tot = 0, por = {};
+  Object.keys(formula).forEach(function(k){ var c = (+formula[k] || 0) / 100 * (ing[k] ? +ing[k].precio || 0 : 0); por[k] = c; tot += c; });
+  return {tot:tot, por:por};
+}
+var AVISO_PRECIO = 'Precios de práctica (los mismos del simulador), no de mercado: cámbielos por los suyos en el simulador del módulo 4.';
+
+/* ---------- los gráficos: [id, módulo, patrón de la sección detrás de la cual va, título, función que da el HTML] ---------- */
+var G = [
+  ['tres', 1, /cerdo, pollo y ponedora/i, '📊 Calcio y lisina: tres animales, tres niveles', function(){
+    var f = [[C('crecimiento1'), 'Cerdo de ' + C('crecimiento1').peso, CERDO, C('crecimiento1').obj.sLys, C('crecimiento1').obj.ca],
+             [A('p-inicio'), 'Pollo en inicio', POLLO, A('p-inicio').obj.sLys, A('p-inicio').obj.ca],
+             [A('g-inicio1'), 'Pollita en inicio 1', GALLINA, A('g-inicio1').obj.sLys, A('g-inicio1').obj.ca],
+             [A('g-pico'), 'Gallina en postura pico', GALLINA, A('g-pico').obj.sLys, A('g-pico').obj.ca]];
+    return figura('Calcio que debe traer el alimento', barras(f.map(function(x){ return {l:x[1], v:x[4], txt:n(x[4]) + ' %', c:x[2]}; })), '') +
+      figura('Lisina digestible que debe traer el alimento', barras(f.map(function(x){ return {l:x[1], v:x[3], txt:n(x[3]) + ' %', c:x[2]}; })),
+        'Metas de las fórmulas del curso. La gallina en postura pide casi cuatro veces más calcio que el pollo, y el pollito pide la lisina más alta: por eso una fórmula no se pasa de una especie a otra.');
+  }],
+  ['energia', 2, /materias primas de (rep|rd)|energ[ií]a.*cerdo.*ave|cerdo y de ave/i, '📊 La energía del mismo ingrediente depende de quién lo come', function(){
+    var filas = [];
+    [['maiz', 'Maíz'], ['soya', 'Harina de soya'], ['afrecho', 'Afrecho de trigo'], ['sorgo', 'Sorgo'], ['pulidura', 'Pulidura de arroz']].forEach(function(x){
+      if(NXING[x[0]]) filas.push({l:x[1] + ' · cerdo', v:NXING[x[0]].em, txt:n(NXING[x[0]].em, 0) + ' kcal', c:CERDO});
+      if(FVING_AVES[x[0]]) filas.push({l:x[1] + ' · ave', v:FVING_AVES[x[0]].em, txt:n(FVING_AVES[x[0]].em, 0) + ' kcal', c:POLLO});
+    });
+    return figura('Energía metabolizable por kilo de ingrediente', barras(filas),
+      'En cerdos la harina de soya del curso es de 47.5 %; en aves, de 44 %. El sorgo y la pulidura solo están en la matriz de aves del curso. Mire el afrecho: al cerdo le rinde más del doble que al ave.');
+  }],
+  ['dietacerdo', 4, /reemplazo|gestaci[oó]n y lactancia|cu[aá]ndo cambia/i, '📊 Cómo cambia la dieta del cerdo de una etapa a otra', function(){
+    return figura('De qué está hecho cada alimento (% de la fórmula)', pila(NXFORM.map(function(f){ return {l:f.nombre, valores:f.f, txt:n(f.f.soya || 0, 0) + ' % soya'}; })),
+      'Las 12 fórmulas educativas verificadas del curso. Al crecer el cerdo baja la soya y sube el maíz; el suero y la harina de pescado solo aparecen en los lechones; el afrecho entra con fuerza en la cerda gestante.');
+  }],
+  ['lechon', 5, /🎯/, '📊 Lo que hace distinto al alimento del lechón', function(){
+    var ids = ['preiniciador', 'iniciador', 'destete', 'crecimiento1'].map(C).filter(Boolean);
+    return figura('Suero de leche y harina de pescado en la fórmula', barras(ids.map(function(f){ var v = (f.f.suero || 0) + (f.f.pescado || 0); return {l:f.nombre + ' · ' + f.peso, v:v, txt:n(v) + ' %', c:CERDO}; })),
+      'Fórmulas verificadas del curso. Mientras más pequeño el lechón, más ingredientes fáciles de digerir lleva su alimento: por eso es el más caro y el que menos conviene improvisar.');
+  }],
+  ['soyabaja', 6, /🎯/, '📊 La soya baja etapa por etapa', function(){
+    var ids = ['crecimiento1', 'crecimiento2', 'engorde1', 'engorde2', 'finalizacion'].map(C).filter(Boolean);
+    return figura('Harina de soya en la fórmula', barras(ids.map(function(f){ return {l:f.nombre + ' · ' + f.peso, v:f.f.soya || 0, txt:n(f.f.soya || 0) + ' %', c:'#16A34A'}; })) ) +
+      figura('Lisina digestible (SID) que pide cada etapa', barras(ids.map(function(f){ return {l:f.nombre, v:f.obj.sLys, txt:n(f.obj.sLys) + ' %', c:CERDO}; })),
+        'Fórmulas y metas del curso. Seguir dando el alimento de crecimiento a un cerdo de 100 kg es regalar soya: por eso se cambia de fase.');
+  }],
+  ['proceso', 7, /f[oó]rmula perfecta mal fabricada/i, '📊 El recorrido del alimento: de la recepción al comedero', function(){
+    var P = [['🚚', 'Recepción', 'Olor, color, humedad y peso de lo que llega. Lo dudoso no entra.'], ['📦', 'Almacenamiento', 'Seco, sobre paletas, separado de la pared. Lo más viejo sale primero.'],
+      ['⚖️', 'Pesaje', 'Báscula comprobada para lo grande; balanza de gramos para lo pequeño.'], ['⚙️', 'Molienda', 'Grano molido parejo antes de mezclar.'],
+      ['🧪', 'Dosificación', 'Premezcla previa: lo pequeño se mezcla primero con unos kilos de maíz molido.'], ['🔄', 'Mezcla', 'Carga en orden y el tiempo completo que indica el fabricante de la mezcladora.'],
+      ['🟤', 'Peletizado (si aplica)', 'Solo en fábricas con ese equipo; en la granja el alimento suele darse en harina.'], ['🧵', 'Ensacado', 'Cada saco con fecha, fórmula y número de tanda.'],
+      ['🍽️', 'Suministro', 'Comedero limpio, alimento fresco y consumo anotado.']];
+    return '<figure class="fvg fv-graf"><div class="fvg-flujo">' + P.map(function(p, i){ return '<div class="fvg-paso"><span class="fvg-num">' + (i + 1) + '</span><span class="fvg-ico">' + p[0] + '</span><strong>' + p[1] + '</strong><em>' + p[2] + '</em></div>'; }).join('') +
+      '</div><figcaption>En cada estación hay algo que se revisa. Un error en cualquiera de ellas cambia lo que come el animal, aunque la fórmula esté bien.</figcaption></figure>';
+  }],
+  ['costoparte', 8, function(s){ return s.k === 'nxcosto' || s.k === 'costos'; }, '📊 ¿En qué se va el costo de un kilo de alimento?', function(){
+    var L = [[C('crecimiento1'), NXING, 'Cerdo · ' + C('crecimiento1').nombre, C('crecimiento1').f], [A('p-inicio'), FVING_AVES, 'Pollo · Inicio', A('p-inicio').formula], [A('g-pico'), FVING_AVES, 'Ponedora · Postura pico', A('g-pico').formula]];
+    return figura('Parte del costo que pone cada ingrediente', pila(L.map(function(x){ var c = costoDe(x[3], x[1]); return {l:x[2], valores:c.por, txt:'RD$ ' + n(c.tot) + '/kg'}; })),
+      AVISO_PRECIO + ' Casi todo el costo está en el maíz y la soya: ahí es donde vale la pena negociar precio, calidad y transporte.');
+  }, true],
+  ['costoetapa', 9, /🎯/, '📊 Costo de ingredientes por kilo en cada etapa del cerdo', function(){
+    return figura('RD$ por kilo de alimento, solo ingredientes', barras(NXFORM.map(function(f){ var c = costoDe(f.f, NXING).tot; return {l:f.nombre, v:c, txt:'RD$ ' + n(c), c:CERDO}; })),
+      AVISO_PRECIO + ' El costo por kilo es solo una parte de la decisión: una fórmula más barata que no cumple la meta de la etapa sale cara en el corral.');
+  }, true],
+  ['ross', 11, /Programa Ross/i, '📊 Las cuatro fases del pollo: sube la energía, baja la lisina', function(){
+    var L = aves('pollos');
+    return figura('Energía metabolizable (kcal por kilo)', barras(L.map(function(f){ return {l:corto(f) + ' · ' + f.edad.replace(' (en migaja)', ''), v:f.obj.em - 2800, txt:n(f.obj.em, 0), c:POLLO}; }), 400), '') +
+      figura('Lisina digestible (%)', barras(L.map(function(f){ return {l:corto(f), v:f.obj.sLys, txt:n(f.obj.sLys) + ' %', c:'#16A34A'}; })),
+        'Programa para pollos vendidos de 2.0 a 3.5 kg. En el gráfico de energía la barra empieza en 2 800 kcal para que se note la diferencia entre fases.');
+  }],
+  ['gramos', 12, /F[oó]rmula educativa/i, '📊 Lo pequeño de la fórmula de inicio, en gramos', function(){
+    var f = A('p-inicio').formula, ch = Object.keys(f).filter(function(k){ return f[k] < 1; }).sort(function(a, b){ return f[b] - f[a]; });
+    return figura('Gramos por cada 100 kg de alimento', barras(ch.map(function(k){ return {l:FVING_AVES[k].n.replace(/ \(.*\)/, ''), v:f[k] * 1000, txt:n(f[k] * 1000, 0) + ' g', c:POLLO}; })),
+      'Fórmula educativa verificada de inicio. Estos ingredientes son menos del 1 % cada uno, pero deciden si el alimento cumple: se pesan en balanza de gramos y se mezclan primero con un poco de maíz molido.');
+  }],
+  ['granosave', 13, /Granos y subproductos/i, '📊 Energía de cada grano para un ave', function(){
+    var ks = ['maiz', 'sorgo', 'soya', 'pulidura', 'afrecho'].filter(function(k){ return FVING_AVES[k]; });
+    return figura('Kilocalorías por kilo (energía para aves)', barras(ks.map(function(k){ return {l:FVING_AVES[k].n.replace(/ \(.*\)/, ''), v:FVING_AVES[k].em, txt:n(FVING_AVES[k].em, 0), c:(k === 'afrecho' || k === 'pulidura') ? '#92400E' : POLLO}; })),
+      'El sorgo casi iguala al maíz; el afrecho y la pulidura quedan muy por debajo: por eso no sirven para «abaratar» el alimento del pollo.');
+  }],
+  ['dietapollo', 14, /Terminaci[oó]n 2/i, '📊 La dieta del pollo, de inicio a terminación', function(){
+    return figura('De qué está hecho cada alimento (% de la fórmula)', pila(aves('pollos').map(function(f){ return {l:corto(f), valores:f.formula, txt:n(f.formula.soya || 0, 0) + ' % soya'}; })),
+      'Las cuatro fórmulas educativas verificadas del curso. De fase en fase baja la soya y suben los granos.');
+  }],
+  ['costopollo', 15, /do[ñn]a Carmen/i, '📊 Costo de ingredientes por kilo en cada fase del pollo', function(){
+    return figura('RD$ por kilo de alimento, solo ingredientes', barras(aves('pollos').map(function(f){ var c = costoDe(f.formula, FVING_AVES).tot; return {l:corto(f) + ' · ' + f.edad.replace(' (en migaja)', ''), v:c, txt:'RD$ ' + n(c), c:POLLO}; })),
+      AVISO_PRECIO + ' El alimento de inicio es el más caro por kilo, pero es del que menos se gasta; el de terminación es más barato y es el que más pesa en el costo del lote.');
+  }, true],
+  ['pesos', 16, /Cr[ií]a Hy-Line/i, '📊 El peso que manda cada cambio de alimento', function(){
+    var P = [['De Inicio 1 a Inicio 2', 190], ['De Inicio 2 a Crecimiento', 460], ['De Crecimiento a Desarrollo', 1080], ['De Desarrollo a Prepostura', 1300], ['Fin de la Prepostura (primer huevo)', 1440]];
+    return figura('Peso promedio del lote al que se cambia (gramos)', barras(P.map(function(p){ return {l:p[0], v:p[1], txt:n(p[1], 0) + ' g', c:GALLINA}; })),
+      'Son los pesos de la línea Hy-Line Brown, los mismos de la tabla de este módulo: si su pollita es de otra línea, use su guía.');
+  }],
+  ['lisinacria', 17, /Menos concentraci[oó]n/i, '📊 La lisina de la cría, etapa por etapa', function(){
+    var L = aves('ponedoras').filter(function(f){ return /inicio|crec|desa|pre/.test(f.id); });
+    return figura('Lisina digestible que pide cada alimento (%)', barras(L.map(function(f){ return {l:corto(f), v:f.obj.sLys, txt:n(f.obj.sLys) + ' %', c:GALLINA}; })),
+      'El alimento de desarrollo es el menos concentrado de toda la cría; en la prepostura la lisina vuelve a subir para preparar la postura.');
+  }],
+  ['carbonato', 18, /F[oó]rmula educativa/i, '📊 El carbonato de calcio, de la cría a la postura', function(){
+    return figura('Carbonato de calcio en la fórmula (%)', barras(aves('ponedoras').map(function(f){ return {l:corto(f), v:f.formula.carbonato || 0, txt:n(f.formula.carbonato || 0) + ' %', c:(f.formula.carbonato || 0) > 3 ? GALLINA : '#64748B'}; })),
+      'Las siete fórmulas educativas verificadas de ponedoras. El salto ocurre en la prepostura y vuelve a subir en la postura: ese calcio es la cáscara del huevo.');
+  }],
+  ['calcio', 19, /requerimiento diario|consumo/i, '📊 El calcio de la ponedora depende de cuánto come', function(){
+    var cons = [95, 100, 105, 108, 110, 115];
+    return figura('Calcio que pide el alimento en cada etapa (%)', barras(aves('ponedoras').map(function(f){ return {l:corto(f), v:f.obj.ca, txt:n(f.obj.ca) + ' %', c:f.obj.ca > 2 ? GALLINA : '#64748B'}; })), '') +
+      figura('Para dar 3.9 g de calcio al día, según el consumo', barras(cons.map(function(c){ var v = 3.9 / c * 100; return {l:c + ' g de alimento al día', v:v - 3, txt:n(v) + ' %', c:c === 108 ? GALLINA : '#A78BFA'}; }), 1.3),
+        'El segundo gráfico es la cuenta del módulo (3.9 g ÷ consumo × 100): la barra empieza en 3 % para que se vea la diferencia. Si con el calor su lote come menos, el mismo alimento le da menos calcio a cada gallina.');
+  }],
+  ['dietagallina', 20, /don Luis/i, '📊 La dieta de la ponedora, de pollita a postura', function(){
+    return figura('De qué está hecho cada alimento (% de la fórmula)', pila(aves('ponedoras').map(function(f){ return {l:corto(f), valores:f.formula, txt:'RD$ ' + n(costoDe(f.formula, FVING_AVES).tot) + '/kg'}; })),
+      'Las siete fórmulas educativas verificadas del curso. La franja gris (calcio, fósforo y sal) crece en la prepostura y la postura. ' + AVISO_PRECIO);
+  }, true]
+];
+
+G.forEach(function(g){
+  var m = NXMOD[g[1] - 1]; if(!m || m.n !== g[1] || !m.sec) return;
+  if(m.sec.some(function(s){ return s.fvg === g[0]; })) return;
+  var prueba = typeof g[2] === 'function' ? g[2] : function(s){ return g[2].test(String(s.t || '')); };
+  var i = m.sec.findIndex(prueba);
+  if(i < 0) i = m.sec.findIndex(function(s){ return String(s.t || '').indexOf('🎯') === 0; });
+  var parte = {k:'html'};
+  if(g[5]) Object.defineProperty(parte, 'h', {enumerable:true, get:function(){ try{ return g[4](); }catch(e){ return ''; } }});   /* costos: se calculan al pintar, con los precios vigentes */
+  else { try{ parte.h = g[4](); }catch(e){ return; } }
+  m.sec.splice(i >= 0 ? i + 1 : Math.min(1, m.sec.length), 0, {k:'agmix', fv:'graf', fvg:g[0], t:g[3], partes:[parte]});
+});
+
+var st = document.createElement('style'); st.textContent =
+  '.fvg{margin:14px 0;padding:18px;border-radius:18px;background:rgba(127,127,127,.07);border:1px solid rgba(127,127,127,.22)}' +
+  '.fvg h4{margin:0 0 12px;font-size:17px;line-height:1.3}' +
+  '.fvg figcaption{margin-top:12px;font-size:14.5px;line-height:1.5;opacity:.88}' +
+  '.fvg-r{display:grid;grid-template-columns:minmax(120px,32%) minmax(0,1fr) auto;gap:12px;align-items:center;margin:8px 0;font-size:15.5px;line-height:1.3}' +
+  '.fvg-r>b{display:inline;margin:0;font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:64px;text-align:right}' +
+  '.fvg-bar,.fvg-p{display:block;height:20px;border-radius:10px;background:rgba(127,127,127,.18);overflow:hidden}' +
+  '.fvg-bar i{display:block;height:100%;border-radius:10px}' +
+  '.fvg-p{display:flex;height:24px;border-radius:8px}.fvg-p i{display:block;height:100%;flex:0 0 auto}' +
+  '.fvg-ley{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:14px}.fvg-ley span{display:inline-flex;align-items:center;gap:7px}.fvg-ley i{width:13px;height:13px;border-radius:4px;display:inline-block}' +
+  '.fvg-flujo{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}' +
+  '.fvg-paso{position:relative;display:grid;align-content:start;gap:5px;padding:16px 14px 14px;border-radius:16px;background:rgba(15,118,110,.08);border:1px solid rgba(15,118,110,.32)}' +
+  '.fvg-num{position:absolute;top:10px;right:12px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;background:#0F766E;color:#fff}' +
+  '.fvg-ico{font-size:26px;line-height:1}.fvg-paso strong{font-size:16px}.fvg-paso em{font-style:normal;font-size:14.5px;line-height:1.45;opacity:.9}' +
+  '@media(max-width:600px){.fvg{padding:14px}.fvg-r{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;margin:11px 0}.fvg-l{grid-column:1/-1}.fvg-flujo{grid-template-columns:1fr 1fr}}' +
+  '@media(max-width:380px){.fvg-flujo{grid-template-columns:1fr}}';
+document.head.appendChild(st);
+})();
+
+
+/* ---------- fv-rutas.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · RUTAS POR ESPECIE (2026-11-12)
+   Decisión del usuario: certificado = Fundamentos + UNA ruta.
+   · Numeración CONGELADA para no perder avance: Fundamentos = 1, 2, 7, 8, 9;
+     Cerdos = 3, 4, 5, 6, 10; Pollos = 11–15; Ponedoras = 16–20.
+     Cada ruta tiene 5 módulos: terminar es siempre 5 + 5 = 10, así el
+     Dashboard, el certificado y «Su siguiente clase» siguen funcionando.
+   · Apertura = UNIÓN de reglas (nunca cierra algo que antes estaba abierto):
+       ya aprobado · regla vieja (módulos 1–10: el anterior aprobado) ·
+       regla nueva (Fundamentos en orden; ruta: Fundamentos completo y el
+       anterior de su ruta aprobado).
+   · La barra lateral se agrupa por color: Fundamentos y una tarjeta por
+     ruta, para que nadie confunda las fórmulas de una especie con otra.
+   Solo lee el avance; lo único que guarda es la ruta elegida
+   (localStorage fv_ruta::<uid>), para ordenar «qué sigue».
+   ============================================================ */
+(function(){
+var RUTAS = [
+  {id:'fund',      n:'Fundamentos',        ico:'🧱', c:'#0F766E', m:[1, 2, 7, 8, 9], d:'Para todas las especies: nutrientes, materias primas, fabricación y costos'},
+  {id:'cerdos',    n:'Ruta Cerdos',        ico:'🐖', c:'#BE185D', m:[3, 4, 5, 6, 10], d:'Preinicio a terminación, reemplazos, gestación y lactancia'},
+  {id:'pollos',    n:'Ruta Pollos de engorde', ico:'🐔', c:'#B45309', m:[11, 12, 13, 14, 15], d:'Inicio, crecimiento y terminación'},
+  {id:'ponedoras', n:'Ruta Ponedoras',     ico:'🥚', c:'#7C3AED', m:[16, 17, 18, 19, 20], d:'Cría, prepostura y producción de huevos'}
+];
+window.FVRUTAS = RUTAS;
+/* el instructor y la vista previa entran a todo, como antes */
+function esInstructor(){
+  try{ if(typeof nxEsInstructor === 'function') return !!nxEsInstructor(); }catch(e){}
+  try{ return (SESSION && SESSION.role === 'ADMIN') || (typeof PREVIEW !== 'undefined' && !!PREVIEW); }catch(e){ return false; }
+}
+function existe(n){ try{ return !!NXMOD[n - 1] && NXMOD[n - 1].n === n; }catch(e){ return false; } }
+function rutasVivas(){ return RUTAS.filter(function(r){ return r.m.every(existe); }); }
+function rutaDe(n){ return RUTAS.filter(function(r){ return r.m.indexOf(n) >= 0; })[0]; }
+function ap(n){ try{ return !!nxAprob(n); }catch(e){ return false; } }
+function apU(C, uid, n){ try{ return !!C.passed(uid, n); }catch(e){ return false; } }
+function uidYo(){ try{ return (SESSION && SESSION.id) || 'local'; }catch(e){ return 'local'; } }
+
+/* ---------- avance: Fundamentos + la mejor ruta ---------- */
+function cuentaCon(f){
+  var fund = RUTAS[0].m.filter(f).length, mejor = 0;
+  rutasVivas().slice(1).forEach(function(r){ var k = r.m.filter(f).length; if(k > mejor) mejor = k; });
+  return fund + mejor;
+}
+window.fvAbre = function(n){
+  if(ap(n)) return true;
+  if(n <= 10 && (n <= 1 || ap(n - 1))) return true;             /* regla vieja */
+  var r = rutaDe(n); if(!r) return n <= 1;
+  var i = r.m.indexOf(n);
+  if(r.id === 'fund') return i === 0 || ap(r.m[i - 1]);
+  if(!RUTAS[0].m.every(ap)) return false;
+  return i === 0 || ap(r.m[i - 1]);
+};
+function rutaElegida(uid, f){
+  var g = null; try{ g = localStorage.getItem('fv_ruta::' + uid); }catch(e){}
+  var vivas = rutasVivas().slice(1);
+  if(g && vivas.some(function(r){ return r.id === g; })) return g;
+  var mejor = vivas[0], k = -1;
+  vivas.forEach(function(r){ var x = r.m.filter(f).length; if(x > k){ k = x; mejor = r; } });
+  return mejor ? mejor.id : 'cerdos';
+}
+window.fvElegirRuta = function(id){
+  try{ localStorage.setItem('fv_ruta::' + uidYo(), id); }catch(e){}
+  var r = RUTAS.filter(function(x){ return x.id === id; })[0]; if(!r) return;
+  var sig = r.m.filter(function(n){ return !ap(n); })[0] || r.m[0];
+  try{ if(typeof toast === 'function') toast('Ruta elegida: ' + r.n, r.ico); }catch(e){}
+  if(fvAbre(sig)) nxIr(sig); else { try{ nxNav(); }catch(e){} }
+};
+/* el siguiente módulo que le toca (para «Su siguiente clase» y el cierre de cada módulo) */
+function siguientePara(f, uid){
+  var fund = RUTAS[0].m.filter(function(n){ return !f(n); })[0];
+  if(fund) return fund;
+  var r = RUTAS.filter(function(x){ return x.id === rutaElegida(uid, f); })[0];
+  return r ? r.m.filter(function(n){ return !f(n); })[0] || null : null;
+}
+
+function engancha(){
+  if(typeof COURSES === 'undefined' || !COURSES.nutricion || typeof NXMOD === 'undefined' || typeof nxAprob !== 'function') return false;
+  var C = COURSES.nutricion;
+  if(C.__fv) return true;
+  C.__fv = true;
+  Object.defineProperty(C, 'n', {configurable:true, get:function(){ return 10; }});
+  C.count = function(uid){ var self = this; return cuentaCon(function(n){ return apU(self, uid, n); }); };
+  C.sig = function(uid){ var self = this; return siguientePara(function(n){ return apU(self, uid, n); }, uid); };
+  C.rutas = RUTAS;
+  window.nxProgreso = function(){ return cuentaCon(ap); };
+  try{ nxProgreso = window.nxProgreso; }catch(e){}
+  window.nxDesbloq = function(id){ if(esInstructor()) return true; if(typeof NXGATE !== 'undefined' && !NXGATE) return true; return fvAbre(id); };   /* como shell8: el instructor nunca queda bloqueado */
+  try{ nxDesbloq = window.nxDesbloq; }catch(e){}
+  window.nxBloqueadoParaAlumno = function(id){ if(typeof NXGATE !== 'undefined' && !NXGATE) return false; return !fvAbre(id); };
+  try{ nxBloqueadoParaAlumno = window.nxBloqueadoParaAlumno; }catch(e){}
+
+  /* entrar a un módulo cerrado: decir qué falta, según su bloque */
+  var _ir = window.nxIr;
+  window.nxIr = function(id){
+    if(id > 0 && !esInstructor() && !nxDesbloq(id)){
+      var r = rutaDe(id), falta = '';
+      if(r && r.id !== 'fund' && !RUTAS[0].m.every(ap)) falta = 'Termine primero los Fundamentos (módulos ' + RUTAS[0].m.join(', ') + ')';
+      else if(r){ var i = r.m.indexOf(id); falta = 'Apruebe primero el módulo ' + r.m[i - 1]; }
+      try{ toast(falta || 'Este módulo todavía está cerrado', '🔒'); }catch(e){}
+      return;
+    }
+    return _ir.apply(this, arguments);
+  };
+  try{ nxIr = window.nxIr; }catch(e){}
+
+  /* pasar de página en el borde: seguir la ruta, no el número */
+  window.nxPagina = function(d){
+    var wrap = document.querySelector('#nxMain .nx-wrap'); if(!wrap) return;
+    var total = wrap.querySelectorAll('section.nx-b').length, nuevo = NXPAG + d;
+    if(nuevo >= 0 && nuevo < total){ nxMostrarSeccion(nuevo); return; }
+    var r = rutaDe(NXCUR); if(!r){ if(nuevo < 0 && NXCUR > 1) nxIr(NXCUR - 1); return; }
+    var i = r.m.indexOf(NXCUR);
+    if(nuevo < 0){ if(i > 0) nxIr(r.m[i - 1]); else if(r.id !== 'fund') nxIr(RUTAS[0].m[RUTAS[0].m.length - 1]); return; }
+    if(i < r.m.length - 1){ nxIr(r.m[i + 1]); return; }
+    if(r.id === 'fund'){ nxIr(0); setTimeout(function(){ var e = document.getElementById('fvElige'); if(e) e.scrollIntoView({behavior:'smooth'}); }, 400); return; }
+    try{ toast('Terminó la ' + r.n + '. Si aprobó todo, ya puede generar su certificado.', '🎓'); }catch(e){}
+  };
+  try{ nxPagina = window.nxPagina; }catch(e){}
+
+  /* barra lateral agrupada */
+  var _nav = window.nxNav;
+  window.nxNav = function(){
+    var r = _nav.apply(this, arguments);
+    try{ agrupa(); }catch(e){}
+    return r;
+  };
+  try{ nxNav = window.nxNav; }catch(e){}
+
+  /* la portada: elegir ruta */
+  var _pinta = window.nxPinta;
+  window.nxPinta = function(){
+    var r = _pinta.apply(this, arguments);
+    try{ if(NXCUR === 0) portada(); }catch(e){}
+    return r;
+  };
+  try{ nxPinta = window.nxPinta; }catch(e){}
+
+  /* el certificado nombra la ruta completada (sin tocar la plantilla guardada) */
+  if(typeof window.nxCertificado === 'function' && !window.nxCertificado.__fv){
+    var _cert = window.nxCertificado;
+    window.nxCertificado = function(){
+      var ruta = null;
+      if(RUTAS[0].m.every(ap)){
+        var eleg = rutaElegida(uidYo(), ap), completas = rutasVivas().slice(1).filter(function(r){ return r.m.every(ap); });
+        ruta = completas.filter(function(r){ return r.id === eleg; })[0] || completas[0] || null;
+      }
+      var cfg = null; try{ cfg = (typeof nxCertCfg === 'function') ? nxCertCfg() : null; }catch(e){}
+      var antes = cfg ? cfg.course : null;
+      if(cfg && ruta && antes) cfg.course = String(antes).replace(/\s+PARA CERDOS\s*$/i, '') + ' · ' + ruta.n.toUpperCase();
+      try{ return _cert.apply(this, arguments); }
+      finally{ if(cfg && antes != null) cfg.course = antes; }
+    };
+    window.nxCertificado.__fv = true;
+  }
+  return true;
+}
+
+function agrupa(){
+  var nav = document.getElementById('nxNav'); if(!nav) return;
+  var botones = {};
+  nav.querySelectorAll('button.nx-nl').forEach(function(b){
+    var m = /nxIr\((\d+)\)/.exec(b.getAttribute('onclick') || ''); if(m) botones[+m[1]] = b;
+  });
+  if(!botones[1] || nav.querySelector('.fv-grupos')) return;
+  var caja = document.createElement('div'); caja.className = 'fv-grupos';
+  botones[1].parentNode.insertBefore(caja, botones[1]);          /* un contenedor fijo: los grupos van dentro, en orden */
+  var elegida = rutaElegida(uidYo(), ap);
+  rutasVivas().forEach(function(ru){
+    var g = document.createElement('div'); g.className = 'fv-grupo' + (ru.id === elegida ? ' on' : ''); g.style.setProperty('--fc', ru.c);
+    var hechos = ru.m.filter(ap).length;
+    g.innerHTML = '<div class="fv-gh"><span>' + ru.ico + ' ' + ru.n + '</span><b>' + hechos + '/' + ru.m.length + '</b></div>';
+    ru.m.forEach(function(n){ if(botones[n]) g.appendChild(botones[n]); });
+    caja.appendChild(g);
+  });
+  /* módulos que no pertenecen a una ruta viva (por ejemplo, una ruta sin terminar de cargar) se esconden */
+  Object.keys(botones).forEach(function(k){ if(!botones[k].closest('.fv-grupo')) botones[k].style.display = 'none'; });
+  renombra();
+}
+/* el curso ya no es solo de cerdos: se cambia el nombre donde aparece */
+function renombra(){
+  var ov = document.getElementById('nxOv'); if(!ov) return;
+  var w = document.createTreeWalker(ov, NodeFilter.SHOW_TEXT), t;
+  while((t = w.nextNode())){
+    var v = t.nodeValue;
+    if(/Formulación porcina/.test(v)) t.nodeValue = v.replace(/Formulación porcina/g, 'Formulación de alimentos');
+    else if(/alimentos balanceados para cerdos(?!, pollos)/.test(v)) t.nodeValue = v.replace(/alimentos balanceados para cerdos(?!, pollos)/g, 'alimentos balanceados para cerdos, pollos y ponedoras');
+  }
+}
+
+function portada(){
+  var main = document.getElementById('nxMain'); if(!main || document.getElementById('fvElige')) return;
+  var vivas = rutasVivas(); if(vivas.length < 2) return;
+  var fundOk = RUTAS[0].m.every(ap), elegida = rutaElegida(uidYo(), ap);
+  var h = '<section class="nx-b nx-full fv-elige" id="fvElige"><h3>Cómo se organiza este curso</h3>' +
+    '<p>Primero los <b>Fundamentos</b>, que sirven para cualquier animal. Después elija <b>la ruta de su especie</b>: el certificado se gana con los Fundamentos y una ruta completa. Las otras rutas quedan abiertas para cuando quiera.</p>' +
+    '<div class="fv-rutas">' + vivas.map(function(r){
+      var hechos = r.m.filter(ap).length;
+      var btn = r.id === 'fund' ? '' : '<button type="button" class="fv-rb" onclick="fvElegirRuta(\'' + r.id + '\')">' + (r.id === elegida ? '▶ Seguir esta ruta' : 'Elegir esta ruta') + '</button>';
+      return '<div class="fv-rc' + (r.id === elegida ? ' on' : '') + '" style="--fc:' + r.c + '"><div class="fv-rc-h"><span>' + r.ico + '</span><b>' + r.n + '</b><em>' + hechos + '/' + r.m.length + '</em></div>' +
+        '<p>' + r.d + '</p><p class="fv-rc-m">Módulos ' + r.m.join(' · ') + '</p>' + btn + '</div>';
+    }).join('') + '</div>' +
+    (fundOk ? '' : '<p class="fv-nota">Las rutas se abren al aprobar los 5 módulos de Fundamentos.</p>') + '</section>';
+  var w = main.querySelector('.nx-wrap') || main;
+  var hero = w.querySelector('.nx-port, .nx-portada, [class*="hero"], [class*="cover"]');
+  if(hero && hero.parentNode === w) hero.insertAdjacentHTML('afterend', h); else w.insertAdjacentHTML('beforeend', h);
+  renombra();
+}
+
+(function intenta(i){ if(!engancha() && i < 80) setTimeout(function(){ intenta(i + 1); }, 200); })(0);
+
+var css = `
+#nxNav .fv-grupos{display:block}
+#nxNav .fv-grupo{margin:10px 6px 4px;padding:6px 6px 8px;border-radius:14px;border:1px solid color-mix(in srgb,var(--fc) 55%,transparent);background:color-mix(in srgb,var(--fc) 10%,transparent)}
+#nxNav .fv-grupo.on{box-shadow:0 0 0 2px color-mix(in srgb,var(--fc) 70%,transparent)}
+#nxNav .fv-gh{display:flex;justify-content:space-between;align-items:center;padding:4px 8px 6px;font-size:12.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:color-mix(in srgb,var(--fc) 70%,#fff)}
+#nxNav .fv-gh b{font-size:12px;padding:2px 8px;border-radius:99px;color:#fff;background:var(--fc)}
+.fv-elige h3{margin-top:0}
+.fv-rutas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.fv-rc{padding:14px;border-radius:16px;border:2px solid color-mix(in srgb,var(--fc) 50%,transparent);background:color-mix(in srgb,var(--fc) 7%,transparent);display:grid;gap:6px;align-content:start}
+.fv-rc.on{border-color:var(--fc);box-shadow:0 10px 26px -14px var(--fc)}
+.fv-rc-h{display:flex;gap:8px;align-items:center;font-size:18px}.fv-rc-h b{flex:1;color:var(--fc)}.fv-rc-h em{font-style:normal;font-size:13px;font-weight:800;padding:2px 9px;border-radius:99px;color:#fff;background:var(--fc)}
+.fv-rc p{margin:0;font-size:15px}.fv-rc-m{opacity:.75;font-size:13.5px!important}
+.fv-rb{margin-top:4px;min-height:46px;border:0;border-radius:12px;font:inherit;font-weight:800;cursor:pointer;color:#fff;background:var(--fc)}
+.fv-nota{font-size:14.5px;opacity:.85}
+`;
+var st = document.createElement('style'); st.id = 'fvRutasCss'; st.textContent = css; document.head.appendChild(st);
+})();
+
+/* ---------- FV · PROGRESO SOBRE 10 (2026-11-13) ----------
+   El panel dividía los módulos aprobados entre los 20 del curso: quien terminaba (Fundamentos + una ruta = 10)
+   salía con «10/20 · 50 %». El avance de este curso se mide sobre 10. Solo cambia lo que se muestra. */
+(function(){
+  function pon(){
+    if(typeof window.progressView !== 'function') return false;
+    if(window.progressView.fvDiez) return true;
+    var previa = window.progressView;
+    window.progressView = function(){
+      var h = previa.apply(this, arguments);
+      try{
+        if(typeof courseCtx !== 'function' || courseCtx().id !== 'nutricion' || typeof h !== 'string') return h;
+        var N = NXMOD.length; if(N === 10) return h;
+        return h.replace(new RegExp('(<i style="width:)[0-9]+(%"></i></div><span>)[0-9]+(%</span></div></td>\s*<td>)([0-9]+)/' + N + '(</td>)', 'g'), function(todo, a, b, c, pc, d){
+          var p = Math.min(100, Math.round(+pc / 10 * 100)); return a + p + b + p + c + pc + '/10' + d; });
+      }catch(e){ return h; }
+    };
+    window.progressView.fvDiez = true; return true;
+  }
+  (function intenta(i){ if(!pon() && i < 60) setTimeout(function(){ intenta(i + 1); }, 250); })(0);
+})();
+
+
+/* ---------- fv-textos.js ---------- */
+/* FORMULACIÓN V2 · textos de catálogo, ficha de pago y certificado (2026-11-12).
+   El curso ya no es solo de cerdos: 20 módulos (Fundamentos + 3 rutas) y 23 fórmulas verificadas.
+   El PRECIO no se toca (decisión del usuario: todavía no). La plantilla guardada del certificado
+   tampoco: la ruta y el texto nuevo se ponen solo mientras se imprime. */
+(function(){
+try{ if(typeof AGCAT !== 'undefined' && AGCAT.nutricion) AGCAT.nutricion.desc = 'Cerdos, pollos de engorde y ponedoras: 23 fórmulas verificadas, simulador por especie y etapa, costos y 8 herramientas en Excel.'; }catch(e){}
+try{
+  var P = (typeof AGPAGO !== 'undefined') ? AGPAGO : window.AGPAGO;
+  if(P && P.nutricion) P.nutricion.incluye = [
+    'Fundamentos + una ruta a elegir: cerdos, pollos de engorde o ponedoras (20 módulos)',
+    '23 fórmulas educativas verificadas contra NRC 2012, Ross 2022 y Hy-Line Brown 2018',
+    'Simulador por especie y etapa, y comparador comprar o fabricar',
+    'Videos propios y 8 herramientas en Excel',
+    'Certificado al aprobar los Fundamentos y una ruta'];
+}catch(e){}
+var TXT = {course:'FORMULACIÓN Y FABRICACIÓN DE ALIMENTOS BALANCEADOS',
+  body:'Por su cumplimiento exitoso del {curso}, compuesto por los Fundamentos y una ruta por especie (10 módulos), con fórmulas verificadas contra referencias técnicas, el cálculo de costos y un proyecto final con los números de su propia granja.'};
+try{ if(typeof AGCERTDEF !== 'undefined' && AGCERTDEF.nutricion){ AGCERTDEF.nutricion.course = TXT.course; AGCERTDEF.nutricion.body = TXT.body; } }catch(e){}
+function enchufa(){
+  if(typeof window.nxCertificado !== 'function' || !window.nxCertificado.__fv || window.nxCertificado.__fvTxt) return !!(window.nxCertificado && window.nxCertificado.__fvTxt);
+  var _certFvTxt = window.nxCertificado;
+  window.nxCertificado = function(){
+    var cfg = null; try{ cfg = (typeof agCertCfg === 'function') ? agCertCfg('nutricion') : null; }catch(e){}
+    var antes = cfg ? {course:cfg.course, body:cfg.body} : null;
+    if(cfg){
+      var ruta = null;
+      try{ var R = COURSES.nutricion.rutas || [], ap = function(n){ return !!nxAprob(n); };
+        if(R[0] && R[0].m.every(ap)) ruta = R.slice(1).filter(function(r){ return r.m.every(ap); })[0] || null; }catch(e){}
+      cfg.course = String(cfg.course || TXT.course).replace(/\s+PARA CERDOS\s*$/i, '').replace(/ALIMENTOS(?! BALANCEADOS)/, 'ALIMENTOS BALANCEADOS') + (ruta ? ' · ' + ruta.n.toUpperCase() : '');
+      cfg.body = String(cfg.body || TXT.body).replace(/compuesto por 10 módulos con 12 fórmulas verificadas/, 'compuesto por los Fundamentos y una ruta por especie (10 módulos), con fórmulas verificadas');
+    }
+    try{ return _certFvTxt.apply(this, arguments); }
+    finally{ if(cfg && antes){ cfg.course = antes.course; cfg.body = antes.body; } }
+  };
+  window.nxCertificado.__fv = true; window.nxCertificado.__fvTxt = true;
+  return true;
+}
+(function intenta(i){ if(!enchufa() && i < 60) setTimeout(function(){ intenta(i + 1); }, 250); })(0);
+})();
+
+
+/* ---------- fv-simulador.js ---------- */
+/* ============================================================
+   FORMULACIÓN V2 · SIMULADOR POR ESPECIE Y ETAPA (2026-11-12)
+   · Cerdos (NXING + NXFORM, NRC 2012), pollos (Ross 2022) y ponedoras
+     (Hy-Line Brown 2018): parte de la fórmula VERIFICADA de la etapa.
+   · El estudiante cambia % y precios: ve la tanda en kg y lb, el costo
+     por kg / libra / quintal y, SOLO si la mezcla suma 100 %, el aporte
+     ESTIMADO contra la meta de la etapa, con avisos.
+   · No dice «balanceada»: dice qué cumple y qué no, con la fuente.
+   · Comprar o fabricar: costo por quintal de cada opción.
+   Se agrega como sección (agmix) en los módulos 4 y 9 del curso.
+   No guarda nada en la nube; solo lee datos ya publicados.
+   ============================================================ */
+(function(){
+var QQ = 45.36; /* un quintal = 100 libras = 45.36 kg */
+var LB = 2.20462;
+function n(x, d){ x = isFinite(x) ? x : 0; return x.toLocaleString('es-DO', {minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d}); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+/* ---------- especies: matriz, etapas, metas ---------- */
+function cerdos(){
+  if(typeof NXING === 'undefined' || typeof NXFORM === 'undefined') return null;
+  return {
+    id:'cerdos', n:'🐖 Cerdos', ing:NXING, pLabel:'Fósforo digestible (STTD)', pKey:'pd',
+    fuente:'Composición: valores consolidados NRC 2012 / National Swine Nutrition Guide / KSU. Metas: NRC 2012 (lisina SID, EM, Ca, P STTD). Aminoácidos por relación con la lisina.',
+    etapas:NXFORM.map(function(f){ return {id:f.id, n:f.nombre, edad:f.peso, formula:f.f, obj:{em:f.obj.em, sLys:f.obj.sLys, ca:f.obj.ca, p:f.obj.pd,
+      sMC:f.obj.sLys * 0.55, sThr:f.obj.sLys * 0.62, sTrp:f.obj.sLys * 0.17, na:null}}; })
+  };
+}
+function aves(esp){
+  if(typeof FVING_AVES === 'undefined') return null;
+  var L = FVFORM_AVES.filter(function(f){ return f.esp === esp; });
+  return {
+    id:esp, n:esp === 'pollos' ? '🐔 Pollos de engorde' : '🥚 Ponedoras', ing:FVING_AVES, pLabel:'Fósforo disponible', pKey:'pa',
+    fuente:'Composición: Hy-Line Brown Management Guide 2018, tablas de ingredientes (Feedstuffs 2018–2019). Metas: ' +
+      (esp === 'pollos' ? 'Ross Broiler Nutrition Specifications 2022, Tabla 2 (2.0–3.5 kg).' : 'Hy-Line Brown 2018 (cría por peso corporal; producción según consumo real).'),
+    etapas:L.map(function(f){ return {id:f.id, n:f.n, edad:f.edad, formula:f.formula, fuente:f.fuente,
+      obj:{em:f.obj.em, sLys:f.obj.sLys, ca:f.obj.ca, p:f.obj.pa, sMC:f.obj.sMC, sThr:f.obj.sThr, sTrp:f.obj.sTrp, na:f.obj.na}}; })
+  };
+}
+function especies(){ return [cerdos(), aves('pollos'), aves('ponedoras')].filter(Boolean); }
+
+/* ---------- estado ---------- */
+var S = null;
+function nuevo(espId, etId){
+  var E = especies().filter(function(e){ return e.id === espId; })[0] || especies()[0];
+  var et = E.etapas.filter(function(x){ return x.id === etId; })[0] || E.etapas[0];
+  var precios = {}; Object.keys(E.ing).forEach(function(k){ precios[k] = E.ing[k].precio; });
+  if(S && S.precios && S.esp === E.id) precios = S.precios;      /* conserva los precios que ya escribió */
+  S = {esp:E.id, et:et.id, f:JSON.parse(JSON.stringify(et.formula)), precios:precios, tanda:100, unidad:'kg',
+       comp:S ? S.comp : {saco:'', trans:60, mano:80, equipo:15000, qqmes:200, perd:2}};
+}
+function E_(){ return especies().filter(function(e){ return e.id === S.esp; })[0]; }
+function ET_(){ return E_().etapas.filter(function(x){ return x.id === S.et; })[0]; }
+
+function perfil(E, f, precios){
+  var r = {em:0, sLys:0, sMC:0, sThr:0, sTrp:0, ca:0, p:0, na:0, fc:0, gr:0, suma:0, costo:0};
+  for(var k in f){
+    var pct = +f[k] || 0, i = E.ing[k]; if(!i) continue;
+    r.suma += pct; r.costo += pct / 100 * (+precios[k] || 0);
+    r.em += pct / 100 * (i.em || 0); r.sLys += pct / 100 * (i.sLys || 0);
+    r.sMC += pct / 100 * ((i.sMet || 0) + (i.sCys || 0)); r.sThr += pct / 100 * (i.sThr || 0); r.sTrp += pct / 100 * (i.sTrp || 0);
+    r.ca += pct / 100 * (i.ca || 0); r.p += pct / 100 * (i[E.pKey] || 0); r.na += pct / 100 * (i.na || 0);
+    r.fc += pct / 100 * (i.fc || 0); r.gr += pct / 100 * (i.gr || 0);
+  }
+  return r;
+}
+
+/* ---------- pintar ---------- */
+function html(){
+  var E = E_(), et = ET_(), p = perfil(E, S.f, S.precios);
+  var cuadra = Math.abs(p.suma - 100) < 0.005;
+  var kgT = S.unidad === 'qq' ? S.tanda * QQ : S.tanda;
+  var filas = Object.keys(S.f).map(function(k){
+    var pct = +S.f[k] || 0, kg = pct / 100 * kgT;
+    return '<tr><td>' + esc(E.ing[k] ? E.ing[k].n : k) + '</td>' +
+      '<td><input type="number" step="0.01" min="0" max="100" value="' + pct + '" data-fv="pct" data-k="' + k + '" aria-label="% de ' + esc(k) + '"></td>' +
+      '<td>' + n(kg, kg < 1 ? 3 : 2) + '</td><td>' + n(kg * LB, kg < 1 ? 3 : 2) + '</td>' +
+      '<td><input type="number" step="0.5" min="0" value="' + (+S.precios[k] || 0) + '" data-fv="precio" data-k="' + k + '" aria-label="precio de ' + esc(k) + '"></td>' +
+      '<td>' + n(pct / 100 * kgT * (+S.precios[k] || 0)) + '</td></tr>';
+  }).join('');
+  var o = et.obj;
+  var fila = function(nom, v, meta, u, tol, d, minimo){
+    var dif = meta ? (v - meta) / meta * 100 : 0;
+    var est = !meta ? '' : (minimo ? (v >= meta * (1 - tol / 100) ? 'ok' : 'bajo') : (Math.abs(dif) <= tol ? 'ok' : (dif > 0 ? 'alto' : 'bajo')));
+    var txt = {ok:'✓ cumple', alto:'▲ alto', bajo:'▼ bajo'}[est] || '';
+    return '<tr class="fv-' + est + '"><td>' + nom + '</td><td><b>' + n(v, d) + u + '</b></td><td>' + (meta ? (minimo ? '≥ ' : '') + n(meta, d) + u : '—') + '</td><td>' + txt + '</td></tr>';
+  };
+  var nut = cuadra ? '<table class="fv-t fv-nut"><thead><tr><th>Nutriente (estimado)</th><th>Su mezcla</th><th>Meta de la etapa</th><th></th></tr></thead><tbody>' +
+      fila('Energía metabolizable', p.em, o.em, ' kcal/kg', 2, 0) +
+      fila('Lisina digestible', p.sLys, o.sLys, ' %', 3, 2) +
+      fila('Metionina + cistina dig.', p.sMC, o.sMC, ' %', 3, 2, true) +
+      fila('Treonina digestible', p.sThr, o.sThr, ' %', 3, 2, true) +
+      fila('Triptófano digestible', p.sTrp, o.sTrp, ' %', 5, 2, true) +
+      fila('Calcio', p.ca, o.ca, ' %', 6, 2) +
+      fila(E.pLabel, p.p, o.p, ' %', 6, 2) +
+      (o.na ? fila('Sodio', p.na, o.na, ' %', 20, 2) : fila('Sodio', p.na, null, ' %', 0, 2)) +
+      '</tbody></table>'
+    : '<div class="fv-alto">⛔ La mezcla suma <b>' + n(p.suma) + ' %</b>. Hasta que sume exactamente 100 % no se puede estimar qué aporta: ' +
+      (p.suma > 100 ? 'le sobran ' + n(p.suma - 100) : 'le faltan ' + n(100 - p.suma)) + ' puntos. El costo de abajo es solo de lo que escribió.</div>';
+  var av = [];
+  if(cuadra){
+    if(!(S.f.premix > 0)) av.push('Sin premezcla la mezcla NO aporta las vitaminas ni los minerales traza que el animal necesita. Use la premezcla de ' + E.n.replace(/^\S+\s/, '').toLowerCase() + ' para esta etapa, a la dosis de su etiqueta.');
+    if(p.sLys < o.sLys * 0.97) av.push('Falta lisina: el animal no crece (o no pone) lo que puede. Suba la soya o use L-Lisina.');
+    if(p.em < o.em * 0.98) av.push('Energía baja: comerá más para lograr lo mismo y empeora la conversión. Revise el aceite o baje los afrechos.');
+    if(p.sMC < o.sMC * 0.97) av.push('Metionina + cistina por debajo de la meta: con esta lisina hace falta DL-Metionina.');
+    if(p.ca < o.ca * 0.94) av.push(S.esp === 'ponedoras' && o.ca > 3 ? 'Calcio bajo para postura: cáscara fina y huevos rotos. Suba el carbonato (en partícula gruesa, según la guía).' : 'Calcio bajo para la etapa.');
+    if(p.ca > o.ca * 1.06) av.push(S.esp === 'ponedoras' && o.ca < 1.5 ? 'Calcio alto en una pollita que todavía no pone: puede dañar los riñones. No use alimento de postura antes de tiempo.' : 'Calcio alto: estorba la absorción de fósforo y de otros minerales.');
+    if(S.esp !== 'cerdos' && p.fc > 5) av.push('Mucha fibra para aves: baja la energía y el consumo.');
+  }
+  var costoKg = p.costo;              /* RD$ de 1 kg de la mezcla escrita (Σ % × precio) */
+  var c = S.comp, fabQQ = costoKg * QQ * (1 + (+c.perd || 0) / 100) + (+c.trans || 0) + (+c.mano || 0) + ((+c.qqmes > 0) ? (+c.equipo || 0) / (+c.qqmes) : 0);
+  var compra = +c.saco || 0;
+  var comp = '<div class="fv-comp"><h4>⚖️ ¿Comprar el alimento hecho o fabricarlo?</h4>' +
+    '<p class="fv-chico">Escriba sus números. Todo es por <b>quintal (100 lb = 45.36 kg)</b>.</p>' +
+    '<div class="fv-grid">' +
+      cmp('saco', 'Precio del alimento comprado (RD$ por quintal)', 'Escriba el de su suplidor') +
+      cmp('trans', 'Transporte de materias primas (RD$/qq)') + cmp('mano', 'Mano de obra de fabricar (RD$/qq)') +
+      cmp('equipo', 'Equipo: molino, mezcladora, báscula (RD$ al mes, depreciación + luz)') + cmp('qqmes', 'Quintales que fabrica al mes') + cmp('perd', 'Pérdidas al fabricar y almacenar (%)') +
+    '</div>' +
+    '<div class="fv-res"><div><span>Fabricado</span><b>RD$ ' + n(fabQQ) + '</b><em>por quintal, todo incluido</em></div>' +
+    '<div><span>Comprado</span><b>' + (compra ? 'RD$ ' + n(compra) : '—') + '</b><em>' + (compra ? 'por quintal' : 'escriba el precio') + '</em></div>' +
+    (compra ? '<div class="' + (fabQQ < compra ? 'fv-gana' : 'fv-pierde') + '"><span>' + (fabQQ < compra ? 'Fabricar ahorra' : 'Fabricar cuesta más') + '</span><b>RD$ ' + n(Math.abs(compra - fabQQ)) + '</b><em>por quintal · RD$ ' + n(Math.abs(compra - fabQQ) * (+c.qqmes || 0), 0) + ' al mes</em></div>' : '') +
+    '</div><p class="fv-chico">Ojo: fabricar solo conviene si además puede comprar materia prima de calidad, guardarla seca y sin hongos, pesar con exactitud y mezclar bien. Un alimento barato mal hecho sale caro en conversión.</p></div>';
+  function cmp(k, t, ph){ return '<label><span>' + t + '</span><input type="number" min="0" step="1" value="' + (c[k] === '' ? '' : c[k]) + '"' + (ph ? ' placeholder="' + ph + '"' : '') + ' data-fv="comp" data-k="' + k + '"></label>'; }
+
+  return '<div class="fv-sim">' +
+    '<div class="fv-cab"><div class="fv-esp">' + especies().map(function(e){ return '<button type="button" class="' + (e.id === S.esp ? 'on' : '') + '" data-fv="esp" data-k="' + e.id + '">' + e.n + '</button>'; }).join('') + '</div>' +
+    '<label class="fv-et">Etapa <select data-fv="et">' + E_().etapas.map(function(x){ return '<option value="' + x.id + '"' + (x.id === S.et ? ' selected' : '') + '>' + esc(x.n) + ' · ' + esc(x.edad) + '</option>'; }).join('') + '</select></label>' +
+    '<button type="button" class="fv-b" data-fv="cargar">↺ Volver a la fórmula verificada</button></div>' +
+    '<div class="fv-tanda">Tanda: <input type="number" min="1" step="1" value="' + S.tanda + '" data-fv="tanda"> <select data-fv="unidad"><option value="kg"' + (S.unidad === 'kg' ? ' selected' : '') + '>kg</option><option value="qq"' + (S.unidad === 'qq' ? ' selected' : '') + '>quintales (100 lb)</option></select>' +
+      ' <span>= ' + n(kgT, 1) + ' kg · ' + n(kgT * LB, 1) + ' lb</span></div>' +
+    '<div class="fv-scroll"><table class="fv-t"><thead><tr><th>Ingrediente</th><th>%</th><th>kg</th><th>lb</th><th>RD$/kg ✎</th><th>RD$ en la tanda</th></tr></thead><tbody>' + filas +
+      '<tr class="fv-tot"><td>Total</td><td><b>' + n(p.suma) + ' %</b></td><td>' + n(p.suma / 100 * kgT) + '</td><td>' + n(p.suma / 100 * kgT * LB) + '</td><td></td><td><b>' + n(p.costo * kgT) + '</b></td></tr></tbody></table></div>' +
+    '<p class="fv-chico">✎ Los precios iniciales son <b>ilustrativos para practicar</b>, no precios de mercado. Escriba los de su suplidor y anote la fecha.</p>' +
+    '<div class="fv-costos"><div><span>RD$ por kg</span><b>' + n(costoKg) + '</b></div><div><span>RD$ por libra</span><b>' + n(costoKg / LB) + '</b></div><div><span>RD$ por quintal</span><b>' + n(costoKg * QQ) + '</b></div></div>' +
+    nut +
+    (cuadra ? '<p class="fv-chico">Este cálculo usa valores <b>de tabla</b>: el maíz o la soya que usted compra pueden traer más o menos. Que la mezcla cumpla aquí no garantiza el resultado en la granja; para fabricar a escala, analice sus materias primas o use un formulador profesional. Vitaminas y minerales traza no se calculan: los pone la premezcla.</p>' : '') +
+    (av.length ? '<div class="fv-avisos">' + av.map(function(a){ return '<div>⚠ ' + a + '</div>'; }).join('') + '</div>' : (cuadra ? '<div class="fv-avisos fv-okc">✓ Con estos datos de tabla, la mezcla cumple las metas que se revisan aquí para «' + esc(et.n) + '». Ahora pruebe: ¿puede bajar el costo sin salirse de las metas?</div>' : '')) +
+    comp + '</div>';
+}
+
+function pinta(box){ box.innerHTML = html(); }
+function engancha(box){
+  if(box.dataset.fvOk) return; box.dataset.fvOk = '1';
+  if(!especies().length){ box.innerHTML = '<p>El simulador no encontró los datos de las fórmulas.</p>'; return; }
+  nuevo(especies()[0].id);
+  pinta(box);
+  box.addEventListener('click', function(e){
+    var b = e.target.closest('[data-fv]'); if(!b) return;
+    if(b.dataset.fv === 'esp'){ nuevo(b.dataset.k); pinta(box); }
+    if(b.dataset.fv === 'cargar'){ var et = S.et; nuevo(S.esp, et); pinta(box); }
+  });
+  box.addEventListener('change', function(e){
+    var t = e.target, a = t.dataset.fv; if(!a) return;
+    if(a === 'et'){ nuevo(S.esp, t.value); pinta(box); return; }
+    if(a === 'unidad'){ S.unidad = t.value; pinta(box); return; }
+    actualiza(t, a); pinta(box);
+    var otro = box.querySelector('[data-fv="' + a + '"][data-k="' + (t.dataset.k || '') + '"]'); if(otro && a !== 'tanda') try{ otro.focus(); }catch(x){}
+  });
+}
+function actualiza(t, a){
+  var v = t.value === '' ? '' : Math.max(0, parseFloat(t.value) || 0);
+  if(a === 'pct') S.f[t.dataset.k] = v === '' ? 0 : Math.min(100, v);
+  if(a === 'precio') S.precios[t.dataset.k] = v === '' ? 0 : v;
+  if(a === 'tanda') S.tanda = Math.max(1, v || 1);
+  if(a === 'comp') S.comp[t.dataset.k] = v;
+}
+setInterval(function(){ document.querySelectorAll('.fv-caja:not([data-fv-ok])').forEach(engancha); }, 500);
+
+/* ---------- dentro del curso: módulos 4 (biblioteca) y 9 (formulación económica) ---------- */
+function agrega(){
+  if(typeof NXMOD === 'undefined') return false;
+  [[3, 'Simulador de fórmulas: cerdos, pollos y ponedoras'], [8, 'Simulador: baje el costo sin salirse de la meta']].forEach(function(x){
+    var m = NXMOD[x[0]]; if(!m || !m.sec || m.sec.some(function(s){ return s.fv === true; })) return;
+    var at = m.sec.findIndex(function(s){ return s.k === 'simulador' || s.k === 'biblioteca' || s.k === 'sustituciones'; });
+    var sec = {k:'agmix', fv:true, t:'🧪 ' + x[1], partes:[{k:'html', h:
+      '<p class="fv-intro">Elija la especie y la etapa: se carga la fórmula educativa verificada contra su referencia técnica. Cambie porcentajes y precios y mire qué pasa con el costo y con las metas.</p><div class="fv-caja"></div>'}]};
+    m.sec.splice(at >= 0 ? at + 1 : m.sec.length, 0, sec);
+  });
+  return true;
+}
+(function intenta(i){ if(!agrega() && i < 40) setTimeout(function(){ intenta(i + 1); }, 250); })(0);
+
+var css = `
+.fv-sim{font-size:16px;line-height:1.5;color:inherit}
+.fv-cab{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px}
+.fv-esp{display:flex;flex-wrap:wrap;gap:6px}
+.fv-esp button,.fv-b{min-height:44px;padding:8px 14px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;color:inherit;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.35)}
+.fv-esp button.on{color:#fff;background:#0F766E;border-color:#0F766E}
+.fv-et{display:flex;gap:8px;align-items:center;font-weight:700}
+.fv-et select,.fv-tanda select,.fv-tanda input{min-height:44px;padding:6px 10px;border-radius:10px;font:inherit;color:inherit;background:rgba(127,127,127,.06);border:1px solid rgba(127,127,127,.35);max-width:100%}
+.fv-tanda{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;font-weight:700}.fv-tanda input{width:110px}.fv-tanda span{font-weight:500;opacity:.8}
+.fv-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid rgba(127,127,127,.25)}
+.fv-t{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
+.fv-t.fv-nut{min-width:0;table-layout:auto}.fv-t.fv-nut th,.fv-t.fv-nut td{white-space:normal;padding:7px 6px}.fv-t.fv-nut td:last-child{white-space:nowrap}
+.fv-t th,.fv-t td{padding:7px 9px;border-bottom:1px solid rgba(127,127,127,.18);text-align:right;white-space:nowrap}
+.fv-t th:first-child,.fv-t td:first-child{text-align:left;white-space:normal}
+.fv-t th{font-size:13px;text-transform:uppercase;letter-spacing:.04em;opacity:.8}
+.fv-t input{width:84px;min-height:38px;padding:4px 6px;border-radius:8px;text-align:right;font:inherit;color:inherit;background:rgba(127,127,127,.06);border:1px solid rgba(127,127,127,.35)}
+.fv-tot td{font-weight:800;border-bottom:0}
+.fv-nut{min-width:0;margin-top:12px}
+.fv-nut tr.fv-ok td:last-child{color:#15803D;font-weight:800}.fv-nut tr.fv-bajo td:last-child{color:#B91C1C;font-weight:800}.fv-nut tr.fv-alto td:last-child{color:#B45309;font-weight:800}
+.fv-costos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.fv-costos div,.fv-res div{padding:10px 12px;border-radius:12px;background:rgba(15,118,110,.08);border:1px solid rgba(15,118,110,.3)}
+.fv-costos span,.fv-res span{display:block;font-size:13px;opacity:.8}.fv-costos b,.fv-res b{font-size:20px}
+.fv-res em{display:block;font-style:normal;font-size:13px;opacity:.75}
+.fv-alto{margin:12px 0;padding:12px 14px;border-radius:12px;background:rgba(185,28,28,.08);border:1px solid rgba(185,28,28,.4)}
+.fv-avisos{margin:12px 0;display:grid;gap:6px}.fv-avisos div{padding:10px 12px;border-radius:12px;background:rgba(180,83,9,.08);border:1px solid rgba(180,83,9,.35)}
+.fv-avisos.fv-okc{padding:10px 12px;border-radius:12px;background:rgba(21,128,61,.08);border:1px solid rgba(21,128,61,.35)}
+.fv-chico{font-size:14px;opacity:.85;margin:6px 0}
+.fv-comp{margin-top:18px;padding:14px;border-radius:16px;border:1px dashed rgba(127,127,127,.45)}
+.fv-comp h4{margin:0 0 4px;font-size:18px}
+.fv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:10px 0}
+.fv-grid label{display:grid;gap:4px;font-size:14px;font-weight:600}
+.fv-grid input{min-height:44px;padding:6px 10px;border-radius:10px;font:inherit;color:inherit;background:rgba(127,127,127,.06);border:1px solid rgba(127,127,127,.35)}
+.fv-res{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.fv-res .fv-gana{background:rgba(21,128,61,.12);border-color:rgba(21,128,61,.45)}.fv-res .fv-pierde{background:rgba(185,28,28,.1);border-color:rgba(185,28,28,.4)}
+@media(max-width:640px){.fv-costos{grid-template-columns:1fr 1fr 1fr}.fv-costos b{font-size:16px}.fv-et{width:100%;flex-wrap:wrap}.fv-et select{flex:1 1 100%;width:100%;min-width:0}}
+.fv-et select{min-width:0;text-overflow:ellipsis}
+`;
+var st = document.createElement('style'); st.id = 'fvSimCss'; st.textContent = css; document.head.appendChild(st);
+})();
+
+
+/* ---------- fv-sinfuentes.js ---------- */
+/* FORMULACIÓN V2 · sin fuentes visibles (pedido del usuario, 2026-11-13). Va después de todas las piezas fv-* de
+   contenido y antes de fv-pulido.
+   · Quita de los 20 módulos la sección «Fuentes» (bibliografía y créditos).
+   · Limpia de los textos las citas que queden: frases «Fuente: …», y los paréntesis de referencia.
+   · Se queda el nombre de la línea genética cuando dice a qué aves aplican los números (programa Ross, guía Hy-Line Brown)
+     y los avisos de «precios de práctica» y «ejemplo ilustrativo», que no son fuentes sino advertencias.
+   Las referencias técnicas siguen guardadas fuera de la vista, en Curso-Nutricion-Porcina/referencias/ y FORMULACION-V2.md. */
+(function(){
+if(typeof NXMOD === 'undefined') return;
+var REGLAS = [
+  [/\s*<p[^>]*>\s*(?:<b>)?Fuentes?:(?:<\/b>)?[^<]*<\/p>/gi, ''],
+  [/(^|[\s>])Fuentes?:\s[^.<]*\.(\s|$|<)/g, '$1$3'],
+  [/\s*\((?:seg[uú]n\s+)?(?:NRC 2012|Ross 2022|Hy-Line Brown 2018|Aviagen|Feedstuffs[^)]*|KSU|National Swine Nutrition Guide)\)/g, ''],
+  [/\s*\(foto:[^)]*\)/gi, '']
+];
+function limpia(t){ for(var i = 0; i < REGLAS.length; i++) t = t.replace(REGLAS[i][0], REGLAS[i][1]); return t; }
+function recorre(o, prof){
+  if(!o || typeof o !== 'object' || prof > 6) return;
+  Object.keys(o).forEach(function(k){
+    var d = Object.getOwnPropertyDescriptor(o, k); if(!d || d.get) return;        /* los gráficos de costo se calculan al pintar: no llevan fuentes */
+    var v = o[k];
+    if(typeof v === 'string'){ if(v.length > 8 && /Fuente|NRC 2012|Ross 2022|Hy-Line Brown 2018|Aviagen|Feedstuffs|KSU|National Swine|\(foto:/.test(v)){ var n = limpia(v); if(n !== v) o[k] = n; } }
+    else if(typeof v === 'object') recorre(v, prof + 1);
+  });
+}
+NXMOD.forEach(function(m){
+  if(!m || !m.sec) return;
+  for(var i = m.sec.length - 1; i >= 0; i--){ if(m.sec[i] && m.sec[i].k === 'fuentes') m.sec.splice(i, 1); }
+  m.sec.forEach(function(s){ recorre(s, 0); });
+});
+/* por si alguna capa vuelve a pintar un bloque de fuentes en este curso */
+var st = document.createElement('style'); st.textContent = '#nxMain .nx-fuentes,#nxMain .nx-src,#nxMain [class*="fuentes"]{display:none!important}';
+document.head.appendChild(st);
+})();
+
+
+/* ---------- fv-pulido.js ---------- */
+/* FORMULACIÓN V2 · pulido de pantalla (2026-11-12). Va de último entre las piezas fv-*.
+   Solo presentación, limitada a este curso (#nxOv); no cambia contenido ni reglas.
+   1. Celular: las calculadoras y tablas no se salen del ancho.
+   2. Homologación con Porcicultura en el celular (comparado con capturas el 2026-11-12):
+      · los botones de vista (📖 🎯 ⛶ 🌙) van ARRIBA, no flotando sobre la barra de avance;
+      · «Anterior» y «Continuar» van lado a lado y grandes; el avance «Sección X de Y» va encima.
+   3. El botón «Continuar» y la barra de avance toman el color de la ruta del módulo
+      (Fundamentos, Cerdos, Pollos o Ponedoras), como en Porcicultura toman el color del módulo. */
+(function(){
+var st = document.createElement('style'); st.textContent =
+  '#nxOv .nx-lnav .nx-lb{min-height:48px;padding:0 20px;font-size:15px;font-weight:700;border-radius:12px}' +
+  '#nxOv .nx-lnav .nx-lb.on{background:var(--fvc,#2F7D4F);border-color:var(--fvc,#2F7D4F);color:#fff;box-shadow:0 12px 24px -14px var(--fvc,#2F7D4F)}' +
+  '#nxOv .nx-lnav #nxLi{background:var(--fvc,#2F7D4F)}' +
+  '@media(max-width:820px){' +
+  '#nxOv .nx-ctl{top:10px;bottom:auto;right:10px;gap:6px}' +
+  '#nxOv .nx-lnav{flex-wrap:wrap;gap:10px 12px;padding:12px 0 14px}' +
+  '#nxOv .nx-lnav .nx-lp{order:-1;flex:1 1 100%;min-width:0}' +
+  '#nxOv .nx-lnav .nx-lb{flex:1 1 0;min-width:0;min-height:52px;padding:0 12px;font-size:15.5px}' +
+  '#nxOv .nx-lnav .nx-lb.on{flex:1.5 1 0}' +
+  '}' +
+  '@media(max-width:640px){' +
+  '#nxMain .nx-calc{grid-template-columns:minmax(0,1fr)!important}' +
+  '#nxMain .nx-calc>*{min-width:0;max-width:100%}' +
+  '#nxMain .nx-calc-in{min-width:0;max-width:100%;box-sizing:border-box}' +
+  '#nxMain .nx-calc-in>label,#nxMain .nx-calc-in>label small{overflow-wrap:anywhere;white-space:normal}' +
+  '#nxMain .nx-calc-in input,#nxMain .nx-calc-in select{max-width:100%;min-width:0;box-sizing:border-box}' +
+  '}';
+document.head.appendChild(st);
+
+/* color de la ruta del módulo abierto (solo lee NXCUR y FVRUTAS) */
+var visto = -1;
+function color(){
+  try{
+    var ov = document.getElementById('nxOv'); if(!ov || typeof NXCUR === 'undefined') return;
+    if(NXCUR === visto) return; visto = NXCUR;
+    var c = '';
+    (window.FVRUTAS || []).forEach(function(r){ if(r.m.indexOf(NXCUR) >= 0) c = r.c; });
+    if(c) ov.style.setProperty('--fvc', c); else ov.style.removeProperty('--fvc');
+  }catch(e){}
+}
+/* menú de módulos en el celular: la barra lateral (módulos, «Mis cursos», cerrar sesión) quedaba fuera de
+   pantalla sin ningún botón que la abriera. Mismo gesto que Porcicultura: «☰ Módulos» arriba a la izquierda. */
+function menu(){
+  try{
+    var ov = document.getElementById('nxOv'); if(!ov) return;
+    var lado = ov.querySelector('.nx-side'); if(!lado) return;
+    if(ov.querySelector('#fvMenu')) return;
+    var b = document.createElement('button'); b.id = 'fvMenu'; b.type = 'button'; b.className = 'fv-menu';
+    b.setAttribute('aria-label', 'Abrir la lista de módulos'); b.innerHTML = '<span aria-hidden="true">☰</span> Módulos';
+    var velo = document.createElement('div'); velo.id = 'fvVelo'; velo.className = 'fv-velo';
+    function cierra(){ var l = ov.querySelector('.nx-side'); if(l) l.classList.remove('open'); velo.classList.remove('on'); }
+    b.onclick = function(){ var l = ov.querySelector('.nx-side'); if(!l) return; var ab = l.classList.toggle('open'); velo.classList.toggle('on', ab); };
+    velo.onclick = cierra;
+    ov.addEventListener('click', function(e){ var l = ov.querySelector('.nx-side'); if(l && l.classList.contains('open') && l.contains(e.target) && e.target.closest('button, a')) setTimeout(cierra, 60); }, true);   /* en captura: el clic vuelve a dibujar la lista y el botón ya no estaría dentro */
+    ov.appendChild(velo); ov.appendChild(b);
+  }catch(e){}
+}
+var stm = document.createElement('style'); stm.textContent =
+  '.fv-menu,.fv-velo{display:none}' +
+  '@media(max-width:820px){' +
+  '#nxOv .fv-menu{display:inline-flex;align-items:center;gap:8px;position:fixed;top:10px;left:10px;z-index:21;min-height:40px;padding:0 14px;border:0;border-radius:12px;' +
+    'background:#0F172A;color:#fff;font:800 12.5px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 8px 20px -10px rgba(0,0,0,.6);cursor:pointer}' +
+  '#nxOv .fv-menu span{font-size:17px;letter-spacing:0}' +
+  '#nxOv .nx-side{z-index:40;box-shadow:0 0 60px rgba(0,0,0,.5)}' +
+  '#nxOv .fv-velo.on{display:block;position:fixed;inset:0;z-index:39;background:rgba(0,0,0,.45)}' +
+  '#nxOv.enfoque .fv-menu{display:none}' +
+  /* franja superior: el contenido empieza debajo de «☰ Módulos» y de los botones de vista */
+  '#nxOv #nxMain::before{content:"";display:block;position:sticky;top:0;height:58px;background:inherit;z-index:18;border-bottom:1px solid rgba(127,127,127,.18)}' +
+  '}';
+document.head.appendChild(stm);
+setInterval(function(){ color(); menu(); }, 600);
+})();
+
+
 /* ---------- pv-cursos.js ---------- */
 /* ============================================================
    AGROACADEMY · EXPERIENCIA V2 PARA LOS DEMÁS CURSOS (2026-10-31)
@@ -106876,6 +108497,7 @@ Object.keys(VIDEOS).forEach(function(n){
 })();
 
 
+
 /* ---------- pv-orienta.js ---------- */
 /* ============================================================
    🧭 ORIENTACIÓN · LO QUE ELIGIÓ CADA ESTUDIANTE (2026-11-02)
@@ -107537,6 +109159,10 @@ function foto(id){ var f = AGFOTOCURSO[id]; return f ? (Array.isArray(f) ? f : [
 function sigModulo(id){
   try{
     var C = COURSES[id], u = uid(), L = C.modules() || [];
+    if(typeof C.sig === 'function'){                 /* cursos con rutas (Formulación): lo decide el curso */
+      var s = C.sig(u), m = L.filter(function(x){ return x.n === s; })[0];
+      return m ? {n:m.n, num:m.num || m.n, t:m.title || '', i:Math.min((C.count(u) || 0) + 1, C.n), de:C.n} : null;
+    }
     for(var i = 0; i < L.length; i++) if(!C.passed(u, L[i].n)) return {n:L[i].n, num:L[i].num || L[i].n, t:L[i].title || '', i:i + 1, de:L.length};
   }catch(e){}
   return null;
@@ -107721,6 +109347,7 @@ function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(
 function uid(){ try{ return SESSION && SESSION.role === 'STUDENT' ? SESSION.id : ''; }catch(e){ return ''; } }
 function cuenta(id){ try{ return COURSES[id].count(uid()) || 0; }catch(e){ return 0; } }
 function sig(id){
+  try{ var C0 = COURSES[id]; if(typeof C0.sig === 'function'){ var s = C0.sig(uid()), M = (C0.modules() || []).filter(function(x){ return x.n === s; })[0]; return M ? {n:M.n, i:M.n, t:M.title || ''} : null; } }catch(e){}
   try{ var C = COURSES[id], L = C.modules() || []; for(var i = 0; i < L.length; i++) if(!C.passed(uid(), L[i].n)) return {n:L[i].n, i:i + 1, t:L[i].title || ''}; }catch(e){}
   return null;
 }
@@ -107976,6 +109603,36 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
