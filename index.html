@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-13b · Formulación V2: «Continuar» avanza por pantallas (no se quedaba en la primera) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-13c · Formulación independiente de Porcicultura: 9 fotos compartidas → fotos propias; un solo objetivo por módulo; verificar-independencia.mjs -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -106092,6 +106092,9 @@ document.head.appendChild(st);
      (Pexels, licencia Pexels). fv-wm-*: Wikimedia Commons (créditos en
      las fuentes del módulo donde se usan). Ninguna se presenta como
      dominicana si no lo es.
+   · INDEPENDENCIA (2026-11-13): ninguna foto de este curso sale en el curso de Porcicultura.
+     Las 9 que se compartían (pv-*, pv3-*) se cambiaron por fotos de Pexels exclusivas (fv-p-*).
+     Lo comprueba Curso-Porcicultura-RD/marketing/verificar-independencia.mjs.
    ============================================================ */
 (function(){
 if(typeof NXFOTO === 'undefined' || typeof NXFONDOS === 'undefined') return;
@@ -106114,10 +106117,10 @@ Object.keys(P).forEach(function(k){
 });
 /* fondos repetidos entre módulos 1–10 → fotos nuevas */
 var CAMBIO = {
-  4:['nutri-b-textura-grano', 'pv3-36021104'],
+  4:['nutri-b-textura-grano', 'fv-p-209389'],
   5:['nutri-b-lechones-paja', 'grhd-lechones-nave'],
   6:['nutri-m03-cerdos-crecimiento', 'eg-u-comedero-lineal'],
-  8:['nutri-b-grano-secando', 'pv3-13830911'],
+  8:['nutri-b-grano-secando', 'fv-p-18053128'],
   9:['nutri-b-textura-grano', 'pv3-30204262'],
   10:['nutri-b-cerdos-comedero', 'eg-m8-lote']
 };
@@ -106168,11 +106171,11 @@ var PIE = {
   'nutri-s01-numeros':'Las cuentas: sin números no hay fórmula.', 'nutri-b-textura-grano':'El grano molido: la textura cambia la digestión.',
   'nutri-s02-recibo-maiz':'Recibir el maíz: aquí empieza la calidad.', 'nutri-b-grano-secando':'Grano secando: la humedad decide si se guarda.',
   'nutri-s03-cerdo-retrato':'Cada etapa pide una dieta distinta.', 'nutri-b-lechones-paja':'Lechones: la etapa más delicada.',
-  'eg-n-comedero-auto':'Comedero automático: alimento parejo y sin desperdicio.', 'pv3-36021104':'Maíz en grano: la base de energía de casi todas las fórmulas.',
+  'eg-n-comedero-auto':'Comedero automático: alimento parejo y sin desperdicio.', 'fv-p-209389':'Maíz en grano y en mazorca: la base de energía de casi todas las fórmulas.',
   'nutri-s05-lechones-granjero':'El lechón destetado necesita ingredientes que pueda digerir.', 'grhd-lechones-nave':'Lechones en la nave de precebo.',
   'nutri-b-cerdos-comedero':'En engorde se va la mayor parte del alimento.', 'eg-u-comedero-lineal':'Comedero lineal en engorde.',
   'nutri-s07-silos':'Silos: guardar bien es parte de fabricar.', 'nutri-b-granjero-molino':'Molienda en la granja.',
-  'nutri-s08-costo-numeros':'El costo por kilo manda.', 'pv3-13830911':'Sacos estibados: el inventario también es dinero.',
+  'nutri-s08-costo-numeros':'El costo por kilo manda.', 'fv-p-18053128':'Sacos estibados en el almacén: el inventario también es dinero.',
   'eg-u-tolva-piso':'Cerdos en la tolva: cada cambio de fórmula se nota aquí.', 'pv3-30204262':'Maíz partido: cambiar un ingrediente cambia el costo y lo que aporta.',
   'eg-m8-lote':'El lote se mide: peso, alimento y muertes.', 'gp-p-5717760':'Los registros se convierten en decisiones.',
   'fv-wm-galpon-ponedoras':'Galpón de ponedoras.'
@@ -106188,10 +106191,10 @@ var MAS = {
      ['pv-comedero', 'Cerdos en el comedero: lo que comen debe cubrir lo que necesitan.'], ['fv-p-2255459', 'Gallinas ponedoras: su alimento no se formula como el del pollo ni como el del cerdo.']],
   2:[['pv-maiz', 'Maíz en la mano: mire, huela y toque antes de recibir.'], ['fv-p-273838', 'Soya en grano. Al alimento llega como harina, ya procesada.'], ['fv-p-36893984', 'Cultivo de soya.'],
      ['fv-p-37014729', 'Melaza: pida su análisis antes de formular con ella.'], ['fv-p-9622985', 'Corte de caña: de la caña sale la melaza.'], ['fv-p-39382207', 'Caña cortada, lista para el ingenio.'],
-     ['fv-p-40308406', 'Mazorcas secándose: el grano se guarda seco.'], ['fv-p-27420254', 'Descarga de grano en plena cosecha.'], ['pv3-33501330', 'Grano en saco abierto: revise olor, color y humedad.']],
-  3:[['rp-b-lechon', 'El lechón: la etapa de mayor exigencia por kilo de alimento.'], ['pv-destete', 'Cerdos recién destetados.'], ['m7-corral-engorde', 'Cerdos en crecimiento.'],
-     ['pv-engorde', 'Cerdos de engorde: comen más, pero piden menos concentración.'], ['m3-cerda-gestacion', 'Cerda gestante.'], ['lc-cerda-mamando', 'Cerda lactante con su camada.'], ['m3-verraco', 'Verraco.']],
-  4:[['pv-bascula', 'Báscula de reloj: cada ingrediente se pesa.'], ['fv-p-32777400', 'La lectura de la báscula es parte de la fórmula.'], ['eg-m4-comedero-tubo', 'Comedero de tubo con alimento en harina.'], ['pv3-7782871', 'Alimento en harina dentro de un tanque.']],
+     ['fv-p-40308406', 'Mazorcas secándose: el grano se guarda seco.'], ['fv-p-27420254', 'Descarga de grano en plena cosecha.'], ['fv-p-38453521', 'Grano en saco abierto: revise olor, color y humedad.']],
+  3:[['rp-b-lechon', 'El lechón: la etapa de mayor exigencia por kilo de alimento.'], ['m7-corral-engorde', 'Cerdos en crecimiento.'],
+     ['fv-p-26841069', 'Cerdos de engorde en el corral: comen más, pero piden menos concentración.'], ['m3-cerda-gestacion', 'Cerda gestante.'], ['lc-cerda-mamando', 'Cerda lactante con su camada.'], ['m3-verraco', 'Verraco.']],
+  4:[['fv-p-11666809', 'Báscula de reloj: cada ingrediente se pesa.'], ['fv-p-32777400', 'La lectura de la báscula es parte de la fórmula.'], ['eg-m4-comedero-tubo', 'Comedero de tubo con alimento en harina.'], ['pv3-7782871', 'Alimento en harina dentro de un tanque.']],
   5:[['pv-lechones', 'Lechones mamando: la leche es su primer alimento.'], ['m4-alimento-solido-paridera', 'Lechones probando alimento sólido en la paridera.'], ['m7-corral-destete', 'Corral de destete.'],
      ['grhd-paja', 'Lechones destetados sobre cama de paja.'], ['grhd-lechon', 'Lechón destetado.']],
   6:[['eg-u-tolva', 'Cerdos de engorde junto a la tolva.'], ['eg-l-lote-comedero', 'El lote en el comedero.'], ['m5-comedero', 'Cerdos en un comedero de tolva.'], ['grhd-corrales', 'Nave de engorde.']],
@@ -106199,9 +106202,9 @@ var MAS = {
      ['fv-p-30580656', 'Muestras molidas: la textura debe quedar pareja.'], ['fv-p-6877551', 'Desgranadora y maíz secándose al sol.'], ['fv-p-8549214', 'Sacos estibados en un almacén.'],
      ['fv-p-6867424', 'Sinfín cargando grano.'], ['pv3-13870874', 'Estibar los sacos bajo techo.'], ['fv-p-18510516', 'Termómetro en la pared: el calor y la humedad dañan lo que se guarda.']],
   8:[['fv-p-11629496', 'Camión cargado de sacos: el transporte también es costo.'], ['fv-p-6532528', 'Anotar cada compra con su precio y su fecha.'], ['fv-p-40958790', 'Granos en sacos en un almacén.'],
-     ['pv3-4820682', 'Compra de sacos en un almacén.'], ['fv-p-2714630', 'Silos junto a un maizal.']],
+     ['fv-p-2827121', 'Sacos amarrados: lo que se compra se cuenta y se guarda.'], ['fv-p-2714630', 'Silos junto a un maizal.']],
   9:[['fv-p-2257290', 'Grano al camión en la cosecha: el precio cambia con la temporada.'], ['fv-p-13580927', 'Silos de una finca.'], ['fv-p-6237967', 'Hacer la cuenta antes de cambiar un ingrediente.'],
-     ['pv3-6120446', 'Almacén de materias primas.'], ['pv3-12338945', 'Granos de soya.']],
+     ['fv-p-32851822', 'Almacén de granos: las materias primas también se cuidan.'], ['fv-p-4518589', 'Granos de soya.']],
   10:[['eg-m6-bascula', 'Báscula colgante: sin peso no hay conversión.'], ['fv-p-37860169', 'El registro del lote: peso, alimento y muertes.'], ['eg-m9-silos', 'Granja con silos de alimento.'],
       ['m2-bebedero-automatico', 'El agua también cuenta: sin agua baja el consumo.'], ['eg-n-naves-silos', 'Naves de engorde con sus silos.']],
   11:[['fv-p-12995534', 'Pollos de engorde con comederos y bebederos colgantes.'], ['fv-p-17765441', 'Galpón de pollos de engorde.'], ['fv-p-12995533', 'Pollitos bajo las criadoras.'], ['fv-p-25308582', 'Ventiladores: con calor el ave come menos.']],
@@ -106233,8 +106236,8 @@ function galeria(titulo, intro, fotos, nota){
 var NOTA_FOTOS = 'Fotos de referencia: muestran la etapa o la tarea; no son de una granja dominicana en particular.';
 var GAL = [
   [3, /cu[aá]ndo cambia/i, galeria('📷 El cerdo en cada etapa', 'Cada foto es una dieta distinta de la Biblioteca del módulo 4.', [
-    ['rp-b-lechon', 'Lechón', 'Preiniciador e iniciador: lo más concentrado y digestible.'], ['pv-destete', 'Destete', 'El cambio más delicado de toda su vida.'],
-    ['m7-corral-engorde', 'Crecimiento', 'Sube el consumo; baja la concentración.'], ['pv-engorde', 'Engorde y finalización', 'La fase donde se gasta más alimento.'],
+    ['rp-b-lechon', 'Lechón y destete', 'Preiniciador e iniciador: lo más concentrado y digestible. El destete es el cambio más delicado de toda su vida.'],
+    ['m7-corral-engorde', 'Crecimiento', 'Sube el consumo; baja la concentración.'], ['fv-p-26841069', 'Engorde y finalización', 'La fase donde se gasta más alimento.'],
     ['m3-cerda-gestacion', 'Gestación', 'Más fibra, menos energía: que no engorde de más.'], ['lc-cerda-mamando', 'Lactancia', 'La dieta más exigente de la cerda: produce leche para la camada.']], NOTA_FOTOS)],
   [7, /Demostraci[oó]n en papel/i, galeria('📷 Las estaciones del proceso, en fotos', 'Seis momentos en los que se gana o se pierde la calidad del alimento.', [
     ['fv-p-6867424', '1 · Recepción', 'El grano se revisa al llegar, antes de descargar.'], ['fv-p-8549214', '2 · Almacenamiento', 'Sacos estibados y bajo techo.'],
@@ -107114,6 +107117,41 @@ NXMOD.forEach(function(m){
 });
 /* por si alguna capa vuelve a pintar un bloque de fuentes en este curso */
 var st = document.createElement('style'); st.textContent = '#nxMain .nx-fuentes,#nxMain .nx-src,#nxMain [class*="fuentes"]{display:none!important}';
+document.head.appendChild(st);
+})();
+
+
+/* ---------- fv-objetivo.js ---------- */
+/* FORMULACIÓN V2 · UN SOLO OBJETIVO POR MÓDULO (2026-11-13)
+   Cada módulo mostraba el objetivo dos veces: la caja «Al terminar este módulo usted podrá»
+   (m.obj) y, debajo, la sección «🎯 Lo que va a poder hacer» que agregó V2.
+   · El resumen de la sección 🎯 pasa a ser el PRIMER punto de la caja: no se pierde nada.
+   · La sección 🎯 se queda EN SU LUGAR, vacía y oculta. No se quita del arreglo a propósito:
+     el editor del panel guarda los cambios por número de sección (AGED.sec.nutricion[n][i]),
+     y quitarla correría la numeración de todo lo que viene después.
+   Va después de todas las piezas fv-* que usan 🎯 como ancla (videos, gráficos) y antes de fv-pulido. */
+(function(){
+if(typeof NXMOD === 'undefined') return;
+function texto(s){
+  var h = (s.partes || []).map(function(p){ return p && p.h ? p.h : ''; }).join(' ');
+  return h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+NXMOD.forEach(function(m){
+  if(!m || !m.sec || !Array.isArray(m.obj)) return;
+  m.sec.forEach(function(s){
+    if(!s || s.fvObj || String(s.t || '').indexOf('🎯') !== 0) return;
+    var t = texto(s).replace(/^Al terminar(?: este m[oó]dulo)?(?: usted)? podr[aá]\s+/i, '');
+    if(t){
+      t = t.charAt(0).toUpperCase() + t.slice(1);
+      if(m.obj.indexOf(t) < 0) m.obj.unshift(t);
+    }
+    s.fvObj = true;
+    s.t = '';
+    s.partes = [{k:'html', h:'<i class="fv-obj-fundido" hidden></i>'}];
+  });
+});
+var st = document.createElement('style');
+st.textContent = '#nxMain section.nx-b:has(.fv-obj-fundido){display:none!important}';
 document.head.appendChild(st);
 })();
 
@@ -109607,6 +109645,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
