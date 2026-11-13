@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-13a · Formulación V2: 20 módulos (Fundamentos + rutas Cerdos, Pollos y Ponedoras), simulador, 23 fórmulas, 8 Excel y 163 fotos; videos fv-* pendientes de render -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-13b · Formulación V2: «Continuar» avanza por pantallas (no se quedaba en la primera) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -106667,8 +106667,12 @@ function engancha(){
   /* pasar de página en el borde: seguir la ruta, no el número */
   window.nxPagina = function(d){
     var wrap = document.querySelector('#nxMain .nx-wrap'); if(!wrap) return;
-    var total = wrap.querySelectorAll('section.nx-b').length, nuevo = NXPAG + d;
-    if(nuevo >= 0 && nuevo < total){ nxMostrarSeccion(nuevo); return; }
+    /* Con el paginador por grupos (ag-*), una pantalla junta varias secciones y NXPAG es el
+       número de PANTALLA, no de sección: se cuenta en pantallas y se pasa con agMuestra.
+       (Antes se contaba en secciones y «Continuar» se quedaba en la primera pantalla.) 2026-11-13 */
+    var grupos = typeof window.agGrupoDe === 'function' && typeof window.agMuestra === 'function';
+    var total = grupos ? agGrupoDe('nutricion', 1e6) + 1 : wrap.querySelectorAll('section.nx-b').length, nuevo = NXPAG + d;
+    if(nuevo >= 0 && nuevo < total){ if(grupos) agMuestra('nutricion', nuevo); else nxMostrarSeccion(nuevo); return; }
     var r = rutaDe(NXCUR); if(!r){ if(nuevo < 0 && NXCUR > 1) nxIr(NXCUR - 1); return; }
     var i = r.m.indexOf(NXCUR);
     if(nuevo < 0){ if(i > 0) nxIr(r.m[i - 1]); else if(r.id !== 'fund') nxIr(RUTAS[0].m[RUTAS[0].m.length - 1]); return; }
@@ -109603,6 +109607,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
