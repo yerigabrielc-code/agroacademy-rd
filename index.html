@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-13g · Formulación: auditoría de calidad (sin parpadeo ni pantallas vacías, letra y contraste, glosario propio, Fundamentos para 3 especies, repetidos fundidos, exámenes equilibrados, sin YouTube, vista previa sin rastro) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-14a · teclado: las flechas ya no mueven el curso base cuando hay otro curso abierto encima (aparecía la cortina «Introducción a la porcicultura» sobre Formulación) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -104863,6 +104863,49 @@ window.pvActivo = function(){ return !!document.querySelector('#main .pv-mod'); 
 })();
 
 
+/* ---------- pv-teclado.js ---------- */
+/* ============================================================
+   TECLADO · LAS FLECHAS NO MUEVEN EL CURSO DE ABAJO (2026-11-13)
+   ------------------------------------------------------------
+   El manejador de teclado del curso base (Porcicultura) responde a
+   ← y → SIEMPRE: no mira si hay otro curso abierto encima. Con
+   Formulación abierta, la flecha derecha pasaba la pantalla de
+   Formulación y, a la vez, avanzaba Porcicultura por debajo; al
+   cambiar de módulo, su cortina («MÓDULO 01 · Introducción a la
+   porcicultura…», z-index 9800) se dibujaba encima de Formulación.
+   Además le movía al estudiante su lugar en el curso base.
+
+   No se toca el curso base: mientras haya un curso abierto encima
+   y la tecla sea ← o →, las tres funciones con que el curso base
+   se mueve (goto, lessonNext, lessonPrev) no hacen nada DURANTE
+   esa pulsación. El curso de encima sigue usando su propio teclado
+   (nxPagina, agPasa…), que no pasa por esas funciones.
+   Sin curso encima, Porcicultura responde al teclado como siempre.
+   ============================================================ */
+(function(){
+var CAPAS = ['nxOv', 'rpOv', 'sbOv', 'egOv', 'rtOv', 'lcOv', 'grOv', 'gpOv', 'pbOv', 'bvOv', 'apOv', 'tlOv', 'cbOv', 'gnOv'];
+function encima(){
+  for(var i = 0; i < CAPAS.length; i++){
+    var o = document.getElementById(CAPAS[i]);
+    if(o && o.getClientRects().length && getComputedStyle(o).display !== 'none' && getComputedStyle(o).visibility !== 'hidden') return true;
+  }
+  return false;
+}
+var bloqueo = false;
+addEventListener('keydown', function(e){
+  bloqueo = (e.key === 'ArrowRight' || e.key === 'ArrowLeft') && encima();
+  if(bloqueo) setTimeout(function(){ bloqueo = false; }, 0);
+}, true);
+addEventListener('keyup', function(){ bloqueo = false; }, true);
+['goto', 'lessonNext', 'lessonPrev'].forEach(function(n){
+  var f = window[n]; if(typeof f !== 'function' || f.__pvTecla) return;
+  var g = function(){ if(bloqueo) return; return f.apply(this, arguments); };
+  g.__pvTecla = true; window[n] = g;
+});
+window.pvCursoEncima = encima;
+})();
+
+
 /* ---------- pv-admin.js ---------- */
 /* ============================================================
    PANEL DEL INSTRUCTOR · AJUSTES (2026-10-30)
@@ -110280,6 +110323,7 @@ setTimeout(function(){ revisa(document.body); }, 800);
 })();
 
 </script>
+
 
 
 
