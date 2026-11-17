@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- AgroAcademy RD 2.0 · build 2026-11-14a · teclado: las flechas ya no mueven el curso base cuando hay otro curso abierto encima (aparecía la cortina «Introducción a la porcicultura» sobre Formulación) -->
+<!-- AgroAcademy RD 2.0 · build 2026-11-17a · Formulación: 18 videos propios nuevos (los 20 módulos con video) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -106576,8 +106576,8 @@ window.AGV2LADO.nutricion = function(mod, s, main){
      un video que no tenga su .mp4, .jpg y .vtt en deploy/videos/porcicultura NO se muestra. */
 (function(){
 if(typeof NXMOD === 'undefined') return;
-var DUR = {};
-var LISTOS = [];
+var DUR = {"fv-especies":"2:22","fv-etiqueta":"2:25","fv-cambio":"2:32","fv-mezcla100":"2:18","fv-pesaje":"2:00","fv-errores":"1:56","fv-costo":"1:56","fv-comprar":"2:03","fv-pollo-fases":"2:09","fv-pollo-inicio":"2:23","fv-pollo-crec":"2:05","fv-pollo-term":"2:03","fv-pollo-conversion":"2:07","fv-pollita-peso":"1:47","fv-pollita-desarrollo":"1:49","fv-gallina-prepostura":"1:47","fv-gallina-calcio":"2:13","fv-gallina-docena":"2:08"};
+var LISTOS = ["fv-especies","fv-etiqueta","fv-cambio","fv-mezcla100","fv-pesaje","fv-errores","fv-costo","fv-comprar","fv-pollo-fases","fv-pollo-inicio","fv-pollo-crec","fv-pollo-term","fv-pollo-conversion","fv-pollita-peso","fv-pollita-desarrollo","fv-gallina-prepostura","fv-gallina-calcio","fv-gallina-docena"];
 /* módulo: [[id, título, patrón del título de la sección detrás de la cual va (opcional)]] */
 var V = {
   1: [['fv-especies', 'Cerdo, pollo y ponedora: tres dietas distintas']],
